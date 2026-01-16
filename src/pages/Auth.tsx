@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
-import { Mail, Lock, User, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { z } from 'zod';
 
 const emailSchema = z.string().email('Please enter a valid email');
@@ -21,7 +21,6 @@ export default function Auth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Redirect if already logged in
   useEffect(() => {
     if (user) {
       navigate('/');
@@ -74,91 +73,95 @@ export default function Auth() {
 
   return (
     <Layout>
-      <div className="min-h-[80vh] flex items-center justify-center py-12">
+      <div className="min-h-[80vh] flex items-center justify-center py-8">
         {/* Background effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-0 w-1/2 h-1/2 bg-primary/10 rounded-full blur-[120px]" />
-          <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-accent/10 rounded-full blur-[120px]" />
+          <div className="absolute top-1/3 -left-32 w-64 h-64 bg-primary/20 rounded-full blur-[100px]" />
+          <div className="absolute bottom-1/3 -right-32 w-64 h-64 bg-accent/20 rounded-full blur-[100px]" />
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-md mx-auto">
-            <div className="text-center mb-8">
-              <h1 className="font-display text-3xl font-bold mb-2">
-                {isSignUp ? 'Create your account' : 'Welcome back'}
+          <div className="max-w-sm mx-auto">
+            {/* Header */}
+            <div className="text-center mb-6">
+              <Link to="/" className="inline-block mb-4">
+                <span className="font-display text-2xl font-bold gradient-text">Event Pros</span>
+              </Link>
+              <h1 className="font-display text-2xl font-bold text-foreground">
+                {isSignUp ? 'Create account' : 'Welcome back'}
               </h1>
-              <p className="text-muted-foreground">
+              <p className="text-sm text-muted-foreground mt-1">
                 {isSignUp 
-                  ? 'Join Event Pros to book amazing vendors'
-                  : 'Sign in to manage your bookings and favorites'
+                  ? 'Start booking amazing vendors'
+                  : 'Sign in to continue'
                 }
               </p>
             </div>
 
-            <Card variant="glass">
-              <CardContent className="p-6">
-                <form onSubmit={handleSubmit} className="space-y-4">
+            <Card variant="glass" className="border-border/50">
+              <CardContent className="p-5">
+                <form onSubmit={handleSubmit} className="space-y-3">
                   {isSignUp && (
                     <div>
-                      <label className="block text-sm font-medium text-foreground mb-2">
+                      <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                         Full Name
                       </label>
-                      <div className="flex items-center gap-3 bg-card rounded-xl px-4 py-3 border border-border">
-                        <User className="w-5 h-5 text-muted-foreground" />
+                      <div className="flex items-center gap-2.5 bg-secondary/50 rounded-lg px-3 py-2.5 border border-border/50 focus-within:border-primary/50 transition-colors">
+                        <User className="w-4 h-4 text-muted-foreground" />
                         <input
                           type="text"
                           placeholder="Your name"
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
-                          className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+                          className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                         />
                       </div>
                     </div>
                   )}
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                       Email
                     </label>
-                    <div className="flex items-center gap-3 bg-card rounded-xl px-4 py-3 border border-border">
-                      <Mail className="w-5 h-5 text-muted-foreground" />
+                    <div className="flex items-center gap-2.5 bg-secondary/50 rounded-lg px-3 py-2.5 border border-border/50 focus-within:border-primary/50 transition-colors">
+                      <Mail className="w-4 h-4 text-muted-foreground" />
                       <input
                         type="email"
                         placeholder="you@example.com"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+                        className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                         required
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-foreground mb-2">
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">
                       Password
                     </label>
-                    <div className="flex items-center gap-3 bg-card rounded-xl px-4 py-3 border border-border">
-                      <Lock className="w-5 h-5 text-muted-foreground" />
+                    <div className="flex items-center gap-2.5 bg-secondary/50 rounded-lg px-3 py-2.5 border border-border/50 focus-within:border-primary/50 transition-colors">
+                      <Lock className="w-4 h-4 text-muted-foreground" />
                       <input
                         type={showPassword ? 'text' : 'password'}
                         placeholder="••••••••"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none"
+                        className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="text-muted-foreground hover:text-foreground"
+                        className="text-muted-foreground hover:text-foreground transition-colors"
                       >
-                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
                     </div>
                   </div>
 
                   {error && (
-                    <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+                    <div className="p-2.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs">
                       {error}
                     </div>
                   )}
@@ -166,28 +169,28 @@ export default function Auth() {
                   <Button 
                     type="submit" 
                     variant="gradient" 
-                    size="lg" 
-                    className="w-full"
+                    className="w-full mt-4 gap-2"
                     disabled={loading}
                   >
                     {loading ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : isSignUp ? (
-                      'Create Account'
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      'Sign In'
+                      <>
+                        {isSignUp ? 'Create Account' : 'Sign In'}
+                        <ArrowRight className="w-4 h-4" />
+                      </>
                     )}
                   </Button>
                 </form>
 
-                <div className="mt-6 text-center">
+                <div className="mt-4 pt-4 border-t border-border/50 text-center">
                   <button
                     type="button"
                     onClick={() => {
                       setIsSignUp(!isSignUp);
                       setError(null);
                     }}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                   >
                     {isSignUp 
                       ? 'Already have an account? Sign in'
@@ -197,6 +200,10 @@ export default function Auth() {
                 </div>
               </CardContent>
             </Card>
+
+            <p className="text-center text-xs text-muted-foreground mt-4">
+              By continuing, you agree to our Terms and Privacy Policy
+            </p>
           </div>
         </div>
       </div>

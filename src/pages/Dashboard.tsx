@@ -11,7 +11,7 @@ import { useBookings } from '@/hooks/useBookings';
 import { vendors, packages } from '@/data/vendors';
 import { 
   Calendar, MapPin, Clock, Heart, Package, 
-  User, LogOut, ChevronRight, Loader2
+  User, LogOut, ChevronRight, Loader2, Star, Search
 } from 'lucide-react';
 
 export default function Dashboard() {
@@ -30,7 +30,7 @@ export default function Dashboard() {
     return (
       <Layout>
         <div className="min-h-[60vh] flex items-center justify-center">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <Loader2 className="w-6 h-6 animate-spin text-primary" />
         </div>
       </Layout>
     );
@@ -48,61 +48,89 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="font-display text-3xl font-bold text-foreground mb-1">
-              Welcome back!
-            </h1>
-            <p className="text-muted-foreground">{user.email}</p>
+      <div className="container mx-auto px-4 py-6">
+        {/* Compact Header */}
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full gradient-primary flex items-center justify-center">
+              <User className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h1 className="font-display text-xl font-bold text-foreground">
+                My Dashboard
+              </h1>
+              <p className="text-xs text-muted-foreground">{user.email}</p>
+            </div>
           </div>
-          <Button variant="outline" onClick={handleSignOut} className="gap-2">
+          <Button variant="ghost" size="sm" onClick={handleSignOut} className="gap-1.5 text-muted-foreground hover:text-foreground">
             <LogOut className="w-4 h-4" />
-            Sign Out
+            <span className="hidden sm:inline">Sign Out</span>
           </Button>
         </div>
 
-        <Tabs defaultValue="bookings" className="space-y-6">
-          <TabsList className="bg-card border border-border p-1 gap-1">
+        {/* Stats Row */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
+          <Card variant="glass" className="p-3 text-center">
+            <p className="text-2xl font-bold gradient-text">{bookings.length}</p>
+            <p className="text-xs text-muted-foreground">Bookings</p>
+          </Card>
+          <Card variant="glass" className="p-3 text-center">
+            <p className="text-2xl font-bold gradient-text">{favorites.length}</p>
+            <p className="text-xs text-muted-foreground">Favorites</p>
+          </Card>
+          <Card variant="glass" className="p-3 text-center">
+            <p className="text-2xl font-bold gradient-text">
+              {bookings.filter(b => b.status === 'confirmed').length}
+            </p>
+            <p className="text-xs text-muted-foreground">Confirmed</p>
+          </Card>
+        </div>
+
+        <Tabs defaultValue="bookings" className="space-y-4">
+          <TabsList className="w-full bg-secondary/50 border border-border/50 p-1 gap-1">
             <TabsTrigger 
               value="bookings" 
-              className="flex-1 data-[state=active]:gradient-primary data-[state=active]:text-white gap-2"
+              className="flex-1 text-xs data-[state=active]:gradient-primary data-[state=active]:text-white gap-1.5"
             >
-              <Package className="w-4 h-4" />
-              My Bookings ({bookings.length})
+              <Package className="w-3.5 h-3.5" />
+              Bookings
             </TabsTrigger>
             <TabsTrigger 
               value="favorites" 
-              className="flex-1 data-[state=active]:gradient-primary data-[state=active]:text-white gap-2"
+              className="flex-1 text-xs data-[state=active]:gradient-primary data-[state=active]:text-white gap-1.5"
             >
-              <Heart className="w-4 h-4" />
-              Favorites ({favorites.length})
+              <Heart className="w-3.5 h-3.5" />
+              Favorites
             </TabsTrigger>
             <TabsTrigger 
               value="profile" 
-              className="flex-1 data-[state=active]:gradient-primary data-[state=active]:text-white gap-2"
+              className="flex-1 text-xs data-[state=active]:gradient-primary data-[state=active]:text-white gap-1.5"
             >
-              <User className="w-4 h-4" />
+              <User className="w-3.5 h-3.5" />
               Profile
             </TabsTrigger>
           </TabsList>
 
           {/* Bookings Tab */}
-          <TabsContent value="bookings" className="space-y-4">
+          <TabsContent value="bookings" className="space-y-3">
             {bookingsLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
             ) : bookings.length === 0 ? (
-              <Card variant="glass" className="p-8 text-center">
-                <Package className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-semibold text-foreground mb-2">No bookings yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Start by browsing our amazing vendors
+              <Card variant="glass" className="p-6 text-center">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-primary/10 flex items-center justify-center">
+                  <Package className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="font-semibold text-foreground text-sm mb-1">No bookings yet</h3>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Find and book amazing event vendors
                 </p>
                 <Link to="/browse">
-                  <Button variant="gradient">Browse Vendors</Button>
+                  <Button variant="gradient" size="sm" className="gap-1.5">
+                    <Search className="w-3.5 h-3.5" />
+                    Browse Vendors
+                  </Button>
                 </Link>
               </Card>
             ) : (
@@ -111,10 +139,10 @@ export default function Dashboard() {
                 const pkg = getPackage(booking.package_id);
                 
                 return (
-                  <Card key={booking.id} variant="glow" className="p-5">
-                    <div className="flex flex-col md:flex-row gap-4">
+                  <Card key={booking.id} variant="glow" className="p-4">
+                    <div className="flex gap-3">
                       {vendor && (
-                        <div className="w-full md:w-32 h-24 rounded-lg overflow-hidden">
+                        <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
                           <img
                             src={vendor.gallery[0]}
                             alt={vendor.name}
@@ -122,46 +150,45 @@ export default function Dashboard() {
                           />
                         </div>
                       )}
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <h3 className="font-semibold text-foreground">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <div className="min-w-0">
+                            <h3 className="font-semibold text-sm text-foreground truncate">
                               {pkg?.name || 'Package'}
                             </h3>
-                            <p className="text-sm text-muted-foreground">
-                              by {vendor?.name || 'Vendor'}
+                            <p className="text-xs text-muted-foreground truncate">
+                              {vendor?.name || 'Vendor'}
                             </p>
                           </div>
-                          <Badge variant={
-                            booking.status === 'confirmed' ? 'verified' :
-                            booking.status === 'completed' ? 'trust' :
-                            booking.status === 'cancelled' ? 'destructive' :
-                            'glass'
-                          }>
+                          <Badge 
+                            variant={
+                              booking.status === 'confirmed' ? 'verified' :
+                              booking.status === 'completed' ? 'trust' :
+                              booking.status === 'cancelled' ? 'destructive' :
+                              'glass'
+                            }
+                            className="text-[10px] px-2 py-0.5 flex-shrink-0"
+                          >
                             {booking.status}
                           </Badge>
                         </div>
-                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
-                            <Calendar className="w-4 h-4" />
+                            <Calendar className="w-3 h-3" />
                             {new Date(booking.event_date).toLocaleDateString()}
                           </span>
                           <span className="flex items-center gap-1">
-                            <MapPin className="w-4 h-4" />
+                            <MapPin className="w-3 h-3" />
                             {booking.event_location}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-4 h-4" />
-                            {booking.units} {pkg?.type === 'HOURLY' ? 'hours' : 'days'}
-                          </span>
                         </div>
-                        <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
-                          <span className="font-bold gradient-text">${booking.total_price}</span>
+                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
+                          <span className="font-bold text-sm gradient-text">${booking.total_price}</span>
                           {vendor && (
                             <Link to={`/vendor/${vendor.id}`}>
-                              <Button variant="ghost" size="sm" className="gap-1">
-                                View Vendor
-                                <ChevronRight className="w-4 h-4" />
+                              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2">
+                                View
+                                <ChevronRight className="w-3 h-3" />
                               </Button>
                             </Link>
                           )}
@@ -175,57 +202,63 @@ export default function Dashboard() {
           </TabsContent>
 
           {/* Favorites Tab */}
-          <TabsContent value="favorites" className="space-y-4">
+          <TabsContent value="favorites" className="space-y-3">
             {favLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <div className="flex items-center justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-primary" />
               </div>
             ) : favoriteVendors.length === 0 ? (
-              <Card variant="glass" className="p-8 text-center">
-                <Heart className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="font-semibold text-foreground mb-2">No favorites yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Save vendors you like to find them easily later
+              <Card variant="glass" className="p-6 text-center">
+                <div className="w-12 h-12 mx-auto mb-3 rounded-xl bg-trust/10 flex items-center justify-center">
+                  <Heart className="w-6 h-6 text-trust" />
+                </div>
+                <h3 className="font-semibold text-foreground text-sm mb-1">No favorites yet</h3>
+                <p className="text-xs text-muted-foreground mb-3">
+                  Save vendors to find them later
                 </p>
                 <Link to="/browse">
-                  <Button variant="gradient">Browse Vendors</Button>
+                  <Button variant="gradient" size="sm" className="gap-1.5">
+                    <Search className="w-3.5 h-3.5" />
+                    Browse Vendors
+                  </Button>
                 </Link>
               </Card>
             ) : (
-              <div className="grid md:grid-cols-2 gap-4">
+              <div className="grid gap-3">
                 {favoriteVendors.map(vendor => (
-                  <Card key={vendor.id} variant="glow" className="overflow-hidden">
-                    <div className="flex">
-                      <div className="w-32 h-32">
+                  <Card key={vendor.id} variant="glow" className="p-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
                         <img
                           src={vendor.gallery[0]}
                           alt={vendor.name}
                           className="w-full h-full object-cover"
                         />
                       </div>
-                      <CardContent className="p-4 flex-1">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="font-semibold text-foreground">{vendor.name}</h3>
-                            <p className="text-sm text-muted-foreground capitalize">
-                              {vendor.categories[0].replace('-', ' ')}
-                            </p>
-                          </div>
-                          <button
-                            onClick={() => toggleFavorite(vendor.id)}
-                            className="text-trust hover:text-trust/80"
-                          >
-                            <Heart className="w-5 h-5 fill-current" />
-                          </button>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-sm text-foreground truncate">{vendor.name}</h3>
+                        <p className="text-xs text-muted-foreground capitalize truncate">
+                          {vendor.categories[0].replace('-', ' ')}
+                        </p>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <Star className="w-3 h-3 text-trust fill-trust" />
+                          <span className="text-xs text-foreground font-medium">{vendor.avgRating}</span>
+                          <span className="text-xs text-muted-foreground">({vendor.reviewCount})</span>
                         </div>
-                        <div className="mt-3">
-                          <Link to={`/vendor/${vendor.id}`}>
-                            <Button variant="gradient" size="sm">
-                              View Profile
-                            </Button>
-                          </Link>
-                        </div>
-                      </CardContent>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => toggleFavorite(vendor.id)}
+                          className="w-8 h-8 rounded-full bg-trust/10 flex items-center justify-center text-trust hover:bg-trust/20 transition-colors"
+                        >
+                          <Heart className="w-4 h-4 fill-current" />
+                        </button>
+                        <Link to={`/vendor/${vendor.id}`}>
+                          <Button variant="gradient" size="sm" className="h-8 text-xs">
+                            View
+                          </Button>
+                        </Link>
+                      </div>
                     </div>
                   </Card>
                 ))}
@@ -235,24 +268,28 @@ export default function Dashboard() {
 
           {/* Profile Tab */}
           <TabsContent value="profile">
-            <Card variant="glass" className="p-6">
-              <h3 className="font-display text-xl font-bold text-foreground mb-4">
+            <Card variant="glass" className="p-4">
+              <h3 className="font-display text-lg font-bold text-foreground mb-4">
                 Account Details
               </h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm text-muted-foreground">Email</label>
-                  <p className="text-foreground">{user.email}</p>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between py-2 border-b border-border/50">
+                  <span className="text-xs text-muted-foreground">Email</span>
+                  <span className="text-sm text-foreground">{user.email}</span>
                 </div>
-                <div>
-                  <label className="text-sm text-muted-foreground">Member since</label>
-                  <p className="text-foreground">
+                <div className="flex items-center justify-between py-2 border-b border-border/50">
+                  <span className="text-xs text-muted-foreground">Member since</span>
+                  <span className="text-sm text-foreground">
                     {new Date(user.created_at).toLocaleDateString('en-US', {
                       year: 'numeric',
-                      month: 'long',
+                      month: 'short',
                       day: 'numeric'
                     })}
-                  </p>
+                  </span>
+                </div>
+                <div className="flex items-center justify-between py-2">
+                  <span className="text-xs text-muted-foreground">Total bookings</span>
+                  <span className="text-sm font-medium gradient-text">{bookings.length}</span>
                 </div>
               </div>
             </Card>
