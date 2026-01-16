@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.charge-final-payment]
 verify_jwt = false
+
+[functions.send-payment-reminders]
+verify_jwt = false

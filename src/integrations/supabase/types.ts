@@ -128,6 +128,30 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_reminders: {
+        Row: {
+          booking_id: string
+          created_at: string
+          id: string
+          reminder_type: string
+          sent_at: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          id?: string
+          reminder_type: string
+          sent_at?: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          id?: string
+          reminder_type?: string
+          sent_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
