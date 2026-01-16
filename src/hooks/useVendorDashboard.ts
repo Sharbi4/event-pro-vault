@@ -253,6 +253,38 @@ export function useVendorDashboard() {
     (b.status === 'confirmed' || b.status === 'pending')
   );
 
+  const reorderPackages = async (reorderedPackages: VendorPackage[]) => {
+    // Update local state immediately for responsive UI
+    setPackages(reorderedPackages);
+
+    // Update sort_order in database
+    const updates = reorderedPackages.map((pkg, index) => ({
+      id: pkg.id,
+      sort_order: index
+    }));
+
+    // Update each package's sort_order
+    const results = await Promise.all(
+      updates.map(({ id, sort_order }) =>
+        supabase
+          .from('vendor_packages')
+          .update({ sort_order })
+          .eq('id', id)
+      )
+    );
+
+    const hasError = results.some(r => r.error);
+    if (hasError) {
+      toast({
+        title: "Failed to save order",
+        description: "Please try again",
+        variant: "destructive"
+      });
+      // Refetch to restore correct order
+      fetchVendorData();
+    }
+  };
+
   return {
     packages,
     bookings,
@@ -266,6 +298,7 @@ export function useVendorDashboard() {
     updatePackage,
     deletePackage,
     duplicatePackage,
+    reorderPackages,
     updateBookingStatus,
     refetch: fetchVendorData
   };
