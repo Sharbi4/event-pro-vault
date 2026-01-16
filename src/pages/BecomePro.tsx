@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -82,10 +83,12 @@ export default function BecomePro() {
               Join thousands of vendors getting booked for events every day. 
               Create your profile, set your rates, and start earning.
             </p>
-            <Button variant="gradient" size="xl" className="gap-2">
-              Get Started Free
-              <ArrowRight className="w-5 h-5" />
-            </Button>
+            <Link to="/vendor-onboarding">
+              <Button variant="gradient" size="xl" className="gap-2 shimmer-effect">
+                Get Started Free
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </Link>
             <p className="text-sm text-muted-foreground mt-4">
               No monthly fees. Only pay when you get booked.
             </p>
@@ -257,10 +260,12 @@ export default function BecomePro() {
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
             Join Event Pros today and start getting booked for events in your area.
           </p>
-          <Button variant="gradient" size="xl" className="gap-2">
-            Create Your Profile
-            <ArrowRight className="w-5 h-5" />
-          </Button>
+          <Link to="/vendor-onboarding">
+            <Button variant="gradient" size="xl" className="gap-2 shimmer-effect">
+              Create Your Profile
+              <ArrowRight className="w-5 h-5" />
+            </Button>
+          </Link>
         </div>
       </section>
     </Layout>

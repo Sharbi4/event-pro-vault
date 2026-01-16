@@ -89,7 +89,13 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          identity_verification_session_id: string | null
+          identity_verification_status: string | null
+          is_vendor: boolean | null
+          onboarding_completed_at: string | null
           phone: string | null
+          stripe_account_id: string | null
+          stripe_account_status: string | null
           updated_at: string
           user_id: string
         }
@@ -98,7 +104,13 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          identity_verification_session_id?: string | null
+          identity_verification_status?: string | null
+          is_vendor?: boolean | null
+          onboarding_completed_at?: string | null
           phone?: string | null
+          stripe_account_id?: string | null
+          stripe_account_status?: string | null
           updated_at?: string
           user_id: string
         }
@@ -107,9 +119,54 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          identity_verification_session_id?: string | null
+          identity_verification_status?: string | null
+          is_vendor?: boolean | null
+          onboarding_completed_at?: string | null
           phone?: string | null
+          stripe_account_id?: string | null
+          stripe_account_status?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      vendor_details: {
+        Row: {
+          business_description: string | null
+          business_name: string | null
+          business_type: string | null
+          created_at: string
+          id: string
+          service_area: string | null
+          service_categories: string[] | null
+          updated_at: string
+          user_id: string
+          website_url: string | null
+        }
+        Insert: {
+          business_description?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          created_at?: string
+          id?: string
+          service_area?: string | null
+          service_categories?: string[] | null
+          updated_at?: string
+          user_id: string
+          website_url?: string | null
+        }
+        Update: {
+          business_description?: string | null
+          business_name?: string | null
+          business_type?: string | null
+          created_at?: string
+          id?: string
+          service_area?: string | null
+          service_categories?: string[] | null
+          updated_at?: string
+          user_id?: string
+          website_url?: string | null
         }
         Relationships: []
       }
