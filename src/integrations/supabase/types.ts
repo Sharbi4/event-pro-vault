@@ -272,9 +272,12 @@ export type Database = {
       vendor_packages: {
         Row: {
           add_ons: Json | null
+          cancellation_policy: string | null
+          category: string | null
           created_at: string
           description: string | null
           id: string
+          images: string[] | null
           includes: string[] | null
           instant_book: boolean | null
           is_active: boolean | null
@@ -283,15 +286,20 @@ export type Database = {
           price: number
           requirements: string[] | null
           sort_order: number | null
+          travel_fee_per_mile: number | null
+          travel_radius: number | null
           type: string
           updated_at: string
           user_id: string
         }
         Insert: {
           add_ons?: Json | null
+          cancellation_policy?: string | null
+          category?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          images?: string[] | null
           includes?: string[] | null
           instant_book?: boolean | null
           is_active?: boolean | null
@@ -300,15 +308,20 @@ export type Database = {
           price: number
           requirements?: string[] | null
           sort_order?: number | null
+          travel_fee_per_mile?: number | null
+          travel_radius?: number | null
           type?: string
           updated_at?: string
           user_id: string
         }
         Update: {
           add_ons?: Json | null
+          cancellation_policy?: string | null
+          category?: string | null
           created_at?: string
           description?: string | null
           id?: string
+          images?: string[] | null
           includes?: string[] | null
           instant_book?: boolean | null
           is_active?: boolean | null
@@ -317,6 +330,8 @@ export type Database = {
           price?: number
           requirements?: string[] | null
           sort_order?: number | null
+          travel_fee_per_mile?: number | null
+          travel_radius?: number | null
           type?: string
           updated_at?: string
           user_id?: string
