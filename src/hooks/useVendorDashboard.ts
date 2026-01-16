@@ -17,6 +17,11 @@ export interface VendorPackage {
   instant_book: boolean;
   is_active: boolean;
   sort_order: number;
+  category: string | null;
+  images: string[];
+  travel_radius: number;
+  travel_fee_per_mile: number;
+  cancellation_policy: string;
   created_at: string;
   updated_at: string;
 }
