@@ -4,27 +4,42 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
-import { 
-  Edit, 
-  Copy, 
-  Trash2, 
-  Clock, 
-  Calendar, 
-  Zap,
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import {
   GripVertical,
+  MoreVertical,
+  Pencil,
+  Copy,
+  Trash2,
+  Clock,
+  Calendar,
+  Zap,
   MapPin,
-  Image as ImageIcon
+  Image as ImageIcon,
+  ChevronUp,
+  ChevronDown
 } from 'lucide-react';
 import { VendorPackage } from '@/hooks/useVendorDashboard';
 import { categories } from '@/data/categories';
+import { KeyboardEvent } from 'react';
 
 interface SortablePackageCardProps {
   pkg: VendorPackage;
   onEdit: (pkg: VendorPackage) => void;
-  onDuplicate: (id: string) => void;
+  onDuplicate: (id: string) => Promise<unknown>;
   onDelete: (id: string) => void;
   onToggleActive: (pkg: VendorPackage) => void;
   isDeleting: boolean;
+  onMoveUp?: () => void;
+  onMoveDown?: () => void;
+  isFirst?: boolean;
+  isLast?: boolean;
 }
 
 export function SortablePackageCard({
@@ -33,7 +48,11 @@ export function SortablePackageCard({
   onDuplicate,
   onDelete,
   onToggleActive,
-  isDeleting
+  isDeleting,
+  onMoveUp,
+  onMoveDown,
+  isFirst,
+  isLast
 }: SortablePackageCardProps) {
   const {
     attributes,
@@ -54,6 +73,16 @@ export function SortablePackageCard({
   const category = categories.find(c => c.id === pkg.category);
   const coverImage = pkg.images?.[0];
 
+  const handleKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
+    if (e.key === 'ArrowUp' && !isFirst && onMoveUp) {
+      e.preventDefault();
+      onMoveUp();
+    } else if (e.key === 'ArrowDown' && !isLast && onMoveDown) {
+      e.preventDefault();
+      onMoveDown();
+    }
+  };
+
   return (
     <Card 
       ref={setNodeRef} 
@@ -62,15 +91,40 @@ export function SortablePackageCard({
     >
       <CardContent className="p-4">
         <div className="flex items-start gap-4">
-          {/* Drag Handle */}
-          <button
-            {...attributes}
-            {...listeners}
-            className="mt-6 cursor-grab active:cursor-grabbing p-1 rounded hover:bg-muted touch-none"
-            aria-label="Drag to reorder"
-          >
-            <GripVertical className="w-5 h-5 text-muted-foreground" />
-          </button>
+          {/* Drag Handle with Keyboard Support */}
+          <div className="flex flex-col items-center gap-1 mt-4">
+            <button
+              {...attributes}
+              {...listeners}
+              onKeyDown={handleKeyDown}
+              className="cursor-grab active:cursor-grabbing p-1 rounded hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 touch-none"
+              aria-label={`Reorder ${pkg.name}. Use arrow keys to move up or down.`}
+              title="Drag to reorder, or use arrow keys"
+            >
+              <GripVertical className="w-5 h-5 text-muted-foreground" />
+            </button>
+            {/* Visible arrow buttons for accessibility */}
+            <div className="flex flex-col gap-0.5">
+              <button
+                onClick={onMoveUp}
+                disabled={isFirst}
+                className="p-0.5 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary"
+                aria-label={`Move ${pkg.name} up`}
+                title="Move up"
+              >
+                <ChevronUp className="w-4 h-4 text-muted-foreground" />
+              </button>
+              <button
+                onClick={onMoveDown}
+                disabled={isLast}
+                className="p-0.5 rounded hover:bg-muted disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary"
+                aria-label={`Move ${pkg.name} down`}
+                title="Move down"
+              >
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+          </div>
 
           {/* Cover Image or Placeholder */}
           <div className="w-20 h-20 rounded-lg bg-muted overflow-hidden shrink-0">
@@ -154,31 +208,32 @@ export function SortablePackageCard({
               />
             </div>
 
-            <div className="flex items-center gap-1">
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => onEdit(pkg)}
-              >
-                <Edit className="w-4 h-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => onDuplicate(pkg.id)}
-              >
-                <Copy className="w-4 h-4" />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => onDelete(pkg.id)}
-                disabled={isDeleting}
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  <MoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => onEdit(pkg)}>
+                  <Pencil className="w-4 h-4 mr-2" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onDuplicate(pkg.id)}>
+                  <Copy className="w-4 h-4 mr-2" />
+                  Duplicate
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={() => onDelete(pkg.id)}
+                  className="text-destructive"
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="w-4 h-4 mr-2" />
+                  {isDeleting ? 'Deleting...' : 'Delete'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardContent>
