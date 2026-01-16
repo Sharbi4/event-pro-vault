@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { format, isSameDay } from 'date-fns';
+import { format, getDay } from 'date-fns';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,6 +19,10 @@ interface BlockedDate {
   date: string;
 }
 
+interface RecurringBlock {
+  day_of_week: number;
+}
+
 export default function PackageDetail() {
   const { id } = useParams();
   const pkg = packages.find(p => p.id === id);
@@ -31,36 +35,54 @@ export default function PackageDetail() {
   const [eventLocation, setEventLocation] = useState('');
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([]);
+  const [recurringBlocks, setRecurringBlocks] = useState<RecurringBlock[]>([]);
   const [loadingDates, setLoadingDates] = useState(true);
 
-  // Fetch vendor's blocked dates
+  // Fetch vendor's blocked dates and recurring patterns
   useEffect(() => {
-    const fetchBlockedDates = async () => {
+    const fetchAvailability = async () => {
       if (!vendor) return;
       
       setLoadingDates(true);
       // Note: In production, you'd fetch by vendor's user_id
       // For now, we fetch all blocked dates as a demo
-      const { data } = await supabase
-        .from('vendor_availability')
-        .select('date')
-        .eq('is_blocked', true);
+      const [datesRes, recurringRes] = await Promise.all([
+        supabase
+          .from('vendor_availability')
+          .select('date')
+          .eq('is_blocked', true),
+        supabase
+          .from('vendor_recurring_availability')
+          .select('day_of_week')
+          .eq('is_blocked', true)
+      ]);
       
-      if (data) {
-        setBlockedDates(data);
+      if (datesRes.data) {
+        setBlockedDates(datesRes.data);
+      }
+      if (recurringRes.data) {
+        setRecurringBlocks(recurringRes.data);
       }
       setLoadingDates(false);
     };
 
-    fetchBlockedDates();
+    fetchAvailability();
   }, [vendor]);
 
   const blockedDateSet = new Set(
     blockedDates.map(b => format(new Date(b.date), 'yyyy-MM-dd'))
   );
 
+  const blockedDaysOfWeek = new Set(
+    recurringBlocks.map(r => r.day_of_week)
+  );
+
   const isDateBlocked = (date: Date) => {
-    return blockedDateSet.has(format(date, 'yyyy-MM-dd'));
+    // Check specific blocked dates
+    if (blockedDateSet.has(format(date, 'yyyy-MM-dd'))) return true;
+    // Check recurring blocked days of week
+    if (blockedDaysOfWeek.has(getDay(date))) return true;
+    return false;
   };
 
   const handleDateSelect = (date: Date | undefined) => {
