@@ -11,8 +11,9 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[CHARGE-FINAL-PAYMENT] ${step}`, details ? JSON.stringify(details) : '');
 };
 
-// Platform fee percentage
-const PLATFORM_FEE_PERCENT = 10;
+// Fee structure: 12.9% from vendor (commission) + 12.9% from booker (service fee)
+const VENDOR_COMMISSION_PERCENT = 12.9;
+const BOOKER_SERVICE_FEE_PERCENT = 12.9;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -78,8 +79,21 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    // Calculate platform fee for final payment
-    const platformFeeCents = Math.round(booking.final_amount * (PLATFORM_FEE_PERCENT / 100));
+    // The final_amount already includes the booker service fee from create-booking-checkout
+    // We need to calculate vendor commission based on the base amount
+    // Base amount = final_amount / (1 + BOOKER_SERVICE_FEE_PERCENT / 100)
+    const baseFinalCents = Math.round(booking.final_amount / (1 + BOOKER_SERVICE_FEE_PERCENT / 100));
+    const bookerServiceFeeCents = booking.final_amount - baseFinalCents;
+    const vendorCommissionCents = Math.round(baseFinalCents * (VENDOR_COMMISSION_PERCENT / 100));
+    const totalPlatformFeeCents = bookerServiceFeeCents + vendorCommissionCents;
+
+    logStep("Calculated final payment fees", {
+      finalAmount: booking.final_amount,
+      baseFinal: baseFinalCents,
+      bookerServiceFee: bookerServiceFeeCents,
+      vendorCommission: vendorCommissionCents,
+      totalPlatformFee: totalPlatformFeeCents
+    });
 
     // Find or create customer
     const customers = await stripe.customers.list({ email: customerEmail, limit: 1 });
@@ -103,7 +117,7 @@ serve(async (req) => {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
-              })}`,
+              })}. Includes ${BOOKER_SERVICE_FEE_PERCENT}% service fee.`,
             },
             unit_amount: booking.final_amount,
           },
@@ -112,7 +126,7 @@ serve(async (req) => {
       ],
       mode: "payment",
       payment_intent_data: {
-        application_fee_amount: platformFeeCents,
+        application_fee_amount: totalPlatformFeeCents,
         transfer_data: {
           destination: booking.vendor_stripe_account_id,
         },
