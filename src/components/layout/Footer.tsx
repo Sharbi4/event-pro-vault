@@ -13,7 +13,7 @@ export function Footer() {
               <img 
                 src={logo} 
                 alt="EventPro by Vendibook" 
-                className="h-12 w-auto"
+                className="h-60 w-auto"
               />
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">

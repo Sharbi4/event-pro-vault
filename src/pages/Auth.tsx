@@ -86,7 +86,7 @@ export default function Auth() {
             {/* Header */}
             <div className="text-center mb-6">
               <Link to="/" className="inline-block mb-4">
-                <img src={logo} alt="EventPro by Vendibook" className="h-12 w-auto mx-auto" />
+                <img src={logo} alt="EventPro by Vendibook" className="h-60 w-auto mx-auto" />
               </Link>
               <h1 className="font-display text-2xl font-bold text-foreground">
                 {isSignUp ? 'Create account' : 'Welcome back'}
