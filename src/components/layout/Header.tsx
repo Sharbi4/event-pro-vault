@@ -27,8 +27,8 @@ export function Header() {
             <Link to="/browse" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Browse
             </Link>
-            <Link to="/categories" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Categories
+            <Link to="/markets" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+              Markets
             </Link>
             <Link to="/how-it-works" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               How it works
@@ -85,11 +85,11 @@ export function Header() {
                 Browse
               </Link>
               <Link 
-                to="/categories" 
+                to="/markets" 
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Categories
+                Markets
               </Link>
               <Link 
                 to="/how-it-works" 
