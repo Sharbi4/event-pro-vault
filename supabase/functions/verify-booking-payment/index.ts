@@ -24,11 +24,11 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
-    const { booking_id } = await req.json();
+    const { booking_id, payment_type = 'deposit' } = await req.json();
     if (!booking_id) {
       throw new Error("booking_id is required");
     }
-    logStep("Received booking_id", { booking_id });
+    logStep("Received request", { booking_id, payment_type });
 
     // Fetch the booking
     const { data: booking, error: bookingError } = await supabaseClient
@@ -68,30 +68,48 @@ serve(async (req) => {
 
     logStep("Retrieved session", { 
       status: session.status, 
-      payment_status: session.payment_status 
+      payment_status: session.payment_status,
+      metadata: session.metadata
     });
 
     if (session.payment_status === 'paid') {
-      // Update booking with payment info
-      const { error: updateError } = await supabaseClient
-        .from('bookings')
-        .update({
-          payment_status: 'paid',
-          stripe_payment_intent_id: session.payment_intent as string,
-          payment_amount: session.amount_total,
-          status: 'confirmed' // Auto-confirm on payment
-        })
-        .eq('id', booking_id);
+      const updateData: Record<string, unknown> = {};
+      
+      // Determine if this is deposit or final payment based on session metadata or payment_type
+      const isDeposit = session.metadata?.payment_type === 'deposit' || payment_type === 'deposit';
+      
+      if (isDeposit && !booking.deposit_paid_at) {
+        updateData.payment_status = 'deposit_paid';
+        updateData.deposit_paid_at = new Date().toISOString();
+        updateData.stripe_deposit_payment_intent_id = session.payment_intent as string;
+        updateData.status = 'confirmed'; // Confirm booking after deposit
+        logStep("Marking deposit as paid");
+      } else if (!isDeposit && !booking.final_paid_at) {
+        updateData.payment_status = 'paid';
+        updateData.final_paid_at = new Date().toISOString();
+        updateData.stripe_final_payment_intent_id = session.payment_intent as string;
+        logStep("Marking final payment as paid");
+      }
 
-      if (updateError) {
-        logStep("Warning: Failed to update booking", { error: updateError.message });
-      } else {
-        logStep("Updated booking to paid", { booking_id });
+      if (Object.keys(updateData).length > 0) {
+        const { error: updateError } = await supabaseClient
+          .from('bookings')
+          .update(updateData)
+          .eq('id', booking_id);
+
+        if (updateError) {
+          logStep("Warning: Failed to update booking", { error: updateError.message });
+        } else {
+          logStep("Updated booking", updateData);
+        }
       }
 
       return new Response(JSON.stringify({ 
         paid: true, 
-        status: 'confirmed',
+        payment_type: isDeposit ? 'deposit' : 'final',
+        status: updateData.status || booking.status,
+        deposit_paid: !!booking.deposit_paid_at || isDeposit,
+        final_paid: !!booking.final_paid_at || !isDeposit,
         amount: session.amount_total 
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },

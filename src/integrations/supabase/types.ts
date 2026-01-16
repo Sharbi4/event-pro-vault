@@ -19,63 +19,90 @@ export type Database = {
           add_ons: string[] | null
           created_at: string
           customer_email: string | null
+          deposit_amount: number | null
+          deposit_paid_at: string | null
+          deposit_percentage: number | null
           event_date: string
           event_location: string
+          final_amount: number | null
+          final_paid_at: string | null
           id: string
           notes: string | null
           package_id: string
           payment_amount: number | null
           payment_status: string | null
+          platform_fee_amount: number | null
           status: string
           stripe_checkout_session_id: string | null
+          stripe_deposit_payment_intent_id: string | null
+          stripe_final_payment_intent_id: string | null
           stripe_payment_intent_id: string | null
           total_price: number
           units: number
           updated_at: string
           user_id: string
           vendor_id: string
+          vendor_stripe_account_id: string | null
           vendor_user_id: string | null
         }
         Insert: {
           add_ons?: string[] | null
           created_at?: string
           customer_email?: string | null
+          deposit_amount?: number | null
+          deposit_paid_at?: string | null
+          deposit_percentage?: number | null
           event_date: string
           event_location: string
+          final_amount?: number | null
+          final_paid_at?: string | null
           id?: string
           notes?: string | null
           package_id: string
           payment_amount?: number | null
           payment_status?: string | null
+          platform_fee_amount?: number | null
           status?: string
           stripe_checkout_session_id?: string | null
+          stripe_deposit_payment_intent_id?: string | null
+          stripe_final_payment_intent_id?: string | null
           stripe_payment_intent_id?: string | null
           total_price: number
           units?: number
           updated_at?: string
           user_id: string
           vendor_id: string
+          vendor_stripe_account_id?: string | null
           vendor_user_id?: string | null
         }
         Update: {
           add_ons?: string[] | null
           created_at?: string
           customer_email?: string | null
+          deposit_amount?: number | null
+          deposit_paid_at?: string | null
+          deposit_percentage?: number | null
           event_date?: string
           event_location?: string
+          final_amount?: number | null
+          final_paid_at?: string | null
           id?: string
           notes?: string | null
           package_id?: string
           payment_amount?: number | null
           payment_status?: string | null
+          platform_fee_amount?: number | null
           status?: string
           stripe_checkout_session_id?: string | null
+          stripe_deposit_payment_intent_id?: string | null
+          stripe_final_payment_intent_id?: string | null
           stripe_payment_intent_id?: string | null
           total_price?: number
           units?: number
           updated_at?: string
           user_id?: string
           vendor_id?: string
+          vendor_stripe_account_id?: string | null
           vendor_user_id?: string | null
         }
         Relationships: []

@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.verify-booking-payment]
 verify_jwt = false
+
+[functions.charge-final-payment]
+verify_jwt = false
