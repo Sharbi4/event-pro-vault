@@ -11,9 +11,11 @@ import {
   Calendar, MessageCircle, ChevronLeft, Share2, Heart
 } from 'lucide-react';
 import { vendors, packages, reviews } from '@/data/vendors';
+import { useFavorites } from '@/hooks/useFavorites';
 
 export default function VendorProfile() {
   const { id } = useParams();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const vendor = vendors.find(v => v.id === id);
   const vendorPackages = packages.filter(p => p.vendorId === id);
   const vendorReviews = reviews.filter(r => r.vendorId === id);
@@ -65,8 +67,13 @@ export default function VendorProfile() {
           <Button variant="glass" size="icon">
             <Share2 className="w-4 h-4" />
           </Button>
-          <Button variant="glass" size="icon">
-            <Heart className="w-4 h-4" />
+          <Button 
+            variant="glass" 
+            size="icon"
+            onClick={() => id && toggleFavorite(id)}
+            className={isFavorite(id || '') ? 'text-trust' : ''}
+          >
+            <Heart className={`w-4 h-4 ${isFavorite(id || '') ? 'fill-current' : ''}`} />
           </Button>
         </div>
       </div>
