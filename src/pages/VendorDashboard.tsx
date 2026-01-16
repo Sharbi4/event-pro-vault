@@ -27,6 +27,7 @@ const VendorDashboard = () => {
     updatePackage,
     deletePackage,
     duplicatePackage,
+    reorderPackages,
     updateBookingStatus
   } = useVendorDashboard();
 
@@ -140,6 +141,7 @@ const VendorDashboard = () => {
               onUpdate={updatePackage}
               onDelete={deletePackage}
               onDuplicate={duplicatePackage}
+              onReorder={reorderPackages}
             />
           </TabsContent>
 
