@@ -1,0 +1,77 @@
+import { useState } from 'react';
+import { Search, MapPin, Calendar, ChevronDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+
+interface SearchHeaderProps {
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  location: string;
+  setLocation: (location: string) => void;
+  date: string;
+  setDate: (date: string) => void;
+}
+
+export function SearchHeader({
+  searchQuery,
+  setSearchQuery,
+  location,
+  setLocation,
+  date,
+  setDate,
+}: SearchHeaderProps) {
+  return (
+    <div className="bg-card border-b border-border sticky top-0 z-20">
+      <div className="container mx-auto px-4 py-3">
+        {/* Turo-style compact search bar */}
+        <div className="flex items-center gap-2 bg-secondary/50 rounded-full p-1.5 max-w-3xl mx-auto shadow-sm border border-border">
+          {/* Search */}
+          <div className="flex-1 flex items-center gap-2 px-4 py-2 bg-card rounded-full border border-transparent hover:border-border transition-colors cursor-pointer">
+            <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+            <input
+              type="text"
+              placeholder="What are you looking for?"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-sm min-w-0"
+            />
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-border hidden sm:block" />
+
+          {/* Location */}
+          <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-card rounded-full border border-transparent hover:border-border transition-colors cursor-pointer">
+            <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
+            <input
+              type="text"
+              placeholder="Where"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-sm w-24"
+            />
+          </div>
+
+          {/* Divider */}
+          <div className="w-px h-6 bg-border hidden md:block" />
+
+          {/* Date */}
+          <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-card rounded-full border border-transparent hover:border-border transition-colors cursor-pointer">
+            <Calendar className="w-4 h-4 text-muted-foreground shrink-0" />
+            <input
+              type="text"
+              placeholder="When"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-sm w-20"
+            />
+          </div>
+
+          {/* Search Button */}
+          <Button variant="gradient" size="icon" className="rounded-full shrink-0 h-10 w-10">
+            <Search className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
