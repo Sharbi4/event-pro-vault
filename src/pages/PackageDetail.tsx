@@ -155,8 +155,8 @@ export default function PackageDetail() {
 
     setSubmitting(true);
 
-    // Note: In production with real vendor data, you would fetch the vendor's user_id
-    // For demo purposes with mock data, we'll leave vendor_user_id as null
+    // Note: In production with real vendor data, you would fetch the vendor's user_id and email from the database
+    // For demo purposes with mock data, we skip the email notification since vendors don't have emails
     const result = await createBooking({
       vendor_id: vendor.id,
       vendor_user_id: null, // Would be vendor's actual user_id in production
@@ -166,7 +166,15 @@ export default function PackageDetail() {
       units,
       add_ons: selectedAddOns,
       total_price: estimatedTotal,
-      notes: notes.trim() || null
+      notes: notes.trim() || null,
+      // Email notification data - in production, vendor_email would come from database
+      // For demo purposes, if you want to test emails, replace with your email address:
+      // vendor_email: 'your-test-email@example.com',
+      vendor_name: vendor.name,
+      customer_name: user?.email?.split('@')[0] || 'Customer',
+      customer_email: user?.email || '',
+      package_name: pkg.name,
+      unit_type: pkg.type === 'HOURLY' ? 'hour' : 'day'
     });
 
     setSubmitting(false);

@@ -28,6 +28,13 @@ export interface CreateBookingInput {
   add_ons: string[];
   total_price: number;
   notes?: string | null;
+  // For email notification
+  vendor_email?: string;
+  vendor_name?: string;
+  customer_name?: string;
+  customer_email?: string;
+  package_name?: string;
+  unit_type?: string;
 }
 
 export function useBookings() {
@@ -105,6 +112,34 @@ export function useBookings() {
     });
 
     setBookings(prev => [data as BookingData, ...prev]);
+
+    // Send email notification to vendor (fire and forget)
+    if (bookingData.vendor_email) {
+      supabase.functions.invoke('send-booking-notification', {
+        body: {
+          booking_id: data.id,
+          vendor_email: bookingData.vendor_email,
+          vendor_name: bookingData.vendor_name || 'Vendor',
+          customer_name: bookingData.customer_name || user.email?.split('@')[0] || 'Customer',
+          customer_email: bookingData.customer_email || user.email,
+          package_name: bookingData.package_name || 'Package',
+          event_date: bookingData.event_date,
+          event_location: bookingData.event_location,
+          units: bookingData.units,
+          unit_type: bookingData.unit_type || 'unit',
+          total_price: bookingData.total_price,
+          add_ons: bookingData.add_ons,
+          notes: bookingData.notes
+        }
+      }).then(({ error: emailError }) => {
+        if (emailError) {
+          console.error('Failed to send vendor notification email:', emailError);
+        } else {
+          console.log('Vendor notification email sent successfully');
+        }
+      });
+    }
+
     return data as BookingData;
   };
 
