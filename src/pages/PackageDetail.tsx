@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { format, getDay } from 'date-fns';
 import { Layout } from '@/components/layout/Layout';
@@ -7,12 +7,16 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Clock, Calendar, Check, Plus, Minus, 
-  ChevronLeft, Zap, MapPin, AlertCircle, Star, CalendarIcon
+  ChevronLeft, Zap, MapPin, AlertCircle, Star, CalendarIcon, Loader2
 } from 'lucide-react';
 import { packages, vendors, reviews } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBookings } from '@/hooks/useBookings';
+import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 interface BlockedDate {
@@ -25,6 +29,11 @@ interface RecurringBlock {
 
 export default function PackageDetail() {
   const { id } = useParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { createBooking } = useBookings();
+  const { toast } = useToast();
+  
   const pkg = packages.find(p => p.id === id);
   const vendor = pkg ? vendors.find(v => v.id === pkg.vendorId) : null;
   const vendorReviews = vendor ? reviews.filter(r => r.vendorId === vendor.id).slice(0, 2) : [];
@@ -33,10 +42,12 @@ export default function PackageDetail() {
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const [eventDate, setEventDate] = useState<Date | undefined>();
   const [eventLocation, setEventLocation] = useState('');
+  const [notes, setNotes] = useState('');
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([]);
   const [recurringBlocks, setRecurringBlocks] = useState<RecurringBlock[]>([]);
   const [loadingDates, setLoadingDates] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
 
   // Fetch vendor's blocked dates and recurring patterns
   useEffect(() => {
@@ -119,6 +130,52 @@ export default function PackageDetail() {
     return sum + (addOn?.price || 0);
   }, 0);
   const estimatedTotal = baseTotal + addOnsTotal;
+
+  const isFormValid = eventDate && eventLocation.trim().length > 0;
+
+  const handleSubmitBooking = async () => {
+    if (!user) {
+      toast({
+        title: "Sign in required",
+        description: "Please sign in to make a booking",
+        variant: "destructive"
+      });
+      navigate('/auth');
+      return;
+    }
+
+    if (!eventDate || !eventLocation.trim()) {
+      toast({
+        title: "Missing information",
+        description: "Please select a date and enter the event location",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setSubmitting(true);
+
+    // Note: In production with real vendor data, you would fetch the vendor's user_id
+    // For demo purposes with mock data, we'll leave vendor_user_id as null
+    const result = await createBooking({
+      vendor_id: vendor.id,
+      vendor_user_id: null, // Would be vendor's actual user_id in production
+      package_id: pkg.id,
+      event_date: format(eventDate, 'yyyy-MM-dd'),
+      event_location: eventLocation.trim(),
+      units,
+      add_ons: selectedAddOns,
+      total_price: estimatedTotal,
+      notes: notes.trim() || null
+    });
+
+    setSubmitting(false);
+
+    if (result) {
+      // Redirect to dashboard to see booking
+      navigate('/dashboard');
+    }
+  };
 
   return (
     <Layout>
@@ -352,7 +409,7 @@ export default function PackageDetail() {
                 </div>
 
                 {/* Duration */}
-                <div className="mb-6">
+                <div className="mb-4">
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Duration ({pkg.type === 'HOURLY' ? 'hours' : 'days'})
                   </label>
@@ -381,6 +438,20 @@ export default function PackageDetail() {
                   )}
                 </div>
 
+                {/* Notes */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    Special Requests (optional)
+                  </label>
+                  <Textarea
+                    placeholder="Any dietary restrictions, setup preferences, or other notes..."
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    className="bg-card border-border resize-none"
+                    rows={3}
+                  />
+                </div>
+
                 {/* Price Breakdown */}
                 <div className="border-t border-border pt-4 mb-6 space-y-2">
                   <div className="flex justify-between text-sm">
@@ -407,9 +478,27 @@ export default function PackageDetail() {
                   </p>
                 </div>
 
-                <Button variant="gradient" size="lg" className="w-full mb-3">
-                  {pkg.instantBook ? 'Book Now' : 'Request Booking'}
+                <Button 
+                  variant="gradient" 
+                  size="lg" 
+                  className="w-full mb-3"
+                  onClick={handleSubmitBooking}
+                  disabled={!isFormValid || submitting}
+                >
+                  {submitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Submitting...
+                    </>
+                  ) : (
+                    pkg.instantBook ? 'Book Now' : 'Request Booking'
+                  )}
                 </Button>
+                {!user && (
+                  <p className="text-xs text-center text-amber-500 mb-2">
+                    You'll need to sign in to complete your booking
+                  </p>
+                )}
                 <p className="text-xs text-center text-muted-foreground">
                   {pkg.instantBook 
                     ? 'Instant confirmation available'
