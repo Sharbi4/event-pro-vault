@@ -3,16 +3,25 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, X, Clock, MapPin, Calendar } from 'lucide-react';
+import { Check, X, Clock, MapPin, Calendar, CreditCard, Loader2 } from 'lucide-react';
 import { VendorBooking } from '@/hooks/useVendorDashboard';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface VendorBookingsProps {
   bookings: VendorBooking[];
   onUpdateStatus: (id: string, status: string) => Promise<unknown>;
 }
 
+interface ExtendedBooking extends VendorBooking {
+  payment_status?: string;
+  stripe_checkout_session_id?: string;
+}
+
 export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps) {
   const [updating, setUpdating] = useState<string | null>(null);
+  const [requestingPayment, setRequestingPayment] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const handleStatusUpdate = async (id: string, status: string) => {
     setUpdating(id);
@@ -20,15 +29,62 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
     setUpdating(null);
   };
 
+  const handleRequestPayment = async (booking: ExtendedBooking) => {
+    setRequestingPayment(booking.id);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('create-booking-checkout', {
+        body: { booking_id: booking.id }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.url) {
+        // Update status to awaiting_payment
+        await onUpdateStatus(booking.id, 'awaiting_payment');
+        
+        toast({
+          title: "Payment request sent!",
+          description: "The customer will receive a payment link via email."
+        });
+      }
+    } catch (error) {
+      console.error('Error requesting payment:', error);
+      toast({
+        title: "Failed to request payment",
+        description: error instanceof Error ? error.message : "Please try again",
+        variant: "destructive"
+      });
+    } finally {
+      setRequestingPayment(null);
+    }
+  };
+
   const pendingBookings = bookings.filter(b => b.status === 'pending');
+  const awaitingPaymentBookings = bookings.filter(b => b.status === 'awaiting_payment');
   const confirmedBookings = bookings.filter(b => b.status === 'confirmed');
   const pastBookings = bookings.filter(b => 
     b.status === 'completed' || b.status === 'cancelled' || b.status === 'declined'
   );
 
-  const BookingCard = ({ booking }: { booking: VendorBooking }) => {
+  const getPaymentBadge = (booking: ExtendedBooking) => {
+    const paymentStatus = (booking as any).payment_status;
+    if (!paymentStatus) return null;
+    
+    return (
+      <Badge variant={paymentStatus === 'paid' ? 'default' : 'secondary'} className="gap-1">
+        <CreditCard className="w-3 h-3" />
+        {paymentStatus}
+      </Badge>
+    );
+  };
+
+  const BookingCard = ({ booking }: { booking: ExtendedBooking }) => {
     const isPast = new Date(booking.event_date) < new Date();
     const isPending = booking.status === 'pending';
+    const isAwaitingPayment = booking.status === 'awaiting_payment';
 
     return (
       <Card className="overflow-hidden">
@@ -72,33 +128,58 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
               <span className="text-xl font-bold gradient-text">
                 ${booking.total_price}
               </span>
-              <Badge variant={
-                booking.status === 'confirmed' ? 'default' :
-                booking.status === 'pending' ? 'secondary' :
-                booking.status === 'completed' ? 'outline' : 'destructive'
-              }>
-                {booking.status}
-              </Badge>
+              <div className="flex items-center gap-2">
+                <Badge variant={
+                  booking.status === 'confirmed' ? 'default' :
+                  booking.status === 'pending' ? 'secondary' :
+                  booking.status === 'awaiting_payment' ? 'outline' :
+                  booking.status === 'completed' ? 'outline' : 'destructive'
+                }>
+                  {booking.status === 'awaiting_payment' ? 'Awaiting Payment' : booking.status}
+                </Badge>
+                {getPaymentBadge(booking)}
+              </div>
               
               {isPending && !isPast && (
                 <div className="flex gap-2 mt-2">
                   <Button
                     size="sm"
                     variant="gradient"
-                    onClick={() => handleStatusUpdate(booking.id, 'confirmed')}
-                    disabled={updating === booking.id}
+                    onClick={() => handleRequestPayment(booking)}
+                    disabled={requestingPayment === booking.id || updating === booking.id}
                   >
-                    <Check className="w-4 h-4 mr-1" />
-                    Accept
+                    {requestingPayment === booking.id ? (
+                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                    ) : (
+                      <CreditCard className="w-4 h-4 mr-1" />
+                    )}
+                    Accept & Request Payment
                   </Button>
                   <Button
                     size="sm"
                     variant="outline"
                     onClick={() => handleStatusUpdate(booking.id, 'declined')}
-                    disabled={updating === booking.id}
+                    disabled={updating === booking.id || requestingPayment === booking.id}
                   >
                     <X className="w-4 h-4 mr-1" />
                     Decline
+                  </Button>
+                </div>
+              )}
+
+              {isAwaitingPayment && !isPast && (
+                <div className="flex flex-col items-end gap-2 mt-2">
+                  <p className="text-xs text-muted-foreground">
+                    Waiting for customer payment...
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
+                    disabled={updating === booking.id}
+                    className="text-destructive"
+                  >
+                    Cancel Booking
                   </Button>
                 </div>
               )}
@@ -128,12 +209,20 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="pending" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="pending" className="relative">
               Pending
               {pendingBookings.length > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary text-primary-foreground rounded-full text-xs flex items-center justify-center">
                   {pendingBookings.length}
+                </span>
+              )}
+            </TabsTrigger>
+            <TabsTrigger value="awaiting" className="relative">
+              Awaiting
+              {awaitingPaymentBookings.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-amber-500 text-white rounded-full text-xs flex items-center justify-center">
+                  {awaitingPaymentBookings.length}
                 </span>
               )}
             </TabsTrigger>
@@ -148,6 +237,18 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
               </p>
             ) : (
               pendingBookings.map(booking => (
+                <BookingCard key={booking.id} booking={booking} />
+              ))
+            )}
+          </TabsContent>
+
+          <TabsContent value="awaiting" className="space-y-4">
+            {awaitingPaymentBookings.length === 0 ? (
+              <p className="text-muted-foreground text-center py-8">
+                No bookings awaiting payment
+              </p>
+            ) : (
+              awaitingPaymentBookings.map(booking => (
                 <BookingCard key={booking.id} booking={booking} />
               ))
             )}

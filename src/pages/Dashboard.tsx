@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,18 +7,96 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
-import { useBookings } from '@/hooks/useBookings';
+import { useBookings, BookingData } from '@/hooks/useBookings';
 import { vendors, packages } from '@/data/vendors';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar, MapPin, Clock, Heart, Package, 
-  User, LogOut, ChevronRight, Loader2, Star, Search
+  User, LogOut, ChevronRight, Loader2, Star, Search,
+  CreditCard, CheckCircle, AlertCircle
 } from 'lucide-react';
+
+interface ExtendedBooking extends BookingData {
+  payment_status?: string;
+  stripe_checkout_session_id?: string;
+}
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { user, loading: authLoading, signOut } = useAuth();
   const { favorites, loading: favLoading, toggleFavorite } = useFavorites();
-  const { bookings, loading: bookingsLoading } = useBookings();
+  const { bookings, loading: bookingsLoading, refetch } = useBookings();
+  const { toast } = useToast();
+  const [payingBooking, setPayingBooking] = useState<string | null>(null);
+
+  // Handle payment success/cancelled from URL params
+  useEffect(() => {
+    const payment = searchParams.get('payment');
+    const bookingId = searchParams.get('booking');
+    
+    if (payment === 'success' && bookingId) {
+      // Verify the payment
+      verifyPayment(bookingId);
+    } else if (payment === 'cancelled') {
+      toast({
+        title: "Payment cancelled",
+        description: "You can complete your payment later from your dashboard.",
+        variant: "destructive"
+      });
+    }
+    
+    // Clear the URL params
+    if (payment) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [searchParams]);
+
+  const verifyPayment = async (bookingId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-booking-payment', {
+        body: { booking_id: bookingId }
+      });
+
+      if (error) throw error;
+
+      if (data?.paid) {
+        toast({
+          title: "Payment successful!",
+          description: "Your booking has been confirmed.",
+        });
+        refetch();
+      }
+    } catch (error) {
+      console.error('Error verifying payment:', error);
+    }
+  };
+
+  const handlePayNow = async (booking: ExtendedBooking) => {
+    setPayingBooking(booking.id);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('create-booking-checkout', {
+        body: { booking_id: booking.id }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error('Error creating checkout:', error);
+      toast({
+        title: "Payment failed",
+        description: error instanceof Error ? error.message : "Please try again",
+        variant: "destructive"
+      });
+    } finally {
+      setPayingBooking(null);
+    }
+  };
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -44,6 +122,43 @@ export default function Dashboard() {
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
+  };
+
+  const getStatusBadge = (booking: ExtendedBooking) => {
+    const status = booking.status;
+    const paymentStatus = (booking as any).payment_status;
+    
+    if (status === 'awaiting_payment') {
+      return (
+        <Badge variant="glass" className="text-[10px] px-2 py-0.5 flex-shrink-0 gap-1 bg-amber-500/20 text-amber-500 border-amber-500/30">
+          <CreditCard className="w-3 h-3" />
+          Pay Now
+        </Badge>
+      );
+    }
+    
+    if (paymentStatus === 'paid') {
+      return (
+        <Badge variant="verified" className="text-[10px] px-2 py-0.5 flex-shrink-0 gap-1">
+          <CheckCircle className="w-3 h-3" />
+          Paid
+        </Badge>
+      );
+    }
+    
+    return (
+      <Badge 
+        variant={
+          status === 'confirmed' ? 'verified' :
+          status === 'completed' ? 'trust' :
+          status === 'cancelled' || status === 'declined' ? 'destructive' :
+          'glass'
+        }
+        className="text-[10px] px-2 py-0.5 flex-shrink-0"
+      >
+        {status}
+      </Badge>
+    );
   };
 
   return (
@@ -137,9 +252,10 @@ export default function Dashboard() {
               bookings.map(booking => {
                 const vendor = getVendor(booking.vendor_id);
                 const pkg = getPackage(booking.package_id);
+                const isAwaitingPayment = booking.status === 'awaiting_payment';
                 
                 return (
-                  <Card key={booking.id} variant="glow" className="p-4">
+                  <Card key={booking.id} variant={isAwaitingPayment ? 'gradient' : 'glow'} className="p-4">
                     <div className="flex gap-3">
                       {vendor && (
                         <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
@@ -160,17 +276,7 @@ export default function Dashboard() {
                               {vendor?.name || 'Vendor'}
                             </p>
                           </div>
-                          <Badge 
-                            variant={
-                              booking.status === 'confirmed' ? 'verified' :
-                              booking.status === 'completed' ? 'trust' :
-                              booking.status === 'cancelled' ? 'destructive' :
-                              'glass'
-                            }
-                            className="text-[10px] px-2 py-0.5 flex-shrink-0"
-                          >
-                            {booking.status}
-                          </Badge>
+                          {getStatusBadge(booking as ExtendedBooking)}
                         </div>
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
@@ -184,14 +290,32 @@ export default function Dashboard() {
                         </div>
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
                           <span className="font-bold text-sm gradient-text">${booking.total_price}</span>
-                          {vendor && (
-                            <Link to={`/vendor/${vendor.id}`}>
-                              <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2">
-                                View
-                                <ChevronRight className="w-3 h-3" />
+                          <div className="flex items-center gap-2">
+                            {isAwaitingPayment && (
+                              <Button 
+                                variant="gradient" 
+                                size="sm" 
+                                className="h-7 text-xs gap-1 px-3"
+                                onClick={() => handlePayNow(booking as ExtendedBooking)}
+                                disabled={payingBooking === booking.id}
+                              >
+                                {payingBooking === booking.id ? (
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <CreditCard className="w-3 h-3" />
+                                )}
+                                Pay Now
                               </Button>
-                            </Link>
-                          )}
+                            )}
+                            {vendor && (
+                              <Link to={`/vendor/${vendor.id}`}>
+                                <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2">
+                                  View
+                                  <ChevronRight className="w-3 h-3" />
+                                </Button>
+                              </Link>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>

@@ -18,12 +18,17 @@ export type Database = {
         Row: {
           add_ons: string[] | null
           created_at: string
+          customer_email: string | null
           event_date: string
           event_location: string
           id: string
           notes: string | null
           package_id: string
+          payment_amount: number | null
+          payment_status: string | null
           status: string
+          stripe_checkout_session_id: string | null
+          stripe_payment_intent_id: string | null
           total_price: number
           units: number
           updated_at: string
@@ -34,12 +39,17 @@ export type Database = {
         Insert: {
           add_ons?: string[] | null
           created_at?: string
+          customer_email?: string | null
           event_date: string
           event_location: string
           id?: string
           notes?: string | null
           package_id: string
+          payment_amount?: number | null
+          payment_status?: string | null
           status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
           total_price: number
           units?: number
           updated_at?: string
@@ -50,12 +60,17 @@ export type Database = {
         Update: {
           add_ons?: string[] | null
           created_at?: string
+          customer_email?: string | null
           event_date?: string
           event_location?: string
           id?: string
           notes?: string | null
           package_id?: string
+          payment_amount?: number | null
+          payment_status?: string | null
           status?: string
+          stripe_checkout_session_id?: string | null
+          stripe_payment_intent_id?: string | null
           total_price?: number
           units?: number
           updated_at?: string
