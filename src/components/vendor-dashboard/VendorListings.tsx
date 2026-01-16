@@ -82,7 +82,7 @@ export function VendorListings({
         <div>
           <h2 className="text-xl font-bold">Your Listings</h2>
           <p className="text-sm text-muted-foreground">
-            {packages.length}/20 packages • Drag to reorder
+            {packages.length}/20 packages • Drag or use arrow keys to reorder
           </p>
         </div>
         <Button 
@@ -117,8 +117,8 @@ export function VendorListings({
             items={packages.map(p => p.id)}
             strategy={verticalListSortingStrategy}
           >
-            <div className="space-y-4">
-              {packages.map((pkg) => (
+            <div className="space-y-4" role="list" aria-label="Packages list. Use arrow keys on drag handles to reorder.">
+              {packages.map((pkg, index) => (
                 <SortablePackageCard
                   key={pkg.id}
                   pkg={pkg}
@@ -127,6 +127,22 @@ export function VendorListings({
                   onDelete={handleDelete}
                   onToggleActive={handleToggleActive}
                   isDeleting={deletingId === pkg.id}
+                  isFirst={index === 0}
+                  isLast={index === packages.length - 1}
+                  onMoveUp={() => {
+                    if (index > 0) {
+                      const reordered = [...packages];
+                      [reordered[index - 1], reordered[index]] = [reordered[index], reordered[index - 1]];
+                      onReorder?.(reordered);
+                    }
+                  }}
+                  onMoveDown={() => {
+                    if (index < packages.length - 1) {
+                      const reordered = [...packages];
+                      [reordered[index], reordered[index + 1]] = [reordered[index + 1], reordered[index]];
+                      onReorder?.(reordered);
+                    }
+                  }}
                 />
               ))}
             </div>
