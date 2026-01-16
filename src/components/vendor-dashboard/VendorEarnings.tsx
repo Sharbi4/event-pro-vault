@@ -1,6 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { DollarSign, TrendingUp, TrendingDown, Wallet, Receipt, ArrowDownRight, ArrowUpRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { DollarSign, TrendingUp, TrendingDown, Wallet, Receipt, ArrowDownRight, ArrowUpRight, Download } from 'lucide-react';
 import { VendorBooking } from '@/hooks/useVendorDashboard';
+import { useToast } from '@/hooks/use-toast';
 
 // Platform fee rate (12.9% commission on vendor)
 const VENDOR_COMMISSION_RATE = 0.129;
@@ -20,6 +22,112 @@ interface VendorEarningsProps {
 }
 
 export function VendorEarnings({ bookings }: VendorEarningsProps) {
+  const { toast } = useToast();
+
+  // Export to CSV function
+  const exportToCSV = () => {
+    const paidBookings = bookings.filter((b: any) => b.deposit_paid_at || b.final_paid_at);
+    
+    if (paidBookings.length === 0) {
+      toast({
+        title: "No data to export",
+        description: "Complete some bookings first to generate earnings data.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // CSV headers
+    const headers = [
+      'Date',
+      'Event Location',
+      'Event Date',
+      'Payment Type',
+      'Gross Amount ($)',
+      'Platform Fee ($)',
+      'Net Payout ($)',
+      'Status'
+    ];
+
+    // Generate rows for each payment
+    const rows: string[][] = [];
+    
+    paidBookings.forEach((booking: any) => {
+      const eventDate = new Date(booking.event_date).toLocaleDateString('en-US');
+      
+      if (booking.deposit_paid_at) {
+        const depositAmount = (booking.deposit_amount || 0) / 100;
+        const baseDeposit = depositAmount / 1.129;
+        const depositFee = baseDeposit * VENDOR_COMMISSION_RATE;
+        const netDeposit = baseDeposit - depositFee;
+        
+        rows.push([
+          new Date(booking.deposit_paid_at).toLocaleDateString('en-US'),
+          `"${booking.event_location}"`,
+          eventDate,
+          'Deposit',
+          baseDeposit.toFixed(2),
+          depositFee.toFixed(2),
+          netDeposit.toFixed(2),
+          'Paid'
+        ]);
+      }
+      
+      if (booking.final_paid_at) {
+        const finalAmount = (booking.final_amount || 0) / 100;
+        const baseFinal = finalAmount / 1.129;
+        const finalFee = baseFinal * VENDOR_COMMISSION_RATE;
+        const netFinal = baseFinal - finalFee;
+        
+        rows.push([
+          new Date(booking.final_paid_at).toLocaleDateString('en-US'),
+          `"${booking.event_location}"`,
+          eventDate,
+          'Final Payment',
+          baseFinal.toFixed(2),
+          finalFee.toFixed(2),
+          netFinal.toFixed(2),
+          'Paid'
+        ]);
+      }
+    });
+
+    // Sort by date descending
+    rows.sort((a, b) => new Date(b[0]).getTime() - new Date(a[0]).getTime());
+
+    // Calculate totals
+    const totalGross = rows.reduce((sum, row) => sum + parseFloat(row[4]), 0);
+    const totalFees = rows.reduce((sum, row) => sum + parseFloat(row[5]), 0);
+    const totalNet = rows.reduce((sum, row) => sum + parseFloat(row[6]), 0);
+
+    // Add totals row
+    rows.push([]);
+    rows.push(['', '', '', 'TOTALS', totalGross.toFixed(2), totalFees.toFixed(2), totalNet.toFixed(2), '']);
+
+    // Build CSV content
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    const today = new Date().toISOString().split('T')[0];
+    link.setAttribute('href', url);
+    link.setAttribute('download', `earnings-report-${today}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    toast({
+      title: "Export successful",
+      description: `Downloaded earnings report with ${rows.length - 2} transactions.`
+    });
+  };
   // Calculate earnings from bookings with payment data
   const calculateEarnings = (): EarningsData => {
     let grossRevenue = 0;
@@ -221,8 +329,12 @@ export function VendorEarnings({ bookings }: VendorEarningsProps) {
 
       {/* Recent Transactions */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Recent Transactions</CardTitle>
+          <Button variant="outline" size="sm" onClick={exportToCSV} className="gap-2">
+            <Download className="h-4 w-4" />
+            Export CSV
+          </Button>
         </CardHeader>
         <CardContent>
           {bookings.filter((b: any) => b.deposit_paid_at || b.final_paid_at).length === 0 ? (
