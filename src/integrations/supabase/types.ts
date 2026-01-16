@@ -29,6 +29,7 @@ export type Database = {
           updated_at: string
           user_id: string
           vendor_id: string
+          vendor_user_id: string | null
         }
         Insert: {
           add_ons?: string[] | null
@@ -44,6 +45,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           vendor_id: string
+          vendor_user_id?: string | null
         }
         Update: {
           add_ons?: string[] | null
@@ -59,6 +61,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           vendor_id?: string
+          vendor_user_id?: string | null
         }
         Relationships: []
       }
@@ -167,6 +170,60 @@ export type Database = {
           updated_at?: string
           user_id?: string
           website_url?: string | null
+        }
+        Relationships: []
+      }
+      vendor_packages: {
+        Row: {
+          add_ons: Json | null
+          created_at: string
+          description: string | null
+          id: string
+          includes: string[] | null
+          instant_book: boolean | null
+          is_active: boolean | null
+          min_units: number
+          name: string
+          price: number
+          requirements: string[] | null
+          sort_order: number | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          add_ons?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          includes?: string[] | null
+          instant_book?: boolean | null
+          is_active?: boolean | null
+          min_units?: number
+          name: string
+          price: number
+          requirements?: string[] | null
+          sort_order?: number | null
+          type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          add_ons?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          includes?: string[] | null
+          instant_book?: boolean | null
+          is_active?: boolean | null
+          min_units?: number
+          name?: string
+          price?: number
+          requirements?: string[] | null
+          sort_order?: number | null
+          type?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

@@ -14,6 +14,7 @@ import BecomePro from "./pages/BecomePro";
 import HowItWorks from "./pages/HowItWorks";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import VendorDashboard from "./pages/VendorDashboard";
 import VendorOnboarding from "./pages/VendorOnboarding";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/auth" element={<Auth />} />
               <Route path="/signin" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/vendor-dashboard" element={<VendorDashboard />} />
               <Route path="/vendor-onboarding" element={<VendorOnboarding />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
