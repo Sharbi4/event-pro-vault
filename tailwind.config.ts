@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        display: ['Space Grotesk', 'sans-serif'],
+        sans: ['Sofia Pro Soft', 'sans-serif'],
+        display: ['Sofia Pro Soft', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
