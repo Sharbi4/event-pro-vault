@@ -92,4 +92,5 @@ export interface Category {
   icon: string;
   description: string;
   count: number;
+  featured?: boolean;
 }
