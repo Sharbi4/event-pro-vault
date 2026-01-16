@@ -5,11 +5,13 @@ import { ArrowRight, DollarSign, Calendar, Users } from 'lucide-react';
 export function VendorCTA() {
   return (
     <section className="py-20 lg:py-28 relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[100px]" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-[100px]" />
-      </div>
+      {/* Animated gradient mesh background */}
+      <div className="absolute inset-0 gradient-mesh opacity-60" />
+      
+      {/* Floating animated orbs */}
+      <div className="absolute top-10 left-1/4 w-80 h-80 bg-gradient-to-br from-primary/30 to-accent/20 rounded-full blur-[80px] orb-animate" />
+      <div className="absolute bottom-10 right-1/4 w-96 h-96 bg-gradient-to-br from-accent/25 to-primary/15 rounded-full blur-[100px] orb-animate-delay" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-br from-trust/20 to-primary/10 rounded-full blur-[60px] orb-animate" style={{ animationDelay: '-3s' }} />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
@@ -53,7 +55,7 @@ export function VendorCTA() {
           </div>
 
           <Link to="/become-a-pro">
-            <Button variant="gradient" size="xl" className="gap-2">
+            <Button variant="gradient" size="xl" className="gap-2 shimmer-effect">
               Start Listing Free
               <ArrowRight className="w-5 h-5" />
             </Button>
