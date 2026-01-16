@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { DollarSign, TrendingUp, TrendingDown, Wallet, Receipt, ArrowDownRight, ArrowUpRight, Download, CalendarIcon, X } from 'lucide-react';
+import { DollarSign, TrendingUp, TrendingDown, Wallet, Receipt, ArrowDownRight, ArrowUpRight, Download, CalendarIcon, X, BarChart3 } from 'lucide-react';
 import { VendorBooking } from '@/hooks/useVendorDashboard';
 import { useToast } from '@/hooks/use-toast';
-import { format, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
+import { format, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, isWithinInterval, startOfDay, endOfDay, eachMonthOfInterval, isSameMonth } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 // Platform fee rate (12.9% commission on vendor)
 const VENDOR_COMMISSION_RATE = 0.129;
@@ -44,6 +45,7 @@ export function VendorEarnings({ bookings }: VendorEarningsProps) {
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
   const [activePreset, setActivePreset] = useState<string>('All Time');
+  const [chartType, setChartType] = useState<'area' | 'bar'>('area');
 
   // Filter bookings by date range
   const filterByDateRange = (booking: any): boolean => {
@@ -280,6 +282,85 @@ export function VendorEarnings({ bookings }: VendorEarningsProps) {
     ? ((thisMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100 
     : 0;
 
+  // Generate chart data for last 12 months
+  const chartData = useMemo(() => {
+    const now = new Date();
+    const monthsToShow = 12;
+    const startDate = subMonths(startOfMonth(now), monthsToShow - 1);
+    const endDate = endOfMonth(now);
+    
+    const months = eachMonthOfInterval({ start: startDate, end: endDate });
+    
+    return months.map(month => {
+      let grossRevenue = 0;
+      let netPayout = 0;
+      let transactionCount = 0;
+      
+      bookings.forEach((booking: any) => {
+        // Check deposit payments
+        if (booking.deposit_paid_at) {
+          const depositDate = new Date(booking.deposit_paid_at);
+          if (isSameMonth(depositDate, month)) {
+            const depositAmount = (booking.deposit_amount || 0) / 100;
+            const baseDeposit = depositAmount / 1.129;
+            const fee = baseDeposit * VENDOR_COMMISSION_RATE;
+            grossRevenue += baseDeposit;
+            netPayout += baseDeposit - fee;
+            transactionCount++;
+          }
+        }
+        
+        // Check final payments
+        if (booking.final_paid_at) {
+          const finalDate = new Date(booking.final_paid_at);
+          if (isSameMonth(finalDate, month)) {
+            const finalAmount = (booking.final_amount || 0) / 100;
+            const baseFinal = finalAmount / 1.129;
+            const fee = baseFinal * VENDOR_COMMISSION_RATE;
+            grossRevenue += baseFinal;
+            netPayout += baseFinal - fee;
+            transactionCount++;
+          }
+        }
+      });
+      
+      return {
+        month: format(month, 'MMM yyyy'),
+        shortMonth: format(month, 'MMM'),
+        grossRevenue: Math.round(grossRevenue * 100) / 100,
+        netPayout: Math.round(netPayout * 100) / 100,
+        platformFees: Math.round((grossRevenue - netPayout) * 100) / 100,
+        transactions: transactionCount
+      };
+    });
+  }, [bookings]);
+
+  // Custom tooltip for the chart
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-popover border rounded-lg shadow-lg p-3">
+          <p className="font-medium mb-2">{label}</p>
+          <div className="space-y-1 text-sm">
+            <p className="text-trust">
+              Gross: ${payload[0]?.payload?.grossRevenue?.toFixed(2)}
+            </p>
+            <p className="text-primary">
+              Net: ${payload[0]?.payload?.netPayout?.toFixed(2)}
+            </p>
+            <p className="text-destructive">
+              Fees: -${payload[0]?.payload?.platformFees?.toFixed(2)}
+            </p>
+            <p className="text-muted-foreground">
+              {payload[0]?.payload?.transactions} transaction(s)
+            </p>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="space-y-6">
       {/* Date Range Filter */}
@@ -387,6 +468,133 @@ export function VendorEarnings({ bookings }: VendorEarningsProps) {
           </CardContent>
         </Card>
       </div>
+
+      {/* Earnings Chart */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Earnings Trend (Last 12 Months)
+          </CardTitle>
+          <div className="flex gap-1">
+            <Button
+              variant={chartType === 'area' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setChartType('area')}
+            >
+              Area
+            </Button>
+            <Button
+              variant={chartType === 'bar' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setChartType('bar')}
+            >
+              Bar
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {chartData.some(d => d.grossRevenue > 0) ? (
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                {chartType === 'area' ? (
+                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorGross" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--trust))" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="hsl(var(--trust))" stopOpacity={0} />
+                      </linearGradient>
+                      <linearGradient id="colorNet" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3} />
+                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="shortMonth" 
+                      className="text-xs fill-muted-foreground"
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis 
+                      className="text-xs fill-muted-foreground"
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `$${value}`}
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Area
+                      type="monotone"
+                      dataKey="grossRevenue"
+                      stroke="hsl(var(--trust))"
+                      strokeWidth={2}
+                      fill="url(#colorGross)"
+                      name="Gross Revenue"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="netPayout"
+                      stroke="hsl(var(--primary))"
+                      strokeWidth={2}
+                      fill="url(#colorNet)"
+                      name="Net Payout"
+                    />
+                  </AreaChart>
+                ) : (
+                  <BarChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                    <XAxis 
+                      dataKey="shortMonth" 
+                      className="text-xs fill-muted-foreground"
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis 
+                      className="text-xs fill-muted-foreground"
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(value) => `$${value}`}
+                    />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Bar 
+                      dataKey="grossRevenue" 
+                      fill="hsl(var(--trust))" 
+                      radius={[4, 4, 0, 0]}
+                      name="Gross Revenue"
+                    />
+                    <Bar 
+                      dataKey="netPayout" 
+                      fill="hsl(var(--primary))" 
+                      radius={[4, 4, 0, 0]}
+                      name="Net Payout"
+                    />
+                  </BarChart>
+                )}
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <div className="h-[300px] flex items-center justify-center text-muted-foreground">
+              <div className="text-center">
+                <BarChart3 className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                <p>No earnings data yet</p>
+                <p className="text-sm">Complete some bookings to see your earnings trend</p>
+              </div>
+            </div>
+          )}
+          
+          {/* Legend */}
+          <div className="flex justify-center gap-6 mt-4">
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-trust" />
+              <span className="text-sm text-muted-foreground">Gross Revenue</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-3 h-3 rounded-full bg-primary" />
+              <span className="text-sm text-muted-foreground">Net Payout</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Secondary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
