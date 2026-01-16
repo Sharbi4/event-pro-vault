@@ -11,8 +11,9 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[CREATE-BOOKING-CHECKOUT] ${step}`, details ? JSON.stringify(details) : '');
 };
 
-// Platform fee percentage (e.g., 10%)
-const PLATFORM_FEE_PERCENT = 10;
+// Fee structure: 12.9% from vendor (commission) + 12.9% from booker (service fee)
+const VENDOR_COMMISSION_PERCENT = 12.9;
+const BOOKER_SERVICE_FEE_PERCENT = 12.9;
 // Default deposit percentage
 const DEFAULT_DEPOSIT_PERCENT = 50;
 
@@ -82,16 +83,29 @@ serve(async (req) => {
     });
 
     // Calculate amounts (in cents)
-    const totalAmountCents = Math.round(booking.total_price * 100);
-    const depositAmountCents = Math.round(totalAmountCents * (deposit_percentage / 100));
-    const finalAmountCents = totalAmountCents - depositAmountCents;
-    const platformFeeCents = Math.round(depositAmountCents * (PLATFORM_FEE_PERCENT / 100));
+    // Base price from vendor
+    const baseTotalCents = Math.round(booking.total_price * 100);
+    const baseDepositCents = Math.round(baseTotalCents * (deposit_percentage / 100));
+    const baseFinalCents = baseTotalCents - baseDepositCents;
+    
+    // Booker service fee (12.9% added to what customer pays)
+    const bookerServiceFeeCents = Math.round(baseDepositCents * (BOOKER_SERVICE_FEE_PERCENT / 100));
+    const customerPaysCents = baseDepositCents + bookerServiceFeeCents;
+    
+    // Vendor commission (12.9% deducted from vendor's portion)
+    const vendorCommissionCents = Math.round(baseDepositCents * (VENDOR_COMMISSION_PERCENT / 100));
+    
+    // Total platform revenue = booker fee + vendor commission
+    const totalPlatformFeeCents = bookerServiceFeeCents + vendorCommissionCents;
 
     logStep("Calculated amounts", {
-      total: totalAmountCents,
-      deposit: depositAmountCents,
-      final: finalAmountCents,
-      platformFee: platformFeeCents
+      baseTotal: baseTotalCents,
+      baseDeposit: baseDepositCents,
+      baseFinal: baseFinalCents,
+      bookerServiceFee: bookerServiceFeeCents,
+      customerPays: customerPaysCents,
+      vendorCommission: vendorCommissionCents,
+      totalPlatformFee: totalPlatformFeeCents
     });
 
     // Check if customer already exists in Stripe
@@ -101,6 +115,9 @@ serve(async (req) => {
       customerId = customers.data[0].id;
       logStep("Found existing Stripe customer", { customerId });
     }
+
+    // Calculate final amount customer will owe (base final + service fee)
+    const finalCustomerPaysCents = baseFinalCents + Math.round(baseFinalCents * (BOOKER_SERVICE_FEE_PERCENT / 100));
 
     // Create checkout session for deposit with Connect
     const session = await stripe.checkout.sessions.create({
@@ -117,16 +134,16 @@ serve(async (req) => {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
-              })}. Remaining ${100 - deposit_percentage}% ($${(finalAmountCents / 100).toFixed(2)}) due on event day.`,
+              })}. Includes ${BOOKER_SERVICE_FEE_PERCENT}% service fee. Remaining $${(finalCustomerPaysCents / 100).toFixed(2)} due on event day.`,
             },
-            unit_amount: depositAmountCents,
+            unit_amount: customerPaysCents,
           },
           quantity: 1,
         },
       ],
       mode: "payment",
       payment_intent_data: {
-        application_fee_amount: platformFeeCents,
+        application_fee_amount: totalPlatformFeeCents,
         transfer_data: {
           destination: vendorProfile.stripe_account_id,
         },
@@ -154,11 +171,11 @@ serve(async (req) => {
         stripe_checkout_session_id: session.id,
         customer_email: customerEmail,
         payment_status: 'pending',
-        deposit_amount: depositAmountCents,
+        deposit_amount: customerPaysCents, // What customer pays (includes service fee)
         deposit_percentage: deposit_percentage,
-        final_amount: finalAmountCents,
+        final_amount: finalCustomerPaysCents, // What customer will pay for final (includes service fee)
         vendor_stripe_account_id: vendorProfile.stripe_account_id,
-        platform_fee_amount: platformFeeCents,
+        platform_fee_amount: totalPlatformFeeCents, // Combined platform revenue
       })
       .eq('id', booking_id);
 
@@ -169,8 +186,9 @@ serve(async (req) => {
     return new Response(JSON.stringify({ 
       url: session.url, 
       session_id: session.id,
-      deposit_amount: depositAmountCents / 100,
-      final_amount: finalAmountCents / 100,
+      deposit_amount: customerPaysCents / 100,
+      final_amount: finalCustomerPaysCents / 100,
+      service_fee: bookerServiceFeeCents / 100,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
