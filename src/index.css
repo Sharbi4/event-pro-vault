@@ -6,71 +6,72 @@
 
 @layer base {
   :root {
-    /* Natural warm off-white background */
-    --background: 40 30% 96%;
-    --foreground: 20 20% 15%;
+    /* Clean modern light background */
+    --background: 0 0% 98%;
+    --foreground: 240 10% 10%;
 
-    --card: 40 25% 99%;
-    --card-foreground: 20 20% 15%;
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 10%;
 
-    --popover: 40 25% 98%;
-    --popover-foreground: 20 20% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 10%;
 
-    /* Vibrant orange-fuchsia primary */
-    --primary: 15 95% 50%;
+    /* Vibrant coral-orange primary */
+    --primary: 18 100% 55%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - warm muted */
-    --secondary: 35 20% 92%;
-    --secondary-foreground: 20 20% 20%;
+    /* Secondary - cool neutral */
+    --secondary: 240 5% 94%;
+    --secondary-foreground: 240 10% 20%;
 
-    --muted: 35 15% 90%;
-    --muted-foreground: 20 10% 45%;
+    --muted: 240 5% 92%;
+    --muted-foreground: 240 5% 45%;
 
-    /* Purple accent */
-    --accent: 270 75% 55%;
+    /* Electric violet accent */
+    --accent: 265 100% 60%;
     --accent-foreground: 0 0% 100%;
 
-    /* Golden yellow trust accent */
-    --trust: 45 100% 50%;
-    --trust-foreground: 20 20% 10%;
+    /* Bright gold trust accent */
+    --trust: 42 100% 55%;
+    --trust-foreground: 240 10% 10%;
 
-    --destructive: 0 84% 55%;
+    --destructive: 0 85% 55%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 35 20% 88%;
-    --input: 35 20% 92%;
-    --ring: 15 95% 50%;
+    --border: 240 6% 90%;
+    --input: 240 5% 94%;
+    --ring: 265 100% 60%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
 
-    /* Dynamic gradient spectrum */
-    --gradient-orange: 15 95% 50%;
-    --gradient-purple: 270 75% 55%;
-    --gradient-yellow: 45 100% 50%;
-    --gradient-red: 5 90% 55%;
-    --gradient-start: hsl(15 95% 50%);
-    --gradient-mid: hsl(270 75% 55%);
-    --gradient-end: hsl(45 100% 50%);
+    /* Modern vibrant gradient spectrum */
+    --gradient-orange: 18 100% 55%;
+    --gradient-violet: 265 100% 60%;
+    --gradient-purple: 280 90% 55%;
+    --gradient-gold: 42 100% 55%;
+    --gradient-coral: 10 95% 60%;
+    --gradient-start: hsl(18 100% 55%);
+    --gradient-mid: hsl(265 100% 60%);
+    --gradient-end: hsl(42 100% 55%);
 
-    /* Glass effect - light warm */
-    --glass-bg: 40 30% 98% / 0.9;
-    --glass-border: 35 20% 85%;
+    /* Glass effect - modern frosted */
+    --glass-bg: 0 0% 100% / 0.85;
+    --glass-border: 240 6% 88%;
 
-    /* Glow effects - warm spectrum */
-    --glow-orange: 15 95% 50% / 0.25;
-    --glow-purple: 270 75% 55% / 0.2;
-    --glow-yellow: 45 100% 50% / 0.15;
+    /* Glow effects - vibrant spectrum */
+    --glow-orange: 18 100% 55% / 0.3;
+    --glow-violet: 265 100% 60% / 0.25;
+    --glow-gold: 42 100% 55% / 0.2;
 
     /* Sidebar */
-    --sidebar-background: 40 25% 97%;
-    --sidebar-foreground: 20 20% 15%;
-    --sidebar-primary: 15 95% 50%;
+    --sidebar-background: 0 0% 99%;
+    --sidebar-foreground: 240 10% 10%;
+    --sidebar-primary: 18 100% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 35 20% 92%;
-    --sidebar-accent-foreground: 20 20% 20%;
-    --sidebar-border: 35 20% 88%;
-    --sidebar-ring: 15 95% 50%;
+    --sidebar-accent: 240 5% 94%;
+    --sidebar-accent-foreground: 240 10% 20%;
+    --sidebar-border: 240 6% 90%;
+    --sidebar-ring: 265 100% 60%;
   }
 }
 
@@ -90,33 +91,40 @@
 }
 
 @layer components {
-  /* Dynamic multi-color gradient */
+  /* Modern vibrant gradient */
   .gradient-primary {
     background: linear-gradient(135deg, 
       hsl(var(--gradient-orange)) 0%, 
-      hsl(var(--gradient-purple)) 50%, 
-      hsl(var(--gradient-yellow)) 100%);
+      hsl(var(--gradient-violet)) 50%, 
+      hsl(var(--gradient-purple)) 100%);
   }
 
   .gradient-warm {
     background: linear-gradient(135deg, 
-      hsl(var(--gradient-orange)) 0%, 
-      hsl(var(--gradient-red)) 50%, 
-      hsl(var(--gradient-purple)) 100%);
+      hsl(var(--gradient-coral)) 0%, 
+      hsl(var(--gradient-orange)) 40%, 
+      hsl(var(--gradient-violet)) 100%);
   }
 
   .gradient-sunset {
     background: linear-gradient(135deg, 
-      hsl(var(--gradient-yellow)) 0%, 
-      hsl(var(--gradient-orange)) 35%, 
-      hsl(var(--gradient-purple)) 100%);
+      hsl(var(--gradient-gold)) 0%, 
+      hsl(var(--gradient-orange)) 40%, 
+      hsl(var(--gradient-violet)) 100%);
+  }
+
+  .gradient-electric {
+    background: linear-gradient(135deg, 
+      hsl(var(--gradient-violet)) 0%, 
+      hsl(var(--gradient-purple)) 50%, 
+      hsl(var(--gradient-orange)) 100%);
   }
 
   .gradient-text {
     background: linear-gradient(135deg, 
       hsl(var(--gradient-orange)) 0%, 
-      hsl(var(--gradient-purple)) 50%, 
-      hsl(var(--gradient-yellow)) 100%);
+      hsl(var(--gradient-violet)) 50%, 
+      hsl(var(--gradient-purple)) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -124,9 +132,9 @@
 
   .gradient-text-warm {
     background: linear-gradient(90deg, 
-      hsl(var(--gradient-yellow)) 0%, 
+      hsl(var(--gradient-gold)) 0%, 
       hsl(var(--gradient-orange)) 50%, 
-      hsl(var(--gradient-purple)) 100%);
+      hsl(var(--gradient-violet)) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -143,11 +151,11 @@
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    padding: 1px;
+    padding: 2px;
     background: linear-gradient(135deg, 
       hsl(var(--gradient-orange)) 0%, 
-      hsl(var(--gradient-purple)) 50%, 
-      hsl(var(--gradient-yellow)) 100%);
+      hsl(var(--gradient-violet)) 50%, 
+      hsl(var(--gradient-purple)) 100%);
     -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
@@ -155,40 +163,41 @@
     pointer-events: none;
   }
 
-  /* Glass card effect */
+  /* Modern glass card effect */
   .glass-card {
     background: hsl(var(--glass-bg));
-    backdrop-filter: blur(16px);
+    backdrop-filter: blur(20px);
     border: 1px solid hsl(var(--glass-border));
     border-radius: var(--radius);
+    box-shadow: 0 4px 24px -4px hsl(240 10% 10% / 0.08);
   }
 
-  /* Dynamic glow effects */
+  /* Vibrant glow effects */
   .glow-orange {
     box-shadow: 0 0 40px hsl(var(--glow-orange)), 0 0 80px hsl(var(--glow-orange));
   }
 
-  .glow-purple {
-    box-shadow: 0 0 40px hsl(var(--glow-purple)), 0 0 80px hsl(var(--glow-purple));
+  .glow-violet {
+    box-shadow: 0 0 40px hsl(var(--glow-violet)), 0 0 80px hsl(var(--glow-violet));
   }
 
   .glow-gradient {
     box-shadow: 
       0 0 30px hsl(var(--glow-orange)),
-      0 0 60px hsl(var(--glow-purple)),
-      0 0 90px hsl(var(--glow-yellow));
+      0 0 60px hsl(var(--glow-violet)),
+      0 0 90px hsl(var(--glow-gold));
   }
 
-  /* Hover glow animation */
+  /* Modern hover glow */
   .hover-glow {
-    transition: box-shadow 0.3s ease, transform 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   .hover-glow:hover {
     box-shadow: 
-      0 0 25px hsl(var(--glow-orange)),
-      0 0 50px hsl(var(--glow-purple));
-    transform: translateY(-2px);
+      0 8px 32px hsl(var(--glow-orange)),
+      0 16px 48px hsl(var(--glow-violet));
+    transform: translateY(-3px);
   }
 
   /* Trust accent */
@@ -200,16 +209,34 @@
     background-color: hsl(var(--trust));
   }
 
-  /* Ambient background glow - subtle for light theme */
+  /* Subtle ambient background glow */
   .ambient-glow {
     position: fixed;
     inset: 0;
     pointer-events: none;
     background: 
-      radial-gradient(ellipse 80% 50% at 20% 20%, hsl(var(--gradient-orange) / 0.06) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 40% at 80% 80%, hsl(var(--gradient-purple) / 0.05) 0%, transparent 50%),
-      radial-gradient(ellipse 50% 30% at 50% 50%, hsl(var(--gradient-yellow) / 0.04) 0%, transparent 50%);
+      radial-gradient(ellipse 100% 60% at 10% 10%, hsl(var(--gradient-orange) / 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse 80% 50% at 90% 90%, hsl(var(--gradient-violet) / 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 50% 50%, hsl(var(--gradient-purple) / 0.04) 0%, transparent 50%);
     z-index: -1;
+  }
+
+  /* Modern card with subtle shadow */
+  .modern-card {
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+    box-shadow: 
+      0 1px 2px hsl(240 10% 10% / 0.04),
+      0 4px 16px -4px hsl(240 10% 10% / 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .modern-card:hover {
+    box-shadow: 
+      0 4px 8px hsl(240 10% 10% / 0.06),
+      0 12px 32px -8px hsl(240 10% 10% / 0.12);
+    transform: translateY(-2px);
   }
 }
 
@@ -258,10 +285,10 @@
       box-shadow: 0 0 20px hsl(var(--glow-orange)); 
     }
     33% { 
-      box-shadow: 0 0 35px hsl(var(--glow-purple)), 0 0 60px hsl(var(--glow-orange)); 
+      box-shadow: 0 0 35px hsl(var(--glow-violet)), 0 0 60px hsl(var(--glow-orange)); 
     }
     66% { 
-      box-shadow: 0 0 30px hsl(var(--glow-yellow)), 0 0 50px hsl(var(--glow-purple)); 
+      box-shadow: 0 0 30px hsl(var(--glow-gold)), 0 0 50px hsl(var(--glow-violet)); 
     }
   }
 
