@@ -1,22 +1,49 @@
-import { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import { useCallback, useState } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { Vendor } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Key, MapPin } from 'lucide-react';
 
 // Vendor location coordinates (mock data based on their cities)
-const vendorCoordinates: Record<string, [number, number]> = {
-  'v1': [-118.2437, 34.0522],   // Los Angeles
-  'v2': [-80.1918, 25.7617],    // Miami
-  'v3': [-74.006, 40.7128],     // New York
-  'v4': [-122.4194, 37.7749],   // San Francisco
-  'v5': [-115.1398, 36.1699],   // Las Vegas
-  'v6': [-97.7431, 30.2672],    // Austin
-  'v7': [-104.9903, 39.7392],   // Denver
-  'v8': [-117.1611, 32.7157],   // San Diego
+const vendorCoordinates: Record<string, { lat: number; lng: number }> = {
+  'v1': { lat: 34.0522, lng: -118.2437 },   // Los Angeles
+  'v2': { lat: 25.7617, lng: -80.1918 },    // Miami
+  'v3': { lat: 40.7128, lng: -74.006 },     // New York
+  'v4': { lat: 37.7749, lng: -122.4194 },   // San Francisco
+  'v5': { lat: 36.1699, lng: -115.1398 },   // Las Vegas
+  'v6': { lat: 30.2672, lng: -97.7431 },    // Austin
+  'v7': { lat: 39.7392, lng: -104.9903 },   // Denver
+  'v8': { lat: 32.7157, lng: -117.1611 },   // San Diego
 };
+
+const mapContainerStyle = {
+  width: '100%',
+  height: '100%',
+};
+
+const defaultCenter = { lat: 39.8283, lng: -98.5795 }; // Center of US
+
+const darkMapStyles = [
+  { elementType: 'geometry', stylers: [{ color: '#1a1a2e' }] },
+  { elementType: 'labels.text.stroke', stylers: [{ color: '#1a1a2e' }] },
+  { elementType: 'labels.text.fill', stylers: [{ color: '#746855' }] },
+  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+  { featureType: 'poi', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#263c3f' }] },
+  { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#6b9a76' }] },
+  { featureType: 'road', elementType: 'geometry', stylers: [{ color: '#38414e' }] },
+  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#212a37' }] },
+  { featureType: 'road', elementType: 'labels.text.fill', stylers: [{ color: '#9ca5b3' }] },
+  { featureType: 'road.highway', elementType: 'geometry', stylers: [{ color: '#746855' }] },
+  { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#1f2835' }] },
+  { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#f3d19c' }] },
+  { featureType: 'transit', elementType: 'geometry', stylers: [{ color: '#2f3948' }] },
+  { featureType: 'transit.station', elementType: 'labels.text.fill', stylers: [{ color: '#d59563' }] },
+  { featureType: 'water', elementType: 'geometry', stylers: [{ color: '#17263c' }] },
+  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#515c6d' }] },
+  { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#17263c' }] },
+];
 
 interface VendorMapProps {
   vendors: Vendor[];
@@ -25,107 +52,52 @@ interface VendorMapProps {
 }
 
 export function VendorMap({ vendors, onVendorSelect, selectedVendorId }: VendorMapProps) {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
-  const [mapboxToken, setMapboxToken] = useState<string>(
-    localStorage.getItem('mapbox_token') || ''
+  const [googleApiKey, setGoogleApiKey] = useState<string>(
+    localStorage.getItem('google_maps_token') || ''
   );
-  const [isTokenSet, setIsTokenSet] = useState(!!localStorage.getItem('mapbox_token'));
+  const [isTokenSet, setIsTokenSet] = useState(!!localStorage.getItem('google_maps_token'));
+  const [activeMarker, setActiveMarker] = useState<string | null>(null);
+  const [map, setMap] = useState<google.maps.Map | null>(null);
+
+  const { isLoaded, loadError } = useJsApiLoader({
+    googleMapsApiKey: localStorage.getItem('google_maps_token') || '',
+  });
 
   const handleSetToken = () => {
-    if (mapboxToken.trim()) {
-      localStorage.setItem('mapbox_token', mapboxToken.trim());
+    if (googleApiKey.trim()) {
+      localStorage.setItem('google_maps_token', googleApiKey.trim());
       setIsTokenSet(true);
+      window.location.reload(); // Reload to reinitialize with new key
     }
   };
 
-  useEffect(() => {
-    if (!mapContainer.current || !isTokenSet) return;
+  const onLoad = useCallback((map: google.maps.Map) => {
+    setMap(map);
+  }, []);
 
-    const token = localStorage.getItem('mapbox_token');
-    if (!token) return;
+  const onUnmount = useCallback(() => {
+    setMap(null);
+  }, []);
 
-    mapboxgl.accessToken = token;
+  const handleMarkerClick = (vendorId: string) => {
+    setActiveMarker(vendorId);
+    onVendorSelect?.(vendorId);
+    
+    const coords = vendorCoordinates[vendorId];
+    if (coords && map) {
+      map.panTo(coords);
+      map.setZoom(10);
+    }
+  };
 
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/dark-v11',
-      center: [-98.5795, 39.8283], // Center of US
-      zoom: 3.5,
-      pitch: 30,
-    });
-
-    map.current.addControl(
-      new mapboxgl.NavigationControl({
-        visualizePitch: true,
-      }),
-      'top-right'
-    );
-
-    // Add markers for each vendor
-    vendors.forEach(vendor => {
-      const coords = vendorCoordinates[vendor.id];
-      if (!coords || !map.current) return;
-
-      const el = document.createElement('div');
-      el.className = 'vendor-marker';
-      el.innerHTML = `
-        <div class="w-10 h-10 rounded-full flex items-center justify-center cursor-pointer transition-transform hover:scale-110 ${
-          selectedVendorId === vendor.id 
-            ? 'bg-gradient-to-br from-primary to-accent ring-2 ring-white shadow-lg scale-110' 
-            : 'bg-gradient-to-br from-orange-500 to-fuchsia-500'
-        }">
-          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-          </svg>
-        </div>
-      `;
-
-      el.addEventListener('click', () => {
-        onVendorSelect?.(vendor.id);
-      });
-
-      const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setHTML(`
-        <div class="p-2 bg-card rounded-lg min-w-[180px]">
-          <h4 class="font-semibold text-foreground text-sm">${vendor.name}</h4>
-          <p class="text-xs text-muted-foreground">${vendor.location}</p>
-          <div class="flex items-center gap-1 mt-1">
-            <span class="text-yellow-500">★</span>
-            <span class="text-xs font-medium">${vendor.avgRating}</span>
-            <span class="text-xs text-muted-foreground">(${vendor.reviewCount})</span>
-          </div>
-        </div>
-      `);
-
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat(coords)
-        .setPopup(popup)
-        .addTo(map.current!);
-
-      markersRef.current.push(marker);
-    });
-
-    return () => {
-      markersRef.current.forEach(marker => marker.remove());
-      markersRef.current = [];
-      map.current?.remove();
-    };
-  }, [vendors, isTokenSet, selectedVendorId, onVendorSelect]);
-
-  // Fly to selected vendor
-  useEffect(() => {
-    if (!map.current || !selectedVendorId) return;
+  // Pan to selected vendor when it changes
+  if (selectedVendorId && map) {
     const coords = vendorCoordinates[selectedVendorId];
     if (coords) {
-      map.current.flyTo({
-        center: coords,
-        zoom: 10,
-        duration: 1500,
-      });
+      map.panTo(coords);
+      map.setZoom(10);
     }
-  }, [selectedVendorId]);
+  }
 
   if (!isTokenSet) {
     return (
@@ -134,32 +106,107 @@ export function VendorMap({ vendors, onVendorSelect, selectedVendorId }: VendorM
           <Key className="w-8 h-8 text-white" />
         </div>
         <h3 className="font-display text-lg font-semibold text-foreground mb-2">
-          Mapbox Token Required
+          Google Maps API Key Required
         </h3>
         <p className="text-sm text-muted-foreground text-center mb-4 max-w-sm">
-          Enter your Mapbox public token to enable the map view. 
-          Get one free at <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">mapbox.com</a>
+          Enter your Google Maps API key to enable the map view. 
+          Get one at <a href="https://console.cloud.google.com/google/maps-apis" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Google Cloud Console</a>
         </p>
         <div className="flex gap-2 w-full max-w-sm">
           <Input
             type="text"
-            placeholder="pk.eyJ1..."
-            value={mapboxToken}
-            onChange={(e) => setMapboxToken(e.target.value)}
+            placeholder="AIza..."
+            value={googleApiKey}
+            onChange={(e) => setGoogleApiKey(e.target.value)}
             className="flex-1"
           />
           <Button variant="gradient" onClick={handleSetToken}>
             <MapPin className="w-4 h-4 mr-2" />
-            Set Token
+            Set Key
           </Button>
         </div>
       </div>
     );
   }
 
+  if (loadError) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center bg-card/50 rounded-xl p-8">
+        <p className="text-destructive">Error loading Google Maps. Please check your API key.</p>
+        <Button 
+          variant="outline" 
+          className="mt-4"
+          onClick={() => {
+            localStorage.removeItem('google_maps_token');
+            setIsTokenSet(false);
+          }}
+        >
+          Reset API Key
+        </Button>
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="h-full flex items-center justify-center bg-card/50 rounded-xl">
+        <div className="animate-pulse text-muted-foreground">Loading map...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="relative w-full h-full rounded-xl overflow-hidden">
-      <div ref={mapContainer} className="absolute inset-0" />
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        center={defaultCenter}
+        zoom={4}
+        onLoad={onLoad}
+        onUnmount={onUnmount}
+        options={{
+          styles: darkMapStyles,
+          disableDefaultUI: false,
+          zoomControl: true,
+          mapTypeControl: false,
+          streetViewControl: false,
+          fullscreenControl: true,
+        }}
+      >
+        {vendors.map(vendor => {
+          const coords = vendorCoordinates[vendor.id];
+          if (!coords) return null;
+
+          return (
+            <Marker
+              key={vendor.id}
+              position={coords}
+              onClick={() => handleMarkerClick(vendor.id)}
+              icon={{
+                path: google.maps.SymbolPath.CIRCLE,
+                scale: selectedVendorId === vendor.id ? 12 : 10,
+                fillColor: selectedVendorId === vendor.id ? '#f97316' : '#ec4899',
+                fillOpacity: 1,
+                strokeColor: '#ffffff',
+                strokeWeight: 2,
+              }}
+            >
+              {activeMarker === vendor.id && (
+                <InfoWindow onCloseClick={() => setActiveMarker(null)}>
+                  <div className="p-2 min-w-[180px]">
+                    <h4 className="font-semibold text-gray-900 text-sm">{vendor.name}</h4>
+                    <p className="text-xs text-gray-600">{vendor.location}</p>
+                    <div className="flex items-center gap-1 mt-1">
+                      <span className="text-yellow-500">★</span>
+                      <span className="text-xs font-medium text-gray-900">{vendor.avgRating}</span>
+                      <span className="text-xs text-gray-500">({vendor.reviewCount})</span>
+                    </div>
+                  </div>
+                </InfoWindow>
+              )}
+            </Marker>
+          );
+        })}
+      </GoogleMap>
       <div className="absolute inset-0 pointer-events-none rounded-xl ring-1 ring-inset ring-border" />
     </div>
   );
