@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Instagram, Twitter, Facebook, Linkedin } from 'lucide-react';
+import logo from '@/assets/logo.png';
 
 export function Footer() {
   return (
@@ -8,14 +9,13 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 lg:gap-12">
           {/* Brand */}
           <div className="col-span-2 md:col-span-4 lg:col-span-1">
-            <div className="flex flex-col mb-4">
-              <span className="font-display text-xl font-bold text-foreground">
-                Event Pros
-              </span>
-              <span className="text-xs text-muted-foreground">
-                Powered by <span className="text-trust font-medium">Vendibook</span>
-              </span>
-            </div>
+            <Link to="/" className="inline-block mb-4">
+              <img 
+                src={logo} 
+                alt="EventPro by Vendibook" 
+                className="h-12 w-auto"
+              />
+            </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
               Book premium event vendors in minutes. Trusted by thousands of hosts.
             </p>
@@ -96,7 +96,7 @@ export function Footer() {
         {/* Bottom */}
         <div className="flex flex-col md:flex-row items-center justify-between pt-8 mt-8 border-t border-border gap-4">
           <p className="text-sm text-muted-foreground">
-            © 2024 Event Pros — Powered by Vendibook. All rights reserved.
+            © 2024 EventPro by Vendibook. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <a href="#" className="text-muted-foreground hover:text-foreground transition-colors">

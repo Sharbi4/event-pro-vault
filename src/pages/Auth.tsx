@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { Mail, Lock, User, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { z } from 'zod';
+import logo from '@/assets/logo.png';
 
 const emailSchema = z.string().email('Please enter a valid email');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -85,7 +86,7 @@ export default function Auth() {
             {/* Header */}
             <div className="text-center mb-6">
               <Link to="/" className="inline-block mb-4">
-                <span className="font-display text-2xl font-bold gradient-text">Event Pros</span>
+                <img src={logo} alt="EventPro by Vendibook" className="h-12 w-auto mx-auto" />
               </Link>
               <h1 className="font-display text-2xl font-bold text-foreground">
                 {isSignUp ? 'Create account' : 'Welcome back'}

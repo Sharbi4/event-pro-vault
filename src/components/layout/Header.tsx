@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Search, Menu, X, User } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import logo from '@/assets/logo.png';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -13,13 +14,12 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <Link to="/" className="flex flex-col">
-            <span className="font-display text-xl lg:text-2xl font-bold text-foreground">
-              Event Pros
-            </span>
-            <span className="text-[10px] lg:text-xs text-muted-foreground -mt-1">
-              Powered by <span className="text-trust font-medium">Vendibook</span>
-            </span>
+          <Link to="/" className="flex items-center">
+            <img 
+              src={logo} 
+              alt="EventPro by Vendibook" 
+              className="h-10 lg:h-12 w-auto"
+            />
           </Link>
 
           {/* Desktop Navigation */}
