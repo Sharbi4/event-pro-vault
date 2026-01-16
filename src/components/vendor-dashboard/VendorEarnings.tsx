@@ -1,8 +1,13 @@
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { DollarSign, TrendingUp, TrendingDown, Wallet, Receipt, ArrowDownRight, ArrowUpRight, Download } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { DollarSign, TrendingUp, TrendingDown, Wallet, Receipt, ArrowDownRight, ArrowUpRight, Download, CalendarIcon, X } from 'lucide-react';
 import { VendorBooking } from '@/hooks/useVendorDashboard';
 import { useToast } from '@/hooks/use-toast';
+import { format, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, isWithinInterval, startOfDay, endOfDay } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 // Platform fee rate (12.9% commission on vendor)
 const VENDOR_COMMISSION_RATE = 0.129;
@@ -17,16 +22,69 @@ interface EarningsData {
   awaitingFinalPayment: number;
 }
 
+interface DateRange {
+  from: Date | undefined;
+  to: Date | undefined;
+}
+
 interface VendorEarningsProps {
   bookings: VendorBooking[];
 }
 
+// Quick date range presets
+const datePresets = [
+  { label: 'This Month', getRange: () => ({ from: startOfMonth(new Date()), to: endOfMonth(new Date()) }) },
+  { label: 'Last Month', getRange: () => ({ from: startOfMonth(subMonths(new Date(), 1)), to: endOfMonth(subMonths(new Date(), 1)) }) },
+  { label: 'Last 3 Months', getRange: () => ({ from: startOfMonth(subMonths(new Date(), 2)), to: endOfMonth(new Date()) }) },
+  { label: 'This Year', getRange: () => ({ from: startOfYear(new Date()), to: endOfYear(new Date()) }) },
+  { label: 'All Time', getRange: () => ({ from: undefined, to: undefined }) },
+];
+
 export function VendorEarnings({ bookings }: VendorEarningsProps) {
   const { toast } = useToast();
+  const [dateRange, setDateRange] = useState<DateRange>({ from: undefined, to: undefined });
+  const [activePreset, setActivePreset] = useState<string>('All Time');
+
+  // Filter bookings by date range
+  const filterByDateRange = (booking: any): boolean => {
+    if (!dateRange.from && !dateRange.to) return true;
+    
+    // Check deposit payment date or final payment date
+    const depositDate = booking.deposit_paid_at ? new Date(booking.deposit_paid_at) : null;
+    const finalDate = booking.final_paid_at ? new Date(booking.final_paid_at) : null;
+    
+    const from = dateRange.from ? startOfDay(dateRange.from) : new Date(0);
+    const to = dateRange.to ? endOfDay(dateRange.to) : new Date();
+    
+    const interval = { start: from, end: to };
+    
+    return (depositDate && isWithinInterval(depositDate, interval)) || 
+           (finalDate && isWithinInterval(finalDate, interval));
+  };
+
+  const filteredBookings = bookings.filter(filterByDateRange);
+
+  const handlePresetClick = (preset: typeof datePresets[0]) => {
+    const range = preset.getRange();
+    setDateRange(range);
+    setActivePreset(preset.label);
+  };
+
+  const handleCustomDateSelect = (range: DateRange | undefined) => {
+    if (range) {
+      setDateRange(range);
+      setActivePreset('');
+    }
+  };
+
+  const clearDateFilter = () => {
+    setDateRange({ from: undefined, to: undefined });
+    setActivePreset('All Time');
+  };
 
   // Export to CSV function
   const exportToCSV = () => {
-    const paidBookings = bookings.filter((b: any) => b.deposit_paid_at || b.final_paid_at);
+    const paidBookings = filteredBookings.filter((b: any) => b.deposit_paid_at || b.final_paid_at);
     
     if (paidBookings.length === 0) {
       toast({
@@ -115,9 +173,11 @@ export function VendorEarnings({ bookings }: VendorEarningsProps) {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     
-    const today = new Date().toISOString().split('T')[0];
+    const dateRangeStr = dateRange.from && dateRange.to 
+      ? `${format(dateRange.from, 'yyyy-MM-dd')}_to_${format(dateRange.to, 'yyyy-MM-dd')}`
+      : 'all-time';
     link.setAttribute('href', url);
-    link.setAttribute('download', `earnings-report-${today}.csv`);
+    link.setAttribute('download', `earnings-report-${dateRangeStr}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
@@ -136,7 +196,7 @@ export function VendorEarnings({ bookings }: VendorEarningsProps) {
     let depositsPaid = 0;
     let awaitingFinalPayment = 0;
 
-    bookings.forEach((booking: any) => {
+    filteredBookings.forEach((booking: any) => {
       const totalPrice = Number(booking.total_price) || 0;
       const depositAmount = Number(booking.deposit_amount) || 0;
       const finalAmount = Number(booking.final_amount) || 0;
@@ -222,6 +282,70 @@ export function VendorEarnings({ bookings }: VendorEarningsProps) {
 
   return (
     <div className="space-y-6">
+      {/* Date Range Filter */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+            <div className="flex flex-wrap gap-2">
+              {datePresets.map((preset) => (
+                <Button
+                  key={preset.label}
+                  variant={activePreset === preset.label ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePresetClick(preset)}
+                >
+                  {preset.label}
+                </Button>
+              ))}
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <CalendarIcon className="h-4 w-4" />
+                    {dateRange.from ? (
+                      dateRange.to ? (
+                        <>
+                          {format(dateRange.from, "MMM d")} - {format(dateRange.to, "MMM d, yyyy")}
+                        </>
+                      ) : (
+                        format(dateRange.from, "MMM d, yyyy")
+                      )
+                    ) : (
+                      "Custom Range"
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="end">
+                  <Calendar
+                    initialFocus
+                    mode="range"
+                    defaultMonth={dateRange.from}
+                    selected={dateRange}
+                    onSelect={handleCustomDateSelect}
+                    numberOfMonths={2}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+              
+              {(dateRange.from || dateRange.to) && (
+                <Button variant="ghost" size="sm" onClick={clearDateFilter}>
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+          
+          {(dateRange.from || dateRange.to) && (
+            <p className="text-sm text-muted-foreground mt-3">
+              Showing earnings from {dateRange.from ? format(dateRange.from, "MMMM d, yyyy") : "the beginning"} to {dateRange.to ? format(dateRange.to, "MMMM d, yyyy") : "now"}
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Main Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <Card className="bg-gradient-to-br from-trust/10 to-trust/5 border-trust/20">
@@ -337,13 +461,13 @@ export function VendorEarnings({ bookings }: VendorEarningsProps) {
           </Button>
         </CardHeader>
         <CardContent>
-          {bookings.filter((b: any) => b.deposit_paid_at || b.final_paid_at).length === 0 ? (
+          {filteredBookings.filter((b: any) => b.deposit_paid_at || b.final_paid_at).length === 0 ? (
             <p className="text-muted-foreground text-center py-8">
               No completed transactions yet
             </p>
           ) : (
             <div className="space-y-3">
-              {bookings
+              {filteredBookings
                 .filter((b: any) => b.deposit_paid_at || b.final_paid_at)
                 .sort((a: any, b: any) => new Date(b.deposit_paid_at || b.created_at).getTime() - new Date(a.deposit_paid_at || a.created_at).getTime())
                 .slice(0, 10)
