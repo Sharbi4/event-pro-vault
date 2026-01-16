@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -20,6 +20,7 @@ import { Plus } from 'lucide-react';
 import { VendorPackage } from '@/hooks/useVendorDashboard';
 import { PackageFormWizard } from './package-form/PackageFormWizard';
 import { SortablePackageCard } from './SortablePackageCard';
+import { toast } from '@/hooks/use-toast';
 
 interface VendorListingsProps {
   packages: VendorPackage[];
@@ -41,6 +42,7 @@ export function VendorListings({
   const [editingPackage, setEditingPackage] = useState<VendorPackage | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const previousOrderRef = useRef<VendorPackage[] | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -53,6 +55,30 @@ export function VendorListings({
     })
   );
 
+  const handleReorder = (reorderedPackages: VendorPackage[]) => {
+    previousOrderRef.current = [...packages];
+    onReorder?.(reorderedPackages);
+    
+    toast({
+      title: "Packages reordered",
+      description: "The order has been updated.",
+      action: (
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            if (previousOrderRef.current) {
+              onReorder?.(previousOrderRef.current);
+              previousOrderRef.current = null;
+            }
+          }}
+        >
+          Undo
+        </Button>
+      ),
+    });
+  };
+
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
@@ -60,7 +86,7 @@ export function VendorListings({
       const oldIndex = packages.findIndex(p => p.id === active.id);
       const newIndex = packages.findIndex(p => p.id === over.id);
       const reorderedPackages = arrayMove(packages, oldIndex, newIndex);
-      onReorder?.(reorderedPackages);
+      handleReorder(reorderedPackages);
     }
   };
 
@@ -133,14 +159,14 @@ export function VendorListings({
                     if (index > 0) {
                       const reordered = [...packages];
                       [reordered[index - 1], reordered[index]] = [reordered[index], reordered[index - 1]];
-                      onReorder?.(reordered);
+                      handleReorder(reordered);
                     }
                   }}
                   onMoveDown={() => {
                     if (index < packages.length - 1) {
                       const reordered = [...packages];
                       [reordered[index], reordered[index + 1]] = [reordered[index + 1], reordered[index]];
-                      onReorder?.(reordered);
+                      handleReorder(reordered);
                     }
                   }}
                 />
