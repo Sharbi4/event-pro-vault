@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, X, Clock, MapPin, Calendar, CreditCard, Loader2 } from 'lucide-react';
+import { Check, X, Clock, MapPin, Calendar, CreditCard, Loader2, DollarSign } from 'lucide-react';
 import { VendorBooking } from '@/hooks/useVendorDashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -16,6 +16,11 @@ interface VendorBookingsProps {
 interface ExtendedBooking extends VendorBooking {
   payment_status?: string;
   stripe_checkout_session_id?: string;
+  deposit_amount?: number;
+  final_amount?: number;
+  deposit_paid_at?: string;
+  final_paid_at?: string;
+  deposit_percentage?: number;
 }
 
 export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps) {
@@ -29,12 +34,15 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
     setUpdating(null);
   };
 
-  const handleRequestPayment = async (booking: ExtendedBooking) => {
+  const handleRequestPayment = async (booking: ExtendedBooking, depositPercent: number = 50) => {
     setRequestingPayment(booking.id);
     
     try {
       const { data, error } = await supabase.functions.invoke('create-booking-checkout', {
-        body: { booking_id: booking.id }
+        body: { 
+          booking_id: booking.id,
+          deposit_percentage: depositPercent
+        }
       });
 
       if (error) {
@@ -47,13 +55,43 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
         
         toast({
           title: "Payment request sent!",
-          description: "The customer will receive a payment link via email."
+          description: `Customer will pay ${depositPercent}% deposit ($${data.deposit_amount?.toFixed(2)}). Remaining $${data.final_amount?.toFixed(2)} due on event day.`
         });
       }
     } catch (error) {
       console.error('Error requesting payment:', error);
       toast({
         title: "Failed to request payment",
+        description: error instanceof Error ? error.message : "Please try again",
+        variant: "destructive"
+      });
+    } finally {
+      setRequestingPayment(null);
+    }
+  };
+
+  const handleRequestFinalPayment = async (booking: ExtendedBooking) => {
+    setRequestingPayment(booking.id);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('charge-final-payment', {
+        body: { booking_id: booking.id }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      if (data?.url) {
+        toast({
+          title: "Final payment link created!",
+          description: `Customer will be charged $${data.amount?.toFixed(2)} for the remaining balance.`
+        });
+      }
+    } catch (error) {
+      console.error('Error requesting final payment:', error);
+      toast({
+        title: "Failed to request final payment",
         description: error instanceof Error ? error.message : "Please try again",
         variant: "destructive"
       });
@@ -71,20 +109,49 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
 
   const getPaymentBadge = (booking: ExtendedBooking) => {
     const paymentStatus = (booking as any).payment_status;
-    if (!paymentStatus) return null;
+    const depositPaid = (booking as any).deposit_paid_at;
+    const finalPaid = (booking as any).final_paid_at;
     
-    return (
-      <Badge variant={paymentStatus === 'paid' ? 'default' : 'secondary'} className="gap-1">
-        <CreditCard className="w-3 h-3" />
-        {paymentStatus}
-      </Badge>
-    );
+    if (finalPaid) {
+      return (
+        <Badge variant="default" className="gap-1 bg-green-500">
+          <CreditCard className="w-3 h-3" />
+          Fully Paid
+        </Badge>
+      );
+    }
+    
+    if (depositPaid) {
+      return (
+        <Badge variant="default" className="gap-1 bg-blue-500">
+          <DollarSign className="w-3 h-3" />
+          Deposit Paid
+        </Badge>
+      );
+    }
+    
+    if (paymentStatus === 'pending') {
+      return (
+        <Badge variant="secondary" className="gap-1">
+          <Clock className="w-3 h-3" />
+          Awaiting Payment
+        </Badge>
+      );
+    }
+    
+    return null;
   };
 
   const BookingCard = ({ booking }: { booking: ExtendedBooking }) => {
     const isPast = new Date(booking.event_date) < new Date();
     const isPending = booking.status === 'pending';
     const isAwaitingPayment = booking.status === 'awaiting_payment';
+    const isConfirmed = booking.status === 'confirmed';
+    const depositPaid = (booking as any).deposit_paid_at;
+    const finalPaid = (booking as any).final_paid_at;
+    const depositAmount = ((booking as any).deposit_amount || 0) / 100;
+    const finalAmount = ((booking as any).final_amount || 0) / 100;
+    const isEventDay = new Date(booking.event_date).toDateString() === new Date().toDateString();
 
     return (
       <Card className="overflow-hidden">
@@ -101,6 +168,9 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
                     day: 'numeric'
                   })}
                 </span>
+                {isEventDay && !isPast && (
+                  <Badge variant="destructive" className="text-xs">TODAY</Badge>
+                )}
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="w-4 h-4" />
@@ -122,13 +192,27 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
                   "{booking.notes}"
                 </p>
               )}
+              
+              {/* Payment breakdown */}
+              {(depositAmount > 0 || finalAmount > 0) && (
+                <div className="text-xs text-muted-foreground border-t pt-2 mt-2 space-y-1">
+                  <div className="flex justify-between">
+                    <span>Deposit ({(booking as any).deposit_percentage || 50}%):</span>
+                    <span className={depositPaid ? 'text-green-500' : ''}>${depositAmount.toFixed(2)} {depositPaid ? '✓' : ''}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Remaining balance:</span>
+                    <span className={finalPaid ? 'text-green-500' : ''}>${finalAmount.toFixed(2)} {finalPaid ? '✓' : ''}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex flex-col items-end gap-2">
               <span className="text-xl font-bold gradient-text">
                 ${booking.total_price}
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 justify-end">
                 <Badge variant={
                   booking.status === 'confirmed' ? 'default' :
                   booking.status === 'pending' ? 'secondary' :
@@ -141,28 +225,39 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
               </div>
               
               {isPending && !isPast && (
-                <div className="flex gap-2 mt-2">
+                <div className="flex flex-col gap-2 mt-2">
+                  <div className="flex gap-2">
+                    <Button
+                      size="sm"
+                      variant="gradient"
+                      onClick={() => handleRequestPayment(booking, 50)}
+                      disabled={requestingPayment === booking.id || updating === booking.id}
+                    >
+                      {requestingPayment === booking.id ? (
+                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                      ) : (
+                        <CreditCard className="w-4 h-4 mr-1" />
+                      )}
+                      Accept (50% Deposit)
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleStatusUpdate(booking.id, 'declined')}
+                      disabled={updating === booking.id || requestingPayment === booking.id}
+                    >
+                      <X className="w-4 h-4 mr-1" />
+                      Decline
+                    </Button>
+                  </div>
                   <Button
                     size="sm"
-                    variant="gradient"
-                    onClick={() => handleRequestPayment(booking)}
+                    variant="secondary"
+                    onClick={() => handleRequestPayment(booking, 100)}
                     disabled={requestingPayment === booking.id || updating === booking.id}
+                    className="w-full"
                   >
-                    {requestingPayment === booking.id ? (
-                      <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                    ) : (
-                      <CreditCard className="w-4 h-4 mr-1" />
-                    )}
-                    Accept & Request Payment
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleStatusUpdate(booking.id, 'declined')}
-                    disabled={updating === booking.id || requestingPayment === booking.id}
-                  >
-                    <X className="w-4 h-4 mr-1" />
-                    Decline
+                    Accept (Full Payment)
                   </Button>
                 </div>
               )}
@@ -170,7 +265,7 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
               {isAwaitingPayment && !isPast && (
                 <div className="flex flex-col items-end gap-2 mt-2">
                   <p className="text-xs text-muted-foreground">
-                    Waiting for customer payment...
+                    Waiting for customer deposit...
                   </p>
                   <Button
                     size="sm"
@@ -184,15 +279,48 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
                 </div>
               )}
 
-              {booking.status === 'confirmed' && !isPast && (
+              {isConfirmed && depositPaid && !finalPaid && !isPast && (
+                <div className="flex flex-col items-end gap-2 mt-2">
+                  {isEventDay ? (
+                    <Button
+                      size="sm"
+                      variant="gradient"
+                      onClick={() => handleRequestFinalPayment(booking)}
+                      disabled={requestingPayment === booking.id}
+                    >
+                      {requestingPayment === booking.id ? (
+                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                      ) : (
+                        <DollarSign className="w-4 h-4 mr-1" />
+                      )}
+                      Request Final Payment
+                    </Button>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Final payment due on event day
+                    </p>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
+                    disabled={updating === booking.id}
+                    className="text-destructive"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              )}
+
+              {isConfirmed && finalPaid && !isPast && (
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
+                  onClick={() => handleStatusUpdate(booking.id, 'completed')}
                   disabled={updating === booking.id}
-                  className="text-destructive"
                 >
-                  Cancel
+                  <Check className="w-4 h-4 mr-1" />
+                  Mark Complete
                 </Button>
               )}
             </div>

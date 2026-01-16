@@ -20,6 +20,11 @@ import {
 interface ExtendedBooking extends BookingData {
   payment_status?: string;
   stripe_checkout_session_id?: string;
+  deposit_amount?: number;
+  final_amount?: number;
+  deposit_paid_at?: string;
+  final_paid_at?: string;
+  deposit_percentage?: number;
 }
 
 export default function Dashboard() {
@@ -35,10 +40,11 @@ export default function Dashboard() {
   useEffect(() => {
     const payment = searchParams.get('payment');
     const bookingId = searchParams.get('booking');
+    const paymentType = searchParams.get('type') || 'deposit';
     
     if (payment === 'success' && bookingId) {
       // Verify the payment
-      verifyPayment(bookingId);
+      verifyPayment(bookingId, paymentType);
     } else if (payment === 'cancelled') {
       toast({
         title: "Payment cancelled",
@@ -53,18 +59,21 @@ export default function Dashboard() {
     }
   }, [searchParams]);
 
-  const verifyPayment = async (bookingId: string) => {
+  const verifyPayment = async (bookingId: string, paymentType: string = 'deposit') => {
     try {
       const { data, error } = await supabase.functions.invoke('verify-booking-payment', {
-        body: { booking_id: bookingId }
+        body: { booking_id: bookingId, payment_type: paymentType }
       });
 
       if (error) throw error;
 
       if (data?.paid) {
+        const isDeposit = data.payment_type === 'deposit';
         toast({
-          title: "Payment successful!",
-          description: "Your booking has been confirmed.",
+          title: isDeposit ? "Deposit paid!" : "Payment complete!",
+          description: isDeposit 
+            ? "Your booking is confirmed. Remaining balance due on event day."
+            : "Your booking is fully paid.",
         });
         refetch();
       }
@@ -126,22 +135,32 @@ export default function Dashboard() {
 
   const getStatusBadge = (booking: ExtendedBooking) => {
     const status = booking.status;
-    const paymentStatus = (booking as any).payment_status;
+    const depositPaid = (booking as any).deposit_paid_at;
+    const finalPaid = (booking as any).final_paid_at;
     
     if (status === 'awaiting_payment') {
       return (
         <Badge variant="glass" className="text-[10px] px-2 py-0.5 flex-shrink-0 gap-1 bg-amber-500/20 text-amber-500 border-amber-500/30">
           <CreditCard className="w-3 h-3" />
-          Pay Now
+          Pay Deposit
         </Badge>
       );
     }
     
-    if (paymentStatus === 'paid') {
+    if (finalPaid) {
       return (
         <Badge variant="verified" className="text-[10px] px-2 py-0.5 flex-shrink-0 gap-1">
           <CheckCircle className="w-3 h-3" />
-          Paid
+          Fully Paid
+        </Badge>
+      );
+    }
+    
+    if (depositPaid) {
+      return (
+        <Badge variant="trust" className="text-[10px] px-2 py-0.5 flex-shrink-0 gap-1">
+          <CheckCircle className="w-3 h-3" />
+          Deposit Paid
         </Badge>
       );
     }
@@ -253,9 +272,15 @@ export default function Dashboard() {
                 const vendor = getVendor(booking.vendor_id);
                 const pkg = getPackage(booking.package_id);
                 const isAwaitingPayment = booking.status === 'awaiting_payment';
+                const extBooking = booking as ExtendedBooking;
+                const depositAmount = ((extBooking as any).deposit_amount || 0) / 100;
+                const finalAmount = ((extBooking as any).final_amount || 0) / 100;
+                const depositPaid = (extBooking as any).deposit_paid_at;
+                const finalPaid = (extBooking as any).final_paid_at;
+                const needsFinalPayment = depositPaid && !finalPaid && finalAmount > 0;
                 
                 return (
-                  <Card key={booking.id} variant={isAwaitingPayment ? 'gradient' : 'glow'} className="p-4">
+                  <Card key={booking.id} variant={isAwaitingPayment || needsFinalPayment ? 'gradient' : 'glow'} className="p-4">
                     <div className="flex gap-3">
                       {vendor && (
                         <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
@@ -276,7 +301,7 @@ export default function Dashboard() {
                               {vendor?.name || 'Vendor'}
                             </p>
                           </div>
-                          {getStatusBadge(booking as ExtendedBooking)}
+                          {getStatusBadge(extBooking)}
                         </div>
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
@@ -288,6 +313,18 @@ export default function Dashboard() {
                             {booking.event_location}
                           </span>
                         </div>
+                        {/* Payment breakdown */}
+                        {(depositAmount > 0 || finalAmount > 0) && (
+                          <div className="text-[10px] text-muted-foreground mt-1">
+                            <span className={depositPaid ? 'text-green-500' : ''}>
+                              Deposit: ${depositAmount.toFixed(0)} {depositPaid ? '✓' : ''}
+                            </span>
+                            {' · '}
+                            <span className={finalPaid ? 'text-green-500' : ''}>
+                              Balance: ${finalAmount.toFixed(0)} {finalPaid ? '✓' : ''}
+                            </span>
+                          </div>
+                        )}
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
                           <span className="font-bold text-sm gradient-text">${booking.total_price}</span>
                           <div className="flex items-center gap-2">
