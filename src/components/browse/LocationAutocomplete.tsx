@@ -1,9 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useJsApiLoader } from '@react-google-maps/api';
 import { MapPin, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-
-const libraries: ("places")[] = ['places'];
+import { useGoogleMaps } from '@/contexts/GoogleMapsContext';
 
 interface LocationAutocompleteProps {
   value: string;
@@ -28,11 +26,7 @@ export function LocationAutocomplete({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const googleApiKey = localStorage.getItem('google_maps_token') || '';
-
-  const { isLoaded } = useJsApiLoader({
-    googleMapsApiKey: googleApiKey,
-    libraries,
-  });
+  const { isLoaded } = useGoogleMaps();
 
   // Initialize services when API is loaded
   useEffect(() => {

@@ -1,10 +1,11 @@
 import { useCallback, useState, useEffect } from 'react';
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { Market } from '@/data/markets';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Key, MapPin, Star } from 'lucide-react';
 import { format } from 'date-fns';
+import { useGoogleMaps } from '@/contexts/GoogleMapsContext';
 
 const mapContainerStyle = {
   width: '100%',
@@ -48,9 +49,7 @@ export function MarketMap({ markets, onMarketSelect, selectedMarketId }: MarketM
   const [activeMarker, setActiveMarker] = useState<string | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: localStorage.getItem('google_maps_token') || '',
-  });
+  const { isLoaded, loadError } = useGoogleMaps();
 
   const handleSetToken = () => {
     if (googleApiKey.trim()) {

@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
-import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
+import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { Vendor } from '@/types';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Key, MapPin } from 'lucide-react';
+import { useGoogleMaps } from '@/contexts/GoogleMapsContext';
 
 // Vendor location coordinates (mock data based on their cities)
 const vendorCoordinates: Record<string, { lat: number; lng: number }> = {
@@ -59,9 +60,7 @@ export function VendorMap({ vendors, onVendorSelect, selectedVendorId }: VendorM
   const [activeMarker, setActiveMarker] = useState<string | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
-  const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: localStorage.getItem('google_maps_token') || '',
-  });
+  const { isLoaded, loadError } = useGoogleMaps();
 
   const handleSetToken = () => {
     if (googleApiKey.trim()) {
