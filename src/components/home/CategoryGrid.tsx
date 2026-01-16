@@ -1,9 +1,10 @@
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { categories } from '@/data/categories';
 import { 
   Truck, UtensilsCrossed, ChefHat, Wine, 
-  Music, Sparkles, Tent, Heart 
+  Music, Sparkles, Tent, Heart, Store, Leaf 
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -15,6 +16,8 @@ const iconMap: Record<string, React.ElementType> = {
   Sparkles,
   Tent,
   Heart,
+  Store,
+  Leaf,
 };
 
 export function CategoryGrid() {
@@ -37,14 +40,19 @@ export function CategoryGrid() {
               <Link key={category.id} to={`/browse?category=${category.id}`}>
                 <Card 
                   variant="glow" 
-                  className="p-6 text-center group cursor-pointer animate-fade-in"
+                  className={`p-6 text-center group cursor-pointer animate-fade-in relative ${category.featured ? 'ring-2 ring-primary/50' : ''}`}
                   style={{ animationDelay: `${index * 0.05}s` }}
                 >
-                  <div className="w-14 h-14 mx-auto mb-4 rounded-xl gradient-primary flex items-center justify-center group-hover:glow-gradient transition-all duration-300">
+                  {category.featured && (
+                    <Badge className="absolute -top-2 -right-2 bg-gradient-to-r from-primary to-accent text-white text-xs">
+                      Featured
+                    </Badge>
+                  )}
+                  <div className={`w-14 h-14 mx-auto mb-4 rounded-xl flex items-center justify-center group-hover:glow-gradient transition-all duration-300 ${category.featured ? 'bg-gradient-to-br from-primary via-accent to-primary' : 'gradient-primary'}`}>
                     {IconComponent && <IconComponent className="w-7 h-7 text-white" />}
                   </div>
                   <h3 className="font-semibold text-foreground mb-1">{category.name}</h3>
-                  <p className="text-sm text-muted-foreground">{category.count} pros</p>
+                  <p className="text-sm text-muted-foreground">{category.count} {category.featured ? 'markets' : 'pros'}</p>
                 </Card>
               </Link>
             );

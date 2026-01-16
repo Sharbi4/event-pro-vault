@@ -56,5 +56,21 @@ export const categories: Category[] = [
     icon: 'Heart',
     description: 'Spiritual & wellness services',
     count: 72
+  },
+  {
+    id: 'flea-markets',
+    name: 'Flea Markets',
+    icon: 'Store',
+    description: 'Rent vendor spots & booths',
+    count: 45,
+    featured: true
+  },
+  {
+    id: 'farmers-markets',
+    name: 'Farmers Markets',
+    icon: 'Leaf',
+    description: 'Fresh produce vendor spaces',
+    count: 38,
+    featured: true
   }
 ];
