@@ -34,10 +34,9 @@ export function HeroSection() {
 
   return (
     <section className="relative pt-8 pb-4 overflow-hidden">
-      {/* Subtle background gradient */}
-      <div className="absolute inset-0 bg-background">
-        <div className="absolute top-0 left-1/4 w-1/2 h-48 bg-primary/10 rounded-full blur-[100px]" />
-      </div>
+      {/* Animated gradient background */}
+      <div className="hero-gradient-bg" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background pointer-events-none" />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto">
