@@ -1,14 +1,23 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { format, isSameDay } from 'date-fns';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { 
   Clock, Calendar, Check, Plus, Minus, 
-  ChevronLeft, Zap, MapPin, AlertCircle, Star
+  ChevronLeft, Zap, MapPin, AlertCircle, Star, CalendarIcon
 } from 'lucide-react';
 import { packages, vendors, reviews } from '@/data/vendors';
+import { supabase } from '@/integrations/supabase/client';
+import { cn } from '@/lib/utils';
+
+interface BlockedDate {
+  date: string;
+}
 
 export default function PackageDetail() {
   const { id } = useParams();
@@ -18,8 +27,48 @@ export default function PackageDetail() {
 
   const [units, setUnits] = useState(pkg?.minUnits || 1);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
-  const [eventDate, setEventDate] = useState('');
+  const [eventDate, setEventDate] = useState<Date | undefined>();
   const [eventLocation, setEventLocation] = useState('');
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([]);
+  const [loadingDates, setLoadingDates] = useState(true);
+
+  // Fetch vendor's blocked dates
+  useEffect(() => {
+    const fetchBlockedDates = async () => {
+      if (!vendor) return;
+      
+      setLoadingDates(true);
+      // Note: In production, you'd fetch by vendor's user_id
+      // For now, we fetch all blocked dates as a demo
+      const { data } = await supabase
+        .from('vendor_availability')
+        .select('date')
+        .eq('is_blocked', true);
+      
+      if (data) {
+        setBlockedDates(data);
+      }
+      setLoadingDates(false);
+    };
+
+    fetchBlockedDates();
+  }, [vendor]);
+
+  const blockedDateSet = new Set(
+    blockedDates.map(b => format(new Date(b.date), 'yyyy-MM-dd'))
+  );
+
+  const isDateBlocked = (date: Date) => {
+    return blockedDateSet.has(format(date, 'yyyy-MM-dd'));
+  };
+
+  const handleDateSelect = (date: Date | undefined) => {
+    if (date && !isDateBlocked(date)) {
+      setEventDate(date);
+      setCalendarOpen(false);
+    }
+  };
 
   if (!pkg || !vendor) {
     return (
@@ -221,15 +270,46 @@ export default function PackageDetail() {
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Event Date
                   </label>
-                  <div className="flex items-center gap-3 bg-card rounded-xl px-4 py-3 border border-border">
-                    <Calendar className="w-5 h-5 text-muted-foreground" />
-                    <input
-                      type="date"
-                      value={eventDate}
-                      onChange={(e) => setEventDate(e.target.value)}
-                      className="flex-1 bg-transparent text-foreground focus:outline-none"
-                    />
-                  </div>
+                  <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <button
+                        className={cn(
+                          "w-full flex items-center gap-3 bg-card rounded-xl px-4 py-3 border border-border text-left hover:border-primary/50 transition-colors",
+                          !eventDate && "text-muted-foreground"
+                        )}
+                      >
+                        <CalendarIcon className="w-5 h-5 text-muted-foreground" />
+                        {eventDate ? format(eventDate, "PPP") : "Select a date"}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <CalendarComponent
+                        mode="single"
+                        selected={eventDate}
+                        onSelect={handleDateSelect}
+                        initialFocus
+                        disabled={(date) => 
+                          date < new Date(new Date().setHours(0, 0, 0, 0)) || 
+                          isDateBlocked(date)
+                        }
+                        modifiers={{
+                          blocked: (date) => isDateBlocked(date)
+                        }}
+                        modifiersStyles={{
+                          blocked: {
+                            backgroundColor: 'hsl(var(--destructive) / 0.2)',
+                            color: 'hsl(var(--destructive))',
+                            textDecoration: 'line-through'
+                          }
+                        }}
+                        className={cn("p-3 pointer-events-auto")}
+                      />
+                      <div className="px-3 pb-3 text-xs text-muted-foreground flex items-center gap-2">
+                        <div className="w-3 h-3 rounded bg-destructive/20" />
+                        <span>Unavailable dates</span>
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 {/* Location */}
