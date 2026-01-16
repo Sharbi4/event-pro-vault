@@ -6,6 +6,7 @@ import { useToast } from '@/hooks/use-toast';
 export interface BookingData {
   id: string;
   vendor_id: string;
+  vendor_user_id: string | null;
   package_id: string;
   event_date: string;
   event_location: string;
@@ -15,6 +16,18 @@ export interface BookingData {
   status: string;
   notes: string | null;
   created_at: string;
+}
+
+export interface CreateBookingInput {
+  vendor_id: string;
+  vendor_user_id?: string | null;
+  package_id: string;
+  event_date: string;
+  event_location: string;
+  units: number;
+  add_ons: string[];
+  total_price: number;
+  notes?: string | null;
 }
 
 export function useBookings() {
@@ -49,7 +62,7 @@ export function useBookings() {
     setLoading(false);
   };
 
-  const createBooking = async (bookingData: Omit<BookingData, 'id' | 'created_at' | 'status'>) => {
+  const createBooking = async (bookingData: CreateBookingInput): Promise<BookingData | null> => {
     if (!user) {
       toast({
         title: "Sign in required",
@@ -63,7 +76,16 @@ export function useBookings() {
       .from('bookings')
       .insert({
         user_id: user.id,
-        ...bookingData
+        vendor_id: bookingData.vendor_id,
+        vendor_user_id: bookingData.vendor_user_id || null,
+        package_id: bookingData.package_id,
+        event_date: bookingData.event_date,
+        event_location: bookingData.event_location,
+        units: bookingData.units,
+        add_ons: bookingData.add_ons,
+        total_price: bookingData.total_price,
+        notes: bookingData.notes || null,
+        status: 'pending'
       })
       .select()
       .single();
@@ -78,13 +100,39 @@ export function useBookings() {
     }
 
     toast({
-      title: "Booking confirmed!",
-      description: "Your booking has been submitted successfully"
+      title: "Booking submitted!",
+      description: "Your booking request has been sent to the vendor"
     });
 
     setBookings(prev => [data as BookingData, ...prev]);
-    return data;
+    return data as BookingData;
   };
 
-  return { bookings, loading, createBooking, refetch: fetchBookings };
+  const cancelBooking = async (bookingId: string): Promise<boolean> => {
+    const { error } = await supabase
+      .from('bookings')
+      .update({ status: 'cancelled' })
+      .eq('id', bookingId);
+
+    if (error) {
+      toast({
+        title: "Failed to cancel",
+        description: error.message,
+        variant: "destructive"
+      });
+      return false;
+    }
+
+    toast({
+      title: "Booking cancelled",
+      description: "Your booking has been cancelled"
+    });
+
+    setBookings(prev => prev.map(b => 
+      b.id === bookingId ? { ...b, status: 'cancelled' } : b
+    ));
+    return true;
+  };
+
+  return { bookings, loading, createBooking, cancelBooking, refetch: fetchBookings };
 }
