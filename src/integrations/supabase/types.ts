@@ -134,6 +134,36 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_availability: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          is_blocked: boolean
+          reason: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          is_blocked?: boolean
+          reason?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          is_blocked?: boolean
+          reason?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       vendor_details: {
         Row: {
           business_description: string | null
