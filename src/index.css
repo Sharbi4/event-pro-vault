@@ -6,71 +6,71 @@
 
 @layer base {
   :root {
-    /* Warm dark background with subtle warmth */
-    --background: 20 15% 6%;
-    --foreground: 45 20% 96%;
+    /* Natural warm off-white background */
+    --background: 40 30% 96%;
+    --foreground: 20 20% 15%;
 
-    --card: 20 12% 9%;
-    --card-foreground: 45 20% 96%;
+    --card: 40 25% 99%;
+    --card-foreground: 20 20% 15%;
 
-    --popover: 20 12% 8%;
-    --popover-foreground: 45 20% 96%;
+    --popover: 40 25% 98%;
+    --popover-foreground: 20 20% 15%;
 
     /* Vibrant orange-fuchsia primary */
-    --primary: 15 95% 55%;
+    --primary: 15 95% 50%;
     --primary-foreground: 0 0% 100%;
 
     /* Secondary - warm muted */
-    --secondary: 20 10% 14%;
-    --secondary-foreground: 45 20% 96%;
+    --secondary: 35 20% 92%;
+    --secondary-foreground: 20 20% 20%;
 
-    --muted: 20 8% 18%;
-    --muted-foreground: 30 10% 60%;
+    --muted: 35 15% 90%;
+    --muted-foreground: 20 10% 45%;
 
     /* Fuchsia-pink accent */
-    --accent: 330 85% 60%;
+    --accent: 330 85% 55%;
     --accent-foreground: 0 0% 100%;
 
     /* Golden yellow trust accent */
-    --trust: 45 100% 55%;
-    --trust-foreground: 20 15% 10%;
+    --trust: 45 100% 50%;
+    --trust-foreground: 20 20% 10%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 84% 55%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 20 10% 18%;
-    --input: 20 10% 14%;
-    --ring: 15 95% 55%;
+    --border: 35 20% 88%;
+    --input: 35 20% 92%;
+    --ring: 15 95% 50%;
 
     --radius: 0.75rem;
 
     /* Dynamic gradient spectrum */
-    --gradient-orange: 15 95% 55%;
-    --gradient-fuchsia: 330 85% 60%;
-    --gradient-yellow: 45 100% 55%;
-    --gradient-red: 5 90% 58%;
-    --gradient-start: hsl(15 95% 55%);
-    --gradient-mid: hsl(330 85% 60%);
-    --gradient-end: hsl(45 100% 55%);
+    --gradient-orange: 15 95% 50%;
+    --gradient-fuchsia: 330 85% 55%;
+    --gradient-yellow: 45 100% 50%;
+    --gradient-red: 5 90% 55%;
+    --gradient-start: hsl(15 95% 50%);
+    --gradient-mid: hsl(330 85% 55%);
+    --gradient-end: hsl(45 100% 50%);
 
-    /* Glass effect - warmer */
-    --glass-bg: 20 12% 10% / 0.85;
-    --glass-border: 20 15% 22%;
+    /* Glass effect - light warm */
+    --glass-bg: 40 30% 98% / 0.9;
+    --glass-border: 35 20% 85%;
 
     /* Glow effects - warm spectrum */
-    --glow-orange: 15 95% 55% / 0.5;
-    --glow-fuchsia: 330 85% 60% / 0.4;
-    --glow-yellow: 45 100% 55% / 0.3;
+    --glow-orange: 15 95% 50% / 0.25;
+    --glow-fuchsia: 330 85% 55% / 0.2;
+    --glow-yellow: 45 100% 50% / 0.15;
 
     /* Sidebar */
-    --sidebar-background: 20 15% 5%;
-    --sidebar-foreground: 45 20% 96%;
-    --sidebar-primary: 15 95% 55%;
+    --sidebar-background: 40 25% 97%;
+    --sidebar-foreground: 20 20% 15%;
+    --sidebar-primary: 15 95% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 20 10% 14%;
-    --sidebar-accent-foreground: 45 20% 96%;
-    --sidebar-border: 20 10% 18%;
-    --sidebar-ring: 15 95% 55%;
+    --sidebar-accent: 35 20% 92%;
+    --sidebar-accent-foreground: 20 20% 20%;
+    --sidebar-border: 35 20% 88%;
+    --sidebar-ring: 15 95% 50%;
   }
 }
 
@@ -200,15 +200,15 @@
     background-color: hsl(var(--trust));
   }
 
-  /* Ambient background glow */
+  /* Ambient background glow - subtle for light theme */
   .ambient-glow {
     position: fixed;
     inset: 0;
     pointer-events: none;
     background: 
-      radial-gradient(ellipse 80% 50% at 20% 20%, hsl(var(--gradient-orange) / 0.15) 0%, transparent 50%),
-      radial-gradient(ellipse 60% 40% at 80% 80%, hsl(var(--gradient-fuchsia) / 0.12) 0%, transparent 50%),
-      radial-gradient(ellipse 50% 30% at 50% 50%, hsl(var(--gradient-yellow) / 0.08) 0%, transparent 50%);
+      radial-gradient(ellipse 80% 50% at 20% 20%, hsl(var(--gradient-orange) / 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, hsl(var(--gradient-fuchsia) / 0.05) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 30% at 50% 50%, hsl(var(--gradient-yellow) / 0.04) 0%, transparent 50%);
     z-index: -1;
   }
 }
