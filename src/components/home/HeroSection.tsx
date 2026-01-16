@@ -1,25 +1,35 @@
 import { Button } from '@/components/ui/button';
-import { Search, Calendar } from 'lucide-react';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Search, Calendar as CalendarIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 import { LocationAutocomplete } from '@/components/browse/LocationAutocomplete';
 
 export function HeroSection() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('');
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState<Date | undefined>();
+  const [calendarOpen, setCalendarOpen] = useState(false);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (searchQuery) params.set('q', searchQuery);
     if (location) params.set('location', location);
-    if (date) params.set('date', date);
+    if (date) params.set('date', format(date, 'yyyy-MM-dd'));
     navigate(`/browse?${params.toString()}`);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handleSearch();
+  };
+
+  const handleDateSelect = (selectedDate: Date | undefined) => {
+    setDate(selectedDate);
+    setCalendarOpen(false);
   };
 
   return (
@@ -72,18 +82,30 @@ export function HeroSection() {
               {/* Divider */}
               <div className="w-px h-8 bg-border hidden md:block" />
 
-              {/* Date */}
-              <div className="hidden md:flex items-center gap-3 px-4 py-3 rounded-full hover:bg-secondary/30 transition-colors">
-                <Calendar className="w-5 h-5 text-muted-foreground shrink-0" />
-                <input
-                  type="text"
-                  placeholder="When"
-                  value={date}
-                  onChange={(e) => setDate(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none w-24"
-                />
-              </div>
+              {/* Date Picker */}
+              <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <button className="hidden md:flex items-center gap-3 px-4 py-3 rounded-full hover:bg-secondary/30 transition-colors">
+                    <CalendarIcon className="w-5 h-5 text-muted-foreground shrink-0" />
+                    <span className={cn(
+                      "text-sm whitespace-nowrap",
+                      date ? "text-foreground" : "text-muted-foreground"
+                    )}>
+                      {date ? format(date, "MMM d, yyyy") : "When"}
+                    </span>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="center">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={handleDateSelect}
+                    initialFocus
+                    disabled={(d) => d < new Date()}
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
 
               {/* Search Button */}
               <Button 
