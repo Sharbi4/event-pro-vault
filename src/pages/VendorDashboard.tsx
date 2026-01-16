@@ -5,11 +5,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useVendorDashboard } from '@/hooks/useVendorDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX } from 'lucide-react';
+import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet } from 'lucide-react';
 import { VendorOverview } from '@/components/vendor-dashboard/VendorOverview';
 import { VendorBookings } from '@/components/vendor-dashboard/VendorBookings';
 import { VendorListings } from '@/components/vendor-dashboard/VendorListings';
 import { VendorAvailability } from '@/components/vendor-dashboard/VendorAvailability';
+import { VendorEarnings } from '@/components/vendor-dashboard/VendorEarnings';
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const { user, loading: authLoading, signOut } = useAuth();
@@ -84,10 +85,14 @@ const VendorDashboard = () => {
 
         {/* Main Tabs */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
             <TabsTrigger value="overview" className="gap-2">
               <LayoutDashboard className="w-4 h-4 hidden sm:inline" />
               Overview
+            </TabsTrigger>
+            <TabsTrigger value="earnings" className="gap-2">
+              <Wallet className="w-4 h-4 hidden sm:inline" />
+              Earnings
             </TabsTrigger>
             <TabsTrigger value="bookings" className="gap-2">
               <Calendar className="w-4 h-4 hidden sm:inline" />
@@ -115,6 +120,10 @@ const VendorDashboard = () => {
               pendingEarnings={pendingEarnings}
               upcomingBookings={upcomingBookings}
             />
+          </TabsContent>
+
+          <TabsContent value="earnings">
+            <VendorEarnings bookings={bookings} />
           </TabsContent>
 
           <TabsContent value="bookings">
