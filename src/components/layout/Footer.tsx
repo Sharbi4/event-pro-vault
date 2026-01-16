@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Instagram, Twitter, Facebook, Linkedin } from 'lucide-react';
-import logo from '@/assets/logo.png';
+import logoIcon from '@/assets/logo-icon.png';
 
 export function Footer() {
   return (
@@ -11,9 +11,9 @@ export function Footer() {
           <div className="col-span-2 md:col-span-4 lg:col-span-1">
             <Link to="/" className="inline-block mb-4">
               <img 
-                src={logo} 
+                src={logoIcon} 
                 alt="EventPro by Vendibook" 
-                className="h-60 w-auto"
+                className="h-16 w-auto"
               />
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
