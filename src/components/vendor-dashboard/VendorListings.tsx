@@ -17,6 +17,16 @@ import {
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { VendorPackage } from '@/hooks/useVendorDashboard';
 import { PackageFormWizard } from './package-form/PackageFormWizard';
 import { SortablePackageCard } from './SortablePackageCard';
@@ -42,6 +52,7 @@ export function VendorListings({
   const [editingPackage, setEditingPackage] = useState<VendorPackage | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [packageToDelete, setPackageToDelete] = useState<VendorPackage | null>(null);
   const previousOrderRef = useRef<VendorPackage[] | null>(null);
 
   const sensors = useSensors(
@@ -90,12 +101,12 @@ export function VendorListings({
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (confirm('Are you sure you want to delete this package?')) {
-      setDeletingId(id);
-      await onDelete(id);
-      setDeletingId(null);
-    }
+  const handleDelete = async () => {
+    if (!packageToDelete) return;
+    setDeletingId(packageToDelete.id);
+    await onDelete(packageToDelete.id);
+    setDeletingId(null);
+    setPackageToDelete(null);
   };
 
   const handleToggleActive = async (pkg: VendorPackage) => {
@@ -150,7 +161,7 @@ export function VendorListings({
                   pkg={pkg}
                   onEdit={setEditingPackage}
                   onDuplicate={onDuplicate}
-                  onDelete={handleDelete}
+                  onDelete={setPackageToDelete}
                   onToggleActive={handleToggleActive}
                   isDeleting={deletingId === pkg.id}
                   isFirst={index === 0}
@@ -194,6 +205,27 @@ export function VendorListings({
         }}
         initialData={editingPackage}
       />
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!packageToDelete} onOpenChange={(open) => !open && setPackageToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Package</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{packageToDelete?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deletingId ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
