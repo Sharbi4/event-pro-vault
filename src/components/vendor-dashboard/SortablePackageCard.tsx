@@ -33,7 +33,7 @@ interface SortablePackageCardProps {
   pkg: VendorPackage;
   onEdit: (pkg: VendorPackage) => void;
   onDuplicate: (id: string) => Promise<unknown>;
-  onDelete: (id: string) => void;
+  onDelete: (pkg: VendorPackage) => void;
   onToggleActive: (pkg: VendorPackage) => void;
   isDeleting: boolean;
   onMoveUp?: () => void;
@@ -225,7 +225,7 @@ export function SortablePackageCard({
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
-                  onClick={() => onDelete(pkg.id)}
+                  onClick={() => onDelete(pkg)}
                   className="text-destructive"
                   disabled={isDeleting}
                 >
