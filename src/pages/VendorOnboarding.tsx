@@ -12,14 +12,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { 
   CheckCircle2, 
-  Circle, 
   ArrowRight, 
   Building2, 
   CreditCard,
-  Loader2
+  Loader2,
+  Sparkles,
+  Users,
+  Store,
+  Star
 } from 'lucide-react';
 
-type OnboardingStep = 'business-info' | 'connect' | 'connect-complete' | 'complete';
+type VendorType = 'event-pro' | 'market' | null;
+type OnboardingStep = 'welcome' | 'business-info' | 'connect' | 'connect-complete' | 'complete';
 
 interface VendorFormData {
   businessName: string;
@@ -34,7 +38,8 @@ export default function VendorOnboarding() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
-  const [currentStep, setCurrentStep] = useState<OnboardingStep>('business-info');
+  const [currentStep, setCurrentStep] = useState<OnboardingStep>('welcome');
+  const [vendorType, setVendorType] = useState<VendorType>(null);
   const [loading, setLoading] = useState(false);
   const [checkingStatus, setCheckingStatus] = useState(true);
   const [formData, setFormData] = useState<VendorFormData>({
@@ -99,6 +104,8 @@ export default function VendorOnboarding() {
           setCurrentStep('complete');
         } else if (vendorDetails) {
           setCurrentStep('connect');
+        } else {
+          setCurrentStep('welcome');
         }
       }
     } catch (error) {
@@ -198,19 +205,30 @@ export default function VendorOnboarding() {
   }
 
   const steps = [
+    { id: 'welcome', label: 'Welcome', icon: Sparkles },
     { id: 'business-info', label: 'Business Info', icon: Building2 },
     { id: 'connect', label: 'Payment Setup', icon: CreditCard },
     { id: 'complete', label: 'Complete', icon: CheckCircle2 },
   ];
 
   const getStepStatus = (stepId: string) => {
-    const stepOrder = ['business-info', 'connect', 'complete'];
+    const stepOrder = ['welcome', 'business-info', 'connect', 'complete'];
     const currentIndex = stepOrder.indexOf(currentStep);
     const stepIndex = stepOrder.indexOf(stepId);
     
     if (stepIndex < currentIndex) return 'complete';
     if (stepIndex === currentIndex) return 'current';
     return 'pending';
+  };
+
+  const handleVendorTypeSelect = (type: VendorType) => {
+    setVendorType(type);
+  };
+
+  const handleWelcomeContinue = () => {
+    if (vendorType) {
+      setCurrentStep('business-info');
+    }
   };
 
   return (
@@ -257,6 +275,154 @@ export default function VendorOnboarding() {
         </div>
 
         {/* Step Content */}
+        {currentStep === 'welcome' && (
+          <div className="space-y-8 animate-fade-in">
+            {/* Premium Welcome Header */}
+            <div className="text-center space-y-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
+                <Sparkles className="w-4 h-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Join the Event Pros Network</span>
+              </div>
+              <h2 className="font-display text-2xl md:text-3xl font-bold">
+                What best describes you?
+              </h2>
+              <p className="text-muted-foreground max-w-lg mx-auto">
+                Choose your path to start showcasing your services to thousands of event planners
+              </p>
+            </div>
+
+            {/* Selection Cards */}
+            <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
+              {/* Event Pro Card */}
+              <button
+                onClick={() => handleVendorTypeSelect('event-pro')}
+                className={`group relative overflow-hidden rounded-2xl p-8 text-left transition-all duration-300 ${
+                  vendorType === 'event-pro'
+                    ? 'ring-2 ring-primary shadow-lg shadow-primary/20'
+                    : 'ring-1 ring-border hover:ring-primary/50 hover:shadow-lg'
+                }`}
+              >
+                {/* Background gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                
+                {/* Selection indicator */}
+                {vendorType === 'event-pro' && (
+                  <div className="absolute top-4 right-4">
+                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                      <CheckCircle2 className="w-4 h-4 text-primary-foreground" />
+                    </div>
+                  </div>
+                )}
+
+                <div className="relative space-y-4">
+                  {/* Icon */}
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
+                    <Users className="w-7 h-7 text-white" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="space-y-2">
+                    <h3 className="font-display text-xl font-bold">Event Pro</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      DJs, photographers, caterers, entertainers, and other service providers who bring events to life
+                    </p>
+                  </div>
+
+                  {/* Features */}
+                  <div className="space-y-2 pt-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Star className="w-4 h-4 text-primary" />
+                      <span>Create unlimited service packages</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Star className="w-4 h-4 text-primary" />
+                      <span>Get booked by event planners</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Star className="w-4 h-4 text-primary" />
+                      <span>Manage your availability</span>
+                    </div>
+                  </div>
+                </div>
+              </button>
+
+              {/* Market Card */}
+              <button
+                onClick={() => handleVendorTypeSelect('market')}
+                className={`group relative overflow-hidden rounded-2xl p-8 text-left transition-all duration-300 ${
+                  vendorType === 'market'
+                    ? 'ring-2 ring-primary shadow-lg shadow-primary/20'
+                    : 'ring-1 ring-border hover:ring-primary/50 hover:shadow-lg'
+                }`}
+              >
+                {/* Background gradient */}
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-primary/5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                
+                {/* Selection indicator */}
+                {vendorType === 'market' && (
+                  <div className="absolute top-4 right-4">
+                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                      <CheckCircle2 className="w-4 h-4 text-primary-foreground" />
+                    </div>
+                  </div>
+                )}
+
+                <div className="relative space-y-4">
+                  {/* Icon */}
+                  <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-accent to-primary flex items-center justify-center">
+                    <Store className="w-7 h-7 text-white" />
+                  </div>
+
+                  {/* Content */}
+                  <div className="space-y-2">
+                    <h3 className="font-display text-xl font-bold">Market</h3>
+                    <p className="text-muted-foreground text-sm leading-relaxed">
+                      Venues, festivals, and event organizers looking to host and manage multiple vendors
+                    </p>
+                  </div>
+
+                  {/* Features */}
+                  <div className="space-y-2 pt-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Star className="w-4 h-4 text-accent" />
+                      <span>List your venue or market</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Star className="w-4 h-4 text-accent" />
+                      <span>Attract vendors to your events</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Star className="w-4 h-4 text-accent" />
+                      <span>Manage vendor applications</span>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            </div>
+
+            {/* Continue Button */}
+            <div className="flex justify-center pt-4">
+              <Button
+                onClick={handleWelcomeContinue}
+                disabled={!vendorType}
+                size="lg"
+                variant="gradient"
+                className="min-w-[200px] shimmer-effect"
+              >
+                Continue
+                <ArrowRight className="w-4 h-4 ml-2" />
+              </Button>
+            </div>
+
+            {/* Trust Badge */}
+            <div className="text-center pt-4">
+              <p className="text-xs text-muted-foreground">
+                <span className="trust-accent font-medium">Powered by Vendibook</span> — Trusted by 10,000+ event professionals
+              </p>
+            </div>
+          </div>
+        )}
+
         {currentStep === 'business-info' && (
           <Card>
             <CardHeader>
