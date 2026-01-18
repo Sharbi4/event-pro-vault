@@ -25,7 +25,7 @@ export function Header() {
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
             <Link to="/markets" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Markets
+              Discover Markets
             </Link>
             <Link to="/become-a-pro" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Become a Pro
@@ -76,7 +76,7 @@ export function Header() {
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Markets
+                Discover Markets
               </Link>
               <Link 
                 to="/become-a-pro" 
