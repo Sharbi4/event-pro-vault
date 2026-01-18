@@ -24,9 +24,6 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-8">
-            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Browse
-            </Link>
             <Link to="/markets" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Markets
             </Link>
@@ -74,13 +71,6 @@ export function Header() {
         {mobileMenuOpen && (
           <div className="lg:hidden py-4 border-t border-border/50 animate-fade-in">
             <nav className="flex flex-col gap-4">
-              <Link 
-                to="/" 
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Browse
-              </Link>
               <Link 
                 to="/markets" 
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
