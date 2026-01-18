@@ -27,9 +27,6 @@ export function Header() {
             <Link to="/markets" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
               Discover Markets
             </Link>
-            <Link to="/become-a-pro" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Become a Pro
-            </Link>
           </nav>
 
           {/* Desktop CTA */}
@@ -77,13 +74,6 @@ export function Header() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Discover Markets
-              </Link>
-              <Link 
-                to="/become-a-pro" 
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Become a Pro
               </Link>
               <div className="flex flex-col gap-3 pt-4 border-t border-border/50">
                 {user ? (
