@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Search, Menu, X, User } from 'lucide-react';
+import { Menu, X, User, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
@@ -52,10 +52,10 @@ export function Header() {
                 <Button variant="ghost" size="sm">Sign In</Button>
               </Link>
             )}
-            <Link to="/browse">
+            <Link to="/become-a-pro">
               <Button variant="gradient" size="default" className="gap-2">
-                <Search className="w-4 h-4" />
-                Search & Book
+                <Sparkles className="w-4 h-4" />
+                Become an Event Pro
               </Button>
             </Link>
           </div>
@@ -118,10 +118,10 @@ export function Header() {
                     <Button variant="outline" className="w-full">Sign In</Button>
                   </Link>
                 )}
-                <Link to="/browse" onClick={() => setMobileMenuOpen(false)}>
+                <Link to="/become-a-pro" onClick={() => setMobileMenuOpen(false)}>
                   <Button variant="gradient" className="w-full gap-2">
-                    <Search className="w-4 h-4" />
-                    Search & Book
+                    <Sparkles className="w-4 h-4" />
+                    Become an Event Pro
                   </Button>
                 </Link>
               </div>
