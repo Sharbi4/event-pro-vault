@@ -200,6 +200,78 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          booking_id: string | null
+          content: string | null
+          created_at: string
+          event_date: string | null
+          event_type: string | null
+          helpful_count: number | null
+          id: string
+          is_verified_booking: boolean | null
+          package_id: string | null
+          rating: number
+          reviewer_avatar: string | null
+          reviewer_name: string
+          reviewer_user_id: string
+          title: string | null
+          updated_at: string
+          vendor_user_id: string
+        }
+        Insert: {
+          booking_id?: string | null
+          content?: string | null
+          created_at?: string
+          event_date?: string | null
+          event_type?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_verified_booking?: boolean | null
+          package_id?: string | null
+          rating: number
+          reviewer_avatar?: string | null
+          reviewer_name: string
+          reviewer_user_id: string
+          title?: string | null
+          updated_at?: string
+          vendor_user_id: string
+        }
+        Update: {
+          booking_id?: string | null
+          content?: string | null
+          created_at?: string
+          event_date?: string | null
+          event_type?: string | null
+          helpful_count?: number | null
+          id?: string
+          is_verified_booking?: boolean | null
+          package_id?: string | null
+          rating?: number
+          reviewer_avatar?: string | null
+          reviewer_name?: string
+          reviewer_user_id?: string
+          title?: string | null
+          updated_at?: string
+          vendor_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_package_id_fkey"
+            columns: ["package_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendor_availability: {
         Row: {
           created_at: string
