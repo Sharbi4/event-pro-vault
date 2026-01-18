@@ -19,11 +19,19 @@ import {
   Sparkles,
   Users,
   Store,
-  Star
+  Star,
+  Package,
+  Plus,
+  AlertCircle
 } from 'lucide-react';
+import { PackageFormWizard, PackageFormData } from '@/components/vendor-dashboard/package-form/PackageFormWizard';
+import { OnboardingPackageCard } from '@/components/onboarding/OnboardingPackageCard';
+import { VendorPackage } from '@/hooks/useVendorDashboard';
+
+const MAX_PACKAGES = 15;
 
 type VendorType = 'event-pro' | 'market' | null;
-type OnboardingStep = 'welcome' | 'business-info' | 'connect' | 'connect-complete' | 'complete';
+type OnboardingStep = 'welcome' | 'business-info' | 'packages' | 'connect' | 'connect-complete' | 'complete';
 
 interface VendorFormData {
   businessName: string;
@@ -51,6 +59,12 @@ export default function VendorOnboarding() {
   });
 
   const [connectStatus, setConnectStatus] = useState<string>('not_started');
+  
+  // Package creation state
+  const [packages, setPackages] = useState<VendorPackage[]>([]);
+  const [showPackageForm, setShowPackageForm] = useState(false);
+  const [editingPackage, setEditingPackage] = useState<VendorPackage | null>(null);
+  const [loadingPackages, setLoadingPackages] = useState(false);
 
   // Check URL params for return from Stripe
   useEffect(() => {
@@ -103,7 +117,9 @@ export default function VendorOnboarding() {
         if (profile.stripe_account_status === 'active') {
           setCurrentStep('complete');
         } else if (vendorDetails) {
-          setCurrentStep('connect');
+          // Load existing packages
+          await loadPackages();
+          setCurrentStep('packages');
         } else {
           setCurrentStep('welcome');
         }
@@ -157,7 +173,7 @@ export default function VendorOnboarding() {
       if (error) throw error;
 
       toast.success('Business info saved!');
-      setCurrentStep('connect');
+      setCurrentStep('packages');
     } catch (error) {
       console.error('Error saving business info:', error);
       toast.error('Failed to save business info');
@@ -166,6 +182,89 @@ export default function VendorOnboarding() {
     }
   };
 
+  // Package management functions
+  const loadPackages = async () => {
+    if (!user) return;
+    setLoadingPackages(true);
+    try {
+      const { data, error } = await supabase
+        .from('vendor_packages')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('sort_order', { ascending: true });
+      
+      if (error) throw error;
+      setPackages((data || []) as VendorPackage[]);
+    } catch (error) {
+      console.error('Error loading packages:', error);
+    } finally {
+      setLoadingPackages(false);
+    }
+  };
+
+  const handleCreatePackage = async (data: Omit<VendorPackage, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('vendor_packages')
+        .insert({
+          ...data,
+          user_id: user.id,
+          sort_order: packages.length,
+        });
+
+      if (error) throw error;
+      toast.success('Package created!');
+      await loadPackages();
+    } catch (error) {
+      console.error('Error creating package:', error);
+      toast.error('Failed to create package');
+    }
+  };
+
+  const handleUpdatePackage = async (data: Omit<VendorPackage, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    if (!user || !editingPackage) return;
+    
+    try {
+      const { error } = await supabase
+        .from('vendor_packages')
+        .update(data)
+        .eq('id', editingPackage.id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      toast.success('Package updated!');
+      setEditingPackage(null);
+      await loadPackages();
+    } catch (error) {
+      console.error('Error updating package:', error);
+      toast.error('Failed to update package');
+    }
+  };
+
+  const handleDeletePackage = async (packageId: string) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from('vendor_packages')
+        .delete()
+        .eq('id', packageId)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      toast.success('Package deleted');
+      await loadPackages();
+    } catch (error) {
+      console.error('Error deleting package:', error);
+      toast.error('Failed to delete package');
+    }
+  };
+
+  const handlePackagesContinue = () => {
+    setCurrentStep('connect');
+  };
 
   const startConnectOnboarding = async () => {
     setLoading(true);
@@ -207,12 +306,13 @@ export default function VendorOnboarding() {
   const steps = [
     { id: 'welcome', label: 'Welcome', icon: Sparkles },
     { id: 'business-info', label: 'Business Info', icon: Building2 },
+    { id: 'packages', label: 'Packages', icon: Package },
     { id: 'connect', label: 'Payment Setup', icon: CreditCard },
     { id: 'complete', label: 'Complete', icon: CheckCircle2 },
   ];
 
   const getStepStatus = (stepId: string) => {
-    const stepOrder = ['welcome', 'business-info', 'connect', 'complete'];
+    const stepOrder = ['welcome', 'business-info', 'packages', 'connect', 'complete'];
     const currentIndex = stepOrder.indexOf(currentStep);
     const stepIndex = stepOrder.indexOf(stepId);
     
@@ -512,6 +612,138 @@ export default function VendorOnboarding() {
           </Card>
         )}
 
+        {/* Packages Step */}
+        {currentStep === 'packages' && (
+          <div className="space-y-6 animate-fade-in">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Package className="w-5 h-5 text-primary" />
+                      Create Your Service Packages
+                    </CardTitle>
+                    <CardDescription className="mt-1">
+                      Add up to {MAX_PACKAGES} packages to showcase your services. You can always add more later.
+                    </CardDescription>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-bold text-primary">{packages.length}</span>
+                    <span className="text-muted-foreground">/{MAX_PACKAGES}</span>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Package count indicator */}
+                <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                  <div 
+                    className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-500"
+                    style={{ width: `${(packages.length / MAX_PACKAGES) * 100}%` }}
+                  />
+                </div>
+
+                {loadingPackages ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                  </div>
+                ) : packages.length === 0 ? (
+                  /* Empty state */
+                  <div className="text-center py-12 border-2 border-dashed border-border rounded-xl">
+                    <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
+                      <Package className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="font-semibold text-lg mb-2">No packages yet</h3>
+                    <p className="text-muted-foreground mb-6 max-w-sm mx-auto">
+                      Create your first service package to start attracting customers
+                    </p>
+                    <Button 
+                      onClick={() => setShowPackageForm(true)}
+                      variant="gradient"
+                      size="lg"
+                      className="shimmer-effect"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Your First Package
+                    </Button>
+                  </div>
+                ) : (
+                  /* Package grid */
+                  <div className="space-y-4">
+                    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                      {packages.map((pkg) => (
+                        <OnboardingPackageCard
+                          key={pkg.id}
+                          pkg={pkg}
+                          onEdit={(p) => {
+                            setEditingPackage(p as VendorPackage);
+                            setShowPackageForm(true);
+                          }}
+                          onDelete={handleDeletePackage}
+                        />
+                      ))}
+                      
+                      {/* Add more card */}
+                      {packages.length < MAX_PACKAGES && (
+                        <button
+                          onClick={() => setShowPackageForm(true)}
+                          className="aspect-[16/9] border-2 border-dashed border-border rounded-xl flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary hover:text-primary transition-colors cursor-pointer group"
+                        >
+                          <div className="w-12 h-12 rounded-full bg-muted group-hover:bg-primary/10 flex items-center justify-center transition-colors">
+                            <Plus className="w-6 h-6" />
+                          </div>
+                          <span className="font-medium">Add Package</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {packages.length >= MAX_PACKAGES && (
+                      <div className="flex items-center gap-2 p-3 bg-amber-500/10 border border-amber-500/20 rounded-lg text-amber-600">
+                        <AlertCircle className="w-4 h-4 shrink-0" />
+                        <p className="text-sm">You've reached the maximum of {MAX_PACKAGES} packages.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Continue section */}
+                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t">
+                  <Button
+                    onClick={() => setCurrentStep('business-info')}
+                    variant="outline"
+                    className="flex-1"
+                  >
+                    Back
+                  </Button>
+                  <Button
+                    onClick={handlePackagesContinue}
+                    variant="gradient"
+                    className="flex-1"
+                  >
+                    {packages.length === 0 ? 'Skip for Now' : 'Continue'}
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Button>
+                </div>
+
+                {packages.length === 0 && (
+                  <p className="text-center text-sm text-muted-foreground">
+                    You can always create packages later from your dashboard
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Package Form Dialog */}
+            <PackageFormWizard
+              open={showPackageForm}
+              onClose={() => {
+                setShowPackageForm(false);
+                setEditingPackage(null);
+              }}
+              onSubmit={editingPackage ? handleUpdatePackage : handleCreatePackage}
+              initialData={editingPackage}
+            />
+          </div>
+        )}
 
         {currentStep === 'connect' && (
           <Card>
