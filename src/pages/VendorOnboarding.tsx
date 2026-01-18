@@ -14,15 +14,12 @@ import {
   CheckCircle2, 
   Circle, 
   ArrowRight, 
-  Shield, 
   Building2, 
   CreditCard,
-  Loader2,
-  User,
-  FileCheck
+  Loader2
 } from 'lucide-react';
 
-type OnboardingStep = 'business-info' | 'identity' | 'identity-complete' | 'connect' | 'connect-complete' | 'complete';
+type OnboardingStep = 'business-info' | 'connect' | 'connect-complete' | 'complete';
 
 interface VendorFormData {
   businessName: string;
@@ -48,15 +45,12 @@ export default function VendorOnboarding() {
     websiteUrl: '',
   });
 
-  const [identityStatus, setIdentityStatus] = useState<string>('not_started');
   const [connectStatus, setConnectStatus] = useState<string>('not_started');
 
   // Check URL params for return from Stripe
   useEffect(() => {
     const step = searchParams.get('step');
-    if (step === 'identity-complete') {
-      checkIdentityStatus();
-    } else if (step === 'connect-complete' || step === 'connect-refresh') {
+    if (step === 'connect-complete' || step === 'connect-refresh') {
       checkConnectStatus();
     }
   }, [searchParams]);
@@ -76,7 +70,7 @@ export default function VendorOnboarding() {
       // Check profile status
       const { data: profile } = await supabase
         .from('profiles')
-        .select('identity_verification_status, stripe_account_status, is_vendor')
+        .select('stripe_account_status, is_vendor')
         .eq('user_id', user.id)
         .single();
 
@@ -98,16 +92,13 @@ export default function VendorOnboarding() {
       }
 
       if (profile) {
-        setIdentityStatus(profile.identity_verification_status || 'not_started');
         setConnectStatus(profile.stripe_account_status || 'not_started');
 
         // Determine current step based on status
         if (profile.stripe_account_status === 'active') {
           setCurrentStep('complete');
-        } else if (profile.identity_verification_status === 'verified') {
-          setCurrentStep('connect');
         } else if (vendorDetails) {
-          setCurrentStep('identity');
+          setCurrentStep('connect');
         }
       }
     } catch (error) {
@@ -117,28 +108,6 @@ export default function VendorOnboarding() {
     }
   };
 
-  const checkIdentityStatus = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('check-identity-verification');
-      if (error) throw error;
-      
-      setIdentityStatus(data.status);
-      if (data.verified) {
-        setCurrentStep('connect');
-        toast.success('Identity verified successfully!');
-      } else if (data.status === 'processing') {
-        toast.info('Your identity is being verified. This may take a few minutes.');
-      } else if (data.status === 'requires_input') {
-        toast.error('Verification failed. Please try again.');
-      }
-    } catch (error) {
-      console.error('Error checking identity:', error);
-      toast.error('Failed to check identity status');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const checkConnectStatus = async () => {
     setLoading(true);
@@ -181,7 +150,7 @@ export default function VendorOnboarding() {
       if (error) throw error;
 
       toast.success('Business info saved!');
-      setCurrentStep('identity');
+      setCurrentStep('connect');
     } catch (error) {
       console.error('Error saving business info:', error);
       toast.error('Failed to save business info');
@@ -190,21 +159,6 @@ export default function VendorOnboarding() {
     }
   };
 
-  const startIdentityVerification = async () => {
-    setLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('create-identity-verification');
-      if (error) throw error;
-
-      if (data.url) {
-        window.location.href = data.url;
-      }
-    } catch (error) {
-      console.error('Error starting identity verification:', error);
-      toast.error('Failed to start identity verification');
-      setLoading(false);
-    }
-  };
 
   const startConnectOnboarding = async () => {
     setLoading(true);
@@ -245,13 +199,12 @@ export default function VendorOnboarding() {
 
   const steps = [
     { id: 'business-info', label: 'Business Info', icon: Building2 },
-    { id: 'identity', label: 'Identity Verification', icon: Shield },
     { id: 'connect', label: 'Payment Setup', icon: CreditCard },
     { id: 'complete', label: 'Complete', icon: CheckCircle2 },
   ];
 
   const getStepStatus = (stepId: string) => {
-    const stepOrder = ['business-info', 'identity', 'connect', 'complete'];
+    const stepOrder = ['business-info', 'connect', 'complete'];
     const currentIndex = stepOrder.indexOf(currentStep);
     const stepIndex = stepOrder.indexOf(stepId);
     
@@ -393,63 +346,6 @@ export default function VendorOnboarding() {
           </Card>
         )}
 
-        {currentStep === 'identity' && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="w-5 h-5 text-primary" />
-                Identity Verification
-              </CardTitle>
-              <CardDescription>
-                Verify your identity to build trust with customers. This is required before you can receive payments.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-                <h4 className="font-medium">What you'll need:</h4>
-                <ul className="text-sm text-muted-foreground space-y-2">
-                  <li className="flex items-center gap-2">
-                    <FileCheck className="w-4 h-4 text-primary" />
-                    A valid government-issued photo ID
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <User className="w-4 h-4 text-primary" />
-                    A device with a camera for a selfie
-                  </li>
-                </ul>
-              </div>
-
-              {identityStatus === 'processing' && (
-                <div className="text-center py-4">
-                  <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary mb-2" />
-                  <p className="text-muted-foreground">Your identity is being verified...</p>
-                </div>
-              )}
-
-              {identityStatus === 'requires_input' && (
-                <div className="bg-destructive/10 text-destructive rounded-lg p-4">
-                  <p className="text-sm">Verification failed. Please try again with clear photos of your ID.</p>
-                </div>
-              )}
-
-              <Button
-                onClick={startIdentityVerification}
-                disabled={loading || identityStatus === 'processing'}
-                className="w-full"
-                variant="gradient"
-              >
-                {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Shield className="w-4 h-4 mr-2" />}
-                {identityStatus === 'requires_input' ? 'Try Again' : 'Start Verification'}
-              </Button>
-
-              {identityStatus === 'processing' && (
-                <Button variant="outline" onClick={checkIdentityStatus} className="w-full">
-                  Check Status
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-        )}
 
         {currentStep === 'connect' && (
           <Card>
