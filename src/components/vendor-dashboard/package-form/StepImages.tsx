@@ -1,11 +1,27 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { ImagePlus, X, Upload, Loader2 } from 'lucide-react';
+import { ImagePlus, Upload, Loader2, Info } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { PackageFormData } from './PackageFormWizard';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { SortableImage } from './SortableImage';
 
 interface StepImagesProps {
   formData: PackageFormData;
@@ -17,6 +33,34 @@ export function StepImages({ formData, updateFormData }: StepImagesProps) {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = formData.images.findIndex((url) => url === active.id);
+      const newIndex = formData.images.findIndex((url) => url === over.id);
+
+      const newImages = arrayMove(formData.images, oldIndex, newIndex);
+      updateFormData({ images: newImages });
+
+      toast({
+        title: 'Images reordered',
+        description: newIndex === 0 ? 'New cover photo set!' : 'Image order updated',
+      });
+    }
+  };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -156,35 +200,39 @@ export function StepImages({ formData, updateFormData }: StepImagesProps) {
         )}
       </div>
 
-      {/* Image Grid */}
+      {/* Image Grid with Drag & Drop */}
       {formData.images.length > 0 && (
         <div className="space-y-3">
-          <Label>Uploaded Images ({formData.images.length}/10)</Label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-            {formData.images.map((url, index) => (
-              <div key={index} className="relative group aspect-square">
-                <img
-                  src={url}
-                  alt={`Package image ${index + 1}`}
-                  className="w-full h-full object-cover rounded-lg"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeImage(index)}
-                  className="absolute top-2 right-2 w-6 h-6 rounded-full bg-black/60 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-                {index === 0 && (
-                  <span className="absolute bottom-2 left-2 px-2 py-0.5 bg-primary text-primary-foreground text-xs rounded font-medium">
-                    Cover
-                  </span>
-                )}
-              </div>
-            ))}
+          <div className="flex items-center justify-between">
+            <Label>Uploaded Images ({formData.images.length}/10)</Label>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Info className="w-3.5 h-3.5" />
+              <span>Drag to reorder</span>
+            </div>
           </div>
+          
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext items={formData.images} strategy={rectSortingStrategy}>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {formData.images.map((url, index) => (
+                  <SortableImage
+                    key={url}
+                    id={url}
+                    url={url}
+                    index={index}
+                    onRemove={() => removeImage(index)}
+                  />
+                ))}
+              </div>
+            </SortableContext>
+          </DndContext>
+          
           <p className="text-xs text-muted-foreground">
-            The first image will be used as the cover photo
+            The first image will be used as the cover photo. Drag images to change the order.
           </p>
         </div>
       )}
