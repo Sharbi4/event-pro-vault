@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { CategoryCarousel } from '@/components/browse/CategoryCarousel';
 import { BrowsePackageCard } from '@/components/browse/BrowsePackageCard';
+import { BrowsePackageMap } from '@/components/browse/BrowsePackageMap';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -11,7 +12,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { 
   SlidersHorizontal, X, Star, Zap, 
   ShieldCheck, LayoutGrid, Search, MapPin,
-  CalendarDays, Package
+  CalendarDays, Package, Map
 } from 'lucide-react';
 import { categories } from '@/data/categories';
 import { useBrowsePackages } from '@/hooks/useBrowsePackages';
@@ -21,6 +22,8 @@ export default function Browse() {
   const { packages, loading, filters, updateFilter, clearFilters } = useBrowsePackages();
   const [showFilters, setShowFilters] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
 
   const activeFiltersCount = [
     filters.category,
@@ -150,6 +153,28 @@ export default function Browse() {
 
             {/* View Controls */}
             <div className="flex items-center gap-2">
+              {/* View Toggle */}
+              <div className="flex items-center border border-border rounded-lg overflow-hidden">
+                <Button 
+                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="rounded-none gap-1.5"
+                  onClick={() => setViewMode('grid')}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                  <span className="hidden sm:inline">Grid</span>
+                </Button>
+                <Button 
+                  variant={viewMode === 'map' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="rounded-none gap-1.5"
+                  onClick={() => setViewMode('map')}
+                >
+                  <Map className="w-4 h-4" />
+                  <span className="hidden sm:inline">Map</span>
+                </Button>
+              </div>
+              
               <Button 
                 variant={showFilters ? 'default' : 'outline'}
                 size="sm"
@@ -229,7 +254,7 @@ export default function Browse() {
           )}
 
           {/* Package Grid */}
-          {!loading && packages.length > 0 && (
+          {!loading && packages.length > 0 && viewMode === 'grid' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {packages.map((pkg, index) => (
                 <div 
@@ -240,6 +265,17 @@ export default function Browse() {
                   <BrowsePackageCard pkg={pkg} />
                 </div>
               ))}
+            </div>
+          )}
+
+          {/* Map View */}
+          {!loading && packages.length > 0 && viewMode === 'map' && (
+            <div className="h-[600px] lg:h-[700px] rounded-xl overflow-hidden">
+              <BrowsePackageMap 
+                packages={packages}
+                selectedPackageId={selectedPackageId}
+                onPackageSelect={setSelectedPackageId}
+              />
             </div>
           )}
 
