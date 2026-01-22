@@ -26,3 +26,15 @@ verify_jwt = false
 
 [functions.send-payment-reminders]
 verify_jwt = false
+
+[functions.stripe-webhook]
+verify_jwt = false
+
+[functions.process-payouts]
+verify_jwt = false
+
+[functions.create-market-connect-account]
+verify_jwt = false
+
+[functions.check-market-connect-status]
+verify_jwt = false
