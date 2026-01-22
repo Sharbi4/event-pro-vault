@@ -282,7 +282,7 @@ export function useEventProOnboarding() {
             travel_radius_miles: mergedState.serviceArea.travelRadiusMiles,
             travel_fee_enabled: mergedState.serviceArea.travelFeeEnabled,
             service_area_type: mergedState.serviceArea.serviceAreaType,
-            media_items: mergedState.mediaItems as unknown as object,
+            media_items: JSON.parse(JSON.stringify(mergedState.mediaItems)),
             timezone: mergedState.timezone,
             website_url: mergedState.profileBasics.websiteUrl,
           })
@@ -290,7 +290,7 @@ export function useEventProOnboarding() {
       } else {
         await supabase
           .from('vendor_details')
-          .insert({
+          .insert([{
             user_id: user.id,
             service_categories: mergedState.categories,
             formatted_address: mergedState.serviceArea.formattedAddress,
@@ -301,10 +301,10 @@ export function useEventProOnboarding() {
             travel_radius_miles: mergedState.serviceArea.travelRadiusMiles,
             travel_fee_enabled: mergedState.serviceArea.travelFeeEnabled,
             service_area_type: mergedState.serviceArea.serviceAreaType,
-            media_items: mergedState.mediaItems as unknown as object,
+            media_items: JSON.parse(JSON.stringify(mergedState.mediaItems)),
             timezone: mergedState.timezone,
             website_url: mergedState.profileBasics.websiteUrl,
-          });
+          }]);
       }
 
       setLastSaved(new Date());

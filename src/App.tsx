@@ -15,6 +15,7 @@ import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import VendorDashboard from "./pages/VendorDashboard";
 import VendorOnboarding from "./pages/VendorOnboarding";
+import EventProOnboarding from "./pages/EventProOnboarding";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -39,6 +40,7 @@ const App = () => (
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/vendor-dashboard" element={<VendorDashboard />} />
               <Route path="/vendor-onboarding" element={<VendorOnboarding />} />
+              <Route path="/eventpro-onboarding" element={<EventProOnboarding />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

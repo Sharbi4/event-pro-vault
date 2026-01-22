@@ -30,25 +30,35 @@ export function Header() {
           </nav>
 
           {/* Desktop CTA */}
-          <div className="hidden lg:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-3">
             {user ? (
-              <Link to="/dashboard">
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <User className="w-4 h-4" />
-                  Dashboard
-                </Button>
-              </Link>
+              <>
+                <Link to="/dashboard">
+                  <Button variant="ghost" size="sm" className="gap-2">
+                    <User className="w-4 h-4" />
+                    Dashboard
+                  </Button>
+                </Link>
+                <Link to="/eventpro-onboarding">
+                  <Button variant="gradient" size="default" className="gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    Create Your Profile
+                  </Button>
+                </Link>
+              </>
             ) : (
-              <Link to="/auth">
-                <Button variant="ghost" size="sm">Sign In</Button>
-              </Link>
+              <>
+                <Link to="/auth">
+                  <Button variant="ghost" size="sm">Sign In</Button>
+                </Link>
+                <Link to="/eventpro-onboarding">
+                  <Button variant="gradient" size="default" className="gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    Become an EventPro
+                  </Button>
+                </Link>
+              </>
             )}
-            <Link to="/become-a-pro">
-              <Button variant="gradient" size="default" className="gap-2">
-                <Sparkles className="w-4 h-4" />
-                Become an Event Pro
-              </Button>
-            </Link>
           </div>
 
           {/* Mobile Menu Button */}
@@ -77,23 +87,33 @@ export function Header() {
               </Link>
               <div className="flex flex-col gap-3 pt-4 border-t border-border/50">
                 {user ? (
-                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full gap-2">
-                      <User className="w-4 h-4" />
-                      Dashboard
-                    </Button>
-                  </Link>
+                  <>
+                    <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full gap-2">
+                        <User className="w-4 h-4" />
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Link to="/eventpro-onboarding" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="gradient" className="w-full gap-2">
+                        <Sparkles className="w-4 h-4" />
+                        Create Your Profile
+                      </Button>
+                    </Link>
+                  </>
                 ) : (
-                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full">Sign In</Button>
-                  </Link>
+                  <>
+                    <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" className="w-full">Sign In</Button>
+                    </Link>
+                    <Link to="/eventpro-onboarding" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="gradient" className="w-full gap-2">
+                        <Sparkles className="w-4 h-4" />
+                        Become an EventPro
+                      </Button>
+                    </Link>
+                  </>
                 )}
-                <Link to="/become-a-pro" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="gradient" className="w-full gap-2">
-                    <Sparkles className="w-4 h-4" />
-                    Become an Event Pro
-                  </Button>
-                </Link>
               </div>
             </nav>
           </div>
