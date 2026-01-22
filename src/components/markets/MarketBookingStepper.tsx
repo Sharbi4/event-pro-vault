@@ -53,7 +53,7 @@ const VENDOR_CATEGORIES = [
   'Other'
 ];
 
-const BOOTH_SIZES = ['5x5', '10x10', '10x15', '10x20', 'Custom'];
+// Booth size is now derived from slot type dimensions - no manual selection needed
 
 interface MarketBookingStepperProps {
   marketId: string;
@@ -108,7 +108,6 @@ export function MarketBookingStepper({
   
   // Step 4: Setup Needs
   const [vendorType, setVendorType] = useState<VendorType>('booth');
-  const [boothSize, setBoothSize] = useState('10x10');
   const [truckLengthFeet, setTruckLengthFeet] = useState<number | undefined>();
   const [hasGenerator, setHasGenerator] = useState(false);
   const [needsPower, setNeedsPower] = useState(false);
@@ -354,7 +353,9 @@ export function MarketBookingStepper({
           vendorPhone: vendorPhone.trim(),
           vendorCategory,
           vendorType,
-          boothSize: vendorType === 'booth' || vendorType === 'table' ? boothSize : undefined,
+          boothSize: selectedSlotType?.widthFeet && selectedSlotType?.lengthFeet 
+            ? `${selectedSlotType.widthFeet}x${selectedSlotType.lengthFeet}` 
+            : selectedSlotType?.sizePreset || undefined,
           truckLengthFeet: vendorType === 'food-truck' || vendorType === 'trailer' ? truckLengthFeet : undefined,
           hasGenerator,
           needsPower,
@@ -883,21 +884,17 @@ export function MarketBookingStepper({
               </div>
             </div>
 
-            {/* Size/Footprint based on vendor type */}
-            {(vendorType === 'booth' || vendorType === 'table') && (
-              <div>
-                <Label>Booth Size</Label>
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {BOOTH_SIZES.map(size => (
-                    <Badge
-                      key={size}
-                      variant={boothSize === size ? 'default' : 'outline'}
-                      className="cursor-pointer"
-                      onClick={() => setBoothSize(size)}
-                    >
-                      {size}
-                    </Badge>
-                  ))}
+            {/* Slot size is shown from the selected slot type - no need to ask again */}
+            {selectedSlotType && (selectedSlotType.widthFeet || selectedSlotType.lengthFeet || selectedSlotType.sizePreset) && (
+              <div className="p-3 rounded-lg bg-secondary/30 border">
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm text-muted-foreground">Slot Size:</span>
+                  <span className="font-medium">
+                    {selectedSlotType.widthFeet && selectedSlotType.lengthFeet 
+                      ? `${selectedSlotType.widthFeet}' × ${selectedSlotType.lengthFeet}'`
+                      : selectedSlotType.sizePreset || 'Standard'}
+                  </span>
                 </div>
               </div>
             )}
