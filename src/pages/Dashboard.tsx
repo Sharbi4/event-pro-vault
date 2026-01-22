@@ -9,6 +9,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useBookings, BookingData } from '@/hooks/useBookings';
 import { useSlotBookings } from '@/hooks/useSlotBookings';
+import { useUserDashboards } from '@/hooks/useUserDashboards';
 import { SlotBookingsSection } from '@/components/dashboard/SlotBookingsSection';
 import { vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar, MapPin, Clock, Heart, Package, 
   User, LogOut, ChevronRight, Loader2, Star, Search,
-  CreditCard, CheckCircle, AlertCircle, Banknote, Store
+  CreditCard, CheckCircle, AlertCircle, Banknote, Store, Users, ExternalLink
 } from 'lucide-react';
 
 interface ExtendedBooking extends BookingData {
@@ -37,8 +38,24 @@ export default function Dashboard() {
   const { favorites, loading: favLoading, toggleFavorite } = useFavorites();
   const { bookings, loading: bookingsLoading, refetch } = useBookings();
   const { bookings: slotBookings, loading: slotBookingsLoading, cancelBooking } = useSlotBookings();
+  const { hasVendorPackages, hasMarket, loading: dashboardsLoading } = useUserDashboards();
   const { toast } = useToast();
   const [payingBooking, setPayingBooking] = useState<string | null>(null);
+  const [profile, setProfile] = useState<{ display_name?: string; is_vendor?: boolean; is_published?: boolean } | null>(null);
+
+  // Fetch user profile
+  useEffect(() => {
+    if (user) {
+      supabase
+        .from('profiles')
+        .select('display_name, is_vendor, is_published')
+        .eq('user_id', user.id)
+        .single()
+        .then(({ data }) => {
+          if (data) setProfile(data);
+        });
+    }
+  }, [user]);
 
   // Handle payment success/cancelled from URL params
   useEffect(() => {
@@ -195,7 +212,7 @@ export default function Dashboard() {
             </div>
             <div>
               <h1 className="font-display text-xl font-bold text-foreground">
-                My Dashboard
+                {profile?.display_name || 'My Dashboard'}
               </h1>
               <p className="text-xs text-muted-foreground">{user.email}</p>
             </div>
@@ -205,6 +222,36 @@ export default function Dashboard() {
             <span className="hidden sm:inline">Sign Out</span>
           </Button>
         </div>
+
+        {/* Quick Actions for Vendors/Market Owners */}
+        {(hasVendorPackages || hasMarket || profile?.is_vendor) && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            {hasVendorPackages && (
+              <Button variant="outline" size="sm" onClick={() => navigate('/vendor-dashboard')} className="gap-2">
+                <Users className="w-4 h-4" />
+                Vendor Dashboard
+              </Button>
+            )}
+            {hasMarket && (
+              <Button variant="outline" size="sm" onClick={() => navigate('/marketspace-dashboard')} className="gap-2">
+                <Store className="w-4 h-4" />
+                Market Dashboard
+              </Button>
+            )}
+            {profile?.is_published && profile?.is_vendor && (
+              <Button variant="outline" size="sm" onClick={() => navigate(`/vendor/${user.id}`)} className="gap-2">
+                <ExternalLink className="w-4 h-4" />
+                View Public Profile
+              </Button>
+            )}
+            {!hasVendorPackages && !hasMarket && (
+              <Button variant="gradient" size="sm" onClick={() => navigate('/become-pro')} className="gap-2">
+                <Star className="w-4 h-4" />
+                Become a Pro
+              </Button>
+            )}
+          </div>
+        )}
 
         {/* Stats Row */}
         <div className="grid grid-cols-4 gap-3 mb-6">
