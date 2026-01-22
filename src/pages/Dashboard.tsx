@@ -14,7 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar, MapPin, Clock, Heart, Package, 
   User, LogOut, ChevronRight, Loader2, Star, Search,
-  CreditCard, CheckCircle, AlertCircle
+  CreditCard, CheckCircle, AlertCircle, Banknote
 } from 'lucide-react';
 
 interface ExtendedBooking extends BookingData {
@@ -25,6 +25,7 @@ interface ExtendedBooking extends BookingData {
   deposit_paid_at?: string;
   final_paid_at?: string;
   deposit_percentage?: number;
+  payment_method?: 'stripe' | 'cash';
 }
 
 export default function Dashboard() {
@@ -278,6 +279,8 @@ export default function Dashboard() {
                 const depositPaid = (extBooking as any).deposit_paid_at;
                 const finalPaid = (extBooking as any).final_paid_at;
                 const needsFinalPayment = depositPaid && !finalPaid && finalAmount > 0;
+                const paymentMethod = (extBooking as any).payment_method || 'stripe';
+                const isCashPayment = paymentMethod === 'cash';
                 
                 return (
                   <Card key={booking.id} variant={isAwaitingPayment || needsFinalPayment ? 'gradient' : 'glow'} className="p-4">
@@ -313,8 +316,22 @@ export default function Dashboard() {
                             {booking.event_location}
                           </span>
                         </div>
-                        {/* Payment breakdown */}
-                        {(depositAmount > 0 || finalAmount > 0) && (
+                        {/* Payment method indicator */}
+                        <div className="flex items-center gap-2 text-xs mt-1">
+                          {isCashPayment ? (
+                            <span className="flex items-center gap-1 text-green-600">
+                              <Banknote className="w-3 h-3" />
+                              Cash payment
+                            </span>
+                          ) : (
+                            <span className="flex items-center gap-1 text-muted-foreground">
+                              <CreditCard className="w-3 h-3" />
+                              Online payment
+                            </span>
+                          )}
+                        </div>
+                        {/* Payment breakdown - only for Stripe payments */}
+                        {!isCashPayment && (depositAmount > 0 || finalAmount > 0) && (
                           <div className="text-[10px] text-muted-foreground mt-1">
                             <span className={depositPaid ? 'text-green-500' : ''}>
                               Deposit: ${depositAmount.toFixed(0)} {depositPaid ? '✓' : ''}
@@ -328,9 +345,10 @@ export default function Dashboard() {
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
                           <span className="font-bold text-sm gradient-text">${booking.total_price}</span>
                           <div className="flex items-center gap-2">
-                            {isAwaitingPayment && (
+                            {/* Only show Pay Now for Stripe bookings awaiting payment */}
+                            {isAwaitingPayment && !isCashPayment && (
                               <Button 
-                                variant="gradient" 
+                                variant="default" 
                                 size="sm" 
                                 className="h-7 text-xs gap-1 px-3"
                                 onClick={() => handlePayNow(booking as ExtendedBooking)}
@@ -343,6 +361,13 @@ export default function Dashboard() {
                                 )}
                                 Pay Now
                               </Button>
+                            )}
+                            {/* For cash bookings awaiting payment, show info */}
+                            {isAwaitingPayment && isCashPayment && (
+                              <Badge variant="secondary" className="text-[10px] h-6">
+                                <Banknote className="w-3 h-3 mr-1" />
+                                Pay at event
+                              </Badge>
                             )}
                             {vendor && (
                               <Link to={`/vendor/${vendor.id}`}>

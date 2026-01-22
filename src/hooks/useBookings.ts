@@ -28,6 +28,7 @@ export interface CreateBookingInput {
   add_ons: string[];
   total_price: number;
   notes?: string | null;
+  payment_method?: 'stripe' | 'cash';
   // For email notification
   vendor_email?: string;
   vendor_name?: string;
@@ -92,6 +93,7 @@ export function useBookings() {
         add_ons: bookingData.add_ons,
         total_price: bookingData.total_price,
         notes: bookingData.notes || null,
+        payment_method: bookingData.payment_method || 'stripe',
         status: 'pending'
       })
       .select()
