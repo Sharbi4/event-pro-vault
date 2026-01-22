@@ -63,7 +63,6 @@ export function Header() {
   const navLinks = [
     { to: '/', label: 'Browse' },
     { to: '/markets', label: 'Markets' },
-    { to: '/how-it-works', label: 'How it Works' },
     { to: '/learn', label: 'Learn More' },
   ];
 
