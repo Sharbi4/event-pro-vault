@@ -33,12 +33,16 @@ export function Header() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 lg:h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center">
+          <Link to="/" className="flex items-center gap-2">
             <img 
               src={logo} 
               alt="EventPro by Vendibook" 
               className="h-10 lg:h-12 w-auto"
             />
+            <div className="flex flex-col">
+              <span className="font-display font-bold text-lg lg:text-xl text-foreground leading-tight">Event Pros</span>
+              <span className="text-[10px] lg:text-xs text-muted-foreground leading-tight">Powered by Vendibook</span>
+            </div>
           </Link>
 
           {/* Desktop Navigation - Center */}
