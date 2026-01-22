@@ -133,6 +133,7 @@ export type Database = {
       }
       markets: {
         Row: {
+          booking_mode: string | null
           bookings_enabled: boolean | null
           breakdown_window_minutes: number | null
           categories_allowed: string[] | null
@@ -146,6 +147,7 @@ export type Database = {
           is_published: boolean | null
           lat: number | null
           lng: number | null
+          market_status: string | null
           market_type: string
           media_items: Json | null
           name: string
@@ -159,6 +161,7 @@ export type Database = {
           weekly_schedule: Json | null
         }
         Insert: {
+          booking_mode?: string | null
           bookings_enabled?: boolean | null
           breakdown_window_minutes?: number | null
           categories_allowed?: string[] | null
@@ -172,6 +175,7 @@ export type Database = {
           is_published?: boolean | null
           lat?: number | null
           lng?: number | null
+          market_status?: string | null
           market_type: string
           media_items?: Json | null
           name: string
@@ -185,6 +189,7 @@ export type Database = {
           weekly_schedule?: Json | null
         }
         Update: {
+          booking_mode?: string | null
           bookings_enabled?: boolean | null
           breakdown_window_minutes?: number | null
           categories_allowed?: string[] | null
@@ -198,6 +203,7 @@ export type Database = {
           is_published?: boolean | null
           lat?: number | null
           lng?: number | null
+          market_status?: string | null
           market_type?: string
           media_items?: Json | null
           name?: string

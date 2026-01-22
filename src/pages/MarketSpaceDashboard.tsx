@@ -8,10 +8,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMarketSpaceDashboard } from '@/hooks/useMarketSpaceDashboard';
 import { useUserDashboards } from '@/hooks/useUserDashboards';
+import { OverviewTab } from '@/components/marketspace-dashboard/OverviewTab';
 import { MarketListingTab } from '@/components/marketspace-dashboard/MarketListingTab';
 import { SlotTypesTab } from '@/components/marketspace-dashboard/SlotTypesTab';
 import { InventoryTab } from '@/components/marketspace-dashboard/InventoryTab';
 import { BookingsTab } from '@/components/marketspace-dashboard/BookingsTab';
+import { PayoutsTab } from '@/components/marketspace-dashboard/PayoutsTab';
+import { SettingsTab } from '@/components/marketspace-dashboard/SettingsTab';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { 
   Store, 
   Loader2, 
@@ -21,13 +26,18 @@ import {
   ClipboardList,
   ExternalLink,
   AlertCircle,
-  Users
+  Users,
+  LayoutDashboard,
+  Wallet
 } from 'lucide-react';
 
 export default function MarketSpaceDashboard() {
-  const [activeTab, setActiveTab] = useState('listing');
+  const [activeTab, setActiveTab] = useState('overview');
+  const [publishing, setPublishing] = useState(false);
+  const [bookingMode, setBookingMode] = useState<'instant' | 'request'>('instant');
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { hasVendorPackages } = useUserDashboards();
   
   const {
@@ -47,6 +57,7 @@ export default function MarketSpaceDashboard() {
     updateBookingStatus,
     setSlotTypes,
     setInventory,
+    refresh,
   } = useMarketSpaceDashboard();
 
   useEffect(() => {
@@ -70,7 +81,7 @@ export default function MarketSpaceDashboard() {
 
   if (!user) return null;
 
-  // If no market exists, redirect to onboarding
+  // If no market exists, redirect to create page
   if (!marketId) {
     return (
       <Layout>
@@ -81,7 +92,7 @@ export default function MarketSpaceDashboard() {
             <p className="text-muted-foreground mb-6">
               You haven't created a market yet. Let's get started!
             </p>
-            <Button onClick={() => navigate('/marketspace-onboarding')} variant="gradient">
+            <Button onClick={() => navigate('/marketspace/create')} variant="gradient">
               Create Your Market
             </Button>
           </Card>
@@ -90,8 +101,50 @@ export default function MarketSpaceDashboard() {
     );
   }
 
+  const handlePublish = async () => {
+    if (!marketId) return;
+    
+    setPublishing(true);
+    try {
+      const { error } = await supabase
+        .from('markets')
+        .update({
+          is_published: true,
+          bookings_enabled: true,
+          market_status: 'published',
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', marketId);
+
+      if (error) throw error;
+
+      toast({ title: 'Market published!', description: 'Vendors can now find and book your market.' });
+      refresh();
+    } catch (error) {
+      console.error('Error publishing market:', error);
+      toast({ title: 'Failed to publish', variant: 'destructive' });
+    } finally {
+      setPublishing(false);
+    }
+  };
+
+  const handleTogglePublished = async (published: boolean) => {
+    await updateMarket({ isPublished: published, bookingsEnabled: published });
+  };
+
+  const handleUpdateBookingMode = async (mode: 'instant' | 'request') => {
+    setBookingMode(mode);
+    try {
+      await supabase
+        .from('markets')
+        .update({ booking_mode: mode })
+        .eq('id', marketId);
+    } catch (error) {
+      console.error('Error updating booking mode:', error);
+    }
+  };
+
   const pendingBookings = bookings.filter(b => b.status === 'pending').length;
-  const totalSlotsAvailable = inventory.reduce((acc, inv) => acc + inv.slotsRemaining, 0);
 
   return (
     <Layout>
@@ -128,96 +181,74 @@ export default function MarketSpaceDashboard() {
                 </Button>
               )}
               {market.isPublished && (
-                <Button variant="outline" className="gap-2">
+                <Button variant="outline" onClick={() => navigate(`/market/${marketId}`)} className="gap-2">
                   <ExternalLink className="w-4 h-4" />
                   View Listing
                 </Button>
               )}
-              <Button 
-                variant="gradient" 
-                onClick={() => navigate('/marketspace-onboarding')}
-                className="gap-2"
-              >
-                <Settings className="w-4 h-4" />
-                Edit Onboarding
-              </Button>
+              {!market.isPublished && (
+                <Button 
+                  variant="gradient" 
+                  onClick={handlePublish}
+                  disabled={publishing || slotTypes.length === 0 || inventory.length === 0}
+                  className="gap-2"
+                >
+                  {publishing ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+                  Publish Market
+                </Button>
+              )}
             </div>
-          </div>
-
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <Card className="p-4">
-              <div className="text-2xl font-bold text-foreground">{slotTypes.length}</div>
-              <div className="text-sm text-muted-foreground">Slot Types</div>
-            </Card>
-            <Card className="p-4">
-              <div className="text-2xl font-bold text-foreground">{inventory.length}</div>
-              <div className="text-sm text-muted-foreground">Upcoming Dates</div>
-            </Card>
-            <Card className="p-4">
-              <div className="text-2xl font-bold text-green-500">{totalSlotsAvailable}</div>
-              <div className="text-sm text-muted-foreground">Slots Available</div>
-            </Card>
-            <Card className="p-4">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-foreground">{pendingBookings}</span>
-                {pendingBookings > 0 && (
-                  <Badge className="bg-amber-500">{pendingBookings} new</Badge>
-                )}
-              </div>
-              <div className="text-sm text-muted-foreground">Pending Bookings</div>
-            </Card>
           </div>
 
           {/* Alert if not published */}
           {!market.isPublished && (
             <Card className="p-4 mb-6 bg-amber-500/10 border-amber-500/30">
               <div className="flex items-center gap-3">
-                <AlertCircle className="w-5 h-5 text-amber-500" />
+                <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />
                 <div className="flex-1">
                   <p className="font-medium text-amber-600">Your market is not published yet</p>
                   <p className="text-sm text-amber-600/80">
-                    Complete your listing and publish to start accepting vendor reservations.
+                    Add slot types and inventory, then publish to start accepting vendor reservations.
                   </p>
                 </div>
-                <Button 
-                  onClick={() => navigate('/marketspace-onboarding')} 
-                  variant="outline"
-                  className="border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
-                >
-                  Complete Setup
-                </Button>
               </div>
             </Card>
           )}
 
           {/* Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
+            <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent overflow-x-auto flex-nowrap">
+              <TabsTrigger 
+                value="overview" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 shrink-0"
+              >
+                <LayoutDashboard className="w-4 h-4" />
+                Overview
+              </TabsTrigger>
               <TabsTrigger 
                 value="listing" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 shrink-0"
               >
                 <Settings className="w-4 h-4" />
                 Listing
               </TabsTrigger>
               <TabsTrigger 
                 value="slot-types" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 shrink-0"
               >
                 <Package className="w-4 h-4" />
                 Slot Types
               </TabsTrigger>
               <TabsTrigger 
                 value="inventory" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 shrink-0"
               >
                 <Calendar className="w-4 h-4" />
                 Inventory
               </TabsTrigger>
               <TabsTrigger 
                 value="bookings" 
-                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 relative"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 relative shrink-0"
               >
                 <ClipboardList className="w-4 h-4" />
                 Bookings
@@ -227,7 +258,33 @@ export default function MarketSpaceDashboard() {
                   </span>
                 )}
               </TabsTrigger>
+              <TabsTrigger 
+                value="payouts" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 shrink-0"
+              >
+                <Wallet className="w-4 h-4" />
+                Payouts
+              </TabsTrigger>
+              <TabsTrigger 
+                value="settings" 
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 shrink-0"
+              >
+                <Settings className="w-4 h-4" />
+                Settings
+              </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="overview" className="mt-6">
+              <OverviewTab
+                market={market}
+                slotTypes={slotTypes}
+                inventory={inventory}
+                bookings={bookings}
+                onNavigateTab={setActiveTab}
+                onPublish={handlePublish}
+                publishing={publishing}
+              />
+            </TabsContent>
 
             <TabsContent value="listing" className="mt-6">
               <MarketListingTab
@@ -264,6 +321,20 @@ export default function MarketSpaceDashboard() {
                 bookings={bookings}
                 slotTypes={slotTypes}
                 updateBookingStatus={updateBookingStatus}
+              />
+            </TabsContent>
+
+            <TabsContent value="payouts" className="mt-6">
+              <PayoutsTab />
+            </TabsContent>
+
+            <TabsContent value="settings" className="mt-6">
+              <SettingsTab
+                market={market}
+                bookingMode={bookingMode}
+                onUpdateBookingMode={handleUpdateBookingMode}
+                onTogglePublished={handleTogglePublished}
+                saving={saving}
               />
             </TabsContent>
           </Tabs>
