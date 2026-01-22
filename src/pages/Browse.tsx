@@ -175,9 +175,9 @@ export default function Browse() {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background pt-20 lg:pt-24">
         {/* Search Header */}
-        <div className="sticky top-16 z-40 bg-background/95 backdrop-blur-lg border-b border-border">
+        <div className="sticky top-20 lg:top-24 z-40 bg-background/95 backdrop-blur-lg border-b border-border">
           <div className="container mx-auto px-4 py-4">
             {/* Mode Toggle */}
             <div className="flex items-center justify-center mb-4">

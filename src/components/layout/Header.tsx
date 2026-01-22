@@ -37,7 +37,7 @@ export function Header() {
             <img 
               src={logo} 
               alt="EventPro by Vendibook" 
-              className="h-[200px] lg:h-60 w-auto"
+              className="h-10 lg:h-12 w-auto"
             />
           </Link>
 
