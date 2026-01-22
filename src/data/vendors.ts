@@ -175,6 +175,297 @@ export const vendors: Vendor[] = [
     travelFeeRules: 'Free within San Diego County',
     instantBook: true,
     featured: true
+  },
+  // Los Angeles Vendors
+  {
+    id: 'v9',
+    name: 'LA Lens Photography',
+    categories: ['photography'],
+    location: 'Los Angeles, CA',
+    serviceRadius: 60,
+    bio: 'Award-winning wedding and event photography studio. Our team of talented photographers captures every precious moment with artistic flair and technical excellence.',
+    gallery: [
+      'https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=800',
+      'https://images.unsplash.com/photo-1519741497674-611481863552?w=800',
+      'https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=800'
+    ],
+    badges: ['Top Rated', 'Award Winner', 'Verified'],
+    verificationStatus: 'verified',
+    insuranceStatus: true,
+    avgRating: 4.9,
+    reviewCount: 445,
+    responseTime: '< 2 hours',
+    cancellationPolicy: 'Full refund 30+ days before, 50% 14-30 days',
+    travelFeeRules: 'Free within LA County, $1/mile beyond',
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'v10',
+    name: 'Hollywood DJ Collective',
+    categories: ['djs'],
+    location: 'Los Angeles, CA',
+    serviceRadius: 75,
+    bio: 'Premier DJ collective serving the entertainment capital. From celebrity parties to intimate weddings, we bring the beats that make memories. Full production available.',
+    gallery: [
+      'https://images.unsplash.com/photo-1571266028243-d220c6d6c0db?w=800',
+      'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800'
+    ],
+    badges: ['Celebrity Choice', 'Verified', 'Popular'],
+    verificationStatus: 'verified',
+    insuranceStatus: true,
+    avgRating: 4.8,
+    reviewCount: 312,
+    responseTime: '< 1 hour',
+    cancellationPolicy: 'Full refund 14+ days before event',
+    travelFeeRules: 'Free within 40 miles of Hollywood',
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'v11',
+    name: 'Sunset Blooms Florals',
+    categories: ['florals'],
+    location: 'Los Angeles, CA',
+    serviceRadius: 45,
+    bio: 'Luxury floral design studio specializing in weddings and high-end events. We create stunning arrangements that transform spaces and leave lasting impressions.',
+    gallery: [
+      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=800',
+      'https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=800'
+    ],
+    badges: ['Luxury', 'Verified', 'Top Rated'],
+    verificationStatus: 'verified',
+    insuranceStatus: true,
+    avgRating: 5.0,
+    reviewCount: 178,
+    responseTime: '< 4 hours',
+    cancellationPolicy: 'Custom policy per event',
+    travelFeeRules: 'Free delivery in LA proper',
+    instantBook: false,
+    featured: true
+  },
+  // Houston Vendors
+  {
+    id: 'v12',
+    name: 'H-Town BBQ Kings',
+    categories: ['food-trucks', 'catering'],
+    location: 'Houston, TX',
+    serviceRadius: 65,
+    bio: 'Authentic Texas BBQ with a Houston twist. Award-winning brisket, ribs, and all the fixings. Catering events from 20 to 2000+ guests with true Southern hospitality.',
+    gallery: [
+      'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=800',
+      'https://images.unsplash.com/photo-1544025162-d76694265947?w=800'
+    ],
+    badges: ['Award Winner', 'Top Rated', 'Verified'],
+    verificationStatus: 'verified',
+    insuranceStatus: true,
+    avgRating: 4.9,
+    reviewCount: 567,
+    responseTime: '< 1 hour',
+    cancellationPolicy: 'Full refund 7+ days before event',
+    travelFeeRules: 'Free within Houston metro, $2/mile beyond',
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'v13',
+    name: 'Space City Events',
+    categories: ['rentals', 'decor'],
+    location: 'Houston, TX',
+    serviceRadius: 70,
+    bio: 'Full-service event rentals and decor for Houston and beyond. Tents, tables, chairs, linens, lighting, and complete event styling. Making your vision a reality.',
+    gallery: [
+      'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800',
+      'https://images.unsplash.com/photo-1478146059778-26028b07395a?w=800'
+    ],
+    badges: ['Full Service', 'Verified', 'Popular'],
+    verificationStatus: 'verified',
+    insuranceStatus: true,
+    avgRating: 4.7,
+    reviewCount: 389,
+    responseTime: '< 2 hours',
+    cancellationPolicy: 'Full refund 10+ days before',
+    travelFeeRules: 'Free delivery within 30 miles',
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'v14',
+    name: 'Bayou Beats DJ',
+    categories: ['djs'],
+    location: 'Houston, TX',
+    serviceRadius: 55,
+    bio: 'Houston\'s favorite DJ for weddings, quinceañeras, and corporate events. Bilingual MC services available. We keep the dance floor packed all night long!',
+    gallery: [
+      'https://images.unsplash.com/photo-1516873240891-4bf014598ab4?w=800'
+    ],
+    badges: ['Bilingual', 'Verified', 'Fast Response'],
+    verificationStatus: 'verified',
+    insuranceStatus: true,
+    avgRating: 4.8,
+    reviewCount: 234,
+    responseTime: '< 30 mins',
+    cancellationPolicy: 'Full refund 7+ days before',
+    travelFeeRules: 'Free within Harris County',
+    instantBook: true,
+    featured: false
+  },
+  // Atlanta Vendors
+  {
+    id: 'v15',
+    name: 'Peach State Catering',
+    categories: ['catering', 'private-chefs'],
+    location: 'Atlanta, GA',
+    serviceRadius: 50,
+    bio: 'Southern cuisine with a modern twist. From elegant plated dinners to casual buffets, we bring farm-to-table flavors to your special occasions. James Beard nominated chef.',
+    gallery: [
+      'https://images.unsplash.com/photo-1555244162-803834f70033?w=800',
+      'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800',
+      'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=800'
+    ],
+    badges: ['Award Winning', 'Elite', 'Verified'],
+    verificationStatus: 'verified',
+    insuranceStatus: true,
+    avgRating: 4.9,
+    reviewCount: 412,
+    responseTime: '< 3 hours',
+    cancellationPolicy: 'Custom policy per event',
+    travelFeeRules: 'Free within Atlanta metro',
+    instantBook: false,
+    featured: true
+  },
+  {
+    id: 'v16',
+    name: 'ATL Photo Studio',
+    categories: ['photography', 'videography'],
+    location: 'Atlanta, GA',
+    serviceRadius: 60,
+    bio: 'Capturing Atlanta\'s most beautiful moments. Wedding photography, event coverage, and cinematic videography. Modern, documentary-style approach with timeless results.',
+    gallery: [
+      'https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=800',
+      'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=800'
+    ],
+    badges: ['Top Rated', 'Verified', 'Popular'],
+    verificationStatus: 'verified',
+    insuranceStatus: true,
+    avgRating: 4.8,
+    reviewCount: 298,
+    responseTime: '< 2 hours',
+    cancellationPolicy: 'Full refund 21+ days before',
+    travelFeeRules: 'Free within 30 miles of Atlanta',
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'v17',
+    name: 'Southern Charm Events',
+    categories: ['rentals', 'florals'],
+    location: 'Atlanta, GA',
+    serviceRadius: 55,
+    bio: 'Elegant event rentals and floral design with authentic Southern charm. Specializing in weddings, garden parties, and upscale corporate events throughout Georgia.',
+    gallery: [
+      'https://images.unsplash.com/photo-1519167758481-83f550bb49b3?w=800',
+      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=800'
+    ],
+    badges: ['Luxury', 'Verified', 'Top Rated'],
+    verificationStatus: 'verified',
+    insuranceStatus: true,
+    avgRating: 4.9,
+    reviewCount: 187,
+    responseTime: '< 4 hours',
+    cancellationPolicy: 'Full refund 14+ days before',
+    travelFeeRules: 'Free within metro Atlanta',
+    instantBook: false,
+    featured: true
+  },
+  // Chicago Vendors
+  {
+    id: 'v18',
+    name: 'Windy City DJs',
+    categories: ['djs'],
+    location: 'Chicago, IL',
+    serviceRadius: 65,
+    bio: 'Chicago\'s premier DJ and entertainment company. From rooftop parties to ballroom weddings, we bring the energy and expertise to make your event unforgettable.',
+    gallery: [
+      'https://images.unsplash.com/photo-1571266028243-d220c6d6c0db?w=800',
+      'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800'
+    ],
+    badges: ['Top Rated', 'Verified', 'Award Winner'],
+    verificationStatus: 'verified',
+    insuranceStatus: true,
+    avgRating: 4.9,
+    reviewCount: 521,
+    responseTime: '< 1 hour',
+    cancellationPolicy: 'Full refund 14+ days before event',
+    travelFeeRules: 'Free within Chicagoland area',
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'v19',
+    name: 'Chicago Gourmet Catering',
+    categories: ['catering'],
+    location: 'Chicago, IL',
+    serviceRadius: 50,
+    bio: 'Fine dining catering for Chicago\'s most discerning clients. Our executive chef crafts seasonal menus featuring the best of Midwest ingredients with global inspiration.',
+    gallery: [
+      'https://images.unsplash.com/photo-1555244162-803834f70033?w=800',
+      'https://images.unsplash.com/photo-1547592180-85f173990554?w=800'
+    ],
+    badges: ['Elite', 'Verified', 'Award Winning'],
+    verificationStatus: 'verified',
+    insuranceStatus: true,
+    avgRating: 5.0,
+    reviewCount: 234,
+    responseTime: '< 4 hours',
+    cancellationPolicy: 'Custom policy per event',
+    travelFeeRules: 'Free within city limits',
+    instantBook: false,
+    featured: true
+  },
+  {
+    id: 'v20',
+    name: 'Lakefront Photo & Film',
+    categories: ['photography', 'videography'],
+    location: 'Chicago, IL',
+    serviceRadius: 70,
+    bio: 'Documentary-style wedding photography and cinematic films. We capture the real moments, genuine emotions, and beautiful details that tell your unique story.',
+    gallery: [
+      'https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=800',
+      'https://images.unsplash.com/photo-1519741497674-611481863552?w=800'
+    ],
+    badges: ['Documentary Style', 'Verified', 'Top Rated'],
+    verificationStatus: 'verified',
+    insuranceStatus: true,
+    avgRating: 4.9,
+    reviewCount: 345,
+    responseTime: '< 2 hours',
+    cancellationPolicy: 'Full refund 30+ days before',
+    travelFeeRules: 'Free within 50 miles of Chicago',
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'v21',
+    name: 'Magnificent Mile Florals',
+    categories: ['florals'],
+    location: 'Chicago, IL',
+    serviceRadius: 45,
+    bio: 'Luxury floral design studio on Chicago\'s Magnificent Mile. Creating breathtaking arrangements for weddings, galas, and corporate events. Voted Best Florist in Chicago.',
+    gallery: [
+      'https://images.unsplash.com/photo-1561181286-d3fee7d55364?w=800',
+      'https://images.unsplash.com/photo-1487530811176-3780de880c2d?w=800'
+    ],
+    badges: ['Luxury', 'Best in Chicago', 'Verified'],
+    verificationStatus: 'verified',
+    insuranceStatus: true,
+    avgRating: 5.0,
+    reviewCount: 156,
+    responseTime: '< 3 hours',
+    cancellationPolicy: 'Custom policy per event',
+    travelFeeRules: 'Free delivery in Chicago',
+    instantBook: false,
+    featured: true
   }
 ];
 
@@ -404,6 +695,427 @@ export const packages: Package[] = [
     requirements: ['Site visit required', 'Clear 60x80ft area'],
     instantBook: false,
     featured: false
+  },
+  // LA Lens Photography Packages
+  {
+    id: 'p14',
+    vendorId: 'v9',
+    name: 'Engagement Session',
+    description: 'Beautiful engagement photos at your favorite LA location.',
+    type: 'HOURLY',
+    price: 350,
+    minUnits: 2,
+    includes: ['2-hour session', '50+ edited photos', 'Online gallery', 'Print release', 'Location scouting'],
+    addOns: [
+      { id: 'a27', name: 'Extra Hour', price: 200 },
+      { id: 'a28', name: 'Premium Album', price: 450 }
+    ],
+    requirements: ['Outdoor location preferred'],
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'p15',
+    vendorId: 'v9',
+    name: 'Wedding Day Coverage',
+    description: 'Comprehensive wedding photography from prep to reception.',
+    type: 'HOURLY',
+    price: 500,
+    minUnits: 8,
+    includes: ['Lead photographer', 'Second shooter', '500+ edited photos', 'Online gallery', 'Print release', 'Sneak peeks in 48hrs'],
+    addOns: [
+      { id: 'a29', name: 'Engagement Session', price: 500 },
+      { id: 'a30', name: 'Parent Albums (2)', price: 600 }
+    ],
+    requirements: ['Vendor meal for photographers'],
+    instantBook: false,
+    featured: true
+  },
+  // Hollywood DJ Collective Packages
+  {
+    id: 'p16',
+    vendorId: 'v10',
+    name: 'Party Starter',
+    description: 'Professional DJ with premium sound for any celebration.',
+    type: 'HOURLY',
+    price: 275,
+    minUnits: 4,
+    includes: ['Professional DJ', 'Premium Sound System', 'Wireless Mic', 'LED Uplighting', 'Custom Playlist'],
+    addOns: [
+      { id: 'a31', name: 'Photo Booth', price: 400 },
+      { id: 'a32', name: 'Monogram Projection', price: 150 }
+    ],
+    requirements: ['Power access', '8x8ft setup space'],
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'p17',
+    vendorId: 'v10',
+    name: 'Hollywood Production',
+    description: 'Red carpet-worthy entertainment with full production.',
+    type: 'HOURLY',
+    price: 550,
+    minUnits: 5,
+    includes: ['Celebrity DJ', 'Concert Sound', 'Intelligent Lighting', 'Fog Effects', 'MC Services', 'Coordination'],
+    addOns: [
+      { id: 'a33', name: 'LED Dance Floor', price: 800 },
+      { id: 'a34', name: 'Saxophone Player', price: 500 }
+    ],
+    requirements: ['Venue coordination required', '200amp power'],
+    instantBook: false,
+    featured: true
+  },
+  // Sunset Blooms Florals Packages
+  {
+    id: 'p18',
+    vendorId: 'v11',
+    name: 'Bridal Bouquet Package',
+    description: 'Stunning bridal and bridesmaid bouquets plus boutonnieres.',
+    type: 'DAILY',
+    price: 850,
+    minUnits: 1,
+    includes: ['Bridal Bouquet', '4 Bridesmaid Bouquets', '6 Boutonnieres', 'Flower Girl Basket', 'Consultation'],
+    addOns: [
+      { id: 'a35', name: 'Corsages (4)', price: 120 },
+      { id: 'a36', name: 'Toss Bouquet', price: 85 }
+    ],
+    requirements: ['2-week advance booking'],
+    instantBook: false,
+    featured: true
+  },
+  {
+    id: 'p19',
+    vendorId: 'v11',
+    name: 'Full Wedding Florals',
+    description: 'Complete floral design including ceremony and reception.',
+    type: 'DAILY',
+    price: 3500,
+    minUnits: 1,
+    includes: ['All Personal Flowers', 'Ceremony Arch', '15 Centerpieces', 'Sweetheart Table', 'Delivery & Setup'],
+    addOns: [
+      { id: 'a37', name: 'Aisle Petals', price: 200 },
+      { id: 'a38', name: 'Hanging Installations', price: 1200 }
+    ],
+    requirements: ['Venue walkthrough required', '1-month advance booking'],
+    instantBook: false,
+    featured: true
+  },
+  // H-Town BBQ Kings Packages
+  {
+    id: 'p20',
+    vendorId: 'v12',
+    name: 'Texas Trio',
+    description: 'Our signature three-meat combo with classic sides.',
+    type: 'HOURLY',
+    price: 300,
+    minUnits: 3,
+    includes: ['Brisket', 'Ribs', 'Sausage', '3 Sides', 'Bread', 'Pickles & Onions', 'Disposables'],
+    addOns: [
+      { id: 'a39', name: 'Mac & Cheese Bar', price: 150 },
+      { id: 'a40', name: 'Banana Pudding', price: 100 }
+    ],
+    requirements: ['Outdoor space 15x10ft', 'Power outlet'],
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'p21',
+    vendorId: 'v12',
+    name: 'Pitmaster Experience',
+    description: 'Premium all-you-can-eat BBQ with pit demonstration.',
+    type: 'HOURLY',
+    price: 550,
+    minUnits: 4,
+    includes: ['All Meats', 'All Sides', 'Pit Demo', '2 Staff', 'Premium Servingware', 'Cleanup'],
+    addOns: [
+      { id: 'a41', name: 'Craft Beer Pairing', price: 300 },
+      { id: 'a42', name: 'Smoked Desserts', price: 175 }
+    ],
+    requirements: ['Outdoor venue', '20x15ft space', 'Water access'],
+    instantBook: false,
+    featured: true
+  },
+  // Space City Events Packages
+  {
+    id: 'p22',
+    vendorId: 'v13',
+    name: 'Backyard Basics',
+    description: 'Essential rentals for backyard events up to 50 guests.',
+    type: 'DAILY',
+    price: 450,
+    minUnits: 1,
+    includes: ['6 Tables', '50 Chairs', 'Linens', 'Delivery', 'Setup & Pickup'],
+    addOns: [
+      { id: 'a43', name: '20x20 Tent', price: 400 },
+      { id: 'a44', name: 'String Lights', price: 150 }
+    ],
+    requirements: ['Driveway access for truck'],
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'p23',
+    vendorId: 'v13',
+    name: 'Corporate Event Package',
+    description: 'Professional setup for corporate events up to 200 guests.',
+    type: 'DAILY',
+    price: 1800,
+    minUnits: 1,
+    includes: ['20 Tables', '200 Chairs', 'Staging', 'Podium', 'AV Support', 'Linens', 'Full Setup'],
+    addOns: [
+      { id: 'a45', name: 'Red Carpet', price: 200 },
+      { id: 'a46', name: 'Step & Repeat Backdrop', price: 350 }
+    ],
+    requirements: ['Venue coordination', '48hr setup window'],
+    instantBook: false,
+    featured: false
+  },
+  // Bayou Beats DJ Packages
+  {
+    id: 'p24',
+    vendorId: 'v14',
+    name: 'Fiesta Pack',
+    description: 'Perfect for quinceañeras and family celebrations.',
+    type: 'HOURLY',
+    price: 225,
+    minUnits: 4,
+    includes: ['Bilingual DJ/MC', 'Sound System', 'Wireless Mics (2)', 'Basic Lighting', 'Music Consultation'],
+    addOns: [
+      { id: 'a47', name: 'Karaoke Setup', price: 150 },
+      { id: 'a48', name: 'LED Dance Floor', price: 500 }
+    ],
+    requirements: ['Power outlet', 'Covered area recommended'],
+    instantBook: true,
+    featured: true
+  },
+  // Peach State Catering Packages
+  {
+    id: 'p25',
+    vendorId: 'v15',
+    name: 'Southern Brunch',
+    description: 'Elegant brunch service featuring Southern classics.',
+    type: 'HOURLY',
+    price: 400,
+    minUnits: 3,
+    includes: ['Shrimp & Grits', 'Biscuits & Gravy', 'Seasonal Fruit', 'Mimosa Bar Setup', 'Staff'],
+    addOns: [
+      { id: 'a49', name: 'Omelet Station', price: 250 },
+      { id: 'a50', name: 'Carving Station', price: 300 }
+    ],
+    requirements: ['Kitchen access', 'Warming equipment'],
+    instantBook: false,
+    featured: true
+  },
+  {
+    id: 'p26',
+    vendorId: 'v15',
+    name: 'Farm to Table Dinner',
+    description: 'Multi-course plated dinner featuring Georgia farms.',
+    type: 'DAILY',
+    price: 2200,
+    minUnits: 1,
+    includes: ['5-Course Dinner', 'Wine Pairings', 'Full Staff', 'All Rentals', 'Linens', 'Cleanup'],
+    addOns: [
+      { id: 'a51', name: 'Cheese Course', price: 200 },
+      { id: 'a52', name: 'Dessert Trio', price: 175 }
+    ],
+    requirements: ['Full kitchen access', 'Minimum 20 guests'],
+    instantBook: false,
+    featured: true
+  },
+  // ATL Photo Studio Packages
+  {
+    id: 'p27',
+    vendorId: 'v16',
+    name: 'Event Coverage',
+    description: 'Professional event photography for any occasion.',
+    type: 'HOURLY',
+    price: 275,
+    minUnits: 3,
+    includes: ['Photographer', '200+ Photos', 'Online Gallery', 'Print Rights', '48hr Delivery'],
+    addOns: [
+      { id: 'a53', name: 'Instant Prints', price: 200 },
+      { id: 'a54', name: 'Photo Booth', price: 400 }
+    ],
+    requirements: ['Parking for photographer'],
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'p28',
+    vendorId: 'v16',
+    name: 'Wedding Photo + Video',
+    description: 'Complete wedding documentation with photo and film.',
+    type: 'HOURLY',
+    price: 650,
+    minUnits: 8,
+    includes: ['Lead Photographer', 'Videographer', '600+ Photos', 'Highlight Film', 'Full Ceremony Film', 'Online Gallery'],
+    addOns: [
+      { id: 'a55', name: 'Drone Coverage', price: 400 },
+      { id: 'a56', name: 'Same-Day Edit', price: 800 }
+    ],
+    requirements: ['Vendor meals', 'Timeline coordination'],
+    instantBook: false,
+    featured: true
+  },
+  // Southern Charm Events Packages
+  {
+    id: 'p29',
+    vendorId: 'v17',
+    name: 'Garden Party Setup',
+    description: 'Elegant outdoor setup with florals for intimate gatherings.',
+    type: 'DAILY',
+    price: 1200,
+    minUnits: 1,
+    includes: ['Vintage Furniture Set', '4 Centerpieces', 'Arch Florals', 'Lanterns', 'Setup & Strike'],
+    addOns: [
+      { id: 'a57', name: 'Pergola Rental', price: 400 },
+      { id: 'a58', name: 'Ceremony Florals', price: 600 }
+    ],
+    requirements: ['Outdoor venue', 'Vehicle access'],
+    instantBook: false,
+    featured: true
+  },
+  // Windy City DJs Packages
+  {
+    id: 'p30',
+    vendorId: 'v18',
+    name: 'Chicago Classic',
+    description: 'Premium DJ services for weddings and events.',
+    type: 'HOURLY',
+    price: 300,
+    minUnits: 4,
+    includes: ['Professional DJ', 'Premium Sound', 'Wireless Mics (2)', 'Dance Floor Lighting', 'MC Services'],
+    addOns: [
+      { id: 'a59', name: 'Ceremony Sound', price: 200 },
+      { id: 'a60', name: 'Photo Booth', price: 500 }
+    ],
+    requirements: ['Power outlet', 'Indoor venue'],
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'p31',
+    vendorId: 'v18',
+    name: 'Rooftop Experience',
+    description: 'Full production for Chicago rooftop events.',
+    type: 'HOURLY',
+    price: 600,
+    minUnits: 5,
+    includes: ['Top DJ', 'Outdoor Sound System', 'LED Lighting', 'Fog Machine', 'MC Services', 'Backup Equipment'],
+    addOns: [
+      { id: 'a61', name: 'Saxophone', price: 500 },
+      { id: 'a62', name: 'Percussion', price: 400 }
+    ],
+    requirements: ['Rooftop access', 'Weather contingency plan'],
+    instantBook: false,
+    featured: true
+  },
+  // Chicago Gourmet Catering Packages
+  {
+    id: 'p32',
+    vendorId: 'v19',
+    name: 'Executive Lunch',
+    description: 'Refined lunch service for corporate meetings.',
+    type: 'HOURLY',
+    price: 350,
+    minUnits: 2,
+    includes: ['3-Course Lunch', 'Coffee & Tea Service', 'Staff', 'All Rentals', 'Cleanup'],
+    addOns: [
+      { id: 'a63', name: 'Wine Service', price: 200 },
+      { id: 'a64', name: 'Dessert Display', price: 150 }
+    ],
+    requirements: ['Kitchen or warming area'],
+    instantBook: false,
+    featured: true
+  },
+  {
+    id: 'p33',
+    vendorId: 'v19',
+    name: 'Gala Dinner',
+    description: 'Black-tie worthy plated dinner service.',
+    type: 'DAILY',
+    price: 4500,
+    minUnits: 1,
+    includes: ['6-Course Dinner', 'Premium Wine Pairings', 'Full Service Staff', 'Specialty Linens', 'All Rentals'],
+    addOns: [
+      { id: 'a65', name: 'Raw Bar', price: 800 },
+      { id: 'a66', name: 'Tableside Preparation', price: 600 }
+    ],
+    requirements: ['Commercial kitchen', 'Minimum 50 guests'],
+    instantBook: false,
+    featured: true
+  },
+  // Lakefront Photo & Film Packages
+  {
+    id: 'p34',
+    vendorId: 'v20',
+    name: 'Portrait Session',
+    description: 'Professional portrait photography along the lakefront.',
+    type: 'HOURLY',
+    price: 300,
+    minUnits: 1,
+    includes: ['1-Hour Session', '30+ Edited Photos', 'Online Gallery', 'Print Release'],
+    addOns: [
+      { id: 'a67', name: 'Outfit Change', price: 75 },
+      { id: 'a68', name: 'Rush Delivery', price: 100 }
+    ],
+    requirements: ['Outdoor location'],
+    instantBook: true,
+    featured: true
+  },
+  {
+    id: 'p35',
+    vendorId: 'v20',
+    name: 'Wedding Documentary',
+    description: 'Full wedding coverage with cinematic film.',
+    type: 'HOURLY',
+    price: 575,
+    minUnits: 10,
+    includes: ['2 Photographers', 'Videographer', '800+ Photos', 'Feature Film', 'Highlight Reel', 'Raw Footage'],
+    addOns: [
+      { id: 'a69', name: 'Engagement Session', price: 400 },
+      { id: 'a70', name: 'Album Design', price: 600 }
+    ],
+    requirements: ['Timeline meeting', 'Vendor meals'],
+    instantBook: false,
+    featured: true
+  },
+  // Magnificent Mile Florals Packages
+  {
+    id: 'p36',
+    vendorId: 'v21',
+    name: 'Luxury Bridal Collection',
+    description: 'Exquisite bridal party flowers with premium blooms.',
+    type: 'DAILY',
+    price: 1500,
+    minUnits: 1,
+    includes: ['Bridal Bouquet (Premium)', '6 Bridesmaid Bouquets', '8 Boutonnieres', '4 Corsages', 'Consultation'],
+    addOns: [
+      { id: 'a71', name: 'Flower Crown', price: 200 },
+      { id: 'a72', name: 'Petal Aisle', price: 400 }
+    ],
+    requirements: ['3-week advance booking'],
+    instantBook: false,
+    featured: true
+  },
+  {
+    id: 'p37',
+    vendorId: 'v21',
+    name: 'Grand Celebration',
+    description: 'Complete floral design for luxury weddings and galas.',
+    type: 'DAILY',
+    price: 8500,
+    minUnits: 1,
+    includes: ['All Personal Flowers', 'Ceremony Installation', '25 Centerpieces', 'Sweetheart Table', 'Cocktail Florals', 'Full Installation'],
+    addOns: [
+      { id: 'a73', name: 'Suspended Installation', price: 3000 },
+      { id: 'a74', name: 'Floral Wall', price: 2500 }
+    ],
+    requirements: ['Design consultation', '6-week advance booking'],
+    instantBook: false,
+    featured: true
   }
 ];
 
