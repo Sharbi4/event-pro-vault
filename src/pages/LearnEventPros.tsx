@@ -4,7 +4,8 @@ import { Card } from '@/components/ui/card';
 import { 
   Sparkles, Calendar, Clock, CreditCard, 
   CheckCircle, ArrowRight, Zap, Info, MapPin,
-  DollarSign, Package, Banknote, Shield
+  DollarSign, Package, Banknote, Shield, Star,
+  Users, Camera, Music, UtensilsCrossed, X
 } from 'lucide-react';
 import { useState } from 'react';
 import { ProfileTypeModal } from '@/components/layout/ProfileTypeModal';
@@ -24,6 +25,96 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+
+const examplePackages = [
+  {
+    id: 1,
+    name: 'Wedding DJ Package',
+    provider: 'DJ Marcus',
+    pricingType: 'Hourly',
+    price: 150,
+    minHours: 4,
+    rating: 4.9,
+    reviews: 127,
+    icon: Music,
+    includes: ['Professional sound system', 'Wireless microphone', 'Dance floor lighting'],
+    badge: 'Instant Book',
+    badgeColor: 'bg-primary/10 text-primary',
+  },
+  {
+    id: 2,
+    name: 'Full Day Photography',
+    provider: 'Sarah Chen Photography',
+    pricingType: 'Daily',
+    price: 2500,
+    rating: 5.0,
+    reviews: 89,
+    icon: Camera,
+    includes: ['8 hours coverage', '500+ edited photos', 'Online gallery'],
+    badge: 'Top Rated',
+    badgeColor: 'bg-trust/10 text-trust',
+  },
+  {
+    id: 3,
+    name: 'Catering Service',
+    provider: 'Gourmet Events Co',
+    pricingType: 'Per Guest',
+    price: 45,
+    minGuests: 50,
+    rating: 4.8,
+    reviews: 203,
+    icon: UtensilsCrossed,
+    includes: ['3-course meal', 'Service staff', 'Table settings'],
+    badge: null,
+    badgeColor: '',
+  },
+  {
+    id: 4,
+    name: 'Balloon Arch',
+    provider: 'Party Decor Studio',
+    pricingType: 'Flat Rate',
+    price: 350,
+    rating: 4.7,
+    reviews: 56,
+    icon: Sparkles,
+    includes: ['Custom colors', 'Setup included', 'Same-day delivery'],
+    badge: 'Popular',
+    badgeColor: 'bg-accent/10 text-accent',
+  },
+  {
+    id: 5,
+    name: 'Corporate Event Planning',
+    provider: 'Elite Events',
+    pricingType: 'Custom Quote',
+    price: null,
+    rating: 4.9,
+    reviews: 34,
+    icon: Users,
+    includes: ['Venue coordination', 'Vendor management', 'Day-of coordination'],
+    badge: 'Request Quote',
+    badgeColor: 'bg-secondary text-secondary-foreground',
+  },
+  {
+    id: 6,
+    name: 'Photo Booth Rental',
+    provider: 'Snap & Share',
+    pricingType: 'Hourly',
+    price: 200,
+    minHours: 2,
+    rating: 4.6,
+    reviews: 78,
+    icon: Camera,
+    includes: ['Unlimited prints', 'Props included', 'Digital copies'],
+    badge: 'Instant Book',
+    badgeColor: 'bg-primary/10 text-primary',
+  },
+];
 
 const steps = [
   { 
@@ -69,6 +160,7 @@ const faqs = [
 
 export default function LearnEventPros() {
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [examplesModalOpen, setExamplesModalOpen] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -82,6 +174,32 @@ export default function LearnEventPros() {
       });
       navigate('/auth?intent=EVENT_PRO_ONBOARDING&profileType=EVENT_PRO');
     }
+  };
+
+  const formatPrice = (pkg: typeof examplePackages[0]) => {
+    if (pkg.pricingType === 'Custom Quote') {
+      return 'Request quote';
+    }
+    if (pkg.pricingType === 'Hourly') {
+      return `$${pkg.price}/hr`;
+    }
+    if (pkg.pricingType === 'Daily') {
+      return `$${pkg.price}/day`;
+    }
+    if (pkg.pricingType === 'Per Guest') {
+      return `$${pkg.price}/guest`;
+    }
+    return `$${pkg.price}`;
+  };
+
+  const formatMinimum = (pkg: typeof examplePackages[0]) => {
+    if (pkg.minHours) {
+      return `${pkg.minHours} hr min`;
+    }
+    if (pkg.minGuests) {
+      return `${pkg.minGuests} guest min`;
+    }
+    return null;
   };
 
   return (
@@ -111,6 +229,13 @@ export default function LearnEventPros() {
                 >
                   Create your Event Pro profile
                   <ArrowRight className="w-4 h-4 ml-1" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="lg"
+                  onClick={() => setExamplesModalOpen(true)}
+                >
+                  See example packages
                 </Button>
               </div>
             </div>
@@ -449,6 +574,120 @@ export default function LearnEventPros() {
           open={profileModalOpen} 
           onOpenChange={setProfileModalOpen} 
         />
+
+        {/* Example Packages Modal */}
+        <Dialog open={examplesModalOpen} onOpenChange={setExamplesModalOpen}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                <Package className="w-6 h-6 text-primary" />
+                Example Packages
+              </DialogTitle>
+              <p className="text-muted-foreground">
+                See how different pricing types look to customers browsing EventPro.
+              </p>
+            </DialogHeader>
+            
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+              {examplePackages.map((pkg) => {
+                const Icon = pkg.icon;
+                return (
+                  <Card key={pkg.id} variant="elevated" className="p-4 relative">
+                    {pkg.badge && (
+                      <Badge className={`absolute top-3 right-3 text-xs ${pkg.badgeColor}`}>
+                        {pkg.badge}
+                      </Badge>
+                    )}
+                    
+                    <div className="flex items-start gap-3 mb-3">
+                      <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center shrink-0">
+                        <Icon className="w-5 h-5 text-foreground" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-foreground text-sm leading-tight truncate">
+                          {pkg.name}
+                        </h3>
+                        <p className="text-xs text-muted-foreground truncate">{pkg.provider}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-1 mb-3">
+                      <Star className="w-3.5 h-3.5 fill-warning text-warning" />
+                      <span className="text-sm font-medium">{pkg.rating}</span>
+                      <span className="text-xs text-muted-foreground">({pkg.reviews})</span>
+                    </div>
+                    
+                    <div className="flex items-baseline gap-2 mb-3">
+                      <span className="text-lg font-bold text-foreground">
+                        {formatPrice(pkg)}
+                      </span>
+                      <Badge variant="outline" className="text-xs">
+                        {pkg.pricingType}
+                      </Badge>
+                    </div>
+                    
+                    {formatMinimum(pkg) && (
+                      <p className="text-xs text-muted-foreground mb-3">
+                        {formatMinimum(pkg)}
+                      </p>
+                    )}
+                    
+                    <div className="space-y-1">
+                      {pkg.includes.slice(0, 2).map((item, idx) => (
+                        <div key={idx} className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <CheckCircle className="w-3 h-3 text-trust shrink-0" />
+                          <span className="truncate">{item}</span>
+                        </div>
+                      ))}
+                      {pkg.includes.length > 2 && (
+                        <p className="text-xs text-muted-foreground">
+                          +{pkg.includes.length - 2} more
+                        </p>
+                      )}
+                    </div>
+                  </Card>
+                );
+              })}
+            </div>
+            
+            <div className="mt-6 p-4 bg-secondary/30 rounded-lg">
+              <h4 className="font-semibold text-foreground mb-2">Supported Pricing Types</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-primary" />
+                  <span>Hourly</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-primary" />
+                  <span>Daily</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-primary" />
+                  <span>Flat Rate</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-primary" />
+                  <span>Per Guest</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-primary" />
+                  <span>Per Item</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <CheckCircle className="w-4 h-4 text-primary" />
+                  <span>Custom Quote</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="flex justify-center mt-4">
+              <Button variant="darkShine" onClick={handleListService} className="gap-2">
+                Create your first package
+                <ArrowRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </TooltipProvider>
     </Layout>
   );
