@@ -17,7 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { 
   SlidersHorizontal, X, Star, Zap, 
   ShieldCheck, LayoutGrid, Search, MapPin,
-  CalendarDays, Package, Map, Tent, Sparkles,
+  CalendarDays, Package, Map, Store, Sparkles,
   Clock, ArrowRight, MapPinOff
 } from 'lucide-react';
 import { serviceCategories } from '@/data/service-categories';
@@ -203,7 +203,7 @@ export default function Browse() {
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  <Tent className="w-4 h-4" />
+                  <Store className="w-4 h-4" />
                   Market Spaces
                 </button>
               </div>
@@ -690,7 +690,7 @@ export default function Browse() {
           {!loading && browseMode === 'markets' && markets.length === 0 && (
             <div className="text-center py-16">
               <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
-                <Tent className="w-10 h-10 text-muted-foreground" />
+                <Store className="w-10 h-10 text-muted-foreground" />
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">
                 No markets found
