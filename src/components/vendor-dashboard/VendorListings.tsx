@@ -31,10 +31,13 @@ import { VendorPackage } from '@/hooks/useVendorDashboard';
 import { PackageFormWizard } from './package-form/PackageFormWizard';
 import { SortablePackageCard } from './SortablePackageCard';
 import { toast } from '@/hooks/use-toast';
+import { PackageWeeklyAvailability, PackageBlockedDate } from './package-form/StepAvailability';
+import { savePackageAvailability } from '@/hooks/usePackageAvailability';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface VendorListingsProps {
   packages: VendorPackage[];
-  onCreate: (data: Omit<VendorPackage, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => Promise<unknown>;
+  onCreate: (data: Omit<VendorPackage, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => Promise<{ id: string } | null>;
   onUpdate: (id: string, updates: Partial<VendorPackage>) => Promise<unknown>;
   onDelete: (id: string) => Promise<boolean>;
   onDuplicate: (id: string) => Promise<unknown>;
@@ -49,11 +52,50 @@ export function VendorListings({
   onDuplicate,
   onReorder
 }: VendorListingsProps) {
+  const { user } = useAuth();
   const [editingPackage, setEditingPackage] = useState<VendorPackage | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [packageToDelete, setPackageToDelete] = useState<VendorPackage | null>(null);
   const previousOrderRef = useRef<VendorPackage[] | null>(null);
+
+  const handleSaveWithAvailability = async (
+    data: Omit<VendorPackage, 'id' | 'user_id' | 'created_at' | 'updated_at'>,
+    availability?: { weekly: PackageWeeklyAvailability[]; blocked: PackageBlockedDate[] }
+  ) => {
+    if (!user) return;
+
+    let packageId: string | null = null;
+
+    if (editingPackage) {
+      await onUpdate(editingPackage.id, data);
+      packageId = editingPackage.id;
+    } else {
+      const result = await onCreate(data);
+      packageId = result?.id || null;
+    }
+
+    // Save availability if we have a package ID and availability data
+    if (packageId && availability) {
+      const { success, error } = await savePackageAvailability(
+        packageId,
+        user.id,
+        availability.weekly,
+        availability.blocked
+      );
+
+      if (!success) {
+        toast({
+          title: "Warning",
+          description: "Package saved but availability could not be saved: " + error,
+          variant: "destructive"
+        });
+      }
+    }
+
+    setIsCreating(false);
+    setEditingPackage(null);
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -194,15 +236,7 @@ export function VendorListings({
           setIsCreating(false);
           setEditingPackage(null);
         }}
-        onSubmit={async (data) => {
-          if (editingPackage) {
-            await onUpdate(editingPackage.id, data);
-          } else {
-            await onCreate(data);
-          }
-          setIsCreating(false);
-          setEditingPackage(null);
-        }}
+        onSubmit={handleSaveWithAvailability}
         initialData={editingPackage}
       />
 

@@ -132,7 +132,7 @@ export function useVendorDashboard() {
     setLoading(false);
   };
 
-  const createPackage = async (packageData: Omit<VendorPackage, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+  const createPackage = async (packageData: Omit<VendorPackage, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<{ id: string } | null> => {
     if (!user) return null;
 
     // Check max 20 packages limit
@@ -176,7 +176,7 @@ export function useVendorDashboard() {
     });
 
     setPackages(prev => [...prev, data as unknown as VendorPackage]);
-    return data;
+    return { id: data.id };
   };
 
   const updatePackage = async (id: string, updates: Partial<VendorPackage>) => {
