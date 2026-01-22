@@ -4,7 +4,8 @@ import { Calendar } from '@/components/ui/calendar';
 import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Clock, Users } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
+import { Clock, Users, AlertTriangle, TrendingUp } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { InventoryItem, SlotType } from '@/hooks/useMarketDetail';
 
@@ -42,6 +43,14 @@ export function InventoryPicker({
     return dates;
   }, [filteredInventory]);
 
+  // Find next available date if current selection is sold out
+  const nextAvailableDate = useMemo(() => {
+    if (availableDates.size === 0) return null;
+    const sorted = Array.from(availableDates).sort();
+    const today = format(new Date(), 'yyyy-MM-dd');
+    return sorted.find(d => d >= today) || sorted[0];
+  }, [availableDates]);
+
   // Get time windows for selected date
   const timeWindows = useMemo(() => {
     if (!selectedDate) return [];
@@ -62,6 +71,14 @@ export function InventoryPicker({
     return availableDates.has(dateStr);
   };
 
+  // Get urgency level for a time window
+  const getUrgencyLevel = (remaining: number, total: number) => {
+    if (remaining <= 0) return 'sold-out';
+    if (remaining <= 3) return 'critical';
+    if (remaining <= 10 || remaining / total <= 0.2) return 'high';
+    return 'normal';
+  };
+
   if (!slotType) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -70,10 +87,12 @@ export function InventoryPicker({
     );
   }
 
-  if (filteredInventory.length === 0) {
+  if (filteredInventory.length === 0 || availableDates.size === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
-        <p>No upcoming availability for this slot type</p>
+        <AlertTriangle className="w-8 h-8 mx-auto mb-2 opacity-50" />
+        <p className="font-medium">No upcoming availability</p>
+        <p className="text-sm mt-1">Check back soon or try a different spot type</p>
       </div>
     );
   }
@@ -116,66 +135,127 @@ export function InventoryPicker({
             {timeWindows.map(window => {
               const isSoldOut = window.slotsRemaining <= 0;
               const price = window.priceOverride || slotType.price;
+              const urgency = getUrgencyLevel(window.slotsRemaining, window.totalSlots);
+              const fillPercentage = ((window.totalSlots - window.slotsRemaining) / window.totalSlots) * 100;
               
               return (
                 <div 
                   key={window.id}
                   className={cn(
-                    "flex items-center space-x-3 p-3 rounded-lg border transition-all",
+                    "relative p-3 rounded-lg border transition-all",
                     isSoldOut 
                       ? "border-border bg-muted/50 opacity-60 cursor-not-allowed"
                       : selectedInventoryId === window.id
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/50 cursor-pointer"
+                        ? "border-primary bg-primary/5 ring-2 ring-primary"
+                        : urgency === 'critical'
+                          ? "border-destructive/50 bg-destructive/5 cursor-pointer hover:border-destructive"
+                          : "border-border hover:border-primary/50 cursor-pointer"
                   )}
+                  onClick={() => !isSoldOut && onInventorySelect(window.id)}
                 >
-                  <RadioGroupItem 
-                    value={window.id} 
-                    id={window.id} 
-                    disabled={isSoldOut}
-                  />
-                  <Label 
-                    htmlFor={window.id} 
-                    className={cn(
-                      "flex-1 flex items-center justify-between",
-                      !isSoldOut && "cursor-pointer"
-                    )}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-muted-foreground" />
-                      <span className="font-medium">
-                        {formatTime(window.startTime)} – {formatTime(window.endTime)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1.5">
-                        <Users className="w-4 h-4 text-muted-foreground" />
-                        {isSoldOut ? (
-                          <Badge variant="destructive" className="text-xs">Sold Out</Badge>
-                        ) : (
-                          <span className="text-sm">
-                            {window.slotsRemaining}/{window.totalSlots}
+                  <div className="flex items-center space-x-3">
+                    <RadioGroupItem 
+                      value={window.id} 
+                      id={window.id} 
+                      disabled={isSoldOut}
+                    />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-muted-foreground" />
+                          <span className="font-medium">
+                            {formatTime(window.startTime)} – {formatTime(window.endTime)}
                           </span>
+                        </div>
+                        {window.priceOverride && (
+                          <Badge variant="secondary" className="text-xs">
+                            ${price}
+                          </Badge>
                         )}
                       </div>
-                      {window.priceOverride && (
-                        <Badge variant="secondary" className="text-xs">
-                          ${price}
-                        </Badge>
-                      )}
+                      
+                      {/* Availability Progress Bar */}
+                      <div className="space-y-1.5">
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-1.5">
+                            <Users className={cn(
+                              "w-3.5 h-3.5",
+                              urgency === 'critical' && "text-destructive",
+                              urgency === 'high' && "text-trust",
+                              urgency === 'normal' && "text-muted-foreground"
+                            )} />
+                            {isSoldOut ? (
+                              <Badge variant="destructive" className="text-xs">Sold Out</Badge>
+                            ) : (
+                              <span className={cn(
+                                "font-medium",
+                                urgency === 'critical' && "text-destructive",
+                                urgency === 'high' && "text-trust"
+                              )}>
+                                {window.slotsRemaining} / {window.totalSlots} spots left
+                              </span>
+                            )}
+                          </div>
+                          {urgency === 'critical' && !isSoldOut && (
+                            <Badge variant="destructive" className="gap-1 text-xs animate-pulse">
+                              <AlertTriangle className="w-3 h-3" />
+                              Selling fast
+                            </Badge>
+                          )}
+                          {urgency === 'high' && (
+                            <Badge variant="trust" className="gap-1 text-xs">
+                              <TrendingUp className="w-3 h-3" />
+                              High demand
+                            </Badge>
+                          )}
+                        </div>
+                        {!isSoldOut && (
+                          <Progress 
+                            value={fillPercentage} 
+                            className={cn(
+                              "h-1.5",
+                              urgency === 'critical' && "[&>div]:bg-destructive",
+                              urgency === 'high' && "[&>div]:bg-trust"
+                            )}
+                          />
+                        )}
+                      </div>
                     </div>
-                  </Label>
+                  </div>
                 </div>
               );
             })}
           </RadioGroup>
+          
+          {/* Show next available if all time windows are sold out */}
+          {timeWindows.every(w => w.slotsRemaining <= 0) && nextAvailableDate && (
+            <div className="p-3 rounded-lg bg-muted/50 border border-border text-center">
+              <p className="text-sm text-muted-foreground">
+                All slots sold out. Next available:{' '}
+                <button 
+                  className="font-medium text-primary underline"
+                  onClick={() => onDateSelect(parseISO(nextAvailableDate))}
+                >
+                  {format(parseISO(nextAvailableDate), 'EEE, MMM d')}
+                </button>
+              </p>
+            </div>
+          )}
         </div>
       )}
 
       {selectedDate && timeWindows.length === 0 && (
-        <p className="text-sm text-muted-foreground text-center py-4">
-          No time windows available for this date
-        </p>
+        <div className="text-center py-4">
+          <p className="text-sm text-muted-foreground">No time windows available for this date</p>
+          {nextAvailableDate && (
+            <button 
+              className="text-sm font-medium text-primary underline mt-2"
+              onClick={() => onDateSelect(parseISO(nextAvailableDate))}
+            >
+              Jump to next available: {format(parseISO(nextAvailableDate), 'EEE, MMM d')}
+            </button>
+          )}
+        </div>
       )}
     </div>
   );
