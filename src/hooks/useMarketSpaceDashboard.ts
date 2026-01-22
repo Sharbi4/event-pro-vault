@@ -84,6 +84,8 @@ const initialState: MarketOnboardingState = {
   bookingsEnabled: false,
   stripeAccountId: undefined,
   stripeAccountStatus: undefined,
+  approvalStatus: undefined,
+  approvalNotes: undefined,
 };
 
 export function useMarketSpaceDashboard() {
@@ -140,6 +142,8 @@ export function useMarketSpaceDashboard() {
           bookingsEnabled: marketData.bookings_enabled || false,
           stripeAccountId: marketData.stripe_account_id || undefined,
           stripeAccountStatus: marketData.stripe_account_status || undefined,
+          approvalStatus: marketData.approval_status || undefined,
+          approvalNotes: marketData.approval_notes || undefined,
         });
 
         // Load slot types

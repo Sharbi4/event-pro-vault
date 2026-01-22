@@ -16,6 +16,7 @@ import { InventoryTab } from '@/components/marketspace-dashboard/InventoryTab';
 import { BookingsTab } from '@/components/marketspace-dashboard/BookingsTab';
 import { PayoutsTab } from '@/components/marketspace-dashboard/PayoutsTab';
 import { SettingsTab } from '@/components/marketspace-dashboard/SettingsTab';
+import { ApprovalStatusBanner } from '@/components/shared/ApprovalStatusBanner';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { 
@@ -213,8 +214,16 @@ export default function MarketSpaceDashboard() {
             </div>
           </div>
 
+          {/* Approval Status Banner */}
+          <ApprovalStatusBanner 
+            status={market.approvalStatus}
+            notes={market.approvalNotes}
+            type="market"
+            onEditProfile={() => navigate('/marketspace/create')}
+          />
+
           {/* Alert if not published */}
-          {!market.isPublished && (
+          {!market.isPublished && market.approvalStatus !== 'pending' && market.approvalStatus !== 'needs_changes' && market.approvalStatus !== 'rejected' && (
             <Card className="p-4 mb-6 bg-amber-500/10 border-amber-500/30">
               <div className="flex items-center gap-3">
                 <AlertCircle className="w-5 h-5 text-amber-500 shrink-0" />

@@ -85,6 +85,8 @@ export interface MarketOnboardingState {
   bookingsEnabled: boolean;
   stripeAccountId?: string;
   stripeAccountStatus?: string;
+  approvalStatus?: string;
+  approvalNotes?: string;
 }
 
 const defaultWeeklySchedule: WeeklyScheduleDay[] = [
