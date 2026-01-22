@@ -364,24 +364,34 @@ export default function Learn() {
                 </Tooltip>
               </h2>
               
-              <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto mt-8">
+              <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-8">
+                <Card variant="elevated" className="p-6 text-left">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Users className="w-5 h-5 text-trust" />
+                    <span className="font-semibold text-foreground">Bookers</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    A 12.9% service fee is included in your total at checkout. This covers secure payment processing and platform support.
+                  </p>
+                </Card>
+
                 <Card variant="elevated" className="p-6 text-left">
                   <div className="flex items-center gap-2 mb-3">
                     <Package className="w-5 h-5 text-primary" />
-                    <span className="font-semibold text-foreground">Packages</span>
+                    <span className="font-semibold text-foreground">Event Pros</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Customers see the platform fee included in their total at checkout. Pros see their net earnings after commission in the dashboard.
+                    A 12.9% commission is deducted from your earnings. Your net payout is shown in your dashboard after each booking.
                   </p>
                 </Card>
 
                 <Card variant="elevated" className="p-6 text-left">
                   <div className="flex items-center gap-2 mb-3">
                     <Store className="w-5 h-5 text-accent" />
-                    <span className="font-semibold text-foreground">Markets</span>
+                    <span className="font-semibold text-foreground">Market Managers</span>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    Vendors see the platform fee included in total at checkout. Market managers receive payouts initiated immediately.
+                    A 12.9% commission plus Stripe fees are deducted from your slot price. Payouts are released 24h after each event.
                   </p>
                 </Card>
               </div>

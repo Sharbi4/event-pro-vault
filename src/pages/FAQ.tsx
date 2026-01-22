@@ -111,13 +111,8 @@ const faqData: FAQItem[] = [
   {
     category: 'paying-fees',
     question: 'Is there a platform fee?',
-    answer: 'Yes. The platform fee is 12.9% and is included in the total you see at checkout.',
+    answer: 'Yes. A 12.9% fee is included in your total at checkout to cover payment processing and platform services.',
     hasTooltip: 'platform-fee',
-  },
-  {
-    category: 'paying-fees',
-    question: 'Does the Event Pro see what I\'m charged?',
-    answer: 'No. Event Pros see their earnings and commission details in their dashboard, but not the customer\'s full breakdown.',
   },
   {
     category: 'paying-fees',
@@ -186,6 +181,11 @@ const faqData: FAQItem[] = [
   },
   {
     category: 'event-pros',
+    question: 'What fees do I pay as an Event Pro?',
+    answer: 'A 12.9% platform commission is deducted from your earnings. This covers platform services, support, and secure payment processing.',
+  },
+  {
+    category: 'event-pros',
     question: 'When do I get paid for package bookings?',
     answer: 'For package bookings, payouts are initiated 24 hours after the booking/event ends (for online payments).',
   },
@@ -219,8 +219,13 @@ const faqData: FAQItem[] = [
   },
   {
     category: 'markets',
+    question: 'What fees do market managers pay?',
+    answer: 'A 12.9% platform commission is deducted from your slot price, plus Stripe processing fees (~2.9% + $0.30). This covers platform services, support, and secure payments.',
+  },
+  {
+    category: 'markets',
     question: 'When do market managers get paid?',
-    answer: 'For market slot reservations, payouts are initiated immediately after booking (for online payments), once Stripe is connected.',
+    answer: 'For market slot reservations, payouts are initiated 24 hours after the event date (for online payments), once Stripe is connected.',
   },
   // Trust & Safety
   {
