@@ -344,7 +344,10 @@ export default function MarketSpaceDashboard() {
 
             <TabsContent value="settings" className="mt-6">
               <SettingsTab
-                market={market}
+                market={{
+                  ...market,
+                  stripeAccountStatus: market.stripeAccountStatus,
+                }}
                 bookingMode={bookingMode}
                 onUpdateBookingMode={handleUpdateBookingMode}
                 onTogglePublished={handleTogglePublished}
