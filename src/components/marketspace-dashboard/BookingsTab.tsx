@@ -56,8 +56,10 @@ import {
   User,
   Tag,
   Info,
-  FileText
+  FileText,
+  Undo2
 } from 'lucide-react';
+import { CancellationDialog } from '@/components/shared/CancellationDialog';
 
 interface BookingsTabProps {
   bookings: SlotBooking[];
@@ -71,6 +73,8 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
   const [dateFilter, setDateFilter] = useState<string>('upcoming');
   const [selectedBooking, setSelectedBooking] = useState<SlotBooking | null>(null);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState<SlotBooking | null>(null);
 
   const now = new Date();
   
@@ -457,10 +461,13 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
                       {booking.status !== 'cancelled' && (
                         <DropdownMenuItem 
                           className="text-destructive"
-                          onClick={() => updateBookingStatus(booking.id, 'cancelled')}
+                          onClick={() => {
+                            setBookingToCancel(booking);
+                            setCancelDialogOpen(true);
+                          }}
                         >
-                          <X className="w-4 h-4 mr-2" />
-                          Cancel Booking
+                          <Undo2 className="w-4 h-4 mr-2" />
+                          {booking.paymentStatus === 'paid' ? 'Cancel & Refund' : 'Cancel Booking'}
                         </DropdownMenuItem>
                       )}
                     </DropdownMenuContent>
@@ -755,6 +762,23 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Cancellation Dialog */}
+      {bookingToCancel && (
+        <CancellationDialog
+          open={cancelDialogOpen}
+          onOpenChange={setCancelDialogOpen}
+          bookingId={bookingToCancel.id}
+          bookingType="slot_booking"
+          totalPaid={bookingToCancel.totalPrice}
+          eventDate={bookingToCancel.inventoryDate}
+          isPaid={bookingToCancel.paymentStatus === 'paid'}
+          onSuccess={() => {
+            setBookingToCancel(null);
+            updateBookingStatus(bookingToCancel.id, 'cancelled');
+          }}
+        />
+      )}
     </div>
   );
 }

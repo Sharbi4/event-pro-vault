@@ -3,10 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, X, Clock, MapPin, Calendar, CreditCard, Loader2, DollarSign } from 'lucide-react';
+import { Check, X, Clock, MapPin, Calendar, CreditCard, Loader2, DollarSign, Undo2 } from 'lucide-react';
 import { VendorBooking } from '@/hooks/useVendorDashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { CancellationDialog } from '@/components/shared/CancellationDialog';
 
 interface VendorBookingsProps {
   bookings: VendorBooking[];
@@ -28,6 +29,8 @@ interface ExtendedBooking extends VendorBooking {
 export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps) {
   const [updating, setUpdating] = useState<string | null>(null);
   const [requestingPayment, setRequestingPayment] = useState<string | null>(null);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState<ExtendedBooking | null>(null);
   const { toast } = useToast();
 
   const handleStatusUpdate = async (id: string, status: string) => {
@@ -376,10 +379,14 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
+                    onClick={() => {
+                      setBookingToCancel(booking);
+                      setCancelDialogOpen(true);
+                    }}
                     disabled={updating === booking.id}
-                    className="text-destructive"
+                    className="text-destructive gap-1"
                   >
+                    <X className="w-4 h-4" />
                     Cancel Booking
                   </Button>
                 </div>
@@ -409,25 +416,44 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => handleStatusUpdate(booking.id, 'cancelled')}
+                    onClick={() => {
+                      setBookingToCancel(booking);
+                      setCancelDialogOpen(true);
+                    }}
                     disabled={updating === booking.id}
-                    className="text-destructive"
+                    className="text-destructive gap-1"
                   >
-                    Cancel
+                    <Undo2 className="w-4 h-4" />
+                    Cancel & Refund
                   </Button>
                 </div>
               )}
 
               {isConfirmed && finalPaid && !isPast && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => handleStatusUpdate(booking.id, 'completed')}
-                  disabled={updating === booking.id}
-                >
-                  <Check className="w-4 h-4 mr-1" />
-                  Mark Complete
-                </Button>
+                <div className="flex flex-col items-end gap-2 mt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleStatusUpdate(booking.id, 'completed')}
+                    disabled={updating === booking.id}
+                  >
+                    <Check className="w-4 h-4 mr-1" />
+                    Mark Complete
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      setBookingToCancel(booking);
+                      setCancelDialogOpen(true);
+                    }}
+                    disabled={updating === booking.id}
+                    className="text-destructive gap-1 h-auto py-1"
+                  >
+                    <Undo2 className="w-3 h-3" />
+                    Cancel & Refund
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -513,6 +539,31 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
           </TabsContent>
         </Tabs>
       </CardContent>
+
+      {/* Cancellation Dialog */}
+      {bookingToCancel && (
+        <CancellationDialog
+          open={cancelDialogOpen}
+          onOpenChange={setCancelDialogOpen}
+          bookingId={bookingToCancel.id}
+          bookingType="booking"
+          totalPaid={
+            (((bookingToCancel as any).deposit_amount || 0) + 
+            ((bookingToCancel as any).final_amount || 0)) / 100 || 
+            bookingToCancel.total_price
+          }
+          eventDate={bookingToCancel.event_date}
+          isPaid={
+            !!(bookingToCancel as any).deposit_paid_at || 
+            !!(bookingToCancel as any).final_paid_at
+          }
+          onSuccess={() => {
+            setBookingToCancel(null);
+            // Trigger a refetch by updating status in parent
+            onUpdateStatus(bookingToCancel.id, 'cancelled');
+          }}
+        />
+      )}
     </Card>
   );
 }
