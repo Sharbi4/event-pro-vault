@@ -14,7 +14,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { 
   Clock, MapPin, CreditCard, Banknote, 
   Zap, ShieldCheck, Check, ChevronLeft, ChevronRight,
-  Loader2, Users, FileText, AlertCircle, Calendar as CalendarAlt
+  Loader2, Users, FileText, AlertCircle, Calendar as CalendarAlt,
+  Mail, User
 } from 'lucide-react';
 import { format, getDay, isSameDay, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -108,6 +109,8 @@ export function BookingModal({
   const [venue, setVenue] = useState('');
   const [guestCount, setGuestCount] = useState('');
   const [notes, setNotes] = useState('');
+  const [guestEmail, setGuestEmail] = useState(''); // For guest checkout
+  const [guestName, setGuestName] = useState(''); // For guest checkout
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'cash'>(
     paymentOptions === 'CASH' ? 'cash' : initialPaymentMethod
   );
@@ -199,7 +202,10 @@ export function BookingModal({
         if (type === 'HOURLY' && !timeAvailability?.available) return false;
         return true;
       case 'details':
-        return !!eventType && !!venue;
+        // For guests, require email; for logged-in users, email is optional
+        const emailRequired = !user;
+        const hasEmail = emailRequired ? !!guestEmail.trim() : true;
+        return !!eventType && !!venue && hasEmail;
       case 'payment':
         return true;
       case 'review':
@@ -222,14 +228,13 @@ export function BookingModal({
   };
 
   const handleSubmit = async () => {
-    if (!user) {
+    // For guests, validate email is provided
+    if (!user && !guestEmail.trim()) {
       toast({
-        title: "Sign in required",
-        description: "Please sign in to make a booking",
+        title: "Email required",
+        description: "Please provide your email address for booking confirmation",
         variant: "destructive"
       });
-      onOpenChange(false);
-      navigate('/auth');
       return;
     }
 
@@ -244,6 +249,9 @@ export function BookingModal({
 
     setSubmitting(true);
 
+    const customerEmail = user?.email || guestEmail.trim();
+    const customerName = user?.email?.split('@')[0] || guestName.trim() || 'Guest';
+
     const result = await createBooking({
       vendor_id: vendorUserId,
       vendor_user_id: vendorUserId,
@@ -257,10 +265,12 @@ export function BookingModal({
       payment_method: paymentMethod,
       booking_mode: bookingMode,
       vendor_name: vendorName,
-      customer_name: user?.email?.split('@')[0] || 'Customer',
-      customer_email: user?.email || '',
+      customer_name: customerName,
+      customer_email: customerEmail,
       package_name: packageName,
-      unit_type: type === 'HOURLY' ? 'hour' : 'day'
+      unit_type: type === 'HOURLY' ? 'hour' : 'day',
+      // Guest checkout flag
+      is_guest: !user,
     });
 
     setSubmitting(false);
@@ -474,6 +484,39 @@ export function BookingModal({
       case 'details':
         return (
           <div className="space-y-6">
+            {/* Guest checkout fields - only show if not logged in */}
+            {!user && (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    <Mail className="w-4 h-4 inline mr-1" />
+                    Your Email <span className="text-destructive">*</span>
+                  </label>
+                  <Input
+                    type="email"
+                    placeholder="Enter your email for confirmation"
+                    value={guestEmail}
+                    onChange={(e) => setGuestEmail(e.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">
+                    We'll send your booking confirmation here
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-foreground mb-2">
+                    <User className="w-4 h-4 inline mr-1" />
+                    Your Name (optional)
+                  </label>
+                  <Input
+                    placeholder="Enter your name"
+                    value={guestName}
+                    onChange={(e) => setGuestName(e.target.value)}
+                  />
+                </div>
+              </>
+            )}
+
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 Event Type

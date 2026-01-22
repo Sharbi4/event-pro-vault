@@ -32,6 +32,8 @@ interface SlotBookingRequest {
   baseAmount: number;
   platformFeeAmount: number;
   totalAmount: number;
+  // Guest checkout - email provided directly
+  guestEmail?: string;
 }
 
 serve(async (req) => {
@@ -50,13 +52,14 @@ serve(async (req) => {
   );
 
   try {
-    // Get authenticated user
-    const authHeader = req.headers.get("Authorization")!;
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
+    // Try to get authenticated user (optional for guest checkout)
+    const authHeader = req.headers.get("Authorization");
+    let user = null;
     
-    if (userError || !user) {
-      throw new Error("User not authenticated");
+    if (authHeader) {
+      const token = authHeader.replace("Bearer ", "");
+      const { data } = await supabaseClient.auth.getUser(token);
+      user = data.user;
     }
 
     const body: SlotBookingRequest = await req.json();
@@ -85,7 +88,15 @@ serve(async (req) => {
       baseAmount,
       platformFeeAmount,
       totalAmount,
+      guestEmail,
     } = body;
+
+    // Determine customer email - use logged-in user email, or guest email, or vendor email as fallback
+    const customerEmail = user?.email || guestEmail || vendorEmail;
+    
+    if (!customerEmail) {
+      throw new Error("Email is required for booking");
+    }
 
     // Initialize Stripe
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
@@ -104,7 +115,7 @@ serve(async (req) => {
     }
 
     // Check if user already has a Stripe customer
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    const customers = await stripe.customers.list({ email: customerEmail, limit: 1 });
     let customerId: string | undefined;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
@@ -131,7 +142,7 @@ serve(async (req) => {
     // Create checkout session params
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
-      customer_email: customerId ? undefined : user.email,
+      customer_email: customerId ? undefined : customerEmail,
       payment_method_types: ['card'],
       line_items: [
         {
@@ -164,7 +175,9 @@ serve(async (req) => {
         marketId,
         slotTypeId,
         inventoryIds: JSON.stringify(inventoryIds),
-        userId: user.id,
+        userId: user?.id || '', // Empty string for guests
+        isGuest: user ? 'false' : 'true',
+        guestEmail: user ? '' : customerEmail,
         vendorUserId: market.user_id,
         vendorName,
         vendorEmail,

@@ -12,26 +12,12 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
-    Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_ANON_KEY") ?? ""
-  );
-
   const supabaseAdmin = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
   );
 
   try {
-    // Get authenticated user
-    const authHeader = req.headers.get("Authorization")!;
-    const token = authHeader.replace("Bearer ", "");
-    const { data: { user }, error: userError } = await supabaseClient.auth.getUser(token);
-    
-    if (userError || !user) {
-      throw new Error("User not authenticated");
-    }
-
     const { sessionId } = await req.json();
 
     if (!sessionId) {
@@ -75,6 +61,9 @@ serve(async (req) => {
     const meta = session.metadata || {};
     const inventoryIds = JSON.parse(meta.inventoryIds || '[]');
     const isRecurring = meta.isRecurring === 'true';
+    const isGuest = meta.isGuest === 'true';
+    const userId = meta.userId || null;
+    const guestEmail = meta.guestEmail || null;
     
     // Get market and slot type details for email
     const { data: market } = await supabaseAdmin
@@ -141,12 +130,12 @@ serve(async (req) => {
         continue; // Skip this one but continue with others
       }
 
-      // Create booking
+      // Create booking - user_id is null for guests
       const bookingData: Record<string, unknown> = {
         slot_inventory_id: invId,
         slot_type_id: meta.slotTypeId,
         market_id: meta.marketId,
-        user_id: meta.userId,
+        user_id: isGuest ? null : userId, // null for guest checkouts
         vendor_user_id: meta.vendorUserId,
         quantity: 1,
         total_price: parseFloat(meta.totalAmount) / inventoryIds.length,
@@ -159,7 +148,7 @@ serve(async (req) => {
         stripe_checkout_session_id: sessionId,
         stripe_payment_intent_id: session.payment_intent as string,
         vendor_name: meta.vendorName || null,
-        vendor_email: meta.vendorEmail || null,
+        vendor_email: meta.vendorEmail || guestEmail || null, // Use guest email if vendor email not set
         vendor_phone: meta.vendorPhone || null,
         vendor_category: meta.vendorCategory || null,
         vendor_type: meta.vendorType || null,
@@ -207,7 +196,8 @@ serve(async (req) => {
     }
 
     // Send email notifications to vendor and market host
-    if (bookingIds.length > 0 && meta.vendorEmail && hostEmail) {
+    const vendorEmailToUse = meta.vendorEmail || guestEmail;
+    if (bookingIds.length > 0 && vendorEmailToUse && hostEmail) {
       try {
         const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
         const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
@@ -222,7 +212,7 @@ serve(async (req) => {
           is_recurring: isRecurring,
           recurring_weeks: inventoryIds.length,
           vendor_name: meta.vendorName || '',
-          vendor_email: meta.vendorEmail || '',
+          vendor_email: vendorEmailToUse,
           vendor_phone: meta.vendorPhone || '',
           vendor_category: meta.vendorCategory || '',
           vendor_type: meta.vendorType || '',

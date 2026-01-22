@@ -37,6 +37,8 @@ export interface CreateBookingInput {
   customer_email?: string;
   package_name?: string;
   unit_type?: string;
+  // Guest checkout flag
+  is_guest?: boolean;
 }
 
 export function useBookings() {
@@ -72,10 +74,13 @@ export function useBookings() {
   };
 
   const createBooking = async (bookingData: CreateBookingInput): Promise<BookingData | null> => {
-    if (!user) {
+    const isGuest = bookingData.is_guest || !user;
+    
+    // For guest checkout, require customer_email
+    if (isGuest && !bookingData.customer_email) {
       toast({
-        title: "Sign in required",
-        description: "Please sign in to make a booking",
+        title: "Email required",
+        description: "Please provide an email address for booking confirmation",
         variant: "destructive"
       });
       return null;
@@ -84,7 +89,7 @@ export function useBookings() {
     const { data, error } = await supabase
       .from('bookings')
       .insert({
-        user_id: user.id,
+        user_id: isGuest ? null : user?.id, // null for guest checkouts
         vendor_id: bookingData.vendor_id,
         vendor_user_id: bookingData.vendor_user_id || null,
         package_id: bookingData.package_id,
@@ -99,7 +104,8 @@ export function useBookings() {
         status: bookingData.booking_mode === 'REQUEST' ? 'pending' : 'confirmed',
         payment_status: bookingData.booking_mode === 'REQUEST' 
           ? 'awaiting_approval'
-          : (bookingData.payment_method === 'cash' ? 'cash_due' : 'pending')
+          : (bookingData.payment_method === 'cash' ? 'cash_due' : 'pending'),
+        customer_email: bookingData.customer_email || user?.email || null,
       })
       .select()
       .single();
@@ -115,10 +121,15 @@ export function useBookings() {
 
     toast({
       title: "Booking submitted!",
-      description: "Your booking request has been sent to the vendor"
+      description: isGuest 
+        ? "Check your email for booking confirmation details"
+        : "Your booking request has been sent to the vendor"
     });
 
-    setBookings(prev => [data as BookingData, ...prev]);
+    // Only update local bookings state if user is logged in
+    if (!isGuest) {
+      setBookings(prev => [data as BookingData, ...prev]);
+    }
 
     // Send email notification to vendor (fire and forget)
     if (bookingData.vendor_email) {
