@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { CategoryCarousel } from '@/components/browse/CategoryCarousel';
 import { MarketCategoryCarousel } from '@/components/browse/MarketCategoryCarousel';
@@ -18,7 +18,7 @@ import {
   SlidersHorizontal, X, Star, Zap, 
   ShieldCheck, LayoutGrid, Search, MapPin,
   CalendarDays, Package, Map, Store, Sparkles,
-  Clock, ArrowRight, MapPinOff
+  Clock, ArrowRight, MapPinOff, ChevronDown
 } from 'lucide-react';
 import { serviceCategories } from '@/data/service-categories';
 import { marketCategories } from '@/data/market-categories';
@@ -47,6 +47,16 @@ export default function Browse() {
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [selectedMarketId, setSelectedMarketId] = useState<string | null>(null);
   const [isSearchCollapsed, setIsSearchCollapsed] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Track scroll position to collapse header
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 100);
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const loading = browseMode === 'services' ? packagesLoading : marketsLoading;
 
@@ -173,56 +183,139 @@ export default function Browse() {
     }
   };
 
+  // Determine if we should show compact header
+  const showCompactHeader = isScrolled && hasSearched;
+
   return (
     <Layout>
       <div className="min-h-screen bg-background pt-16 lg:pt-20">
         {/* Search Header */}
-        <div className="sticky top-20 lg:top-24 z-40 bg-background/95 backdrop-blur-lg border-b border-border">
-          <div className="container mx-auto px-4 py-4">
-            {/* Mode Toggle */}
-            <div className="flex items-center justify-center mb-4">
-              <div className="inline-flex items-center p-1 bg-secondary/50 rounded-full">
-                <button
-                  onClick={() => setBrowseMode('services')}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
-                    browseMode === 'services'
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  Event Services
-                </button>
-                <button
-                  onClick={() => setBrowseMode('markets')}
-                  className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
-                    browseMode === 'markets'
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-muted-foreground hover:text-foreground"
-                  )}
-                >
-                  <Store className="w-4 h-4" />
-                  Market Spaces
-                </button>
-              </div>
-            </div>
+        <div className={cn(
+          "sticky top-20 lg:top-24 z-40 bg-background/95 backdrop-blur-lg border-b border-border transition-all duration-300",
+          showCompactHeader ? "py-2" : ""
+        )}>
+          <div className="container mx-auto px-4">
+            {/* Compact Header - Shows when scrolled */}
+            {showCompactHeader ? (
+              <div className="flex items-center justify-between gap-3 py-1">
+                {/* Mode Toggle - Compact */}
+                <div className="inline-flex items-center p-0.5 bg-secondary/50 rounded-full shrink-0">
+                  <button
+                    onClick={() => setBrowseMode('services')}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all",
+                      browseMode === 'services'
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Sparkles className="w-3 h-3" />
+                    <span className="hidden sm:inline">Services</span>
+                  </button>
+                  <button
+                    onClick={() => setBrowseMode('markets')}
+                    className={cn(
+                      "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all",
+                      browseMode === 'markets'
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <Store className="w-3 h-3" />
+                    <span className="hidden sm:inline">Markets</span>
+                  </button>
+                </div>
 
-            {/* Mobile: Collapsed Search Summary */}
-            {isSearchCollapsed && hasSearched && (
-              <div className="md:hidden mb-3">
-                <SearchSummaryPill
-                  searchQuery={searchValue}
-                  location={locationValue}
-                  date={dateValue}
-                  startTime={browseMode === 'services' ? startTime : null}
-                  endTime={browseMode === 'services' ? endTime : null}
-                  onEdit={() => setIsSearchCollapsed(false)}
-                  onClear={handleClearFilters}
-                />
+                {/* Search Summary - Compact inline */}
+                <button 
+                  onClick={() => setIsScrolled(false)}
+                  className="flex-1 flex items-center gap-2 px-3 py-2 bg-card border border-border rounded-full hover:border-primary/50 transition-colors min-w-0"
+                >
+                  <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <div className="flex items-center gap-2 text-sm truncate">
+                    {searchValue && <span className="text-foreground truncate">{searchValue}</span>}
+                    {locationValue && (
+                      <>
+                        {searchValue && <span className="text-muted-foreground">•</span>}
+                        <span className="text-muted-foreground truncate">{locationValue}</span>
+                      </>
+                    )}
+                    {dateValue && (
+                      <>
+                        {(searchValue || locationValue) && <span className="text-muted-foreground">•</span>}
+                        <span className="text-muted-foreground">{format(new Date(dateValue), 'MMM d')}</span>
+                      </>
+                    )}
+                    {browseMode === 'services' && startTime && endTime && (
+                      <>
+                        <span className="text-muted-foreground">•</span>
+                        <span className="text-muted-foreground">{formatTimeDisplay(startTime)}–{formatTimeDisplay(endTime)}</span>
+                      </>
+                    )}
+                  </div>
+                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                </button>
+
+                {/* Quick actions */}
+                <div className="flex items-center gap-2 shrink-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setViewMode(viewMode === 'grid' ? 'map' : 'grid')}
+                    className="h-8 gap-1.5"
+                  >
+                    {viewMode === 'grid' ? <Map className="w-3.5 h-3.5" /> : <LayoutGrid className="w-3.5 h-3.5" />}
+                    <span className="hidden sm:inline">{viewMode === 'grid' ? 'Map' : 'Grid'}</span>
+                  </Button>
+                </div>
               </div>
-            )}
+            ) : (
+              /* Full Header - Shows when not scrolled */
+              <div className="py-4">
+                {/* Mode Toggle */}
+                <div className="flex items-center justify-center mb-4">
+                  <div className="inline-flex items-center p-1 bg-secondary/50 rounded-full">
+                    <button
+                      onClick={() => setBrowseMode('services')}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
+                        browseMode === 'services'
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      Event Services
+                    </button>
+                    <button
+                      onClick={() => setBrowseMode('markets')}
+                      className={cn(
+                        "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
+                        browseMode === 'markets'
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      <Store className="w-4 h-4" />
+                      Market Spaces
+                    </button>
+                  </div>
+                </div>
+
+                {/* Mobile: Collapsed Search Summary */}
+                {isSearchCollapsed && hasSearched && (
+                  <div className="md:hidden mb-3">
+                    <SearchSummaryPill
+                      searchQuery={searchValue}
+                      location={locationValue}
+                      date={dateValue}
+                      startTime={browseMode === 'services' ? startTime : null}
+                      endTime={browseMode === 'services' ? endTime : null}
+                      onEdit={() => setIsSearchCollapsed(false)}
+                      onClear={handleClearFilters}
+                    />
+                  </div>
+                )}
 
             {/* Search Fields - Mode Aware */}
             {(!isSearchCollapsed || !hasSearched) && (
@@ -396,6 +489,8 @@ export default function Browse() {
                   </div>
                 )}
               </>
+            )}
+              </div>
             )}
           </div>
         </div>
