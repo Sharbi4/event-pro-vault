@@ -67,6 +67,12 @@ serve(async (req) => {
         break;
       }
       
+      case "charge.refunded": {
+        const charge = event.data.object as Stripe.Charge;
+        await handleChargeRefunded(charge);
+        break;
+      }
+      
       case "transfer.created": {
         const transfer = event.data.object as Stripe.Transfer;
         console.log(`Transfer created: ${transfer.id} for ${transfer.amount / 100}`);
@@ -270,5 +276,86 @@ async function decrementSlotInventory(inventoryId: string, quantity: number) {
     console.error("Error decrementing inventory:", updateError);
   } else {
     console.log(`Inventory ${inventoryId} decremented by ${quantity}, now ${newRemaining} remaining`);
+  }
+}
+
+async function handleChargeRefunded(charge: Stripe.Charge) {
+  console.log(`Charge refunded: ${charge.id}, amount refunded: ${charge.amount_refunded / 100}`);
+  
+  const paymentIntentId = charge.payment_intent as string;
+  if (!paymentIntentId) {
+    console.log("No payment intent on refunded charge");
+    return;
+  }
+
+  // Check for slot booking with this payment intent
+  const { data: slotBooking } = await supabaseAdmin
+    .from("slot_bookings")
+    .select("id, quantity, slot_inventory_id")
+    .eq("stripe_payment_intent_id", paymentIntentId)
+    .single();
+
+  if (slotBooking) {
+    // Update slot booking status
+    const { error } = await supabaseAdmin
+      .from("slot_bookings")
+      .update({
+        payment_status: "refunded",
+        status: "cancelled",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", slotBooking.id);
+
+    if (error) {
+      console.error("Error updating slot booking for refund:", error);
+    } else {
+      console.log(`Slot booking ${slotBooking.id} marked as refunded`);
+      
+      // Restore inventory
+      if (slotBooking.slot_inventory_id) {
+        const { data: inventory } = await supabaseAdmin
+          .from("slot_inventory")
+          .select("slots_remaining")
+          .eq("id", slotBooking.slot_inventory_id)
+          .single();
+
+        if (inventory) {
+          await supabaseAdmin
+            .from("slot_inventory")
+            .update({
+              slots_remaining: inventory.slots_remaining + slotBooking.quantity,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", slotBooking.slot_inventory_id);
+          
+          console.log(`Restored ${slotBooking.quantity} slots to inventory`);
+        }
+      }
+    }
+    return;
+  }
+
+  // Check for regular booking with this payment intent
+  const { data: booking } = await supabaseAdmin
+    .from("bookings")
+    .select("id")
+    .or(`stripe_payment_intent_id.eq.${paymentIntentId},stripe_deposit_payment_intent_id.eq.${paymentIntentId},stripe_final_payment_intent_id.eq.${paymentIntentId}`)
+    .single();
+
+  if (booking) {
+    const { error } = await supabaseAdmin
+      .from("bookings")
+      .update({
+        payment_status: "refunded",
+        status: "cancelled",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", booking.id);
+
+    if (error) {
+      console.error("Error updating booking for refund:", error);
+    } else {
+      console.log(`Booking ${booking.id} marked as refunded`);
+    }
   }
 }
