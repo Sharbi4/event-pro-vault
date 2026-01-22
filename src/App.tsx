@@ -20,6 +20,7 @@ import EventProOnboarding from "./pages/EventProOnboarding";
 import Onboarding from "./pages/Onboarding";
 import MarketSpaceOnboarding from "./pages/MarketSpaceOnboarding";
 import MarketSpaceDashboard from "./pages/MarketSpaceDashboard";
+import MarketCreate from "./pages/MarketCreate";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/marketspace-onboarding" element={<MarketSpaceOnboarding />} />
               <Route path="/marketspace-dashboard" element={<MarketSpaceDashboard />} />
+              <Route path="/marketspace/create" element={<MarketCreate />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

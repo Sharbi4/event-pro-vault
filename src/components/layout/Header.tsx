@@ -1,8 +1,9 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User, Sparkles, Store } from 'lucide-react';
+import { Menu, X, Sparkles, Store } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { ModeSwitcher } from './ModeSwitcher';
 import logo from '@/assets/eventpro-logo.png';
 
 export function Header() {
@@ -21,9 +22,9 @@ export function Header() {
 
   const handleListMarket = () => {
     if (user) {
-      navigate('/marketspace-onboarding');
+      navigate('/marketspace/create');
     } else {
-      navigate('/auth?returnTo=/marketspace-onboarding');
+      navigate('/auth?returnTo=/marketspace/create');
     }
     setMobileMenuOpen(false);
   };
@@ -58,12 +59,7 @@ export function Header() {
           {/* Desktop CTA - Right */}
           <div className="hidden lg:flex items-center gap-3">
             {user ? (
-              <Link to="/dashboard">
-                <Button variant="ghost" size="sm" className="gap-2">
-                  <User className="w-4 h-4" />
-                  Dashboard
-                </Button>
-              </Link>
+              <ModeSwitcher />
             ) : (
               <Link to="/auth">
                 <Button variant="ghost" size="sm">Sign In</Button>
@@ -122,12 +118,7 @@ export function Header() {
               </Link>
               <div className="flex flex-col gap-3 pt-4 border-t border-border/50">
                 {user ? (
-                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                    <Button variant="outline" className="w-full gap-2">
-                      <User className="w-4 h-4" />
-                      Dashboard
-                    </Button>
-                  </Link>
+                  <ModeSwitcher compact />
                 ) : (
                   <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
                     <Button variant="outline" className="w-full">Sign In</Button>
