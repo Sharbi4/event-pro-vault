@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User, Sparkles } from 'lucide-react';
+import { Menu, X, User, Sparkles, Store } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/logo.png';
@@ -8,6 +8,25 @@ import logo from '@/assets/logo.png';
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleListService = () => {
+    if (user) {
+      navigate('/eventpro-onboarding');
+    } else {
+      navigate('/auth?returnTo=/eventpro-onboarding');
+    }
+    setMobileMenuOpen(false);
+  };
+
+  const handleListMarket = () => {
+    if (user) {
+      navigate('/marketspace-onboarding');
+    } else {
+      navigate('/auth?returnTo=/marketspace-onboarding');
+    }
+    setMobileMenuOpen(false);
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 glass-card border-b border-border/50">
@@ -22,43 +41,48 @@ export function Header() {
             />
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center gap-8">
-            <Link to="/markets" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Discover Markets
+          {/* Desktop Navigation - Center */}
+          <nav className="hidden lg:flex items-center gap-8 absolute left-1/2 -translate-x-1/2">
+            <Link to="/" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Browse
+            </Link>
+            <Link to="/markets" className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+              Markets
             </Link>
           </nav>
 
-          {/* Desktop CTA */}
+          {/* Desktop CTA - Right */}
           <div className="hidden lg:flex items-center gap-3">
             {user ? (
-              <>
-                <Link to="/dashboard">
-                  <Button variant="ghost" size="sm" className="gap-2">
-                    <User className="w-4 h-4" />
-                    Dashboard
-                  </Button>
-                </Link>
-                <Link to="/onboarding">
-                  <Button variant="gradient" size="default" className="gap-2">
-                    <Sparkles className="w-4 h-4" />
-                    Create Your Profile
-                  </Button>
-                </Link>
-              </>
+              <Link to="/dashboard">
+                <Button variant="ghost" size="sm" className="gap-2">
+                  <User className="w-4 h-4" />
+                  Dashboard
+                </Button>
+              </Link>
             ) : (
-              <>
-                <Link to="/auth">
-                  <Button variant="ghost" size="sm">Sign In</Button>
-                </Link>
-                <Link to="/onboarding">
-                  <Button variant="gradient" size="default" className="gap-2">
-                    <Sparkles className="w-4 h-4" />
-                    Get Started
-                  </Button>
-                </Link>
-              </>
+              <Link to="/auth">
+                <Button variant="ghost" size="sm">Sign In</Button>
+              </Link>
             )}
+            <Button 
+              variant="outline" 
+              size="default" 
+              className="gap-2"
+              onClick={handleListMarket}
+            >
+              <Store className="w-4 h-4" />
+              List a market
+            </Button>
+            <Button 
+              variant="gradient" 
+              size="default" 
+              className="gap-2"
+              onClick={handleListService}
+            >
+              <Sparkles className="w-4 h-4" />
+              List your service
+            </Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -79,41 +103,48 @@ export function Header() {
           <div className="lg:hidden py-4 border-t border-border/50 animate-fade-in">
             <nav className="flex flex-col gap-4">
               <Link 
+                to="/" 
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Browse
+              </Link>
+              <Link 
                 to="/markets" 
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors py-2"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                Discover Markets
+                Markets
               </Link>
               <div className="flex flex-col gap-3 pt-4 border-t border-border/50">
                 {user ? (
-                  <>
-                    <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full gap-2">
-                        <User className="w-4 h-4" />
-                        Dashboard
-                      </Button>
-                    </Link>
-                    <Link to="/onboarding" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="gradient" className="w-full gap-2">
-                        <Sparkles className="w-4 h-4" />
-                        Create Your Profile
-                      </Button>
-                    </Link>
-                  </>
+                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full gap-2">
+                      <User className="w-4 h-4" />
+                      Dashboard
+                    </Button>
+                  </Link>
                 ) : (
-                  <>
-                    <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="outline" className="w-full">Sign In</Button>
-                    </Link>
-                    <Link to="/onboarding" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="gradient" className="w-full gap-2">
-                        <Sparkles className="w-4 h-4" />
-                        Get Started
-                      </Button>
-                    </Link>
-                  </>
+                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                    <Button variant="outline" className="w-full">Sign In</Button>
+                  </Link>
                 )}
+                <Button 
+                  variant="outline" 
+                  className="w-full gap-2"
+                  onClick={handleListMarket}
+                >
+                  <Store className="w-4 h-4" />
+                  List a market
+                </Button>
+                <Button 
+                  variant="gradient" 
+                  className="w-full gap-2"
+                  onClick={handleListService}
+                >
+                  <Sparkles className="w-4 h-4" />
+                  List your service
+                </Button>
               </div>
             </nav>
           </div>

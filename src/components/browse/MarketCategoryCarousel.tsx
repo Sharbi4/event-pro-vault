@@ -1,38 +1,34 @@
 import { useRef } from 'react';
 import { 
-  Truck, UtensilsCrossed, ChefHat, Wine, Music, 
-  Sparkles, Tent, Heart, Camera, Video, Cake, 
-  MoreHorizontal, ChevronLeft, ChevronRight 
+  Leaf, Store, Moon, Zap, PartyPopper, 
+  Palette, UtensilsCrossed, Gift, ChevronLeft, ChevronRight, Sparkles 
 } from 'lucide-react';
 import { Category } from '@/types';
 import { Button } from '@/components/ui/button';
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Truck,
+  Leaf,
+  Store,
+  Moon,
+  Zap,
+  PartyPopper,
+  Palette,
   UtensilsCrossed,
-  ChefHat,
-  Wine,
-  Music,
+  Gift,
   Sparkles,
-  Tent,
-  Heart,
-  Camera,
-  Video,
-  Cake,
-  MoreHorizontal,
 };
 
-interface CategoryCarouselProps {
+interface MarketCategoryCarouselProps {
   categories: Category[];
   selectedCategory: string | null;
   onSelectCategory: (categoryId: string | null) => void;
 }
 
-export function CategoryCarousel({
+export function MarketCategoryCarousel({
   categories,
   selectedCategory,
   onSelectCategory,
-}: CategoryCarouselProps) {
+}: MarketCategoryCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (direction: 'left' | 'right') => {
@@ -90,7 +86,7 @@ export function CategoryCarousel({
           </button>
 
           {categories.map((category) => {
-            const IconComponent = iconMap[category.icon] || Sparkles;
+            const IconComponent = iconMap[category.icon] || Store;
             const isSelected = selectedCategory === category.id;
 
             return (

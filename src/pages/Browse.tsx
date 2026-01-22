@@ -1,10 +1,13 @@
 import { useState } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { CategoryCarousel } from '@/components/browse/CategoryCarousel';
+import { MarketCategoryCarousel } from '@/components/browse/MarketCategoryCarousel';
 import { BrowsePackageCard } from '@/components/browse/BrowsePackageCard';
 import { BrowseMarketCard } from '@/components/browse/BrowseMarketCard';
 import { BrowsePackageMap } from '@/components/browse/BrowsePackageMap';
 import { BrowseMarketMap } from '@/components/browse/BrowseMarketMap';
+import { TimeRangePicker } from '@/components/browse/TimeRangePicker';
+import { SearchSummaryPill } from '@/components/browse/SearchSummaryPill';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -14,12 +17,14 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { 
   SlidersHorizontal, X, Star, Zap, 
   ShieldCheck, LayoutGrid, Search, MapPin,
-  CalendarDays, Package, Map, Tent, Sparkles
+  CalendarDays, Package, Map, Tent, Sparkles,
+  Clock, ArrowRight, MapPinOff
 } from 'lucide-react';
-import { categories } from '@/data/categories';
+import { serviceCategories } from '@/data/service-categories';
+import { marketCategories } from '@/data/market-categories';
 import { useBrowsePackages } from '@/hooks/useBrowsePackages';
 import { useBrowseMarkets } from '@/hooks/useBrowseMarkets';
-import { format } from 'date-fns';
+import { format, addHours, subHours } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 type BrowseMode = 'services' | 'markets';
@@ -41,13 +46,20 @@ export default function Browse() {
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [selectedMarketId, setSelectedMarketId] = useState<string | null>(null);
+  const [startTime, setStartTime] = useState<string | null>(null);
+  const [endTime, setEndTime] = useState<string | null>(null);
+  const [isSearchCollapsed, setIsSearchCollapsed] = useState(false);
 
   const loading = browseMode === 'services' ? packagesLoading : marketsLoading;
   const currentFilters = browseMode === 'services' ? filters : marketFilters;
 
   const activeFiltersCount = browseMode === 'services' 
-    ? [filters.category, filters.date, filters.instantBook, filters.verified, filters.minRating].filter(Boolean).length
+    ? [filters.category, filters.date, filters.instantBook, filters.verified, filters.minRating, startTime].filter(Boolean).length
     : [marketFilters.marketType, marketFilters.date, marketFilters.category].filter(Boolean).length;
+
+  const hasSearched = browseMode === 'services' 
+    ? !!(filters.search || filters.location || filters.date || startTime)
+    : !!(marketFilters.search || marketFilters.location || marketFilters.date);
 
   // Handle filter updates based on mode
   const handleSearchChange = (value: string) => {
@@ -76,17 +88,91 @@ export default function Browse() {
     setDatePickerOpen(false);
   };
 
+  const handleStartTimeChange = (time: string | null) => {
+    if (time === 'clear') {
+      setStartTime(null);
+      setEndTime(null);
+    } else {
+      setStartTime(time);
+    }
+  };
+
+  const handleEndTimeChange = (time: string | null) => {
+    if (time === 'clear') {
+      setEndTime(null);
+    } else {
+      setEndTime(time);
+    }
+  };
+
   const handleClearFilters = () => {
     if (browseMode === 'services') {
       clearFilters();
+      setStartTime(null);
+      setEndTime(null);
     } else {
       clearMarketFilters();
+    }
+    setIsSearchCollapsed(false);
+  };
+
+  const handleExpandTime = () => {
+    if (startTime && endTime) {
+      const [startHours] = startTime.split(':').map(Number);
+      const [endHours] = endTime.split(':').map(Number);
+      const newStart = Math.max(6, startHours - 2);
+      const newEnd = Math.min(23, endHours + 2);
+      setStartTime(`${String(newStart).padStart(2, '0')}:00`);
+      setEndTime(`${String(newEnd).padStart(2, '0')}:00`);
     }
   };
 
   const searchValue = browseMode === 'services' ? filters.search : marketFilters.search;
   const locationValue = browseMode === 'services' ? filters.location : marketFilters.location;
   const dateValue = browseMode === 'services' ? filters.date : marketFilters.date;
+
+  const formatTimeDisplay = (time: string) => {
+    const [hours] = time.split(':');
+    const hour = parseInt(hours);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+    return `${displayHour}${ampm}`;
+  };
+
+  const getResultsMessage = () => {
+    if (loading) return 'Searching...';
+    
+    const count = browseMode === 'services' ? packages.length : markets.length;
+    
+    if (!hasSearched) {
+      return browseMode === 'services' 
+        ? 'Pick a date and time to see real availability'
+        : 'Search for markets near you';
+    }
+
+    if (browseMode === 'services') {
+      let message = `${count} package${count !== 1 ? 's' : ''} available`;
+      if (dateValue) {
+        message += ` on ${format(new Date(dateValue), 'MMM d')}`;
+      }
+      if (startTime && endTime) {
+        message += `, ${formatTimeDisplay(startTime)}–${formatTimeDisplay(endTime)}`;
+      }
+      if (locationValue) {
+        message += ` near ${locationValue}`;
+      }
+      return message;
+    } else {
+      let message = `${count} market${count !== 1 ? 's' : ''} with open spots`;
+      if (dateValue) {
+        message += ` on ${format(new Date(dateValue), 'MMM d')}`;
+      }
+      if (locationValue) {
+        message += ` near ${locationValue}`;
+      }
+      return message;
+    }
+  };
 
   return (
     <Layout>
@@ -124,106 +210,210 @@ export default function Browse() {
               </div>
             </div>
 
-            <div className="flex flex-col md:flex-row gap-3">
-              {/* Search Input */}
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder={browseMode === 'services' 
-                    ? "Search packages, vendors, categories..." 
-                    : "Search markets, locations..."
-                  }
-                  value={searchValue}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  className="pl-10 h-11 bg-card border-border"
+            {/* Mobile: Collapsed Search Summary */}
+            {isSearchCollapsed && hasSearched && (
+              <div className="md:hidden mb-3">
+                <SearchSummaryPill
+                  searchQuery={searchValue}
+                  location={locationValue}
+                  date={dateValue}
+                  startTime={browseMode === 'services' ? startTime : null}
+                  endTime={browseMode === 'services' ? endTime : null}
+                  onEdit={() => setIsSearchCollapsed(false)}
+                  onClear={handleClearFilters}
                 />
               </div>
+            )}
 
-              {/* Location */}
-              <div className="relative md:w-48">
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Location"
-                  value={locationValue}
-                  onChange={(e) => handleLocationChange(e.target.value)}
-                  className="pl-10 h-11 bg-card border-border"
-                />
-              </div>
+            {/* Search Fields - Mode Aware */}
+            {(!isSearchCollapsed || !hasSearched) && (
+              <>
+                {browseMode === 'services' ? (
+                  // Event Services Search
+                  <div className="flex flex-col gap-3">
+                    <div className="flex flex-col md:flex-row gap-3">
+                      {/* What are you booking? */}
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          placeholder="What are you booking?"
+                          value={searchValue}
+                          onChange={(e) => handleSearchChange(e.target.value)}
+                          className="pl-10 h-11 bg-card border-border"
+                        />
+                      </div>
 
-              {/* Date Picker */}
-              <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
-                <PopoverTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    className={`h-11 md:w-48 justify-start gap-2 ${dateValue ? 'text-foreground' : 'text-muted-foreground'}`}
-                  >
-                    <CalendarDays className="w-4 h-4" />
-                    {dateValue ? format(new Date(dateValue), 'MMM d, yyyy') : 'Event Date'}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="end">
-                  <Calendar
-                    mode="single"
-                    selected={dateValue ? new Date(dateValue) : undefined}
-                    onSelect={handleDateChange}
-                    disabled={(date) => date < new Date()}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                  {dateValue && (
-                    <div className="p-3 border-t">
+                      {/* Location */}
+                      <div className="relative md:w-44">
+                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Location"
+                          value={locationValue}
+                          onChange={(e) => handleLocationChange(e.target.value)}
+                          className="pl-10 h-11 bg-card border-border"
+                        />
+                      </div>
+
+                      {/* Event Date */}
+                      <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button 
+                            variant="outline" 
+                            className={`h-11 md:w-40 justify-start gap-2 ${dateValue ? 'text-foreground' : 'text-muted-foreground'}`}
+                          >
+                            <CalendarDays className="w-4 h-4" />
+                            {dateValue ? format(new Date(dateValue), 'MMM d, yyyy') : 'Event Date'}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="end">
+                          <Calendar
+                            mode="single"
+                            selected={dateValue ? new Date(dateValue) : undefined}
+                            onSelect={handleDateChange}
+                            disabled={(date) => date < new Date()}
+                            initialFocus
+                            className={cn("p-3 pointer-events-auto")}
+                          />
+                          {dateValue && (
+                            <div className="p-3 border-t">
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="w-full"
+                                onClick={() => handleDateChange(undefined)}
+                              >
+                                Clear date
+                              </Button>
+                            </div>
+                          )}
+                        </PopoverContent>
+                      </Popover>
+
+                      {/* Time Range */}
+                      <div className="hidden lg:block">
+                        <TimeRangePicker
+                          startTime={startTime}
+                          endTime={endTime}
+                          onStartTimeChange={handleStartTimeChange}
+                          onEndTimeChange={handleEndTimeChange}
+                        />
+                      </div>
+
+                      {/* Search Button */}
                       <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="w-full"
-                        onClick={() => handleDateChange(undefined)}
+                        variant="gradient" 
+                        className="h-11 gap-2"
+                        onClick={() => setIsSearchCollapsed(true)}
                       >
-                        Clear date
+                        <Search className="w-4 h-4" />
+                        <span className="hidden sm:inline">Search packages</span>
                       </Button>
                     </div>
-                  )}
-                </PopoverContent>
-              </Popover>
-            </div>
+
+                    {/* Time Range - Mobile */}
+                    <div className="lg:hidden">
+                      <TimeRangePicker
+                        startTime={startTime}
+                        endTime={endTime}
+                        onStartTimeChange={handleStartTimeChange}
+                        onEndTimeChange={handleEndTimeChange}
+                      />
+                    </div>
+
+                    {/* Helper text */}
+                    <p className="text-xs text-muted-foreground text-center">
+                      Results update based on availability for your selected time
+                    </p>
+                  </div>
+                ) : (
+                  // Market Spaces Search
+                  <div className="flex flex-col md:flex-row gap-3">
+                    {/* Search markets */}
+                    <div className="relative flex-1">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search markets"
+                        value={searchValue}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                        className="pl-10 h-11 bg-card border-border"
+                      />
+                    </div>
+
+                    {/* Location */}
+                    <div className="relative md:w-48">
+                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Location"
+                        value={locationValue}
+                        onChange={(e) => handleLocationChange(e.target.value)}
+                        className="pl-10 h-11 bg-card border-border"
+                      />
+                    </div>
+
+                    {/* Date Picker */}
+                    <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                      <PopoverTrigger asChild>
+                        <Button 
+                          variant="outline" 
+                          className={`h-11 md:w-48 justify-start gap-2 ${dateValue ? 'text-foreground' : 'text-muted-foreground'}`}
+                        >
+                          <CalendarDays className="w-4 h-4" />
+                          {dateValue ? format(new Date(dateValue), 'MMM d, yyyy') : 'Date'}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="end">
+                        <Calendar
+                          mode="single"
+                          selected={dateValue ? new Date(dateValue) : undefined}
+                          onSelect={handleDateChange}
+                          disabled={(date) => date < new Date()}
+                          initialFocus
+                          className={cn("p-3 pointer-events-auto")}
+                        />
+                        {dateValue && (
+                          <div className="p-3 border-t">
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="w-full"
+                              onClick={() => handleDateChange(undefined)}
+                            >
+                              Clear date
+                            </Button>
+                          </div>
+                        )}
+                      </PopoverContent>
+                    </Popover>
+
+                    {/* Search Button */}
+                    <Button 
+                      variant="gradient" 
+                      className="h-11 gap-2"
+                      onClick={() => setIsSearchCollapsed(true)}
+                    >
+                      <Search className="w-4 h-4" />
+                      <span className="hidden sm:inline">Find open spots</span>
+                    </Button>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         </div>
 
-        {/* Category Carousel - Only for Services */}
-        {browseMode === 'services' && (
+        {/* Category Carousel - Mode Specific */}
+        {browseMode === 'services' ? (
           <CategoryCarousel
-            categories={categories}
+            categories={serviceCategories}
             selectedCategory={filters.category}
             onSelectCategory={(cat) => updateFilter('category', cat)}
           />
-        )}
-
-        {/* Market Type Filter - Only for Markets */}
-        {browseMode === 'markets' && (
-          <div className="border-b border-border bg-background">
-            <div className="container mx-auto px-4 py-3">
-              <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                <Button
-                  variant={!marketFilters.marketType ? 'default' : 'outline'}
-                  size="sm"
-                  className="rounded-full whitespace-nowrap"
-                  onClick={() => updateMarketFilter('marketType', null)}
-                >
-                  All Markets
-                </Button>
-                {marketTypes.map(type => (
-                  <Button
-                    key={type}
-                    variant={marketFilters.marketType === type ? 'default' : 'outline'}
-                    size="sm"
-                    className="rounded-full whitespace-nowrap"
-                    onClick={() => updateMarketFilter('marketType', type)}
-                  >
-                    {type}
-                  </Button>
-                ))}
-              </div>
-            </div>
-          </div>
+        ) : (
+          <MarketCategoryCarousel
+            categories={marketCategories}
+            selectedCategory={marketFilters.category}
+            onSelectCategory={(cat) => updateMarketFilter('category', cat)}
+          />
         )}
 
         {/* Content Area */}
@@ -231,29 +421,29 @@ export default function Browse() {
           {/* Results Header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h1 className="font-display text-2xl font-bold text-foreground">
-                {loading ? 'Searching...' : browseMode === 'services' 
-                  ? `${packages.length} ${filters.category ? categories.find(c => c.id === filters.category)?.name || 'Packages' : 'Packages'}`
-                  : `${markets.length} Markets`
-                }
+              <h1 className="font-display text-xl md:text-2xl font-bold text-foreground">
+                {browseMode === 'services' ? 'Packages available for your event' : 'Spots available'}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
-                {dateValue 
-                  ? `Available on ${format(new Date(dateValue), 'MMMM d, yyyy')}`
-                  : browseMode === 'services'
-                    ? 'Find the perfect vendor for your event'
-                    : 'Find market spaces for your business'
-                }
+                {getResultsMessage()}
               </p>
               
               {/* Active filter badges */}
-              {((browseMode === 'services' && (filters.category || filters.date)) || 
-                (browseMode === 'markets' && (marketFilters.marketType || marketFilters.date))) && (
+              {((browseMode === 'services' && (filters.category || filters.date || startTime)) || 
+                (browseMode === 'markets' && (marketFilters.marketType || marketFilters.date || marketFilters.category))) && (
                 <div className="flex flex-wrap items-center gap-2 mt-3">
                   {browseMode === 'services' && filters.category && (
                     <Badge variant="gradient" className="gap-1">
-                      {categories.find(c => c.id === filters.category)?.name}
+                      {serviceCategories.find(c => c.id === filters.category)?.name}
                       <button onClick={() => updateFilter('category', null)}>
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  )}
+                  {browseMode === 'markets' && marketFilters.category && (
+                    <Badge variant="gradient" className="gap-1">
+                      {marketCategories.find(c => c.id === marketFilters.category)?.name}
+                      <button onClick={() => updateMarketFilter('category', null)}>
                         <X className="w-3 h-3" />
                       </button>
                     </Badge>
@@ -271,6 +461,15 @@ export default function Browse() {
                       <CalendarDays className="w-3 h-3" />
                       {format(new Date(dateValue), 'MMM d')}
                       <button onClick={() => handleDateChange(undefined)}>
+                        <X className="w-3 h-3" />
+                      </button>
+                    </Badge>
+                  )}
+                  {browseMode === 'services' && startTime && endTime && (
+                    <Badge variant="secondary" className="gap-1">
+                      <Clock className="w-3 h-3" />
+                      {formatTimeDisplay(startTime)}–{formatTimeDisplay(endTime)}
+                      <button onClick={() => { setStartTime(null); setEndTime(null); }}>
                         <X className="w-3 h-3" />
                       </button>
                     </Badge>
@@ -445,14 +644,46 @@ export default function Browse() {
                 No packages found
               </h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                {filters.date 
-                  ? `No vendors are available on ${format(new Date(filters.date), 'MMMM d, yyyy')}. Try a different date.`
+                {filters.date && startTime && endTime
+                  ? `No vendors available on ${format(new Date(filters.date), 'MMMM d')}, ${formatTimeDisplay(startTime)}–${formatTimeDisplay(endTime)}`
+                  : filters.date 
+                  ? `No vendors available on ${format(new Date(filters.date), 'MMMM d, yyyy')}. Try adjusting your search.`
                   : 'Try adjusting your search or filters to find what you\'re looking for.'
                 }
               </p>
-              <Button variant="outline" onClick={handleClearFilters}>
-                Clear All Filters
-              </Button>
+              
+              {/* Conversion actions */}
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                {startTime && endTime && (
+                  <Button variant="outline" onClick={handleExpandTime} className="gap-2">
+                    <Clock className="w-4 h-4" />
+                    Expand time ±2 hours
+                  </Button>
+                )}
+                {locationValue && (
+                  <Button variant="outline" onClick={() => handleLocationChange('')} className="gap-2">
+                    <MapPinOff className="w-4 h-4" />
+                    Try nearby areas
+                  </Button>
+                )}
+                <Button variant="outline" onClick={handleClearFilters}>
+                  Clear filters
+                </Button>
+                {(filters.date || startTime) && (
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => {
+                      handleDateChange(undefined);
+                      setStartTime(null);
+                      setEndTime(null);
+                    }}
+                    className="text-muted-foreground"
+                  >
+                    Browse without time filter
+                    <span className="text-xs ml-1">(availability may vary)</span>
+                  </Button>
+                )}
+              </div>
             </div>
           )}
 
@@ -471,9 +702,28 @@ export default function Browse() {
                   : 'Try adjusting your search or filters to find markets in your area.'
                 }
               </p>
-              <Button variant="outline" onClick={handleClearFilters}>
-                Clear All Filters
-              </Button>
+              
+              {/* Conversion actions */}
+              <div className="flex flex-wrap items-center justify-center gap-3">
+                {locationValue && (
+                  <Button variant="outline" onClick={() => handleLocationChange('')} className="gap-2">
+                    <MapPinOff className="w-4 h-4" />
+                    Try nearby areas
+                  </Button>
+                )}
+                <Button variant="outline" onClick={handleClearFilters}>
+                  Clear filters
+                </Button>
+                {marketFilters.date && (
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => handleDateChange(undefined)}
+                    className="text-muted-foreground"
+                  >
+                    Browse without date filter
+                  </Button>
+                )}
+              </div>
             </div>
           )}
         </div>
