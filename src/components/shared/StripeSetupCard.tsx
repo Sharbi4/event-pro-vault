@@ -339,7 +339,7 @@ export function StripeSetupCard({ variant, currentStatus, onStatusChange }: Stri
               </div>
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-4 h-4" />
-                Platform fee: 12.9% per transaction
+                Platform commission: 12.9% deducted from earnings
               </div>
             </div>
           </div>
