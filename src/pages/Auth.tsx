@@ -10,11 +10,34 @@ import { useAuthIntent } from '@/hooks/useAuthIntent';
 import { supabase } from '@/integrations/supabase/client';
 import logoIcon from '@/assets/logo-icon.png';
 
+// Custom hook to set favicon on auth pages
+const useAuthFavicon = () => {
+  useEffect(() => {
+    const originalFavicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
+    const originalHref = originalFavicon?.href;
+    
+    // Set auth-specific favicon
+    if (originalFavicon) {
+      originalFavicon.href = '/auth-favicon.png';
+    }
+    
+    // Restore original favicon on unmount
+    return () => {
+      if (originalFavicon && originalHref) {
+        originalFavicon.href = originalHref;
+      }
+    };
+  }, []);
+};
+
 const emailSchema = z.string().email('Please enter a valid email');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 const phoneSchema = z.string().optional();
 
 export default function Auth() {
+  // Set auth-specific favicon
+  useAuthFavicon();
+  
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, signIn, signUp, loading: authLoading } = useAuth();
