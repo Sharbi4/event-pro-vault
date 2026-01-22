@@ -685,12 +685,7 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
                         <span>${selectedBooking.baseAmount.toFixed(2)}</span>
                       </div>
                     )}
-                    {selectedBooking.platformFeeAmount && selectedBooking.platformFeeAmount > 0 && (
-                      <div className="flex justify-between text-muted-foreground">
-                        <span>Platform Fee ({((selectedBooking.platformFeeRate || 0.129) * 100).toFixed(1)}%)</span>
-                        <span>${selectedBooking.platformFeeAmount.toFixed(2)}</span>
-                      </div>
-                    )}
+                    {/* Platform fee hidden - market managers only see their net payout */}
                     <div className="flex justify-between pt-2 border-t font-semibold">
                       <span>Total Charged</span>
                       <span className="text-green-600">${selectedBooking.totalPrice.toFixed(2)}</span>
