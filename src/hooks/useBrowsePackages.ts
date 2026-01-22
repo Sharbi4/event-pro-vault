@@ -20,6 +20,9 @@ export interface BrowsePackage {
   vendor_name: string;
   vendor_avatar: string | null;
   vendor_location: string | null;
+  vendor_city: string | null;
+  vendor_state: string | null;
+  vendor_formatted_address: string | null;
   is_verified: boolean;
   // Rating info
   avg_rating: number;
@@ -105,9 +108,9 @@ export function useBrowsePackages() {
         .eq('is_active', true)
         .order('sort_order', { ascending: true });
 
-      // Apply category filter
+      // Apply category filter - use ilike for case-insensitive partial match
       if (filters.category) {
-        packagesQuery = packagesQuery.eq('category', filters.category);
+        packagesQuery = packagesQuery.ilike('category', `%${filters.category}%`);
       }
 
       // Apply instant book filter
@@ -143,7 +146,7 @@ export function useBrowsePackages() {
       const [vendorDetailsResult, profilesResult, reviewsResult, packageAvailabilityResult, packageWeeklyResult] = await Promise.all([
         supabase
           .from('vendor_details')
-          .select('user_id, business_name, service_area')
+          .select('user_id, business_name, service_area, city, state, formatted_address')
           .in('user_id', vendorIds),
         supabase
           .from('profiles')
@@ -284,6 +287,15 @@ export function useBrowsePackages() {
               : 0;
           const reviewCount = packageReviews?.count || vendorReviews?.count || 0;
 
+          // Build location string from available fields
+          const locationParts = [
+            vendorDetails?.city,
+            vendorDetails?.state
+          ].filter(Boolean);
+          const vendorLocationDisplay = locationParts.length > 0 
+            ? locationParts.join(', ')
+            : vendorDetails?.service_area || vendorDetails?.formatted_address || null;
+
           return {
             id: pkg.id,
             name: pkg.name,
@@ -301,7 +313,10 @@ export function useBrowsePackages() {
             vendor_user_id: pkg.user_id,
             vendor_name: vendorDetails?.business_name || profile?.full_name || 'Unknown Vendor',
             vendor_avatar: profile?.avatar_url,
-            vendor_location: vendorDetails?.service_area,
+            vendor_location: vendorLocationDisplay,
+            vendor_city: vendorDetails?.city || null,
+            vendor_state: vendorDetails?.state || null,
+            vendor_formatted_address: vendorDetails?.formatted_address || null,
             is_verified: profile?.stripe_account_status === 'active' && 
                         profile?.identity_verification_status === 'verified',
             avg_rating: avgRating,
@@ -322,11 +337,14 @@ export function useBrowsePackages() {
         );
       }
 
-      // Apply location filter
+      // Apply location filter - check against city, state, formatted address, and service area
       if (filters.location) {
         const locationLower = filters.location.toLowerCase();
         filteredPackages = filteredPackages.filter(pkg => 
-          pkg.vendor_location?.toLowerCase().includes(locationLower)
+          pkg.vendor_location?.toLowerCase().includes(locationLower) ||
+          pkg.vendor_city?.toLowerCase().includes(locationLower) ||
+          pkg.vendor_state?.toLowerCase().includes(locationLower) ||
+          pkg.vendor_formatted_address?.toLowerCase().includes(locationLower)
         );
       }
 

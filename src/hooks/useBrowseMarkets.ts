@@ -179,13 +179,13 @@ export function useBrowseMarkets() {
         );
       }
 
-      // Category filter - check if market allows this vendor category
+      // Category filter - for market categories, filter by market type
+      // Convert category ID (like 'farmers-markets') to match market_type (like 'farmers_market')
       if (filters.category) {
+        const categoryLower = filters.category.toLowerCase().replace(/-/g, '_').replace(/s$/, '');
         filteredMarkets = filteredMarkets.filter(m => 
-          m.categoriesAllowed.length === 0 || // If no restrictions, show all
-          m.categoriesAllowed.some(cat => 
-            cat.toLowerCase().includes(filters.category!.toLowerCase())
-          )
+          m.marketType.toLowerCase().replace(/-/g, '_').includes(categoryLower) ||
+          m.marketType.toLowerCase().includes(filters.category!.toLowerCase().replace(/-/g, ' '))
         );
       }
 
