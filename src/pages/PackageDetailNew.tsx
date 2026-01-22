@@ -156,6 +156,7 @@ export default function PackageDetail() {
           {/* Right column - Booking card (desktop) */}
           <div className="hidden lg:block">
             <StickyBookingCard
+              packageId={packageData.id}
               price={packageData.price}
               type={packageData.type}
               pricingType={packageData.pricing_type}

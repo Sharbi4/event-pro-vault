@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
@@ -10,17 +10,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 import { 
-  CalendarIcon, Clock, MapPin, CreditCard, Banknote, 
+  Clock, MapPin, CreditCard, Banknote, 
   Zap, ShieldCheck, Check, ChevronLeft, ChevronRight,
-  Loader2, Users, FileText, X
+  Loader2, Users, FileText, AlertCircle, Calendar as CalendarAlt
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, getDay, isSameDay, parseISO } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBookings } from '@/hooks/useBookings';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { usePackageAvailabilityCheck } from '@/hooks/usePackageAvailabilityCheck';
 
 interface BookingModalProps {
   open: boolean;
@@ -83,6 +85,17 @@ export function BookingModal({
   const { toast } = useToast();
   const isMobile = useIsMobile();
   
+  // Availability checking
+  const {
+    loading: availabilityLoading,
+    isDateAvailable,
+    isTimeAvailable,
+    getUnavailableDates,
+    getDisabledDaysOfWeek,
+    findAlternatives,
+    getAvailableHours
+  } = usePackageAvailabilityCheck(packageId);
+  
   const [currentStep, setCurrentStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -99,6 +112,31 @@ export function BookingModal({
     paymentOptions === 'CASH' ? 'cash' : initialPaymentMethod
   );
 
+  // Availability status for selected date
+  const dateAvailability = useMemo(() => {
+    if (!eventDate) return null;
+    return isDateAvailable(eventDate);
+  }, [eventDate, isDateAvailable]);
+
+  const timeAvailability = useMemo(() => {
+    if (!eventDate) return null;
+    return isTimeAvailable(eventDate, startTime, endTime);
+  }, [eventDate, startTime, endTime, isTimeAvailable]);
+
+  const alternatives = useMemo(() => {
+    if (!eventDate || dateAvailability?.available) return [];
+    return findAlternatives(eventDate, 3);
+  }, [eventDate, dateAvailability, findAlternatives]);
+
+  const availableHours = useMemo(() => {
+    if (!eventDate) return null;
+    return getAvailableHours(eventDate);
+  }, [eventDate, getAvailableHours]);
+
+  // Calendar disabled dates - memoize to prevent re-renders
+  const disabledDaysOfWeek = useMemo(() => getDisabledDaysOfWeek(), [getDisabledDaysOfWeek]);
+  const unavailableDates = useMemo(() => getUnavailableDates(), [getUnavailableDates]);
+
   // Reset on open
   useEffect(() => {
     if (open) {
@@ -108,6 +146,24 @@ export function BookingModal({
       setPaymentMethod(paymentOptions === 'CASH' ? 'cash' : initialPaymentMethod);
     }
   }, [open, initialDate, paymentOptions, initialPaymentMethod]);
+
+  // Auto-adjust times when date changes
+  useEffect(() => {
+    if (availableHours) {
+      // If current start time is before available start, adjust it
+      const startNum = parseInt(startTime.replace(':', ''));
+      const availStartNum = parseInt(availableHours.start.replace(':', ''));
+      if (startNum < availStartNum) {
+        setStartTime(availableHours.start.slice(0, 5));
+      }
+      // If current end time is after available end, adjust it
+      const endNum = parseInt(endTime.replace(':', ''));
+      const availEndNum = parseInt(availableHours.end.replace(':', ''));
+      if (endNum > availEndNum) {
+        setEndTime(availableHours.end.slice(0, 5));
+      }
+    }
+  }, [availableHours]);
 
   const isInstant = bookingMode === 'INSTANT';
   const showPaymentStep = paymentOptions === 'BOTH';
@@ -137,7 +193,11 @@ export function BookingModal({
     const step = activeSteps[currentStep];
     switch (step.id) {
       case 'date':
-        return !!eventDate;
+        // Must have date, date must be available, and time must be available
+        if (!eventDate) return false;
+        if (!dateAvailability?.available) return false;
+        if (type === 'HOURLY' && !timeAvailability?.available) return false;
+        return true;
       case 'details':
         return !!eventType && !!venue;
       case 'payment':
@@ -254,66 +314,159 @@ export function BookingModal({
       case 'date':
         return (
           <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                Event Date
-              </label>
-              <Calendar
-                mode="single"
-                selected={eventDate}
-                onSelect={setEventDate}
-                disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                className="rounded-xl border mx-auto"
-              />
-            </div>
-
-            {type === 'HOURLY' && (
-              <div className="grid grid-cols-2 gap-4">
+            {availabilityLoading ? (
+              <div className="space-y-4">
+                <Skeleton className="h-[280px] w-full rounded-xl" />
+                <Skeleton className="h-12 w-full rounded-xl" />
+              </div>
+            ) : (
+              <>
                 <div>
                   <label className="block text-sm font-medium text-foreground mb-2">
-                    Start Time
+                    Event Date
                   </label>
-                  <Input
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
+                  <Calendar
+                    mode="single"
+                    selected={eventDate}
+                    onSelect={setEventDate}
+                    disabled={(date) => {
+                      // Past dates
+                      if (date < new Date(new Date().setHours(0, 0, 0, 0))) return true;
+                      // Disabled days of week
+                      if (disabledDaysOfWeek.includes(getDay(date))) return true;
+                      // Specific blocked dates
+                      if (unavailableDates.some(d => isSameDay(d, date))) return true;
+                      return false;
+                    }}
+                    modifiers={{
+                      unavailable: unavailableDates
+                    }}
+                    modifiersClassNames={{
+                      unavailable: "line-through text-muted-foreground/50"
+                    }}
+                    className="rounded-xl border mx-auto"
                   />
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    End Time
-                  </label>
-                  <Input
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                  />
-                </div>
-              </div>
-            )}
 
-            {eventDate && (
-              <div className="p-4 rounded-xl bg-muted/50 border">
-                <div className="flex items-center gap-2 mb-2">
-                  {isInstant ? (
-                    <Badge variant="trust" className="gap-1">
-                      <Zap className="w-3 h-3" />
-                      Instant confirmation
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary" className="gap-1">
-                      <ShieldCheck className="w-3 h-3" />
-                      Requires approval
-                    </Badge>
-                  )}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {isInstant 
-                    ? 'Your booking will be confirmed immediately'
-                    : 'The Event Pro will review and respond to your request'
-                  }
-                </p>
-              </div>
+                {/* Availability status for selected date */}
+                {eventDate && !dateAvailability?.available && (
+                  <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/20">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="font-medium text-destructive mb-1">
+                          Not available on this date
+                        </p>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          {dateAvailability?.reason || 'This date is unavailable'}
+                        </p>
+                        
+                        {/* Alternative dates */}
+                        {alternatives.length > 0 && (
+                          <div>
+                            <p className="text-sm font-medium text-foreground mb-2">
+                              Try these nearby dates:
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                              {alternatives.map(alt => (
+                                <Button
+                                  key={alt.toISOString()}
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-xs"
+                                  onClick={() => setEventDate(alt)}
+                                >
+                                  <CalendarAlt className="w-3 h-3 mr-1" />
+                                  {format(alt, 'MMM d')}
+                                </Button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {type === 'HOURLY' && eventDate && dateAvailability?.available && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          Start Time
+                        </label>
+                        <Input
+                          type="time"
+                          value={startTime}
+                          onChange={(e) => setStartTime(e.target.value)}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-foreground mb-2">
+                          End Time
+                        </label>
+                        <Input
+                          type="time"
+                          value={endTime}
+                          onChange={(e) => setEndTime(e.target.value)}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Available hours hint */}
+                    {availableHours && (
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        Available: {availableHours.start.slice(0, 5)} – {availableHours.end.slice(0, 5)}
+                      </p>
+                    )}
+
+                    {/* Time validation error */}
+                    {!timeAvailability?.available && (
+                      <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+                        <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4" />
+                          {timeAvailability?.reason || 'Selected time is outside available hours'}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* For non-hourly, just show time selection when date is available */}
+                {type !== 'HOURLY' && eventDate && dateAvailability?.available && (
+                  <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                    <div className="flex items-center gap-2 text-primary">
+                      <Check className="w-4 h-4" />
+                      <span className="font-medium">Available on {format(eventDate, 'PPP')}</span>
+                    </div>
+                  </div>
+                )}
+
+                {eventDate && dateAvailability?.available && (!type || type !== 'HOURLY' || timeAvailability?.available) && (
+                  <div className="p-4 rounded-xl bg-muted/50 border">
+                    <div className="flex items-center gap-2 mb-2">
+                      {isInstant ? (
+                        <Badge variant="trust" className="gap-1">
+                          <Zap className="w-3 h-3" />
+                          Instant confirmation
+                        </Badge>
+                      ) : (
+                        <Badge variant="secondary" className="gap-1">
+                          <ShieldCheck className="w-3 h-3" />
+                          Requires approval
+                        </Badge>
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {isInstant 
+                        ? 'Your booking will be confirmed immediately'
+                        : 'The Event Pro will review and respond to your request'
+                      }
+                    </p>
+                  </div>
+                )}
+              </>
             )}
           </div>
         );
