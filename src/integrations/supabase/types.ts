@@ -131,6 +131,87 @@ export type Database = {
         }
         Relationships: []
       }
+      markets: {
+        Row: {
+          bookings_enabled: boolean | null
+          breakdown_window_minutes: number | null
+          categories_allowed: string[] | null
+          city: string | null
+          cover_image_url: string | null
+          created_at: string
+          crowd_description: string | null
+          description: string | null
+          formatted_address: string | null
+          id: string
+          is_published: boolean | null
+          lat: number | null
+          lng: number | null
+          market_type: string
+          media_items: Json | null
+          name: string
+          operating_season: string | null
+          seasonal_months: string[] | null
+          setup_window_minutes: number | null
+          state: string | null
+          timezone: string | null
+          updated_at: string
+          user_id: string
+          weekly_schedule: Json | null
+        }
+        Insert: {
+          bookings_enabled?: boolean | null
+          breakdown_window_minutes?: number | null
+          categories_allowed?: string[] | null
+          city?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          crowd_description?: string | null
+          description?: string | null
+          formatted_address?: string | null
+          id?: string
+          is_published?: boolean | null
+          lat?: number | null
+          lng?: number | null
+          market_type: string
+          media_items?: Json | null
+          name: string
+          operating_season?: string | null
+          seasonal_months?: string[] | null
+          setup_window_minutes?: number | null
+          state?: string | null
+          timezone?: string | null
+          updated_at?: string
+          user_id: string
+          weekly_schedule?: Json | null
+        }
+        Update: {
+          bookings_enabled?: boolean | null
+          breakdown_window_minutes?: number | null
+          categories_allowed?: string[] | null
+          city?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          crowd_description?: string | null
+          description?: string | null
+          formatted_address?: string | null
+          id?: string
+          is_published?: boolean | null
+          lat?: number | null
+          lng?: number | null
+          market_type?: string
+          media_items?: Json | null
+          name?: string
+          operating_season?: string | null
+          seasonal_months?: string[] | null
+          setup_window_minutes?: number | null
+          state?: string | null
+          timezone?: string | null
+          updated_at?: string
+          user_id?: string
+          weekly_schedule?: Json | null
+        }
+        Relationships: []
+      }
       package_availability: {
         Row: {
           created_at: string
@@ -258,6 +339,7 @@ export type Database = {
           onboarding_step: string | null
           phone: string | null
           primary_city: string | null
+          profile_type: string | null
           short_bio: string | null
           stripe_account_id: string | null
           stripe_account_status: string | null
@@ -281,6 +363,7 @@ export type Database = {
           onboarding_step?: string | null
           phone?: string | null
           primary_city?: string | null
+          profile_type?: string | null
           short_bio?: string | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
@@ -304,6 +387,7 @@ export type Database = {
           onboarding_step?: string | null
           phone?: string | null
           primary_city?: string | null
+          profile_type?: string | null
           short_bio?: string | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
@@ -380,6 +464,222 @@ export type Database = {
             columns: ["package_id"]
             isOneToOne: false
             referencedRelation: "vendor_packages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      slot_bookings: {
+        Row: {
+          created_at: string
+          id: string
+          market_id: string
+          notes: string | null
+          payment_method: string | null
+          payment_status: string | null
+          quantity: number
+          slot_inventory_id: string
+          slot_type_id: string
+          status: string
+          stripe_payment_intent_id: string | null
+          total_price: number
+          updated_at: string
+          user_id: string
+          vendor_email: string | null
+          vendor_name: string | null
+          vendor_phone: string | null
+          vendor_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          market_id: string
+          notes?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          quantity?: number
+          slot_inventory_id: string
+          slot_type_id: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          total_price: number
+          updated_at?: string
+          user_id: string
+          vendor_email?: string | null
+          vendor_name?: string | null
+          vendor_phone?: string | null
+          vendor_user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          market_id?: string
+          notes?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          quantity?: number
+          slot_inventory_id?: string
+          slot_type_id?: string
+          status?: string
+          stripe_payment_intent_id?: string | null
+          total_price?: number
+          updated_at?: string
+          user_id?: string
+          vendor_email?: string | null
+          vendor_name?: string | null
+          vendor_phone?: string | null
+          vendor_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slot_bookings_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "slot_bookings_slot_inventory_id_fkey"
+            columns: ["slot_inventory_id"]
+            isOneToOne: false
+            referencedRelation: "slot_inventory"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "slot_bookings_slot_type_id_fkey"
+            columns: ["slot_type_id"]
+            isOneToOne: false
+            referencedRelation: "slot_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      slot_inventory: {
+        Row: {
+          created_at: string
+          date: string
+          end_time: string
+          id: string
+          market_id: string
+          notes: string | null
+          price_override: number | null
+          slot_type_id: string
+          slots_remaining: number
+          start_time: string
+          total_slots: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          end_time: string
+          id?: string
+          market_id: string
+          notes?: string | null
+          price_override?: number | null
+          slot_type_id: string
+          slots_remaining?: number
+          start_time: string
+          total_slots?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          end_time?: string
+          id?: string
+          market_id?: string
+          notes?: string | null
+          price_override?: number | null
+          slot_type_id?: string
+          slots_remaining?: number
+          start_time?: string
+          total_slots?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slot_inventory_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "slot_inventory_slot_type_id_fkey"
+            columns: ["slot_type_id"]
+            isOneToOne: false
+            referencedRelation: "slot_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      slot_types: {
+        Row: {
+          amenities: string[] | null
+          category: string
+          created_at: string
+          id: string
+          is_active: boolean | null
+          length_feet: number | null
+          market_id: string
+          name: string
+          notes: string | null
+          price: number
+          pricing_unit: string
+          requirements: string[] | null
+          size_preset: string | null
+          sort_order: number | null
+          updated_at: string
+          user_id: string
+          width_feet: number | null
+        }
+        Insert: {
+          amenities?: string[] | null
+          category: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          length_feet?: number | null
+          market_id: string
+          name: string
+          notes?: string | null
+          price: number
+          pricing_unit?: string
+          requirements?: string[] | null
+          size_preset?: string | null
+          sort_order?: number | null
+          updated_at?: string
+          user_id: string
+          width_feet?: number | null
+        }
+        Update: {
+          amenities?: string[] | null
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          length_feet?: number | null
+          market_id?: string
+          name?: string
+          notes?: string | null
+          price?: number
+          pricing_unit?: string
+          requirements?: string[] | null
+          size_preset?: string | null
+          sort_order?: number | null
+          updated_at?: string
+          user_id?: string
+          width_feet?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slot_types_market_id_fkey"
+            columns: ["market_id"]
+            isOneToOne: false
+            referencedRelation: "markets"
             referencedColumns: ["id"]
           },
         ]
