@@ -30,6 +30,8 @@ export interface BrowseFilters {
   search: string;
   category: string | null;
   date: string | null;
+  startTime: string | null;
+  endTime: string | null;
   location: string;
   instantBook: boolean;
   verified: boolean;
@@ -38,6 +40,28 @@ export interface BrowseFilters {
   minPrice: number | null;
 }
 
+// Helper to convert time string to minutes for comparison
+const timeToMinutes = (time: string): number => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + (minutes || 0);
+};
+
+// Check if two time ranges overlap
+const timeRangesOverlap = (
+  requestStart: string,
+  requestEnd: string,
+  availStart: string,
+  availEnd: string
+): boolean => {
+  const reqStartMins = timeToMinutes(requestStart);
+  const reqEndMins = timeToMinutes(requestEnd);
+  const availStartMins = timeToMinutes(availStart);
+  const availEndMins = timeToMinutes(availEnd);
+  
+  // Request must be fully contained within availability window
+  return reqStartMins >= availStartMins && reqEndMins <= availEndMins;
+};
+
 export function useBrowsePackages() {
   const [packages, setPackages] = useState<BrowsePackage[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,6 +69,8 @@ export function useBrowsePackages() {
     search: '',
     category: null,
     date: null,
+    startTime: null,
+    endTime: null,
     location: '',
     instantBook: false,
     verified: false,
@@ -136,10 +162,10 @@ export function useBrowsePackages() {
           .in('package_id', packageIds)
           .eq('date', filters.date)
           .eq('is_blocked', true) : Promise.resolve({ data: [] }),
-        // Fetch package weekly availability
+        // Fetch package weekly availability with time ranges
         supabase
           .from('package_weekly_availability')
-          .select('package_id, day_of_week, is_enabled')
+          .select('package_id, day_of_week, is_enabled, start_time, end_time')
           .in('package_id', packageIds)
       ]);
 
@@ -160,13 +186,18 @@ export function useBrowsePackages() {
         (packageAvailabilityResult.data || []).map((a: any) => a.package_id)
       );
 
-      // Build package weekly availability map
-      const packageWeeklyMap = new Map<string, Map<number, boolean>>();
+      // Build package weekly availability map with time ranges
+      // Map structure: package_id -> day_of_week -> { is_enabled, start_time, end_time }
+      const packageWeeklyMap = new Map<string, Map<number, { is_enabled: boolean; start_time: string; end_time: string }>>();
       (packageWeeklyResult.data || []).forEach((w: any) => {
         if (!packageWeeklyMap.has(w.package_id)) {
           packageWeeklyMap.set(w.package_id, new Map());
         }
-        packageWeeklyMap.get(w.package_id)!.set(w.day_of_week, w.is_enabled);
+        packageWeeklyMap.get(w.package_id)!.set(w.day_of_week, {
+          is_enabled: w.is_enabled,
+          start_time: w.start_time,
+          end_time: w.end_time
+        });
       });
 
       // Check if package is available on selected day of week
@@ -214,10 +245,32 @@ export function useBrowsePackages() {
           // Skip if this package is not available on the selected day of week
           if (selectedDayOfWeek !== null) {
             const packageWeekly = packageWeeklyMap.get(pkg.id);
-            // If package has weekly availability set and the day is disabled, skip
-            if (packageWeekly && packageWeekly.has(selectedDayOfWeek) && !packageWeekly.get(selectedDayOfWeek)) {
-              return null;
+            
+            if (packageWeekly && packageWeekly.has(selectedDayOfWeek)) {
+              const dayAvailability = packageWeekly.get(selectedDayOfWeek)!;
+              
+              // If day is disabled, skip this package
+              if (!dayAvailability.is_enabled) {
+                return null;
+              }
+
+              // If time range filter is applied, check if requested time fits within availability
+              if (filters.startTime && filters.endTime && dayAvailability.start_time && dayAvailability.end_time) {
+                const isTimeAvailable = timeRangesOverlap(
+                  filters.startTime,
+                  filters.endTime,
+                  dayAvailability.start_time,
+                  dayAvailability.end_time
+                );
+                
+                if (!isTimeAvailable) {
+                  return null;
+                }
+              }
             }
+          } else if (filters.startTime && filters.endTime) {
+            // If no date selected but time range is set, we can't filter by time
+            // Just show all packages (time filtering requires a date to determine day of week)
           }
 
           const packageReviews = reviewsByPackage.get(pkg.id);
@@ -317,6 +370,8 @@ export function useBrowsePackages() {
       search: '',
       category: null,
       date: null,
+      startTime: null,
+      endTime: null,
       location: '',
       instantBook: false,
       verified: false,

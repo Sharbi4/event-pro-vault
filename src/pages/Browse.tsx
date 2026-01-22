@@ -46,19 +46,20 @@ export default function Browse() {
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [selectedMarketId, setSelectedMarketId] = useState<string | null>(null);
-  const [startTime, setStartTime] = useState<string | null>(null);
-  const [endTime, setEndTime] = useState<string | null>(null);
   const [isSearchCollapsed, setIsSearchCollapsed] = useState(false);
 
   const loading = browseMode === 'services' ? packagesLoading : marketsLoading;
-  const currentFilters = browseMode === 'services' ? filters : marketFilters;
+
+  // Use time from hook filters
+  const startTime = filters.startTime;
+  const endTime = filters.endTime;
 
   const activeFiltersCount = browseMode === 'services' 
-    ? [filters.category, filters.date, filters.instantBook, filters.verified, filters.minRating, startTime].filter(Boolean).length
+    ? [filters.category, filters.date, filters.instantBook, filters.verified, filters.minRating, filters.startTime].filter(Boolean).length
     : [marketFilters.marketType, marketFilters.date, marketFilters.category].filter(Boolean).length;
 
   const hasSearched = browseMode === 'services' 
-    ? !!(filters.search || filters.location || filters.date || startTime)
+    ? !!(filters.search || filters.location || filters.date || filters.startTime)
     : !!(marketFilters.search || marketFilters.location || marketFilters.date);
 
   // Handle filter updates based on mode
@@ -90,26 +91,24 @@ export default function Browse() {
 
   const handleStartTimeChange = (time: string | null) => {
     if (time === 'clear') {
-      setStartTime(null);
-      setEndTime(null);
+      updateFilter('startTime', null);
+      updateFilter('endTime', null);
     } else {
-      setStartTime(time);
+      updateFilter('startTime', time);
     }
   };
 
   const handleEndTimeChange = (time: string | null) => {
     if (time === 'clear') {
-      setEndTime(null);
+      updateFilter('endTime', null);
     } else {
-      setEndTime(time);
+      updateFilter('endTime', time);
     }
   };
 
   const handleClearFilters = () => {
     if (browseMode === 'services') {
       clearFilters();
-      setStartTime(null);
-      setEndTime(null);
     } else {
       clearMarketFilters();
     }
@@ -122,8 +121,8 @@ export default function Browse() {
       const [endHours] = endTime.split(':').map(Number);
       const newStart = Math.max(6, startHours - 2);
       const newEnd = Math.min(23, endHours + 2);
-      setStartTime(`${String(newStart).padStart(2, '0')}:00`);
-      setEndTime(`${String(newEnd).padStart(2, '0')}:00`);
+      updateFilter('startTime', `${String(newStart).padStart(2, '0')}:00`);
+      updateFilter('endTime', `${String(newEnd).padStart(2, '0')}:00`);
     }
   };
 
@@ -469,7 +468,7 @@ export default function Browse() {
                     <Badge variant="secondary" className="gap-1">
                       <Clock className="w-3 h-3" />
                       {formatTimeDisplay(startTime)}–{formatTimeDisplay(endTime)}
-                      <button onClick={() => { setStartTime(null); setEndTime(null); }}>
+                      <button onClick={() => { updateFilter('startTime', null); updateFilter('endTime', null); }}>
                         <X className="w-3 h-3" />
                       </button>
                     </Badge>
@@ -674,8 +673,8 @@ export default function Browse() {
                     variant="ghost" 
                     onClick={() => {
                       handleDateChange(undefined);
-                      setStartTime(null);
-                      setEndTime(null);
+                      updateFilter('startTime', null);
+                      updateFilter('endTime', null);
                     }}
                     className="text-muted-foreground"
                   >
