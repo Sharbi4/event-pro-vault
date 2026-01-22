@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,6 +12,7 @@ import { VendorBookings } from '@/components/vendor-dashboard/VendorBookings';
 import { VendorListings } from '@/components/vendor-dashboard/VendorListings';
 import { VendorAvailability } from '@/components/vendor-dashboard/VendorAvailability';
 import { VendorEarnings } from '@/components/vendor-dashboard/VendorEarnings';
+import { AvatarUpload } from '@/components/vendor-dashboard/AvatarUpload';
 
 const VendorDashboard = () => {
   const navigate = useNavigate();
@@ -33,8 +34,18 @@ const VendorDashboard = () => {
     deletePackage,
     duplicatePackage,
     reorderPackages,
-    updateBookingStatus
+    updateBookingStatus,
+    refetch
   } = useVendorDashboard();
+  
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  
+  // Sync avatar URL from profile
+  useEffect(() => {
+    if (profile?.avatar_url) {
+      setAvatarUrl(profile.avatar_url);
+    }
+  }, [profile?.avatar_url]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -163,6 +174,22 @@ const VendorDashboard = () => {
 
           <TabsContent value="settings">
             <div className="grid gap-6">
+              {/* Profile Photo Section */}
+              <div className="p-6 rounded-lg border bg-card">
+                <div className="flex items-center gap-2 mb-6">
+                  <User className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold">Profile Photo</h3>
+                </div>
+                <AvatarUpload
+                  currentAvatarUrl={avatarUrl}
+                  displayName={profile?.display_name || profile?.full_name}
+                  onUploadComplete={(url) => {
+                    setAvatarUrl(url || null);
+                    refetch();
+                  }}
+                />
+              </div>
+
               {/* Public Profile Section */}
               <div className="p-6 rounded-lg border bg-card">
                 <div className="flex items-center gap-2 mb-4">
