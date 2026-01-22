@@ -19,6 +19,7 @@ import { StepBasicInfo } from './StepBasicInfo';
 import { StepPricingTravel } from './StepPricingTravel';
 import { StepInclusions } from './StepInclusions';
 import { StepMedia } from './StepMedia';
+import { StepAvailability, PackageWeeklyAvailability, PackageBlockedDate, getDefaultWeeklyAvailability } from './StepAvailability';
 import { PackagePreview } from './PackagePreview';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -60,12 +61,15 @@ export interface PackageFormData {
   is_active: boolean;
   sort_order: number;
   images: string[];
+  // Package-level availability
+  weekly_availability: PackageWeeklyAvailability[];
+  blocked_dates: PackageBlockedDate[];
 }
 
 interface PackageFormWizardProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: (data: Omit<VendorPackage, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => Promise<void>;
+  onSubmit: (data: Omit<VendorPackage, 'id' | 'user_id' | 'created_at' | 'updated_at'>, availability?: { weekly: PackageWeeklyAvailability[]; blocked: PackageBlockedDate[] }) => Promise<void>;
   initialData?: VendorPackage | null;
 }
 
@@ -73,8 +77,9 @@ const STEPS = [
   { id: 'basic', label: 'Basics', shortLabel: '1' },
   { id: 'pricing', label: 'Pricing', shortLabel: '2' },
   { id: 'inclusions', label: 'Details', shortLabel: '3' },
-  { id: 'media', label: 'Media', shortLabel: '4' },
-  { id: 'preview', label: 'Preview', shortLabel: '5' },
+  { id: 'availability', label: 'Availability', shortLabel: '4' },
+  { id: 'media', label: 'Media', shortLabel: '5' },
+  { id: 'preview', label: 'Preview', shortLabel: '6' },
 ];
 
 const defaultFormData: PackageFormData = {
@@ -100,6 +105,8 @@ const defaultFormData: PackageFormData = {
   is_active: true,
   sort_order: 0,
   images: [],
+  weekly_availability: getDefaultWeeklyAvailability(),
+  blocked_dates: [],
 };
 
 export function PackageFormWizard({
@@ -149,6 +156,8 @@ export function PackageFormWizard({
         is_active: initialData.is_active,
         sort_order: initialData.sort_order,
         images: initialData.images || [],
+        weekly_availability: getDefaultWeeklyAvailability(),
+        blocked_dates: [],
       });
     } else {
       setFormData(defaultFormData);
@@ -174,6 +183,12 @@ export function PackageFormWizard({
 
   const handleSubmit = async () => {
     setLoading(true);
+    // Extract availability data separately
+    const availability = {
+      weekly: formData.weekly_availability,
+      blocked: formData.blocked_dates,
+    };
+    
     // Cast formData to match expected type, providing defaults for nullable fields
     const submitData = {
       ...formData,
@@ -191,7 +206,12 @@ export function PackageFormWizard({
       fee_per_mile: formData.fee_per_mile ?? null,
       pickup_only: formData.pickup_only ?? null,
     } as any;
-    await onSubmit(submitData);
+    
+    // Remove availability fields from package data (stored separately)
+    delete submitData.weekly_availability;
+    delete submitData.blocked_dates;
+    
+    await onSubmit(submitData, availability);
     setLoading(false);
     onClose();
   };
@@ -201,7 +221,12 @@ export function PackageFormWizard({
       case 0:
         return formData.name.trim().length > 0 && formData.category.length > 0;
       case 1:
+        // Custom quote doesn't require price
+        if (formData.pricing_type === 'custom_quote') return true;
         return formData.price > 0;
+      case 3:
+        // Availability: at least one day enabled
+        return formData.weekly_availability.some(d => d.isEnabled);
       default:
         return true;
     }
@@ -308,9 +333,18 @@ export function PackageFormWizard({
         <StepInclusions formData={formData} updateFormData={updateFormData} />
       )}
       {currentStep === 3 && (
-        <StepMedia formData={formData} updateFormData={updateFormData} />
+        <StepAvailability
+          packageId={initialData?.id}
+          weeklyAvailability={formData.weekly_availability}
+          blockedDates={formData.blocked_dates}
+          onWeeklyChange={(weekly) => updateFormData({ weekly_availability: weekly })}
+          onBlockedDatesChange={(blocked) => updateFormData({ blocked_dates: blocked })}
+        />
       )}
       {currentStep === 4 && (
+        <StepMedia formData={formData} updateFormData={updateFormData} />
+      )}
+      {currentStep === 5 && (
         <PackagePreview formData={formData} />
       )}
     </div>
