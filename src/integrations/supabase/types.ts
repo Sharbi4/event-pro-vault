@@ -155,6 +155,8 @@ export type Database = {
           seasonal_months: string[] | null
           setup_window_minutes: number | null
           state: string | null
+          stripe_account_id: string | null
+          stripe_account_status: string | null
           timezone: string | null
           updated_at: string
           user_id: string
@@ -183,6 +185,8 @@ export type Database = {
           seasonal_months?: string[] | null
           setup_window_minutes?: number | null
           state?: string | null
+          stripe_account_id?: string | null
+          stripe_account_status?: string | null
           timezone?: string | null
           updated_at?: string
           user_id: string
@@ -211,6 +215,8 @@ export type Database = {
           seasonal_months?: string[] | null
           setup_window_minutes?: number | null
           state?: string | null
+          stripe_account_id?: string | null
+          stripe_account_status?: string | null
           timezone?: string | null
           updated_at?: string
           user_id?: string

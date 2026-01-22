@@ -17,6 +17,7 @@ import {
 import { format, isAfter, parseISO } from 'date-fns';
 import { SlotType, SlotInventoryItem } from '@/hooks/useMarketSpaceOnboarding';
 import { SlotBooking } from '@/hooks/useMarketSpaceDashboard';
+import { MarketPayoutStatus } from './MarketPayoutStatus';
 
 interface OverviewTabProps {
   market: {
@@ -78,6 +79,9 @@ export function OverviewTab({
 
   return (
     <div className="space-y-6">
+      {/* Payout Status Banner */}
+      <MarketPayoutStatus variant="banner" onNavigateTab={onNavigateTab} />
+
       {/* Next Market Day Card */}
       <Card className="overflow-hidden">
         <div className="gradient-primary p-6 text-white">
