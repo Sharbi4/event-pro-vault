@@ -25,11 +25,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import { StripeSetupCard } from '@/components/shared/StripeSetupCard';
 
 interface SettingsTabProps {
   market: {
     isPublished: boolean;
     bookingsEnabled: boolean;
+    stripeAccountStatus?: string | null;
   };
   bookingMode: 'instant' | 'request';
   onUpdateBookingMode: (mode: 'instant' | 'request') => void;
@@ -48,7 +50,11 @@ export function SettingsTab({
 
   return (
     <div className="space-y-6 max-w-2xl">
-      {/* Booking Mode */}
+      {/* Stripe Payouts Setup */}
+      <StripeSetupCard 
+        variant="market" 
+        currentStatus={market.stripeAccountStatus}
+      />
       <Card>
         <CardContent className="p-6">
           <h3 className="font-semibold flex items-center gap-2 mb-4">

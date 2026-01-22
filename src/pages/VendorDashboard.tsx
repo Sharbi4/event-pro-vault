@@ -17,6 +17,7 @@ import { VendorMarketBookings } from '@/components/vendor-dashboard/VendorMarket
 import { AvatarUpload } from '@/components/vendor-dashboard/AvatarUpload';
 import { CoverPhotoUpload } from '@/components/vendor-dashboard/CoverPhotoUpload';
 import { StripeConnectBanner } from '@/components/vendor-dashboard/StripeConnectBanner';
+import { StripeSetupCard } from '@/components/shared/StripeSetupCard';
 
 const VendorDashboard = () => {
   const navigate = useNavigate();
@@ -296,15 +297,12 @@ const VendorDashboard = () => {
                 </div>
               </div>
 
-              <div className="p-6 rounded-lg border bg-card">
-                <h3 className="font-semibold mb-4">Payout Settings</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Configure your payout preferences and bank account details.
-                </p>
-                <Button variant="outline" disabled>
-                  Coming Soon
-                </Button>
-              </div>
+              {/* Stripe Payouts Setup - Detailed */}
+              <StripeSetupCard 
+                variant="vendor" 
+                currentStatus={profile?.stripe_account_status}
+                onStatusChange={refetch}
+              />
             </div>
           </TabsContent>
         </Tabs>
