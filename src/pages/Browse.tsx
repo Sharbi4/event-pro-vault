@@ -4,6 +4,7 @@ import { CategoryCarousel } from '@/components/browse/CategoryCarousel';
 import { BrowsePackageCard } from '@/components/browse/BrowsePackageCard';
 import { BrowseMarketCard } from '@/components/browse/BrowseMarketCard';
 import { BrowsePackageMap } from '@/components/browse/BrowsePackageMap';
+import { BrowseMarketMap } from '@/components/browse/BrowseMarketMap';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -39,6 +40,7 @@ export default function Browse() {
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
+  const [selectedMarketId, setSelectedMarketId] = useState<string | null>(null);
 
   const loading = browseMode === 'services' ? packagesLoading : marketsLoading;
   const currentFilters = browseMode === 'services' ? filters : marketFilters;
@@ -422,13 +424,14 @@ export default function Browse() {
             </div>
           )}
 
-          {/* Map View - Markets (placeholder for now) */}
+          {/* Map View - Markets */}
           {!loading && browseMode === 'markets' && markets.length > 0 && viewMode === 'map' && (
-            <div className="h-[600px] lg:h-[700px] rounded-xl overflow-hidden bg-muted flex items-center justify-center">
-              <div className="text-center">
-                <Map className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Market map view coming soon</p>
-              </div>
+            <div className="h-[600px] lg:h-[700px] rounded-xl overflow-hidden">
+              <BrowseMarketMap 
+                markets={markets}
+                selectedMarketId={selectedMarketId}
+                onMarketSelect={setSelectedMarketId}
+              />
             </div>
           )}
 
