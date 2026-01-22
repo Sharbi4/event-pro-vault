@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useBookings } from '@/hooks/useBookings';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { PaymentMethodSelector, PaymentMethod } from '@/components/checkout/PaymentMethodSelector';
 
 interface BlockedDate {
   date: string;
@@ -43,6 +44,7 @@ export default function PackageDetail() {
   const [eventDate, setEventDate] = useState<Date | undefined>();
   const [eventLocation, setEventLocation] = useState('');
   const [notes, setNotes] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('stripe');
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [blockedDates, setBlockedDates] = useState<BlockedDate[]>([]);
   const [recurringBlocks, setRecurringBlocks] = useState<RecurringBlock[]>([]);
@@ -167,6 +169,7 @@ export default function PackageDetail() {
       add_ons: selectedAddOns,
       total_price: estimatedTotal,
       notes: notes.trim() || null,
+      payment_method: paymentMethod,
       // Email notification data - in production, vendor_email would come from database
       // For demo purposes, if you want to test emails, replace with your email address:
       // vendor_email: 'your-test-email@example.com',
@@ -447,7 +450,7 @@ export default function PackageDetail() {
                 </div>
 
                 {/* Notes */}
-                <div className="mb-6">
+                <div className="mb-4">
                   <label className="block text-sm font-medium text-foreground mb-2">
                     Special Requests (optional)
                   </label>
@@ -459,6 +462,14 @@ export default function PackageDetail() {
                     rows={3}
                   />
                 </div>
+
+                {/* Payment Method Selector */}
+                <PaymentMethodSelector
+                  vendorUserId={null} // In production, pass vendor's actual user_id
+                  selectedMethod={paymentMethod}
+                  onMethodChange={setPaymentMethod}
+                  className="mb-6"
+                />
 
                 {/* Price Breakdown */}
                 <div className="border-t border-border pt-4 mb-6 space-y-2">
@@ -477,13 +488,33 @@ export default function PackageDetail() {
                       </div>
                     ) : null;
                   })}
+                  {paymentMethod === 'stripe' && (
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                      <span>Service fee (12.9%)</span>
+                      <span>${(estimatedTotal * 0.129).toFixed(2)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-bold text-lg pt-2 border-t border-border">
-                    <span className="text-foreground">Estimated Total</span>
-                    <span className="gradient-text">${estimatedTotal}</span>
+                    <span className="text-foreground">
+                      {paymentMethod === 'cash' ? 'Total' : 'Estimated Total'}
+                    </span>
+                    <span className="gradient-text">
+                      ${paymentMethod === 'stripe' 
+                        ? (estimatedTotal * 1.129).toFixed(2) 
+                        : estimatedTotal
+                      }
+                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    * Final price may vary based on travel fees and taxes
-                  </p>
+                  {paymentMethod === 'stripe' && (
+                    <p className="text-xs text-muted-foreground">
+                      * Final price may vary based on travel fees
+                    </p>
+                  )}
+                  {paymentMethod === 'cash' && (
+                    <p className="text-xs text-muted-foreground">
+                      * You'll pay the vendor directly at the event
+                    </p>
+                  )}
                 </div>
 
                 <Button 

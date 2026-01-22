@@ -30,6 +30,7 @@ export type Database = {
           notes: string | null
           package_id: string
           payment_amount: number | null
+          payment_method: string | null
           payment_status: string | null
           platform_fee_amount: number | null
           status: string
@@ -60,6 +61,7 @@ export type Database = {
           notes?: string | null
           package_id: string
           payment_amount?: number | null
+          payment_method?: string | null
           payment_status?: string | null
           platform_fee_amount?: number | null
           status?: string
@@ -90,6 +92,7 @@ export type Database = {
           notes?: string | null
           package_id?: string
           payment_amount?: number | null
+          payment_method?: string | null
           payment_status?: string | null
           platform_fee_amount?: number | null
           status?: string
