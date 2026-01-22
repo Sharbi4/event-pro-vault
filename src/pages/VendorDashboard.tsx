@@ -6,7 +6,7 @@ import { useVendorDashboard } from '@/hooks/useVendorDashboard';
 import { useUserDashboards } from '@/hooks/useUserDashboards';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, Store } from 'lucide-react';
+import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, Store, ExternalLink, User } from 'lucide-react';
 import { VendorOverview } from '@/components/vendor-dashboard/VendorOverview';
 import { VendorBookings } from '@/components/vendor-dashboard/VendorBookings';
 import { VendorListings } from '@/components/vendor-dashboard/VendorListings';
@@ -86,8 +86,9 @@ const VendorDashboard = () => {
                 Market Dashboard
               </Button>
             )}
-            <Button variant="outline" onClick={() => navigate('/dashboard')}>
-              Customer View
+            <Button variant="outline" onClick={() => navigate(`/vendor/${user.id}`)} className="gap-2">
+              <ExternalLink className="w-4 h-4" />
+              View Public Profile
             </Button>
             <Button variant="ghost" onClick={handleSignOut}>
               Sign Out
@@ -162,6 +163,35 @@ const VendorDashboard = () => {
 
           <TabsContent value="settings">
             <div className="grid gap-6">
+              {/* Public Profile Section */}
+              <div className="p-6 rounded-lg border bg-card">
+                <div className="flex items-center gap-2 mb-4">
+                  <User className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold">Public Profile</h3>
+                </div>
+                <div className="space-y-2 text-sm mb-4">
+                  <p><span className="text-muted-foreground">Display Name:</span> {profile?.display_name || 'Not set'}</p>
+                  <p><span className="text-muted-foreground">Bio:</span> {profile?.short_bio || 'Not set'}</p>
+                  <p>
+                    <span className="text-muted-foreground">Profile Status:</span>{' '}
+                    <span className={profile?.is_published ? 'text-trust' : 'text-yellow-500'}>
+                      {profile?.is_published ? 'Published' : 'Not Published'}
+                    </span>
+                  </p>
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={() => navigate('/eventpro-onboarding')} className="gap-2">
+                    <User className="w-4 h-4" />
+                    Edit Profile
+                  </Button>
+                  <Button variant="ghost" onClick={() => navigate(`/vendor/${user.id}`)} className="gap-2">
+                    <ExternalLink className="w-4 h-4" />
+                    Preview
+                  </Button>
+                </div>
+              </div>
+
+              {/* Business Information */}
               <div className="p-6 rounded-lg border bg-card">
                 <h3 className="font-semibold mb-4">Business Information</h3>
                 <div className="space-y-2 text-sm">
@@ -170,7 +200,7 @@ const VendorDashboard = () => {
                   <p><span className="text-muted-foreground">Service Area:</span> {vendorDetails?.service_area || 'Not set'}</p>
                   <p><span className="text-muted-foreground">Categories:</span> {vendorDetails?.service_categories?.join(', ') || 'None'}</p>
                 </div>
-                <Button variant="outline" className="mt-4" onClick={() => navigate('/vendor-onboarding')}>
+                <Button variant="outline" className="mt-4" onClick={() => navigate('/eventpro-onboarding')}>
                   Edit Business Info
                 </Button>
               </div>
