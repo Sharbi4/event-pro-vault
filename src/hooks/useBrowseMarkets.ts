@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-
+import { useToast } from '@/hooks/use-toast';
 export interface BrowseMarket {
   id: string;
   name: string;
@@ -33,6 +33,7 @@ export interface BrowseMarketFilters {
 }
 
 export function useBrowseMarkets() {
+  const { toast } = useToast();
   const [markets, setMarkets] = useState<BrowseMarket[]>([]);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<BrowseMarketFilters>({
@@ -212,7 +213,7 @@ export function useBrowseMarkets() {
     fetchMarkets();
   }, [fetchMarkets]);
 
-  // Subscribe to realtime inventory updates for live slot availability
+  // Subscribe to realtime inventory updates for live slot availability with toast notifications
   useEffect(() => {
     const channel = supabase
       .channel('browse-markets-inventory')
@@ -225,24 +226,55 @@ export function useBrowseMarkets() {
         },
         (payload) => {
           const updated = payload.new as any;
+          const old = payload.old as any;
           
           // Update the affected market's slot count
-          setMarkets(prev => prev.map(market => {
-            if (market.id === updated.market_id) {
-              // Recalculate total slots remaining for this market
-              // We need to refetch to get accurate counts, but for immediate feedback
-              // we can adjust based on the change
-              const oldSlots = (payload.old as any)?.slots_remaining || 0;
+          setMarkets(prev => {
+            const affectedMarket = prev.find(m => m.id === updated.market_id);
+            
+            if (affectedMarket) {
+              const oldSlots = old?.slots_remaining || 0;
               const newSlots = updated.slots_remaining || 0;
               const diff = newSlots - oldSlots;
+              const newTotal = Math.max(0, affectedMarket.totalSlotsRemaining + diff);
               
-              return {
-                ...market,
-                totalSlotsRemaining: Math.max(0, market.totalSlotsRemaining + diff),
-              };
+              // Show toast notification for significant availability changes
+              if (diff < 0) {
+                // Spots were taken
+                const spotsTaken = Math.abs(diff);
+                if (newTotal <= 3 && newTotal > 0) {
+                  toast({
+                    title: `🔥 Only ${newTotal} spot${newTotal === 1 ? '' : 's'} left!`,
+                    description: `${affectedMarket.name} is filling up fast`,
+                  });
+                } else if (newTotal === 0) {
+                  toast({
+                    title: '❌ Sold out!',
+                    description: `${affectedMarket.name} just sold out`,
+                    variant: 'destructive',
+                  });
+                } else if (spotsTaken >= 2) {
+                  toast({
+                    title: `${spotsTaken} spots just booked`,
+                    description: `${affectedMarket.name} - ${newTotal} remaining`,
+                  });
+                }
+              } else if (diff > 0) {
+                // Spots became available (cancellation)
+                toast({
+                  title: '✨ Spots available!',
+                  description: `${diff} spot${diff === 1 ? '' : 's'} just opened up at ${affectedMarket.name}`,
+                });
+              }
+              
+              return prev.map(market => 
+                market.id === updated.market_id 
+                  ? { ...market, totalSlotsRemaining: newTotal }
+                  : market
+              );
             }
-            return market;
-          }));
+            return prev;
+          });
         }
       )
       .subscribe();
@@ -250,7 +282,7 @@ export function useBrowseMarkets() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [toast]);
 
   const updateFilter = (key: keyof BrowseMarketFilters, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
