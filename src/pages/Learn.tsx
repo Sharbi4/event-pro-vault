@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { ProfileTypeModal } from '@/components/layout/ProfileTypeModal';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { setAuthIntent } from '@/lib/authIntent';
 
 const eventProFeatures = [
   {
@@ -80,7 +81,11 @@ export default function Learn() {
     if (user) {
       navigate('/eventpro-onboarding');
     } else {
-      navigate('/auth?returnTo=/eventpro-onboarding');
+      setAuthIntent({
+        intent: 'EVENT_PRO_ONBOARDING',
+        profileType: 'EVENT_PRO',
+      });
+      navigate('/auth?intent=EVENT_PRO_ONBOARDING&profileType=EVENT_PRO');
     }
   };
 
@@ -88,7 +93,11 @@ export default function Learn() {
     if (user) {
       navigate('/marketspace/create');
     } else {
-      navigate('/auth?returnTo=/marketspace/create');
+      setAuthIntent({
+        intent: 'MARKET_ONBOARDING',
+        profileType: 'MARKET_SPACE',
+      });
+      navigate('/auth?intent=MARKET_ONBOARDING&profileType=MARKET_SPACE');
     }
   };
 

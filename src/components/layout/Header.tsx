@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModeSwitcher } from './ModeSwitcher';
 import { ProfileTypeModal } from './ProfileTypeModal';
+import { setAuthIntent } from '@/lib/authIntent';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,21 +31,33 @@ export function Header() {
   }, []);
 
   const handleListService = () => {
+    setMobileMenuOpen(false);
+    
     if (user) {
       navigate('/eventpro-onboarding');
     } else {
-      navigate('/auth?returnTo=/eventpro-onboarding');
+      // Set intent and redirect to auth
+      setAuthIntent({
+        intent: 'EVENT_PRO_ONBOARDING',
+        profileType: 'EVENT_PRO',
+      });
+      navigate('/auth?intent=EVENT_PRO_ONBOARDING&profileType=EVENT_PRO');
     }
-    setMobileMenuOpen(false);
   };
 
   const handleListMarket = () => {
+    setMobileMenuOpen(false);
+    
     if (user) {
       navigate('/marketspace/create');
     } else {
-      navigate('/auth?returnTo=/marketspace/create');
+      // Set intent and redirect to auth
+      setAuthIntent({
+        intent: 'MARKET_ONBOARDING',
+        profileType: 'MARKET_SPACE',
+      });
+      navigate('/auth?intent=MARKET_ONBOARDING&profileType=MARKET_SPACE');
     }
-    setMobileMenuOpen(false);
   };
 
   const navLinks = [
