@@ -10,14 +10,16 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { useBookings, BookingData } from '@/hooks/useBookings';
 import { useSlotBookings } from '@/hooks/useSlotBookings';
 import { useUserDashboards } from '@/hooks/useUserDashboards';
+import { useAdminReview } from '@/hooks/useAdminReview';
 import { SlotBookingsSection } from '@/components/dashboard/SlotBookingsSection';
+import { AdminReviewTab } from '@/components/dashboard/AdminReviewTab';
 import { vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar, MapPin, Clock, Heart, Package, 
   User, LogOut, ChevronRight, Loader2, Star, Search,
-  CreditCard, CheckCircle, AlertCircle, Banknote, Store, Users, ExternalLink
+  CreditCard, CheckCircle, AlertCircle, Banknote, Store, Users, ExternalLink, ShieldCheck
 } from 'lucide-react';
 
 interface ExtendedBooking extends BookingData {
@@ -39,6 +41,7 @@ export default function Dashboard() {
   const { bookings, loading: bookingsLoading, refetch } = useBookings();
   const { bookings: slotBookings, loading: slotBookingsLoading, cancelBooking } = useSlotBookings();
   const { hasVendorPackages, hasMarket, loading: dashboardsLoading } = useUserDashboards();
+  const { isAdmin, pendingEventPros, pendingMarkets } = useAdminReview();
   const { toast } = useToast();
   const [payingBooking, setPayingBooking] = useState<string | null>(null);
   const [profile, setProfile] = useState<{ display_name?: string; is_vendor?: boolean; is_published?: boolean } | null>(null);
@@ -305,6 +308,20 @@ export default function Dashboard() {
               <User className="w-3.5 h-3.5" />
               Profile
             </TabsTrigger>
+            {isAdmin && (
+              <TabsTrigger 
+                value="admin" 
+                className="flex-1 text-xs data-[state=active]:gradient-primary data-[state=active]:text-white gap-1.5"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                Admin
+                {(pendingEventPros.length + pendingMarkets.length) > 0 && (
+                  <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-[10px] flex items-center justify-center">
+                    {pendingEventPros.length + pendingMarkets.length}
+                  </Badge>
+                )}
+              </TabsTrigger>
+            )}
           </TabsList>
 
           {/* Bookings Tab */}
@@ -550,6 +567,13 @@ export default function Dashboard() {
               </div>
             </Card>
           </TabsContent>
+
+          {/* Admin Review Tab */}
+          {isAdmin && (
+            <TabsContent value="admin">
+              <AdminReviewTab />
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </Layout>

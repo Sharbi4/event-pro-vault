@@ -136,6 +136,10 @@ export type Database = {
       }
       markets: {
         Row: {
+          approval_notes: string | null
+          approval_reviewed_at: string | null
+          approval_reviewed_by: string | null
+          approval_status: string | null
           booking_mode: string | null
           bookings_enabled: boolean | null
           breakdown_window_minutes: number | null
@@ -166,6 +170,10 @@ export type Database = {
           weekly_schedule: Json | null
         }
         Insert: {
+          approval_notes?: string | null
+          approval_reviewed_at?: string | null
+          approval_reviewed_by?: string | null
+          approval_status?: string | null
           booking_mode?: string | null
           bookings_enabled?: boolean | null
           breakdown_window_minutes?: number | null
@@ -196,6 +204,10 @@ export type Database = {
           weekly_schedule?: Json | null
         }
         Update: {
+          approval_notes?: string | null
+          approval_reviewed_at?: string | null
+          approval_reviewed_by?: string | null
+          approval_status?: string | null
           booking_mode?: string | null
           bookings_enabled?: boolean | null
           breakdown_window_minutes?: number | null
@@ -338,6 +350,10 @@ export type Database = {
       }
       profiles: {
         Row: {
+          approval_notes: string | null
+          approval_reviewed_at: string | null
+          approval_reviewed_by: string | null
+          approval_status: string | null
           avatar_url: string | null
           created_at: string
           display_name: string | null
@@ -362,6 +378,10 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          approval_notes?: string | null
+          approval_reviewed_at?: string | null
+          approval_reviewed_by?: string | null
+          approval_status?: string | null
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
@@ -386,6 +406,10 @@ export type Database = {
           user_id: string
         }
         Update: {
+          approval_notes?: string | null
+          approval_reviewed_at?: string | null
+          approval_reviewed_by?: string | null
+          approval_status?: string | null
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
@@ -760,6 +784,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       vendor_availability: {
         Row: {
           created_at: string
@@ -1107,10 +1152,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_my_roles: {
+        Args: never
+        Returns: Database["public"]["Enums"]["app_role"][]
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "moderator" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1237,6 +1292,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "moderator", "user"],
+    },
   },
 } as const
