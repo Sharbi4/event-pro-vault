@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, ChevronDown, Sparkles, Store } from 'lucide-react';
+import { Menu, X, ChevronDown, Sparkles, Store, MessageCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModeSwitcher } from './ModeSwitcher';
@@ -112,51 +112,74 @@ export function Header() {
             </nav>
 
             {/* Desktop CTA - Right */}
-            <div className="hidden lg:flex items-center gap-2">
+            <div className="hidden lg:flex items-center gap-3">
               {user ? (
-                <ModeSwitcher />
+                <>
+                  <button
+                    onClick={() => window.open('https://support.zendesk.com', '_blank')}
+                    className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
+                    aria-label="Chat support"
+                  >
+                    <MessageCircle className="w-5 h-5 text-muted-foreground hover:text-foreground" />
+                  </button>
+                  <ModeSwitcher />
+                </>
               ) : (
-                <Link to="/auth">
-                  <Button variant="ghost" size="sm">Sign in</Button>
-                </Link>
-              )}
+                <>
+                  <Link to="/auth">
+                    <Button variant="ghost" size="sm">Sign in</Button>
+                  </Link>
 
-              <Button 
-                variant="darkShine" 
-                size="default" 
-                onClick={() => setProfileModalOpen(true)}
-              >
-                Create free profile
-              </Button>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="gap-1">
-                    List <ChevronDown className="w-3 h-3" />
+                  <Button 
+                    variant="darkShine" 
+                    size="default" 
+                    onClick={() => setProfileModalOpen(true)}
+                  >
+                    Create free profile
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48 bg-popover">
-                  <DropdownMenuItem onClick={handleListService} className="gap-2 cursor-pointer">
-                    <Sparkles className="w-4 h-4" />
-                    List your service
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleListMarket} className="gap-2 cursor-pointer">
-                    <Store className="w-4 h-4" />
-                    List a market
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="outline" size="sm" className="gap-1">
+                        List <ChevronDown className="w-3 h-3" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48 bg-popover">
+                      <DropdownMenuItem onClick={handleListService} className="gap-2 cursor-pointer">
+                        <Sparkles className="w-4 h-4" />
+                        List your service
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={handleListMarket} className="gap-2 cursor-pointer">
+                        <Store className="w-4 h-4" />
+                        List a market
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
+              )}
             </div>
 
             {/* Mobile Right Actions */}
             <div className="flex lg:hidden items-center gap-2">
-              <Button 
-                variant="darkShine" 
-                size="sm"
-                onClick={() => setProfileModalOpen(true)}
-              >
-                Create free profile
-              </Button>
+              {user ? (
+                <>
+                  <button
+                    onClick={() => window.open('https://support.zendesk.com', '_blank')}
+                    className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
+                    aria-label="Chat support"
+                  >
+                    <MessageCircle className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                </>
+              ) : (
+                <Button 
+                  variant="darkShine" 
+                  size="sm"
+                  onClick={() => setProfileModalOpen(true)}
+                >
+                  Create free profile
+                </Button>
+              )}
               <button
                 className="p-2"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -189,22 +212,26 @@ export function Header() {
                   </Link>
                 ))}
                 
-                <div className="h-px bg-border my-3" />
-                
-                <button 
-                  className="flex items-center gap-3 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
-                  onClick={handleListService}
-                >
-                  <Sparkles className="w-4 h-4" />
-                  List your service
-                </button>
-                <button 
-                  className="flex items-center gap-3 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
-                  onClick={handleListMarket}
-                >
-                  <Store className="w-4 h-4" />
-                  List a market
-                </button>
+                {!user && (
+                  <>
+                    <div className="h-px bg-border my-3" />
+                    
+                    <button 
+                      className="flex items-center gap-3 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
+                      onClick={handleListService}
+                    >
+                      <Sparkles className="w-4 h-4" />
+                      List your service
+                    </button>
+                    <button 
+                      className="flex items-center gap-3 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
+                      onClick={handleListMarket}
+                    >
+                      <Store className="w-4 h-4" />
+                      List a market
+                    </button>
+                  </>
+                )}
 
                 <div className="h-px bg-border my-3" />
 
