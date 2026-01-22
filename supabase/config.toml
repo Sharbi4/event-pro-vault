@@ -38,3 +38,12 @@ verify_jwt = false
 
 [functions.check-market-connect-status]
 verify_jwt = false
+
+[functions.send-slot-booking-notification]
+verify_jwt = false
+
+[functions.verify-slot-booking]
+verify_jwt = false
+
+[functions.create-slot-booking-checkout]
+verify_jwt = false
