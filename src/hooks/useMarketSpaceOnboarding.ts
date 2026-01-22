@@ -83,6 +83,8 @@ export interface MarketOnboardingState {
   // Status
   isPublished: boolean;
   bookingsEnabled: boolean;
+  stripeAccountId?: string;
+  stripeAccountStatus?: string;
 }
 
 const defaultWeeklySchedule: WeeklyScheduleDay[] = [
@@ -116,6 +118,8 @@ const initialState: MarketOnboardingState = {
   coverImageUrl: '',
   isPublished: false,
   bookingsEnabled: false,
+  stripeAccountId: undefined,
+  stripeAccountStatus: undefined,
 };
 
 const STEPS: MarketOnboardingStep[] = ['basics', 'location', 'media', 'slot-types', 'inventory', 'review'];
