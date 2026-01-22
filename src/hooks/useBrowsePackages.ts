@@ -110,8 +110,11 @@ export function useBrowsePackages() {
       // Get unique vendor IDs
       const vendorIds = [...new Set(packagesData.map(p => p.user_id))];
 
-      // Fetch vendor details, profiles, and reviews in parallel
-      const [vendorDetailsResult, profilesResult, reviewsResult, availabilityResult] = await Promise.all([
+      // Get unique package IDs
+      const packageIds = packagesData.map(p => p.id);
+
+      // Fetch vendor details, profiles, reviews, and PACKAGE-level availability in parallel
+      const [vendorDetailsResult, profilesResult, reviewsResult, packageAvailabilityResult, packageWeeklyResult] = await Promise.all([
         supabase
           .from('vendor_details')
           .select('user_id, business_name, service_area')
@@ -126,13 +129,18 @@ export function useBrowsePackages() {
           .from('reviews')
           .select('vendor_user_id, package_id, rating')
           .in('vendor_user_id', vendorIds),
-        // Fetch blocked dates if date filter is applied
+        // Fetch package-level blocked dates if date filter is applied
         filters.date ? supabase
-          .from('vendor_availability')
-          .select('user_id, date, is_blocked')
-          .in('user_id', vendorIds)
+          .from('package_availability')
+          .select('package_id, date, is_blocked')
+          .in('package_id', packageIds)
           .eq('date', filters.date)
-          .eq('is_blocked', true) : Promise.resolve({ data: [] })
+          .eq('is_blocked', true) : Promise.resolve({ data: [] }),
+        // Fetch package weekly availability
+        supabase
+          .from('package_weekly_availability')
+          .select('package_id, day_of_week, is_enabled')
+          .in('package_id', packageIds)
       ]);
 
       if (vendorDetailsResult.error) throw vendorDetailsResult.error;
@@ -147,25 +155,25 @@ export function useBrowsePackages() {
         (profilesResult.data || []).map(p => [p.user_id, p])
       );
 
-      // Get blocked vendor IDs for the selected date
-      const blockedVendorIds = new Set(
-        (availabilityResult.data || []).map((a: any) => a.user_id)
+      // Get blocked package IDs for the selected date
+      const blockedPackageIds = new Set(
+        (packageAvailabilityResult.data || []).map((a: any) => a.package_id)
       );
 
-      // Also check recurring availability if date is selected
-      let recurringBlockedIds = new Set<string>();
+      // Build package weekly availability map
+      const packageWeeklyMap = new Map<string, Map<number, boolean>>();
+      (packageWeeklyResult.data || []).forEach((w: any) => {
+        if (!packageWeeklyMap.has(w.package_id)) {
+          packageWeeklyMap.set(w.package_id, new Map());
+        }
+        packageWeeklyMap.get(w.package_id)!.set(w.day_of_week, w.is_enabled);
+      });
+
+      // Check if package is available on selected day of week
+      let selectedDayOfWeek: number | null = null;
       if (filters.date) {
         const selectedDate = new Date(filters.date);
-        const dayOfWeek = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
-
-        const { data: recurringData } = await supabase
-          .from('vendor_recurring_availability')
-          .select('user_id')
-          .in('user_id', vendorIds)
-          .eq('day_of_week', dayOfWeek)
-          .eq('is_blocked', true);
-
-        recurringBlockedIds = new Set((recurringData || []).map(r => r.user_id));
+        selectedDayOfWeek = selectedDate.getDay(); // 0 = Sunday, 6 = Saturday
       }
 
       // Calculate ratings per package
@@ -198,9 +206,18 @@ export function useBrowsePackages() {
           // Skip if vendor is not active
           if (!profile) return null;
 
-          // Skip if vendor is blocked on selected date
-          if (filters.date && (blockedVendorIds.has(pkg.user_id) || recurringBlockedIds.has(pkg.user_id))) {
+          // Skip if this specific package is blocked on selected date
+          if (filters.date && blockedPackageIds.has(pkg.id)) {
             return null;
+          }
+
+          // Skip if this package is not available on the selected day of week
+          if (selectedDayOfWeek !== null) {
+            const packageWeekly = packageWeeklyMap.get(pkg.id);
+            // If package has weekly availability set and the day is disabled, skip
+            if (packageWeekly && packageWeekly.has(selectedDayOfWeek) && !packageWeekly.get(selectedDayOfWeek)) {
+              return null;
+            }
           }
 
           const packageReviews = reviewsByPackage.get(pkg.id);
