@@ -14,6 +14,7 @@ import { VendorAvailability } from '@/components/vendor-dashboard/VendorAvailabi
 import { VendorEarnings } from '@/components/vendor-dashboard/VendorEarnings';
 import { AvatarUpload } from '@/components/vendor-dashboard/AvatarUpload';
 import { CoverPhotoUpload } from '@/components/vendor-dashboard/CoverPhotoUpload';
+import { StripeConnectBanner } from '@/components/vendor-dashboard/StripeConnectBanner';
 import { ImageIcon } from 'lucide-react';
 
 const VendorDashboard = () => {
@@ -143,13 +144,21 @@ const VendorDashboard = () => {
           </TabsList>
 
           <TabsContent value="overview">
-            <VendorOverview
-              bookings={bookings}
-              packages={packages}
-              totalEarnings={totalEarnings}
-              pendingEarnings={pendingEarnings}
-              upcomingBookings={upcomingBookings}
-            />
+            <div className="space-y-6">
+              {/* Stripe Connect Banner */}
+              <StripeConnectBanner 
+                stripeStatus={profile?.stripe_account_status || null}
+                onStatusChange={refetch}
+              />
+              
+              <VendorOverview
+                bookings={bookings}
+                packages={packages}
+                totalEarnings={totalEarnings}
+                pendingEarnings={pendingEarnings}
+                upcomingBookings={upcomingBookings}
+              />
+            </div>
           </TabsContent>
 
           <TabsContent value="earnings">

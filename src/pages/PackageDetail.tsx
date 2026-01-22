@@ -8,9 +8,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 import { 
   Clock, Calendar, Check, Plus, Minus, 
-  ChevronLeft, Zap, MapPin, AlertCircle, Star, CalendarIcon, Loader2
+  ChevronLeft, Zap, MapPin, AlertCircle, Star, CalendarIcon, Loader2,
+  Banknote, CreditCard, ShieldCheck
 } from 'lucide-react';
 import { packages, vendors, reviews } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
@@ -28,6 +31,15 @@ interface RecurringBlock {
   day_of_week: number;
 }
 
+// Package booking mode and payment options types
+type BookingMode = 'INSTANT' | 'REQUEST';
+type PaymentOptions = 'ONLINE' | 'CASH' | 'BOTH';
+
+interface PackageData {
+  bookingMode?: BookingMode;
+  paymentOptions?: PaymentOptions;
+}
+
 export default function PackageDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -38,6 +50,10 @@ export default function PackageDetail() {
   const pkg = packages.find(p => p.id === id);
   const vendor = pkg ? vendors.find(v => v.id === pkg.vendorId) : null;
   const vendorReviews = vendor ? reviews.filter(r => r.vendorId === vendor.id).slice(0, 2) : [];
+
+  // Fetch real package data from DB
+  const [packageData, setPackageData] = useState<PackageData | null>(null);
+  const [loadingPackage, setLoadingPackage] = useState(true);
 
   const [units, setUnits] = useState(pkg?.minUnits || 1);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
@@ -50,6 +66,37 @@ export default function PackageDetail() {
   const [recurringBlocks, setRecurringBlocks] = useState<RecurringBlock[]>([]);
   const [loadingDates, setLoadingDates] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+
+  // Fetch package booking settings from DB
+  useEffect(() => {
+    const fetchPackageData = async () => {
+      if (!id) return;
+      
+      setLoadingPackage(true);
+      const { data, error } = await supabase
+        .from('vendor_packages')
+        .select('booking_mode, payment_options')
+        .eq('id', id)
+        .maybeSingle();
+      
+      if (data) {
+        setPackageData({
+          bookingMode: data.booking_mode as BookingMode,
+          paymentOptions: data.payment_options as PaymentOptions
+        });
+        
+        // Set default payment method based on package options
+        if (data.payment_options === 'CASH') {
+          setPaymentMethod('cash');
+        } else {
+          setPaymentMethod('stripe');
+        }
+      }
+      setLoadingPackage(false);
+    };
+
+    fetchPackageData();
+  }, [id]);
 
   // Fetch vendor's blocked dates and recurring patterns
   useEffect(() => {
@@ -135,6 +182,14 @@ export default function PackageDetail() {
 
   const isFormValid = eventDate && eventLocation.trim().length > 0;
 
+  // Determine booking mode and payment options
+  const bookingMode: BookingMode = packageData?.bookingMode || 'INSTANT';
+  const paymentOptions: PaymentOptions = packageData?.paymentOptions || 'ONLINE';
+  const isInstantBook = bookingMode === 'INSTANT';
+  const showPaymentSelector = paymentOptions === 'BOTH';
+  const forceOnline = paymentOptions === 'ONLINE';
+  const forceCash = paymentOptions === 'CASH';
+
   const handleSubmitBooking = async () => {
     if (!user) {
       toast({
@@ -157,8 +212,13 @@ export default function PackageDetail() {
 
     setSubmitting(true);
 
+    // Determine booking status based on mode
+    const initialStatus = isInstantBook ? 'confirmed' : 'pending';
+    const initialPaymentStatus = isInstantBook 
+      ? (paymentMethod === 'cash' ? 'cash_due' : 'pending')
+      : 'awaiting_approval';
+
     // Note: In production with real vendor data, you would fetch the vendor's user_id and email from the database
-    // For demo purposes with mock data, we skip the email notification since vendors don't have emails
     const result = await createBooking({
       vendor_id: vendor.id,
       vendor_user_id: null, // Would be vendor's actual user_id in production
@@ -170,9 +230,8 @@ export default function PackageDetail() {
       total_price: estimatedTotal,
       notes: notes.trim() || null,
       payment_method: paymentMethod,
-      // Email notification data - in production, vendor_email would come from database
-      // For demo purposes, if you want to test emails, replace with your email address:
-      // vendor_email: 'your-test-email@example.com',
+      booking_mode: bookingMode,
+      // Email notification data
       vendor_name: vendor.name,
       customer_name: user?.email?.split('@')[0] || 'Customer',
       customer_email: user?.email || '',
@@ -183,6 +242,22 @@ export default function PackageDetail() {
     setSubmitting(false);
 
     if (result) {
+      // Show appropriate message based on booking mode
+      if (isInstantBook) {
+        toast({
+          title: "Booking confirmed!",
+          description: paymentMethod === 'cash' 
+            ? "You'll pay the vendor in cash at the event."
+            : "Your booking has been confirmed."
+        });
+      } else {
+        toast({
+          title: "Request sent!",
+          description: paymentMethod === 'stripe'
+            ? "You'll only be charged if the Event Pro approves your request."
+            : "You'll be notified when the Event Pro responds."
+        });
+      }
       // Redirect to dashboard to see booking
       navigate('/dashboard');
     }
@@ -210,10 +285,15 @@ export default function PackageDetail() {
                     <><Calendar className="w-3 h-3 mr-1" /> Daily</>
                   )}
                 </Badge>
-                {pkg.instantBook && (
+                {isInstantBook ? (
                   <Badge variant="trust" className="gap-1">
                     <Zap className="w-3 h-3" />
-                    Instant Book
+                    Instant confirmation
+                  </Badge>
+                ) : (
+                  <Badge variant="secondary" className="gap-1">
+                    <ShieldCheck className="w-3 h-3" />
+                    Requires approval
                   </Badge>
                 )}
               </div>
@@ -463,13 +543,79 @@ export default function PackageDetail() {
                   />
                 </div>
 
-                {/* Payment Method Selector */}
-                <PaymentMethodSelector
-                  vendorUserId={null} // In production, pass vendor's actual user_id
-                  selectedMethod={paymentMethod}
-                  onMethodChange={setPaymentMethod}
-                  className="mb-6"
-                />
+                {/* Payment Method - Show based on package options */}
+                {showPaymentSelector && (
+                  <div className="mb-6">
+                    <label className="block text-sm font-medium text-foreground mb-3">
+                      Payment Method
+                    </label>
+                    <RadioGroup
+                      value={paymentMethod}
+                      onValueChange={(val) => setPaymentMethod(val as PaymentMethod)}
+                      className="space-y-3"
+                    >
+                      <div className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer",
+                        paymentMethod === 'stripe' 
+                          ? "border-primary bg-primary/5" 
+                          : "border-border hover:border-primary/50"
+                      )}>
+                        <RadioGroupItem value="stripe" id="pay-online" />
+                        <Label htmlFor="pay-online" className="flex-1 cursor-pointer">
+                          <div className="flex items-center gap-2">
+                            <CreditCard className="w-4 h-4 text-primary" />
+                            <span className="font-medium">Pay online (card)</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Secure payment via Stripe
+                          </p>
+                        </Label>
+                      </div>
+                      <div className={cn(
+                        "flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer",
+                        paymentMethod === 'cash' 
+                          ? "border-primary bg-primary/5" 
+                          : "border-border hover:border-primary/50"
+                      )}>
+                        <RadioGroupItem value="cash" id="pay-cash" />
+                        <Label htmlFor="pay-cash" className="flex-1 cursor-pointer">
+                          <div className="flex items-center gap-2">
+                            <Banknote className="w-4 h-4 text-green-600" />
+                            <span className="font-medium">Pay in cash at the event</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Pay the vendor directly
+                          </p>
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                )}
+
+                {/* Show info for forced payment methods */}
+                {forceOnline && (
+                  <div className="mb-6 p-3 rounded-xl bg-primary/5 border border-primary/20">
+                    <div className="flex items-center gap-2 text-sm">
+                      <CreditCard className="w-4 h-4 text-primary" />
+                      <span className="font-medium text-foreground">Pay online (card)</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Secure payment via Stripe
+                    </p>
+                  </div>
+                )}
+
+                {forceCash && (
+                  <div className="mb-6 p-3 rounded-xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Banknote className="w-4 h-4 text-green-600" />
+                      <span className="font-medium text-foreground">Pay in cash at the event</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      You'll pay the vendor directly
+                    </p>
+                  </div>
+                )}
 
                 {/* Price Breakdown */}
                 <div className="border-t border-border pt-4 mb-6 space-y-2">
@@ -530,7 +676,7 @@ export default function PackageDetail() {
                       Submitting...
                     </>
                   ) : (
-                    pkg.instantBook ? 'Book Now' : 'Request Booking'
+                    isInstantBook ? 'Book Now' : 'Request Booking'
                   )}
                 </Button>
                 {!user && (
@@ -539,11 +685,16 @@ export default function PackageDetail() {
                   </p>
                 )}
                 <p className="text-xs text-center text-muted-foreground">
-                  {pkg.instantBook 
-                    ? 'Instant confirmation available'
-                    : 'Vendor will confirm within 24 hours'
+                  {isInstantBook 
+                    ? 'Instant confirmation'
+                    : 'Requires approval — you\'ll be notified when approved'
                   }
                 </p>
+                {!isInstantBook && paymentMethod === 'stripe' && (
+                  <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2">
+                    You'll only be charged if the Event Pro approves your request.
+                  </p>
+                )}
               </Card>
             </div>
           </div>
