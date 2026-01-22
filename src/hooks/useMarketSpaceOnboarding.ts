@@ -510,6 +510,9 @@ export function useMarketSpaceOnboarding() {
         description: 'Your market is now live and accepting reservations.',
       });
       
+      // Redirect to market dashboard
+      navigate('/marketspace-dashboard');
+      
       return true;
     } catch (error) {
       console.error('Error publishing market:', error);
@@ -520,7 +523,7 @@ export function useMarketSpaceOnboarding() {
       });
       return false;
     }
-  }, [marketId, toast]);
+  }, [marketId, toast, navigate]);
 
   // Check publish requirements
   const canPublish = useCallback(() => {
