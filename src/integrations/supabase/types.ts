@@ -17,6 +17,7 @@ export type Database = {
       bookings: {
         Row: {
           add_ons: string[] | null
+          booking_mode: string | null
           created_at: string
           customer_email: string | null
           deposit_amount: number | null
@@ -48,6 +49,7 @@ export type Database = {
         }
         Insert: {
           add_ons?: string[] | null
+          booking_mode?: string | null
           created_at?: string
           customer_email?: string | null
           deposit_amount?: number | null
@@ -79,6 +81,7 @@ export type Database = {
         }
         Update: {
           add_ons?: string[] | null
+          booking_mode?: string | null
           created_at?: string
           customer_email?: string | null
           deposit_amount?: number | null
@@ -844,6 +847,7 @@ export type Database = {
         Row: {
           add_ons: Json | null
           additional_fees: Json | null
+          booking_mode: string
           breakdown_time_minutes: number | null
           cancellation_policy: string | null
           category: string | null
@@ -870,6 +874,7 @@ export type Database = {
           min_units: number
           name: string
           overtime_rate: number | null
+          payment_options: string
           pickup_only: boolean | null
           price: number
           price_per_mile: number | null
@@ -887,6 +892,7 @@ export type Database = {
         Insert: {
           add_ons?: Json | null
           additional_fees?: Json | null
+          booking_mode?: string
           breakdown_time_minutes?: number | null
           cancellation_policy?: string | null
           category?: string | null
@@ -913,6 +919,7 @@ export type Database = {
           min_units?: number
           name: string
           overtime_rate?: number | null
+          payment_options?: string
           pickup_only?: boolean | null
           price: number
           price_per_mile?: number | null
@@ -930,6 +937,7 @@ export type Database = {
         Update: {
           add_ons?: Json | null
           additional_fees?: Json | null
+          booking_mode?: string
           breakdown_time_minutes?: number | null
           cancellation_policy?: string | null
           category?: string | null
@@ -956,6 +964,7 @@ export type Database = {
           min_units?: number
           name?: string
           overtime_rate?: number | null
+          payment_options?: string
           pickup_only?: boolean | null
           price?: number
           price_per_mile?: number | null
