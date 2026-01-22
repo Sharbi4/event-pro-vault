@@ -21,6 +21,7 @@ import { StepServiceArea } from '@/components/eventpro-onboarding/StepServiceAre
 import { StepMedia } from '@/components/eventpro-onboarding/StepMedia';
 import { StepPackages } from '@/components/eventpro-onboarding/StepPackages';
 import { StepAvailability } from '@/components/eventpro-onboarding/StepAvailability';
+import { StepPayout } from '@/components/eventpro-onboarding/StepPayout';
 import { StepReview } from '@/components/eventpro-onboarding/StepReview';
 import { VendorPackage } from '@/hooks/useVendorDashboard';
 
@@ -41,12 +42,17 @@ export default function EventProOnboarding() {
     updateState,
     saveProgress,
     saveAvailability,
+    savePaymentMethod,
     publishProfile,
     nextStep,
     prevStep,
     goToStep,
     canPublish,
     loadExistingData,
+    stripeStatus,
+    connectLoading,
+    checkStripeStatus,
+    connectStripe,
   } = useEventProOnboarding();
 
   // Load packages
@@ -81,11 +87,17 @@ export default function EventProOnboarding() {
     if (!user) return;
 
     try {
-      const { error } = await supabase.from('vendor_packages').insert({
-        ...data,
+      // Serialize JSON fields for Supabase
+      const { add_ons, additional_fees, ...rest } = data;
+      const insertData = {
+        ...rest,
         user_id: user.id,
+        add_ons: add_ons ? JSON.parse(JSON.stringify(add_ons)) : [],
+        additional_fees: additional_fees ? JSON.parse(JSON.stringify(additional_fees)) : [],
         sort_order: packages.length,
-      });
+      };
+
+      const { error } = await supabase.from('vendor_packages').insert(insertData as any);
 
       if (error) throw error;
       toast.success('Package created!');
@@ -103,9 +115,19 @@ export default function EventProOnboarding() {
     if (!user) return;
 
     try {
+      // Serialize JSON fields for Supabase
+      const { add_ons, additional_fees, ...rest } = data;
+      const updateData: Record<string, any> = { ...rest };
+      if (add_ons !== undefined) {
+        updateData.add_ons = JSON.parse(JSON.stringify(add_ons));
+      }
+      if (additional_fees !== undefined) {
+        updateData.additional_fees = JSON.parse(JSON.stringify(additional_fees));
+      }
+
       const { error } = await supabase
         .from('vendor_packages')
-        .update(data)
+        .update(updateData)
         .eq('id', packageId)
         .eq('user_id', user.id);
 
@@ -149,6 +171,10 @@ export default function EventProOnboarding() {
     // Save availability on that step
     if (currentStep === 'availability') {
       await saveAvailability();
+    }
+    // Save payment method on payout step
+    if (currentStep === 'payout') {
+      await savePaymentMethod();
     }
     await nextStep();
   };
@@ -199,6 +225,7 @@ export default function EventProOnboarding() {
     media: 'Media',
     packages: 'Packages',
     availability: 'Availability',
+    payout: 'Payout',
     review: 'Review',
   };
 
@@ -286,6 +313,16 @@ export default function EventProOnboarding() {
                 }
                 onBufferChange={(settings) => updateState('bufferSettings', settings)}
                 onTimezoneChange={(tz) => updateState('timezone', tz)}
+              />
+            )}
+
+            {currentStep === 'payout' && (
+              <StepPayout
+                selectedMethod={state.paymentMethod}
+                onMethodChange={(method) => updateState('paymentMethod', method)}
+                stripeStatus={stripeStatus}
+                onConnectStripe={connectStripe}
+                connectLoading={connectLoading}
               />
             )}
 

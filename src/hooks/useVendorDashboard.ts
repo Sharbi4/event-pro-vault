@@ -145,13 +145,19 @@ export function useVendorDashboard() {
       return null;
     }
 
+    // Serialize JSON fields for Supabase
+    const { add_ons, additional_fees, ...rest } = packageData;
+    const insertData = {
+      ...rest,
+      user_id: user.id,
+      add_ons: add_ons ? JSON.parse(JSON.stringify(add_ons)) : [],
+      additional_fees: additional_fees ? JSON.parse(JSON.stringify(additional_fees)) : [],
+      sort_order: packages.length
+    };
+
     const { data, error } = await supabase
       .from('vendor_packages')
-      .insert({
-        user_id: user.id,
-        ...packageData,
-        sort_order: packages.length
-      })
+      .insert(insertData as any)
       .select()
       .single();
 
@@ -174,9 +180,19 @@ export function useVendorDashboard() {
   };
 
   const updatePackage = async (id: string, updates: Partial<VendorPackage>) => {
+    // Serialize JSON fields for Supabase
+    const { add_ons, additional_fees, ...rest } = updates;
+    const updateData: Record<string, any> = { ...rest };
+    if (add_ons !== undefined) {
+      updateData.add_ons = JSON.parse(JSON.stringify(add_ons));
+    }
+    if (additional_fees !== undefined) {
+      updateData.additional_fees = JSON.parse(JSON.stringify(additional_fees));
+    }
+
     const { data, error } = await supabase
       .from('vendor_packages')
-      .update(updates)
+      .update(updateData)
       .eq('id', id)
       .select()
       .single();

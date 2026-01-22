@@ -16,6 +16,7 @@ const stepLabels: Record<OnboardingStep, string> = {
   'media': 'Media',
   'packages': 'Packages',
   'availability': 'Availability',
+  'payout': 'Payout',
   'review': 'Review',
 };
 

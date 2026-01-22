@@ -206,13 +206,19 @@ export default function VendorOnboarding() {
     if (!user) return;
     
     try {
+      // Serialize JSON fields for Supabase
+      const { add_ons, additional_fees, ...rest } = data;
+      const insertData = {
+        ...rest,
+        user_id: user.id,
+        add_ons: add_ons ? JSON.parse(JSON.stringify(add_ons)) : [],
+        additional_fees: additional_fees ? JSON.parse(JSON.stringify(additional_fees)) : [],
+        sort_order: packages.length,
+      };
+
       const { error } = await supabase
         .from('vendor_packages')
-        .insert({
-          ...data,
-          user_id: user.id,
-          sort_order: packages.length,
-        });
+        .insert(insertData as any);
 
       if (error) throw error;
       toast.success('Package created!');
@@ -227,9 +233,19 @@ export default function VendorOnboarding() {
     if (!user || !editingPackage) return;
     
     try {
+      // Serialize JSON fields for Supabase
+      const { add_ons, additional_fees, ...rest } = data;
+      const updateData: Record<string, any> = { ...rest };
+      if (add_ons !== undefined) {
+        updateData.add_ons = JSON.parse(JSON.stringify(add_ons));
+      }
+      if (additional_fees !== undefined) {
+        updateData.additional_fees = JSON.parse(JSON.stringify(additional_fees));
+      }
+
       const { error } = await supabase
         .from('vendor_packages')
-        .update(data)
+        .update(updateData)
         .eq('id', editingPackage.id)
         .eq('user_id', user.id);
 
