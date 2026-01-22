@@ -62,6 +62,8 @@ const initialState: MarketOnboardingState = {
   coverImageUrl: '',
   isPublished: false,
   bookingsEnabled: false,
+  stripeAccountId: undefined,
+  stripeAccountStatus: undefined,
 };
 
 export function useMarketSpaceDashboard() {
@@ -116,6 +118,8 @@ export function useMarketSpaceDashboard() {
           coverImageUrl: marketData.cover_image_url || '',
           isPublished: marketData.is_published || false,
           bookingsEnabled: marketData.bookings_enabled || false,
+          stripeAccountId: marketData.stripe_account_id || undefined,
+          stripeAccountStatus: marketData.stripe_account_status || undefined,
         });
 
         // Load slot types

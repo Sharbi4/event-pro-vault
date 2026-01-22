@@ -5,6 +5,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMarketSpaceDashboard } from '@/hooks/useMarketSpaceDashboard';
 import { useUserDashboards } from '@/hooks/useUserDashboards';
@@ -35,6 +36,7 @@ export default function MarketSpaceDashboard() {
   const [activeTab, setActiveTab] = useState('overview');
   const [publishing, setPublishing] = useState(false);
   const [bookingMode, setBookingMode] = useState<'instant' | 'request'>('instant');
+  const [showStripeWarning, setShowStripeWarning] = useState(false);
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -101,9 +103,20 @@ export default function MarketSpaceDashboard() {
     );
   }
 
+  const isStripeConnected = market.stripeAccountStatus === 'active';
+
+  const handlePublishClick = () => {
+    if (!isStripeConnected) {
+      setShowStripeWarning(true);
+    } else {
+      handlePublish();
+    }
+  };
+
   const handlePublish = async () => {
     if (!marketId) return;
     
+    setShowStripeWarning(false);
     setPublishing(true);
     try {
       const { error } = await supabase
@@ -189,7 +202,7 @@ export default function MarketSpaceDashboard() {
               {!market.isPublished && (
                 <Button 
                   variant="gradient" 
-                  onClick={handlePublish}
+                  onClick={handlePublishClick}
                   disabled={publishing || slotTypes.length === 0 || inventory.length === 0}
                   className="gap-2"
                 >
@@ -340,6 +353,45 @@ export default function MarketSpaceDashboard() {
           </Tabs>
         </div>
       </div>
+
+      {/* Stripe Warning Dialog */}
+      <Dialog open={showStripeWarning} onOpenChange={setShowStripeWarning}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-amber-500" />
+              Payouts Not Set Up
+            </DialogTitle>
+            <DialogDescription className="pt-2">
+              You can publish, but you can't receive payouts until Stripe is connected.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <p className="text-sm text-muted-foreground">
+              Your market will be visible to vendors and they can book slots, but payments will be held until you complete your Stripe Connect setup.
+            </p>
+          </div>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button 
+              variant="outline" 
+              onClick={() => {
+                setShowStripeWarning(false);
+                setActiveTab('payouts');
+              }}
+            >
+              Set Up Payouts First
+            </Button>
+            <Button 
+              variant="gradient" 
+              onClick={handlePublish}
+              disabled={publishing}
+            >
+              {publishing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+              Publish Anyway
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Layout>
   );
 }
