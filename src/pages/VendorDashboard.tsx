@@ -3,19 +3,22 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVendorDashboard } from '@/hooks/useVendorDashboard';
+import { useUserDashboards } from '@/hooks/useUserDashboards';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet } from 'lucide-react';
+import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, Store } from 'lucide-react';
 import { VendorOverview } from '@/components/vendor-dashboard/VendorOverview';
 import { VendorBookings } from '@/components/vendor-dashboard/VendorBookings';
 import { VendorListings } from '@/components/vendor-dashboard/VendorListings';
 import { VendorAvailability } from '@/components/vendor-dashboard/VendorAvailability';
 import { VendorEarnings } from '@/components/vendor-dashboard/VendorEarnings';
+
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get('tab') || 'overview';
   const { user, loading: authLoading, signOut } = useAuth();
+  const { hasMarket } = useUserDashboards();
   const {
     packages,
     bookings,
@@ -76,7 +79,13 @@ const VendorDashboard = () => {
               Manage your listings, bookings, and earnings
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
+            {hasMarket && (
+              <Button variant="outline" onClick={() => navigate('/marketspace-dashboard')} className="gap-2">
+                <Store className="w-4 h-4" />
+                Market Dashboard
+              </Button>
+            )}
             <Button variant="outline" onClick={() => navigate('/dashboard')}>
               Customer View
             </Button>

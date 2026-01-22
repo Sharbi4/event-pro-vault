@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useMarketSpaceDashboard } from '@/hooks/useMarketSpaceDashboard';
+import { useUserDashboards } from '@/hooks/useUserDashboards';
 import { MarketListingTab } from '@/components/marketspace-dashboard/MarketListingTab';
 import { SlotTypesTab } from '@/components/marketspace-dashboard/SlotTypesTab';
 import { InventoryTab } from '@/components/marketspace-dashboard/InventoryTab';
@@ -19,13 +20,15 @@ import {
   Calendar, 
   ClipboardList,
   ExternalLink,
-  AlertCircle
+  AlertCircle,
+  Users
 } from 'lucide-react';
 
 export default function MarketSpaceDashboard() {
   const [activeTab, setActiveTab] = useState('listing');
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { hasVendorPackages } = useUserDashboards();
   
   const {
     market,
@@ -117,7 +120,13 @@ export default function MarketSpaceDashboard() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
+              {hasVendorPackages && (
+                <Button variant="outline" onClick={() => navigate('/vendor-dashboard')} className="gap-2">
+                  <Users className="w-4 h-4" />
+                  Vendor Dashboard
+                </Button>
+              )}
               {market.isPublished && (
                 <Button variant="outline" className="gap-2">
                   <ExternalLink className="w-4 h-4" />
