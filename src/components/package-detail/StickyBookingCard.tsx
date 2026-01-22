@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -10,10 +10,12 @@ import {
   CalendarIcon, Zap, ShieldCheck, CreditCard, 
   Banknote, Clock, ChevronDown 
 } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, getDay, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { usePackageAvailabilityCheck } from '@/hooks/usePackageAvailabilityCheck';
 
 interface StickyBookingCardProps {
+  packageId: string;
   price: number;
   type: string;
   pricingType: string | null;
@@ -26,6 +28,7 @@ interface StickyBookingCardProps {
 }
 
 export function StickyBookingCard({
+  packageId,
   price,
   type,
   pricingType,
@@ -41,6 +44,22 @@ export function StickyBookingCard({
     paymentOptions === 'CASH' ? 'cash' : 'stripe'
   );
   const [calendarOpen, setCalendarOpen] = useState(false);
+
+  // Availability checking
+  const {
+    loading: availabilityLoading,
+    getUnavailableDates,
+    getDisabledDaysOfWeek,
+    isDateAvailable
+  } = usePackageAvailabilityCheck(packageId);
+
+  const disabledDaysOfWeek = useMemo(() => getDisabledDaysOfWeek(), [getDisabledDaysOfWeek]);
+  const unavailableDates = useMemo(() => getUnavailableDates(), [getUnavailableDates]);
+
+  const dateAvailability = useMemo(() => {
+    if (!selectedDate) return null;
+    return isDateAvailable(selectedDate);
+  }, [selectedDate, isDateAvailable]);
 
   const isInstant = bookingMode === 'INSTANT';
   const showPaymentSelector = paymentOptions === 'BOTH';
@@ -114,7 +133,21 @@ export function StickyBookingCard({
                 setCalendarOpen(false);
               }}
               initialFocus
-              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+              disabled={(date) => {
+                // Past dates
+                if (date < new Date(new Date().setHours(0, 0, 0, 0))) return true;
+                // Disabled days of week
+                if (disabledDaysOfWeek.includes(getDay(date))) return true;
+                // Specific blocked dates
+                if (unavailableDates.some(d => isSameDay(d, date))) return true;
+                return false;
+              }}
+              modifiers={{
+                unavailable: unavailableDates
+              }}
+              modifiersClassNames={{
+                unavailable: "line-through text-muted-foreground/50"
+              }}
               className="p-3"
             />
           </PopoverContent>
