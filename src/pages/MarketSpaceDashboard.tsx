@@ -326,6 +326,7 @@ export default function MarketSpaceDashboard() {
                 deleteInventoryItem={deleteInventoryItem}
                 bulkCreateInventory={bulkCreateInventory}
                 weeklySchedule={market.weeklySchedule}
+                bookings={bookings}
               />
             </TabsContent>
 
