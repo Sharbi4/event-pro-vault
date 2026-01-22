@@ -20,8 +20,11 @@ import { StepPricingTravel } from './StepPricingTravel';
 import { StepInclusions } from './StepInclusions';
 import { StepMedia } from './StepMedia';
 import { StepAvailability, PackageWeeklyAvailability, PackageBlockedDate, getDefaultWeeklyAvailability } from './StepAvailability';
+import { StepBookingPayment, BookingMode, PaymentOptions } from './StepBookingPayment';
 import { PackagePreview } from './PackagePreview';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 export type PricingType = 'hourly' | 'daily' | 'flat' | 'per_guest' | 'per_item' | 'custom_quote';
 
@@ -64,6 +67,9 @@ export interface PackageFormData {
   // Package-level availability
   weekly_availability: PackageWeeklyAvailability[];
   blocked_dates: PackageBlockedDate[];
+  // Booking & Payment settings
+  booking_mode: BookingMode;
+  payment_options: PaymentOptions;
 }
 
 interface PackageFormWizardProps {
@@ -77,9 +83,10 @@ const STEPS = [
   { id: 'basic', label: 'Basics', shortLabel: '1' },
   { id: 'pricing', label: 'Pricing', shortLabel: '2' },
   { id: 'inclusions', label: 'Details', shortLabel: '3' },
-  { id: 'availability', label: 'Availability', shortLabel: '4' },
-  { id: 'media', label: 'Media', shortLabel: '5' },
-  { id: 'preview', label: 'Preview', shortLabel: '6' },
+  { id: 'booking', label: 'Booking', shortLabel: '4' },
+  { id: 'availability', label: 'Availability', shortLabel: '5' },
+  { id: 'media', label: 'Media', shortLabel: '6' },
+  { id: 'preview', label: 'Preview', shortLabel: '7' },
 ];
 
 const defaultFormData: PackageFormData = {
@@ -101,12 +108,14 @@ const defaultFormData: PackageFormData = {
   includes: [],
   add_ons: [],
   requirements: [],
-  instant_book: false,
+  instant_book: true, // Default to instant book
   is_active: true,
   sort_order: 0,
   images: [],
   weekly_availability: getDefaultWeeklyAvailability(),
   blocked_dates: [],
+  booking_mode: 'INSTANT',
+  payment_options: 'ONLINE',
 };
 
 export function PackageFormWizard({
@@ -115,10 +124,26 @@ export function PackageFormWizard({
   onSubmit,
   initialData
 }: PackageFormWizardProps) {
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<PackageFormData>(defaultFormData);
+  const [stripeConnected, setStripeConnected] = useState(false);
   const isMobile = useIsMobile();
+
+  // Check Stripe status on mount
+  useEffect(() => {
+    const checkStripeStatus = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('stripe_account_status')
+        .eq('user_id', user.id)
+        .single();
+      setStripeConnected(data?.stripe_account_status === 'active');
+    };
+    checkStripeStatus();
+  }, [user]);
 
   useEffect(() => {
     if (initialData) {
@@ -158,6 +183,8 @@ export function PackageFormWizard({
         images: initialData.images || [],
         weekly_availability: getDefaultWeeklyAvailability(),
         blocked_dates: [],
+        booking_mode: ((initialData as any).booking_mode as BookingMode) || 'INSTANT',
+        payment_options: ((initialData as any).payment_options as PaymentOptions) || 'ONLINE',
       });
     } else {
       setFormData(defaultFormData);
@@ -225,6 +252,11 @@ export function PackageFormWizard({
         if (formData.pricing_type === 'custom_quote') return true;
         return formData.price > 0;
       case 3:
+        // Booking step: if online payment selected, require Stripe
+        const needsStripe = formData.payment_options === 'ONLINE' || formData.payment_options === 'BOTH';
+        if (needsStripe && !stripeConnected) return false;
+        return true;
+      case 4:
         // Availability: at least one day enabled
         return formData.weekly_availability.some(d => d.isEnabled);
       default:
@@ -333,6 +365,13 @@ export function PackageFormWizard({
         <StepInclusions formData={formData} updateFormData={updateFormData} />
       )}
       {currentStep === 3 && (
+        <StepBookingPayment 
+          formData={formData} 
+          updateFormData={updateFormData}
+          stripeConnected={stripeConnected}
+        />
+      )}
+      {currentStep === 4 && (
         <StepAvailability
           packageId={initialData?.id}
           weeklyAvailability={formData.weekly_availability}
@@ -341,10 +380,10 @@ export function PackageFormWizard({
           onBlockedDatesChange={(blocked) => updateFormData({ blocked_dates: blocked })}
         />
       )}
-      {currentStep === 4 && (
+      {currentStep === 5 && (
         <StepMedia formData={formData} updateFormData={updateFormData} />
       )}
-      {currentStep === 5 && (
+      {currentStep === 6 && (
         <PackagePreview formData={formData} />
       )}
     </div>
