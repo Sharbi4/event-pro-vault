@@ -17,6 +17,7 @@ import { VendorMarketBookings } from '@/components/vendor-dashboard/VendorMarket
 import { AvatarUpload } from '@/components/vendor-dashboard/AvatarUpload';
 import { CoverPhotoUpload } from '@/components/vendor-dashboard/CoverPhotoUpload';
 import { StripeConnectBanner } from '@/components/vendor-dashboard/StripeConnectBanner';
+import { ApprovalStatusBanner } from '@/components/shared/ApprovalStatusBanner';
 import { StripeSetupCard } from '@/components/shared/StripeSetupCard';
 
 const VendorDashboard = () => {
@@ -157,6 +158,14 @@ const VendorDashboard = () => {
 
           <TabsContent value="overview">
             <div className="space-y-6">
+              {/* Approval Status Banner */}
+              <ApprovalStatusBanner 
+                status={profile?.approval_status}
+                notes={profile?.approval_notes}
+                type="eventpro"
+                onEditProfile={() => navigate('/eventpro-onboarding')}
+              />
+              
               {/* Stripe Connect Banner */}
               <StripeConnectBanner 
                 stripeStatus={profile?.stripe_account_status || null}

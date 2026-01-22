@@ -71,6 +71,8 @@ export interface VendorProfile {
   is_vendor: boolean | null;
   is_published: boolean | null;
   stripe_account_status: string | null;
+  approval_status: string | null;
+  approval_notes: string | null;
 }
 
 export interface VendorDetails {
