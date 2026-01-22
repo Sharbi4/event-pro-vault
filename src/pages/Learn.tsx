@@ -25,6 +25,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { AvailabilityDemoWidget } from '@/components/learn/AvailabilityDemoWidget';
 
 const eventProSteps = [
   { step: 1, title: 'Create your profile', description: 'Add your name/business, bio, categories, service area, and media.' },
@@ -131,6 +132,54 @@ export default function Learn() {
                 <Link to="/markets" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Explore Markets
                 </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Availability Demo Section */}
+        <section className="py-16 lg:py-24">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                    See it in action
+                  </h2>
+                  <p className="text-lg text-muted-foreground mb-6">
+                    Watch how availability-based search works. Select a date and time, and results update instantly—showing only what's actually bookable.
+                  </p>
+                  <ul className="space-y-3">
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <Calendar className="w-3.5 h-3.5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">Pick your event date</p>
+                        <p className="text-sm text-muted-foreground">Results filter to that day's availability</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <Clock className="w-3.5 h-3.5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">Choose a time window</p>
+                        <p className="text-sm text-muted-foreground">See who's free during your event hours</p>
+                      </div>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-6 h-6 rounded-full bg-trust/10 flex items-center justify-center shrink-0 mt-0.5">
+                        <CheckCircle className="w-3.5 h-3.5 text-trust" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-foreground">Book with confidence</p>
+                        <p className="text-sm text-muted-foreground">No back-and-forth—what you see is bookable</p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <AvailabilityDemoWidget />
               </div>
             </div>
           </div>
