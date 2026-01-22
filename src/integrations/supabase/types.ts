@@ -485,63 +485,117 @@ export type Database = {
       }
       slot_bookings: {
         Row: {
+          arrival_time: string | null
+          base_amount: number | null
+          booth_size: string | null
           created_at: string
+          has_generator: boolean | null
           id: string
+          is_recurring: boolean | null
           market_id: string
+          needs_power: boolean | null
+          needs_water: boolean | null
+          needs_wifi: boolean | null
           notes: string | null
           payment_method: string | null
           payment_status: string | null
+          platform_fee_amount: number | null
+          platform_fee_rate: number | null
+          power_amps: number | null
           quantity: number
+          recurring_parent_id: string | null
+          recurring_week_number: number | null
+          setup_notes: string | null
           slot_inventory_id: string
           slot_type_id: string
           status: string
+          stripe_checkout_session_id: string | null
           stripe_payment_intent_id: string | null
           total_price: number
+          truck_length_feet: number | null
           updated_at: string
           user_id: string
+          vendor_category: string | null
           vendor_email: string | null
           vendor_name: string | null
           vendor_phone: string | null
+          vendor_type: string | null
           vendor_user_id: string
         }
         Insert: {
+          arrival_time?: string | null
+          base_amount?: number | null
+          booth_size?: string | null
           created_at?: string
+          has_generator?: boolean | null
           id?: string
+          is_recurring?: boolean | null
           market_id: string
+          needs_power?: boolean | null
+          needs_water?: boolean | null
+          needs_wifi?: boolean | null
           notes?: string | null
           payment_method?: string | null
           payment_status?: string | null
+          platform_fee_amount?: number | null
+          platform_fee_rate?: number | null
+          power_amps?: number | null
           quantity?: number
+          recurring_parent_id?: string | null
+          recurring_week_number?: number | null
+          setup_notes?: string | null
           slot_inventory_id: string
           slot_type_id: string
           status?: string
+          stripe_checkout_session_id?: string | null
           stripe_payment_intent_id?: string | null
           total_price: number
+          truck_length_feet?: number | null
           updated_at?: string
           user_id: string
+          vendor_category?: string | null
           vendor_email?: string | null
           vendor_name?: string | null
           vendor_phone?: string | null
+          vendor_type?: string | null
           vendor_user_id: string
         }
         Update: {
+          arrival_time?: string | null
+          base_amount?: number | null
+          booth_size?: string | null
           created_at?: string
+          has_generator?: boolean | null
           id?: string
+          is_recurring?: boolean | null
           market_id?: string
+          needs_power?: boolean | null
+          needs_water?: boolean | null
+          needs_wifi?: boolean | null
           notes?: string | null
           payment_method?: string | null
           payment_status?: string | null
+          platform_fee_amount?: number | null
+          platform_fee_rate?: number | null
+          power_amps?: number | null
           quantity?: number
+          recurring_parent_id?: string | null
+          recurring_week_number?: number | null
+          setup_notes?: string | null
           slot_inventory_id?: string
           slot_type_id?: string
           status?: string
+          stripe_checkout_session_id?: string | null
           stripe_payment_intent_id?: string | null
           total_price?: number
+          truck_length_feet?: number | null
           updated_at?: string
           user_id?: string
+          vendor_category?: string | null
           vendor_email?: string | null
           vendor_name?: string | null
           vendor_phone?: string | null
+          vendor_type?: string | null
           vendor_user_id?: string
         }
         Relationships: [
@@ -550,6 +604,13 @@ export type Database = {
             columns: ["market_id"]
             isOneToOne: false
             referencedRelation: "markets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "slot_bookings_recurring_parent_id_fkey"
+            columns: ["recurring_parent_id"]
+            isOneToOne: false
+            referencedRelation: "slot_bookings"
             referencedColumns: ["id"]
           },
           {

@@ -21,7 +21,7 @@ import {
 import { useMarketDetail, SlotType, InventoryItem } from '@/hooks/useMarketDetail';
 import { SlotTypeCard } from '@/components/markets/SlotTypeCard';
 import { FomoStrip } from '@/components/markets/FomoStrip';
-import { BookingStepper } from '@/components/markets/BookingStepper';
+import { MarketBookingStepper } from '@/components/markets/MarketBookingStepper';
 import { SocialProof } from '@/components/markets/SocialProof';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -657,14 +657,13 @@ export default function MarketDetail() {
       )}
 
       {/* Booking Stepper Sheet */}
-      <BookingStepper
+      <MarketBookingStepper
         marketId={id || ''}
         marketName={market.name}
+        marketAddress={market.formattedAddress}
         slotTypes={slotTypes}
         inventory={inventory}
         bookingsEnabled={market.bookingsEnabled}
-        bookingInProgress={bookingInProgress}
-        onBook={bookSlot}
         isOpen={isBookingOpen}
         onOpenChange={setIsBookingOpen}
         initialSlotType={selectedSlotType}
