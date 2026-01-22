@@ -376,8 +376,10 @@ export function MarketBookingStepper({
       if (error) throw error;
       if (!data?.url) throw new Error('No checkout URL returned');
 
-      // Redirect to Stripe Checkout
-      window.location.href = data.url;
+      console.log('Redirecting to Stripe checkout:', data.url);
+      
+      // Redirect to Stripe Checkout - use replace to ensure navigation happens
+      window.location.replace(data.url);
     } catch (err: any) {
       console.error('Payment error:', err);
       toast({
