@@ -29,6 +29,7 @@ export interface CreateBookingInput {
   total_price: number;
   notes?: string | null;
   payment_method?: 'stripe' | 'cash';
+  booking_mode?: 'INSTANT' | 'REQUEST';
   // For email notification
   vendor_email?: string;
   vendor_name?: string;
@@ -94,7 +95,11 @@ export function useBookings() {
         total_price: bookingData.total_price,
         notes: bookingData.notes || null,
         payment_method: bookingData.payment_method || 'stripe',
-        status: 'pending'
+        booking_mode: bookingData.booking_mode || 'INSTANT',
+        status: bookingData.booking_mode === 'REQUEST' ? 'pending' : 'confirmed',
+        payment_status: bookingData.booking_mode === 'REQUEST' 
+          ? 'awaiting_approval'
+          : (bookingData.payment_method === 'cash' ? 'cash_due' : 'pending')
       })
       .select()
       .single();

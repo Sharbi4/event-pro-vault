@@ -15,6 +15,8 @@ interface VendorBookingsProps {
 
 interface ExtendedBooking extends VendorBooking {
   payment_status?: string;
+  payment_method?: string;
+  booking_mode?: string;
   stripe_checkout_session_id?: string;
   deposit_amount?: number;
   final_amount?: number;
@@ -109,8 +111,28 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
 
   const getPaymentBadge = (booking: ExtendedBooking) => {
     const paymentStatus = (booking as any).payment_status;
+    const paymentMethod = (booking as any).payment_method;
     const depositPaid = (booking as any).deposit_paid_at;
     const finalPaid = (booking as any).final_paid_at;
+    
+    if (paymentMethod === 'cash') {
+      if (paymentStatus === 'cash_due') {
+        return (
+          <Badge variant="outline" className="gap-1 border-amber-500 text-amber-600">
+            <DollarSign className="w-3 h-3" />
+            Cash Due
+          </Badge>
+        );
+      }
+      if (paymentStatus === 'awaiting_approval') {
+        return (
+          <Badge variant="secondary" className="gap-1">
+            <Clock className="w-3 h-3" />
+            Pending Approval
+          </Badge>
+        );
+      }
+    }
     
     if (finalPaid) {
       return (
@@ -130,6 +152,15 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
       );
     }
     
+    if (paymentStatus === 'awaiting_approval') {
+      return (
+        <Badge variant="secondary" className="gap-1">
+          <Clock className="w-3 h-3" />
+          Pending Approval
+        </Badge>
+      );
+    }
+    
     if (paymentStatus === 'pending') {
       return (
         <Badge variant="secondary" className="gap-1">
@@ -142,6 +173,41 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
     return null;
   };
 
+  // Handle accept for Request-to-Book bookings
+  const handleAcceptBooking = async (booking: ExtendedBooking) => {
+    setUpdating(booking.id);
+    const paymentMethod = (booking as any).payment_method;
+    
+    if (paymentMethod === 'cash') {
+      // For cash bookings, just confirm
+      await onUpdateStatus(booking.id, 'confirmed');
+      // Update payment status to cash_due
+      await supabase
+        .from('bookings')
+        .update({ payment_status: 'cash_due' })
+        .eq('id', booking.id);
+      toast({
+        title: "Booking confirmed!",
+        description: "Customer will pay in cash at the event."
+      });
+    } else {
+      // For online bookings, request payment
+      await handleRequestPayment(booking, 50);
+    }
+    setUpdating(null);
+  };
+
+  const handleDeclineBooking = async (bookingId: string) => {
+    setUpdating(bookingId);
+    await onUpdateStatus(bookingId, 'declined');
+    // Update payment status
+    await supabase
+      .from('bookings')
+      .update({ payment_status: 'declined' })
+      .eq('id', bookingId);
+    setUpdating(null);
+  };
+
   const BookingCard = ({ booking }: { booking: ExtendedBooking }) => {
     const isPast = new Date(booking.event_date) < new Date();
     const isPending = booking.status === 'pending';
@@ -152,6 +218,10 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
     const depositAmount = ((booking as any).deposit_amount || 0) / 100;
     const finalAmount = ((booking as any).final_amount || 0) / 100;
     const isEventDay = new Date(booking.event_date).toDateString() === new Date().toDateString();
+    const bookingMode = (booking as any).booking_mode || 'INSTANT';
+    const paymentMethod = (booking as any).payment_method || 'stripe';
+    const isRequestToBook = bookingMode === 'REQUEST';
+    const isCashPayment = paymentMethod === 'cash';
 
     return (
       <Card className="overflow-hidden">
@@ -226,39 +296,75 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
               
               {isPending && !isPast && (
                 <div className="flex flex-col gap-2 mt-2">
-                  <div className="flex gap-2">
-                    <Button
-                      size="sm"
-                      variant="gradient"
-                      onClick={() => handleRequestPayment(booking, 50)}
-                      disabled={requestingPayment === booking.id || updating === booking.id}
-                    >
-                      {requestingPayment === booking.id ? (
-                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                      ) : (
-                        <CreditCard className="w-4 h-4 mr-1" />
-                      )}
-                      Accept (50% Deposit)
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => handleStatusUpdate(booking.id, 'declined')}
-                      disabled={updating === booking.id || requestingPayment === booking.id}
-                    >
-                      <X className="w-4 h-4 mr-1" />
-                      Decline
-                    </Button>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => handleRequestPayment(booking, 100)}
-                    disabled={requestingPayment === booking.id || updating === booking.id}
-                    className="w-full"
-                  >
-                    Accept (Full Payment)
-                  </Button>
+                  {/* Show booking mode label */}
+                  <Badge variant={isRequestToBook ? 'secondary' : 'outline'} className="self-end text-xs">
+                    {isRequestToBook ? 'Request to Book' : 'Instant Book'}
+                  </Badge>
+                  
+                  {isCashPayment ? (
+                    // Cash payment actions
+                    <div className="flex gap-2">
+                      <Button
+                        size="sm"
+                        variant="gradient"
+                        onClick={() => handleAcceptBooking(booking)}
+                        disabled={updating === booking.id}
+                      >
+                        {updating === booking.id ? (
+                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                        ) : (
+                          <Check className="w-4 h-4 mr-1" />
+                        )}
+                        Accept (Cash)
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeclineBooking(booking.id)}
+                        disabled={updating === booking.id}
+                      >
+                        <X className="w-4 h-4 mr-1" />
+                        Decline
+                      </Button>
+                    </div>
+                  ) : (
+                    // Online payment actions
+                    <>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="gradient"
+                          onClick={() => handleRequestPayment(booking, 50)}
+                          disabled={requestingPayment === booking.id || updating === booking.id}
+                        >
+                          {requestingPayment === booking.id ? (
+                            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                          ) : (
+                            <CreditCard className="w-4 h-4 mr-1" />
+                          )}
+                          Accept (50% Deposit)
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeclineBooking(booking.id)}
+                          disabled={updating === booking.id || requestingPayment === booking.id}
+                        >
+                          <X className="w-4 h-4 mr-1" />
+                          Decline
+                        </Button>
+                      </div>
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => handleRequestPayment(booking, 100)}
+                        disabled={requestingPayment === booking.id || updating === booking.id}
+                        className="w-full"
+                      >
+                        Accept (Full Payment)
+                      </Button>
+                    </>
+                  )}
                 </div>
               )}
 
