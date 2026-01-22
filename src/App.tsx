@@ -9,7 +9,8 @@ import Browse from "./pages/Browse";
 import Markets from "./pages/Markets";
 import MarketDetail from "./pages/MarketDetail";
 import VendorProfile from "./pages/VendorProfile";
-import PackageDetail from "./pages/PackageDetail";
+import PackageDetail from "./pages/PackageDetailNew";
+import ProProfile from "./pages/ProProfile";
 import BecomePro from "./pages/BecomePro";
 import HowItWorks from "./pages/HowItWorks";
 import Auth from "./pages/Auth";
@@ -38,6 +39,7 @@ const App = () => (
               <Route path="/markets" element={<Markets />} />
               <Route path="/market/:id" element={<MarketDetail />} />
               <Route path="/vendor/:id" element={<VendorProfile />} />
+              <Route path="/pro/:id" element={<ProProfile />} />
               <Route path="/package/:id" element={<PackageDetail />} />
               <Route path="/become-a-pro" element={<BecomePro />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
