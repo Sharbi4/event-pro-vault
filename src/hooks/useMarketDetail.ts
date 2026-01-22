@@ -197,6 +197,64 @@ export function useMarketDetail(marketId: string | undefined) {
     loadMarket();
   }, [loadMarket]);
 
+  // Subscribe to realtime inventory updates
+  useEffect(() => {
+    if (!marketId) return;
+
+    const channel = supabase
+      .channel(`market-inventory-${marketId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'slot_inventory',
+          filter: `market_id=eq.${marketId}`,
+        },
+        (payload) => {
+          console.log('Realtime inventory update:', payload);
+          
+          if (payload.eventType === 'UPDATE') {
+            const updated = payload.new as any;
+            setInventory(prev => prev.map(inv => 
+              inv.id === updated.id
+                ? {
+                    ...inv,
+                    slotsRemaining: updated.slots_remaining,
+                    totalSlots: updated.total_slots,
+                    priceOverride: updated.price_override ? Number(updated.price_override) : undefined,
+                  }
+                : inv
+            ));
+          } else if (payload.eventType === 'INSERT') {
+            const inserted = payload.new as any;
+            // Only add if it's future and has slots
+            if (inserted.date >= new Date().toISOString().split('T')[0] && inserted.slots_remaining > 0) {
+              setInventory(prev => [...prev, {
+                id: inserted.id,
+                slotTypeId: inserted.slot_type_id,
+                date: inserted.date,
+                startTime: inserted.start_time,
+                endTime: inserted.end_time,
+                totalSlots: inserted.total_slots,
+                slotsRemaining: inserted.slots_remaining,
+                priceOverride: inserted.price_override ? Number(inserted.price_override) : undefined,
+                notes: inserted.notes || undefined,
+              }].sort((a, b) => a.date.localeCompare(b.date)));
+            }
+          } else if (payload.eventType === 'DELETE') {
+            const deleted = payload.old as any;
+            setInventory(prev => prev.filter(inv => inv.id !== deleted.id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [marketId]);
+
   // Get inventory for a specific slot type
   const getInventoryForSlotType = useCallback((slotTypeId: string) => {
     return inventory.filter(inv => inv.slotTypeId === slotTypeId);

@@ -212,6 +212,46 @@ export function useBrowseMarkets() {
     fetchMarkets();
   }, [fetchMarkets]);
 
+  // Subscribe to realtime inventory updates for live slot availability
+  useEffect(() => {
+    const channel = supabase
+      .channel('browse-markets-inventory')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'slot_inventory',
+        },
+        (payload) => {
+          const updated = payload.new as any;
+          
+          // Update the affected market's slot count
+          setMarkets(prev => prev.map(market => {
+            if (market.id === updated.market_id) {
+              // Recalculate total slots remaining for this market
+              // We need to refetch to get accurate counts, but for immediate feedback
+              // we can adjust based on the change
+              const oldSlots = (payload.old as any)?.slots_remaining || 0;
+              const newSlots = updated.slots_remaining || 0;
+              const diff = newSlots - oldSlots;
+              
+              return {
+                ...market,
+                totalSlotsRemaining: Math.max(0, market.totalSlotsRemaining + diff),
+              };
+            }
+            return market;
+          }));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   const updateFilter = (key: keyof BrowseMarketFilters, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));
   };
