@@ -158,46 +158,27 @@ export function PayoutsTab({ bookings }: PayoutsTabProps) {
         </Card>
       </div>
 
-      {/* Section 4: Fee Structure - Dual-Sided Charging */}
+      {/* Section 4: Fee Structure - Market Host Only */}
       <div>
-        <h3 className="text-lg font-semibold mb-4">Fee Structure</h3>
+        <h3 className="text-lg font-semibold mb-4">Your Fee Structure</h3>
         <Card>
           <CardContent className="p-6 space-y-4">
             <div className="flex items-start gap-3">
               <Info className="w-5 h-5 text-primary mt-0.5" />
               <div>
-                <p className="font-medium">Dual-sided fee structure</p>
+                <p className="font-medium">How your payouts work</p>
                 <p className="text-sm text-muted-foreground mt-1">
-                  We charge a small fee to both parties to keep the platform running and provide secure payments.
+                  A small platform fee is deducted from each booking to cover platform services, support, and secure payment processing.
                 </p>
               </div>
             </div>
 
             <Separator />
 
-            {/* Customer Side */}
+            {/* Market Host Fees */}
             <div className="space-y-2">
               <div className="flex items-center gap-2">
-                <Badge className="bg-blue-500">Vendor Pays</Badge>
-              </div>
-              <div className="flex items-center justify-between pl-2">
-                <div className="flex items-center gap-2">
-                  <Percent className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm">Booking fee (added at checkout)</span>
-                </div>
-                <Badge variant="outline">12.9%</Badge>
-              </div>
-              <p className="text-xs text-muted-foreground pl-6">
-                Added to the slot price when a vendor books. Example: $100 slot → Vendor pays $112.90
-              </p>
-            </div>
-
-            <Separator />
-
-            {/* Market Host Side */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Badge className="bg-primary">You Pay</Badge>
+                <Badge className="bg-primary">Your Fees</Badge>
               </div>
               <div className="flex items-center justify-between pl-2">
                 <div className="flex items-center gap-2">
@@ -236,7 +217,7 @@ export function PayoutsTab({ bookings }: PayoutsTabProps) {
 
             <Separator />
 
-            {/* Example Calculation */}
+            {/* Example Calculation - Market Host View Only */}
             <div className="bg-muted/50 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-3">
                 <DollarSign className="w-4 h-4 text-primary" />
@@ -247,14 +228,6 @@ export function PayoutsTab({ bookings }: PayoutsTabProps) {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Your slot price</span>
                   <span className="font-mono">${exampleBreakdown.slotPrice.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-blue-600">
-                  <span>+ Customer booking fee (12.9%)</span>
-                  <span className="font-mono">+${exampleBreakdown.customerFee.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between font-medium border-t pt-2">
-                  <span>Total charged to vendor</span>
-                  <span className="font-mono">${exampleBreakdown.totalCharged.toFixed(2)}</span>
                 </div>
                 
                 <div className="my-2 flex items-center justify-center">

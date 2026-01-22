@@ -749,10 +749,9 @@ export function VendorEarnings({ bookings }: VendorEarningsProps) {
             <div>
               <h4 className="font-medium mb-1">How Fees Work</h4>
               <p className="text-sm text-muted-foreground">
-                We charge a 12.9% commission on your earnings. Bookers also pay a 12.9% service fee 
-                on top of your listed price. This helps us maintain the platform, provide customer support, 
-                and process secure payments. Your net payout is automatically transferred to your connected 
-                Stripe account after each successful booking.
+                We charge a 12.9% commission on your earnings. This helps us maintain the platform, 
+                provide customer support, and process secure payments. Your net payout is automatically 
+                transferred to your connected Stripe account after each successful booking.
               </p>
             </div>
           </div>
