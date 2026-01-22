@@ -154,13 +154,14 @@ export default function Auth() {
           <div className="max-w-sm mx-auto">
             {/* Header */}
             <div className="text-center mb-6">
-              <Link to="/" className="inline-flex items-center gap-3 justify-center mb-4">
-                <img src={logoIcon} alt="EventPro" className="h-12 w-auto" />
-                <div className="flex flex-col items-start">
-                  <span className="font-bold text-xl text-foreground leading-tight">EventPro</span>
-                  <span className="text-xs text-muted-foreground leading-tight">Powered by Vendibook</span>
-                </div>
+              <Link to="/" className="inline-block mb-4">
+                <img src={logoIcon} alt="EventPro" className="h-14 w-auto mx-auto" />
               </Link>
+              
+              <h1 className="font-display text-2xl font-bold text-foreground">
+                EventPro
+              </h1>
+              <p className="text-xs text-muted-foreground">Powered by Vendibook</p>
               
               {contextMessage && (
                 <div className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full mb-3">
