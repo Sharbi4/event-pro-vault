@@ -83,14 +83,21 @@ export function Header() {
             <Link to="/" className="flex items-center gap-2 shrink-0">
               <img 
                 src={logo} 
-                alt="EventPro" 
-                className={`w-auto transition-all duration-300 ${isScrolled ? 'h-8 lg:h-9' : 'h-9 lg:h-10'}`}
+                alt="Event Pro by Vendibook" 
+                className={`w-auto transition-all duration-300 ${isScrolled ? 'h-7 lg:h-8' : 'h-8 lg:h-9'}`}
               />
-              <span className={`font-display font-bold text-foreground leading-tight transition-all duration-300 ${
-                isScrolled ? 'text-base lg:text-lg' : 'text-lg lg:text-xl'
-              }`}>
-                EventPro
-              </span>
+              <div className="flex flex-col leading-none">
+                <span className={`font-display font-bold text-foreground transition-all duration-300 ${
+                  isScrolled ? 'text-sm lg:text-base' : 'text-base lg:text-lg'
+                }`}>
+                  Event Pro
+                </span>
+                <span className={`text-muted-foreground transition-all duration-300 ${
+                  isScrolled ? 'text-[9px] lg:text-[10px]' : 'text-[10px] lg:text-xs'
+                }`}>
+                  by Vendibook
+                </span>
+              </div>
             </Link>
 
             {/* Desktop Navigation - Center */}
