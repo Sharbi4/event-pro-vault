@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Star, MapPin, Zap, ShieldCheck, CheckCircle2,
   Calendar, MessageCircle, ChevronLeft, Share2, Heart,
@@ -67,8 +68,19 @@ export default function VendorProfile() {
     );
   }
 
-  // Get cover image from first package
-  const coverImage = packages[0]?.images?.[0];
+  // Get cover image - prefer vendor's custom cover, fallback to first package image
+  const coverImage = profile.coverImageUrl || packages[0]?.images?.[0];
+
+  // Get initials for avatar fallback
+  const getInitials = (name: string | null) => {
+    if (!name) return 'V';
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <Layout>
@@ -120,63 +132,50 @@ export default function VendorProfile() {
             {/* Header Card */}
             <Card variant="glass" className="p-6 mb-6">
               <div className="flex flex-col md:flex-row md:items-start justify-between gap-4 mb-4">
-                <div>
-                  {/* Badges */}
-                  <div className="flex flex-wrap items-center gap-2 mb-3">
-                    {profile.isVerified && (
-                      <Badge className="gap-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0">
-                        <ShieldCheck className="w-3 h-3" />
-                        Verified Pro
-                      </Badge>
-                    )}
-                    {profile.stripeAccountStatus === 'active' && (
-                      <Badge variant="outline" className="gap-1 border-primary/30 text-primary">
-                        <CheckCircle2 className="w-3 h-3" />
-                        Payments Enabled
-                      </Badge>
-                    )}
-                    {packages.some(p => p.instant_book) && (
-                      <Badge variant="gradient" className="gap-1">
-                        <Zap className="w-3 h-3" />
-                        Instant Book
-                      </Badge>
-                    )}
-                    {avgRating >= 4.5 && totalReviews >= 5 && (
-                      <Badge className="gap-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
-                        <Award className="w-3 h-3" />
-                        Top Rated
-                      </Badge>
-                    )}
-                  </div>
-
-                  <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
-                    {profile.businessName}
-                  </h1>
+                <div className="flex gap-4">
+                  {/* Avatar */}
+                  <Avatar className="w-20 h-20 border-4 border-background shadow-lg flex-shrink-0">
+                    <AvatarImage src={profile.avatarUrl || undefined} alt={profile.businessName} />
+                    <AvatarFallback className="text-xl bg-primary/10 text-primary">
+                      {getInitials(profile.displayName || profile.fullName || profile.businessName)}
+                    </AvatarFallback>
+                  </Avatar>
                   
-                  <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
-                    {profile.businessType && (
-                      <span className="capitalize">{profile.businessType.replace(/-/g, ' ')}</span>
-                    )}
-                    {profile.serviceArea && (
-                      <span className="flex items-center gap-1">
-                        <MapPin className="w-4 h-4" />
-                        {profile.serviceArea}
-                      </span>
-                    )}
-                    {profile.websiteUrl && (
-                      <a 
-                        href={profile.websiteUrl} 
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-1 hover:text-primary transition-colors"
-                      >
-                        <Globe className="w-4 h-4" />
-                        Website
-                      </a>
-                    )}
+                  <div>
+                    {/* Badges */}
+                    <div className="flex flex-wrap items-center gap-2 mb-3">
+                      {profile.isVerified && (
+                        <Badge className="gap-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0">
+                          <ShieldCheck className="w-3 h-3" />
+                          Verified Pro
+                        </Badge>
+                      )}
+                      {profile.stripeAccountStatus === 'active' && (
+                        <Badge variant="outline" className="gap-1 border-primary/30 text-primary">
+                          <CheckCircle2 className="w-3 h-3" />
+                          Payments Enabled
+                        </Badge>
+                      )}
+                      {packages.some(p => p.instant_book) && (
+                        <Badge variant="gradient" className="gap-1">
+                          <Zap className="w-3 h-3" />
+                          Instant Book
+                        </Badge>
+                      )}
+                      {avgRating >= 4.5 && totalReviews >= 5 && (
+                        <Badge className="gap-1 bg-gradient-to-r from-amber-500 to-orange-500 text-white border-0">
+                          <Award className="w-3 h-3" />
+                          Top Rated
+                        </Badge>
+                      )}
+                    </div>
+
+                    <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">
+                      {profile.businessName}
+                    </h1>
                   </div>
                 </div>
-
+                  
                 {/* Rating */}
                 {totalReviews > 0 && (
                   <div className="flex items-center gap-2">
@@ -190,6 +189,35 @@ export default function VendorProfile() {
                       <p className="text-sm text-muted-foreground">{totalReviews} reviews</p>
                     </div>
                   </div>
+                )}
+              </div>
+
+              {/* Short bio */}
+              {profile.shortBio && (
+                <p className="text-muted-foreground italic mb-4">"{profile.shortBio}"</p>
+              )}
+
+              {/* Meta info */}
+              <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
+                {profile.businessType && (
+                  <span className="capitalize">{profile.businessType.replace(/-/g, ' ')}</span>
+                )}
+                {profile.serviceArea && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-4 h-4" />
+                    {profile.serviceArea}
+                  </span>
+                )}
+                {profile.websiteUrl && (
+                  <a 
+                    href={profile.websiteUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1 hover:text-primary transition-colors"
+                  >
+                    <Globe className="w-4 h-4" />
+                    Website
+                  </a>
                 )}
               </div>
 

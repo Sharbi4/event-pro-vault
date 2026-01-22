@@ -11,6 +11,9 @@ export interface VendorProfileData {
   websiteUrl: string | null;
   fullName: string | null;
   avatarUrl: string | null;
+  coverImageUrl: string | null;
+  displayName: string | null;
+  shortBio: string | null;
   isVerified: boolean;
   stripeAccountStatus: string;
   identityVerificationStatus: string;
@@ -139,6 +142,9 @@ export function useVendorProfile(vendorUserId: string | undefined) {
           websiteUrl: detailsResult.data.website_url,
           fullName: profileResult.data.full_name,
           avatarUrl: profileResult.data.avatar_url,
+          coverImageUrl: detailsResult.data.cover_image_url,
+          displayName: profileResult.data.display_name,
+          shortBio: profileResult.data.short_bio,
           isVerified: profileResult.data.stripe_account_status === 'active' && 
                       profileResult.data.identity_verification_status === 'verified',
           stripeAccountStatus: profileResult.data.stripe_account_status || 'not_started',
