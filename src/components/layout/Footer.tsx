@@ -65,6 +65,11 @@ export function Footer() {
             <h4 className="font-semibold text-foreground mb-4">Support</h4>
             <ul className="space-y-3">
               <li>
+                <Link to="/faq" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  FAQ
+                </Link>
+              </li>
+              <li>
                 <Link to="/trust-safety" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Trust & Safety
                 </Link>
