@@ -338,7 +338,7 @@ export default function MarketSpaceDashboard() {
             </TabsContent>
 
             <TabsContent value="payouts" className="mt-6">
-              <PayoutsTab />
+              <PayoutsTab bookings={bookings} />
             </TabsContent>
 
             <TabsContent value="settings" className="mt-6">
