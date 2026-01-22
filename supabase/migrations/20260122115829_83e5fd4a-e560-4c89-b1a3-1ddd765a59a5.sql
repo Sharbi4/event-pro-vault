@@ -1,0 +1,20 @@
+-- Add vendor details and setup needs columns to slot_bookings
+ALTER TABLE public.slot_bookings
+ADD COLUMN IF NOT EXISTS vendor_category text,
+ADD COLUMN IF NOT EXISTS vendor_type text,
+ADD COLUMN IF NOT EXISTS booth_size text,
+ADD COLUMN IF NOT EXISTS truck_length_feet integer,
+ADD COLUMN IF NOT EXISTS has_generator boolean DEFAULT false,
+ADD COLUMN IF NOT EXISTS needs_power boolean DEFAULT false,
+ADD COLUMN IF NOT EXISTS power_amps integer,
+ADD COLUMN IF NOT EXISTS needs_water boolean DEFAULT false,
+ADD COLUMN IF NOT EXISTS needs_wifi boolean DEFAULT false,
+ADD COLUMN IF NOT EXISTS arrival_time text,
+ADD COLUMN IF NOT EXISTS setup_notes text,
+ADD COLUMN IF NOT EXISTS is_recurring boolean DEFAULT false,
+ADD COLUMN IF NOT EXISTS recurring_parent_id uuid REFERENCES public.slot_bookings(id),
+ADD COLUMN IF NOT EXISTS recurring_week_number integer,
+ADD COLUMN IF NOT EXISTS platform_fee_rate numeric DEFAULT 0.129,
+ADD COLUMN IF NOT EXISTS platform_fee_amount numeric DEFAULT 0,
+ADD COLUMN IF NOT EXISTS base_amount numeric DEFAULT 0,
+ADD COLUMN IF NOT EXISTS stripe_checkout_session_id text;
