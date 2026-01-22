@@ -92,9 +92,9 @@ export default {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-primary': 'linear-gradient(135deg, hsl(var(--gradient-orange)) 0%, hsl(var(--gradient-fuchsia)) 50%, hsl(var(--gradient-yellow)) 100%)',
-        'gradient-warm': 'linear-gradient(135deg, hsl(var(--gradient-orange)) 0%, hsl(var(--gradient-red)) 50%, hsl(var(--gradient-fuchsia)) 100%)',
-        'gradient-sunset': 'linear-gradient(135deg, hsl(var(--gradient-yellow)) 0%, hsl(var(--gradient-orange)) 35%, hsl(var(--gradient-fuchsia)) 100%)',
+        'gradient-primary': 'linear-gradient(135deg, hsl(var(--gradient-purple)) 0%, hsl(var(--gradient-indigo)) 50%, hsl(var(--gradient-blue)) 100%)',
+        'gradient-warm': 'linear-gradient(135deg, hsl(var(--gradient-lavender)) 0%, hsl(var(--gradient-purple)) 50%, hsl(var(--gradient-violet)) 100%)',
+        'gradient-sunset': 'linear-gradient(135deg, hsl(var(--gradient-cyan)) 0%, hsl(var(--gradient-blue)) 35%, hsl(var(--gradient-purple)) 100%)',
       },
     },
   },
