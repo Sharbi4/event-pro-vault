@@ -37,8 +37,17 @@ export function StepPackages({
       name: formData.name,
       description: formData.description,
       type: formData.type,
+      pricing_type: formData.pricing_type,
       price: formData.price,
+      starting_at: formData.starting_at ?? null,
       min_units: formData.min_units,
+      min_hours: formData.min_hours ?? null,
+      min_guests: formData.min_guests ?? null,
+      min_quantity: formData.min_quantity ?? null,
+      min_spend: formData.min_spend ?? null,
+      overtime_rate: formData.overtime_rate ?? null,
+      deposit: formData.deposit ?? null,
+      additional_fees: formData.additional_fees ?? null,
       includes: formData.includes,
       add_ons: formData.add_ons,
       requirements: formData.requirements,
@@ -49,8 +58,12 @@ export function StepPackages({
       images: formData.images,
       travel_radius: formData.travel_radius,
       travel_fee_per_mile: formData.travel_fee_per_mile,
+      max_travel_miles: formData.max_travel_miles ?? null,
+      included_miles: formData.included_miles ?? null,
+      fee_per_mile: formData.fee_per_mile ?? null,
+      pickup_only: formData.pickup_only ?? null,
       cancellation_policy: formData.cancellation_policy,
-    };
+    } as any;
 
     if (editingPackage) {
       await onUpdatePackage(packageData);
@@ -157,7 +170,7 @@ export function StepPackages({
             setShowForm(false);
             setEditingPackage(null);
           }}
-          onSubmit={handleSave}
+          onSubmit={handleSave as any}
           initialData={editingPackage}
         />
       )}

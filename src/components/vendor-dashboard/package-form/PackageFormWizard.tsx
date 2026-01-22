@@ -22,15 +22,36 @@ import { StepMedia } from './StepMedia';
 import { PackagePreview } from './PackagePreview';
 import { useIsMobile } from '@/hooks/use-mobile';
 
+export type PricingType = 'hourly' | 'daily' | 'flat' | 'per_guest' | 'per_item' | 'custom_quote';
+
+export interface AdditionalFee {
+  id: string;
+  name: string;
+  amount: number;
+}
+
 export interface PackageFormData {
   name: string;
   description: string;
   category: string;
   type: 'HOURLY' | 'DAILY';
+  pricing_type: PricingType;
   price: number;
+  starting_at?: number;
   min_units: number;
+  min_hours: number;
+  min_guests?: number;
+  min_quantity?: number;
+  min_spend?: number;
+  overtime_rate?: number;
+  deposit?: number;
+  additional_fees: AdditionalFee[];
   travel_radius: number;
   travel_fee_per_mile: number;
+  max_travel_miles?: number;
+  included_miles: number;
+  fee_per_mile: number;
+  pickup_only: boolean;
   cancellation_policy: string;
   includes: string[];
   add_ons: { id: string; name: string; price: number }[];
@@ -61,10 +82,16 @@ const defaultFormData: PackageFormData = {
   description: '',
   category: '',
   type: 'HOURLY',
+  pricing_type: 'hourly',
   price: 0,
   min_units: 1,
+  min_hours: 1,
+  additional_fees: [],
   travel_radius: 25,
   travel_fee_per_mile: 0,
+  included_miles: 0,
+  fee_per_mile: 0,
+  pickup_only: false,
   cancellation_policy: 'flexible',
   includes: [],
   add_ons: [],
@@ -88,15 +115,32 @@ export function PackageFormWizard({
 
   useEffect(() => {
     if (initialData) {
+      // Map legacy type to pricing_type
+      const pricingType = (initialData.pricing_type as PricingType) || 
+        (initialData.type === 'HOURLY' ? 'hourly' : 'daily');
+      
       setFormData({
         name: initialData.name,
         description: initialData.description || '',
         category: initialData.category || '',
         type: initialData.type,
+        pricing_type: pricingType,
         price: initialData.price,
+        starting_at: initialData.starting_at || undefined,
         min_units: initialData.min_units,
+        min_hours: initialData.min_hours || 1,
+        min_guests: initialData.min_guests || undefined,
+        min_quantity: initialData.min_quantity || undefined,
+        min_spend: initialData.min_spend || undefined,
+        overtime_rate: initialData.overtime_rate || undefined,
+        deposit: initialData.deposit || undefined,
+        additional_fees: (initialData.additional_fees as AdditionalFee[]) || [],
         travel_radius: initialData.travel_radius || 25,
         travel_fee_per_mile: initialData.travel_fee_per_mile || 0,
+        max_travel_miles: initialData.max_travel_miles || undefined,
+        included_miles: initialData.included_miles || 0,
+        fee_per_mile: initialData.fee_per_mile || 0,
+        pickup_only: initialData.pickup_only || false,
         cancellation_policy: initialData.cancellation_policy || 'flexible',
         includes: initialData.includes || [],
         add_ons: initialData.add_ons || [],
@@ -130,7 +174,24 @@ export function PackageFormWizard({
 
   const handleSubmit = async () => {
     setLoading(true);
-    await onSubmit(formData);
+    // Cast formData to match expected type, providing defaults for nullable fields
+    const submitData = {
+      ...formData,
+      pricing_type: formData.pricing_type,
+      starting_at: formData.starting_at ?? null,
+      min_hours: formData.min_hours ?? null,
+      min_guests: formData.min_guests ?? null,
+      min_quantity: formData.min_quantity ?? null,
+      min_spend: formData.min_spend ?? null,
+      overtime_rate: formData.overtime_rate ?? null,
+      deposit: formData.deposit ?? null,
+      additional_fees: formData.additional_fees ?? null,
+      max_travel_miles: formData.max_travel_miles ?? null,
+      included_miles: formData.included_miles ?? null,
+      fee_per_mile: formData.fee_per_mile ?? null,
+      pickup_only: formData.pickup_only ?? null,
+    } as any;
+    await onSubmit(submitData);
     setLoading(false);
     onClose();
   };

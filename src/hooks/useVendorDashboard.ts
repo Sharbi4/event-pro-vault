@@ -3,14 +3,29 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
+export interface AdditionalFee {
+  id: string;
+  name: string;
+  amount: number;
+}
+
 export interface VendorPackage {
   id: string;
   user_id: string;
   name: string;
   description: string | null;
   type: 'HOURLY' | 'DAILY';
+  pricing_type: string | null;
   price: number;
+  starting_at: number | null;
   min_units: number;
+  min_hours: number | null;
+  min_guests: number | null;
+  min_quantity: number | null;
+  min_spend: number | null;
+  overtime_rate: number | null;
+  deposit: number | null;
+  additional_fees: AdditionalFee[] | null;
   includes: string[];
   add_ons: { id: string; name: string; price: number }[];
   requirements: string[];
@@ -21,6 +36,10 @@ export interface VendorPackage {
   images: string[];
   travel_radius: number;
   travel_fee_per_mile: number;
+  max_travel_miles: number | null;
+  included_miles: number | null;
+  fee_per_mile: number | null;
+  pickup_only: boolean | null;
   cancellation_policy: string;
   created_at: string;
   updated_at: string;
