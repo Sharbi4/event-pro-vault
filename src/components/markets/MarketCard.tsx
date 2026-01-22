@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { Market } from '@/data/markets';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -111,9 +112,11 @@ export function MarketCard({ market, isSelected, onSelect }: MarketCardProps) {
         </p>
 
         {/* Action */}
-        <Button variant="gradient" size="sm" className="w-full">
-          Reserve a Spot
-        </Button>
+        <Link to={`/market/${market.id}`} onClick={(e) => e.stopPropagation()}>
+          <Button variant="gradient" size="sm" className="w-full">
+            Reserve a Spot
+          </Button>
+        </Link>
       </div>
     </div>
   );
