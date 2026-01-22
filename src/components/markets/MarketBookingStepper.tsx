@@ -318,18 +318,23 @@ export function MarketBookingStepper({
     }
   };
 
-  // Handle payment
+  // Handle payment - supports both logged-in users and guest checkout
   const handlePay = async () => {
-    if (!user) {
-      sessionStorage.setItem('marketBookingReturn', window.location.pathname + '?reserve=1');
-      navigate('/auth');
-      return;
-    }
-
+    // Validate required fields
     if (!selectedSlotType || !selectedInventory || inventoryIdsToBook.length === 0) {
       toast({
         title: 'Error',
         description: 'Please complete all required fields',
+        variant: 'destructive'
+      });
+      return;
+    }
+
+    // Validate email is provided (required for guest checkout)
+    if (!vendorEmail.trim()) {
+      toast({
+        title: 'Email Required',
+        description: 'Please provide an email address for booking confirmation',
         variant: 'destructive'
       });
       return;
@@ -364,6 +369,8 @@ export function MarketBookingStepper({
           baseAmount: subtotal,
           platformFeeAmount: platformFee,
           totalAmount: grandTotal,
+          // For guest checkout, email is already in vendorEmail
+          guestEmail: !user ? vendorEmail.trim() : undefined,
         }
       });
 

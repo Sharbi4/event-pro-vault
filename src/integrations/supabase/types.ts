@@ -42,7 +42,7 @@ export type Database = {
           total_price: number
           units: number
           updated_at: string
-          user_id: string
+          user_id: string | null
           vendor_id: string
           vendor_stripe_account_id: string | null
           vendor_user_id: string | null
@@ -74,7 +74,7 @@ export type Database = {
           total_price: number
           units?: number
           updated_at?: string
-          user_id: string
+          user_id?: string | null
           vendor_id: string
           vendor_stripe_account_id?: string | null
           vendor_user_id?: string | null
@@ -106,7 +106,7 @@ export type Database = {
           total_price?: number
           units?: number
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
           vendor_id?: string
           vendor_stripe_account_id?: string | null
           vendor_user_id?: string | null
@@ -514,7 +514,7 @@ export type Database = {
           total_price: number
           truck_length_feet: number | null
           updated_at: string
-          user_id: string
+          user_id: string | null
           vendor_category: string | null
           vendor_email: string | null
           vendor_name: string | null
@@ -552,7 +552,7 @@ export type Database = {
           total_price: number
           truck_length_feet?: number | null
           updated_at?: string
-          user_id: string
+          user_id?: string | null
           vendor_category?: string | null
           vendor_email?: string | null
           vendor_name?: string | null
@@ -590,7 +590,7 @@ export type Database = {
           total_price?: number
           truck_length_feet?: number | null
           updated_at?: string
-          user_id?: string
+          user_id?: string | null
           vendor_category?: string | null
           vendor_email?: string | null
           vendor_name?: string | null
