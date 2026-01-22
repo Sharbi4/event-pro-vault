@@ -13,6 +13,7 @@ import PackageDetail from "./pages/PackageDetailNew";
 import ProProfile from "./pages/ProProfile";
 import BecomePro from "./pages/BecomePro";
 import HowItWorks from "./pages/HowItWorks";
+import Learn from "./pages/Learn";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import VendorDashboard from "./pages/VendorDashboard";
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/package/:id" element={<PackageDetail />} />
               <Route path="/become-a-pro" element={<BecomePro />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/learn" element={<Learn />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/signin" element={<Auth />} />
               <Route path="/dashboard" element={<Dashboard />} />
