@@ -222,7 +222,7 @@ export default function VendorOnboarding() {
 
       if (error) throw error;
       toast.success('Package created! Redirecting to your dashboard...');
-      navigate('/vendor-dashboard?tab=listings');
+      navigate('/vendor-dashboard?tab=packages');
     } catch (error) {
       console.error('Error creating package:', error);
       toast.error('Failed to create package');

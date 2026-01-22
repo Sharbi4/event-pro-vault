@@ -159,7 +159,7 @@ export function VendorListings({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-bold">Your Listings</h2>
+          <h2 className="text-xl font-bold">Your Packages</h2>
           <p className="text-sm text-muted-foreground">
             {packages.length}/20 packages • Drag or use arrow keys to reorder
           </p>
