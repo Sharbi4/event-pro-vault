@@ -17,6 +17,7 @@ import Learn from "./pages/Learn";
 import LearnEventPros from "./pages/LearnEventPros";
 import LearnMarkets from "./pages/LearnMarkets";
 import FAQ from "./pages/FAQ";
+import Support from "./pages/Support";
 import Auth from "./pages/Auth";
 import PostAuth from "./pages/PostAuth";
 import Dashboard from "./pages/Dashboard";
@@ -52,6 +53,7 @@ const App = () => (
               <Route path="/learn/event-pros" element={<LearnEventPros />} />
               <Route path="/learn/markets" element={<LearnMarkets />} />
               <Route path="/faq" element={<FAQ />} />
+              <Route path="/support" element={<Support />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/signin" element={<Auth />} />
               <Route path="/post-auth" element={<PostAuth />} />
