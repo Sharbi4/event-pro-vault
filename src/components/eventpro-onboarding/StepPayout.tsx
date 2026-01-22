@@ -45,7 +45,7 @@ const paymentOptions = [
     label: 'Online via Stripe',
     description: 'Accept credit cards and digital payments. Secure, instant booking.',
     icon: CreditCard,
-    fee: '12.9% service fee',
+    fee: '12.9% commission',
     feePercent: '12.9%',
     features: [
       'Instant booking confirmation',
@@ -231,8 +231,8 @@ export function StepPayout({
       <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 text-sm">
         <Info className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
         <p className="text-muted-foreground">
-          The 12.9% Stripe fee covers payment processing, platform fees, and buyer protection. 
-          This fee is applied to the customer's total, not deducted from your payout.
+          A 12.9% platform commission is deducted from your earnings. This covers payment processing, 
+          platform services, and customer support. Your net payout is shown in your dashboard.
         </p>
       </div>
     </div>
