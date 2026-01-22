@@ -24,8 +24,28 @@ export interface SlotBooking {
   vendorName?: string;
   vendorEmail?: string;
   vendorPhone?: string;
+  vendorCategory?: string;
+  vendorType?: string;
   notes?: string;
   createdAt: string;
+  // Setup details
+  boothSize?: string;
+  truckLengthFeet?: number;
+  hasGenerator?: boolean;
+  needsPower?: boolean;
+  powerAmps?: number;
+  needsWater?: boolean;
+  needsWifi?: boolean;
+  arrivalTime?: string;
+  setupNotes?: string;
+  // Recurring
+  isRecurring?: boolean;
+  recurringParentId?: string;
+  recurringWeekNumber?: number;
+  // Payment details
+  baseAmount?: number;
+  platformFeeRate?: number;
+  platformFeeAmount?: number;
   // Joined data
   slotTypeName?: string;
   inventoryDate?: string;
@@ -195,8 +215,29 @@ export function useMarketSpaceDashboard() {
             vendorName: b.vendor_name || undefined,
             vendorEmail: b.vendor_email || undefined,
             vendorPhone: b.vendor_phone || undefined,
+            vendorCategory: b.vendor_category || undefined,
+            vendorType: b.vendor_type || undefined,
             notes: b.notes || undefined,
             createdAt: b.created_at,
+            // Setup details
+            boothSize: b.booth_size || undefined,
+            truckLengthFeet: b.truck_length_feet || undefined,
+            hasGenerator: b.has_generator || false,
+            needsPower: b.needs_power || false,
+            powerAmps: b.power_amps || undefined,
+            needsWater: b.needs_water || false,
+            needsWifi: b.needs_wifi || false,
+            arrivalTime: b.arrival_time || undefined,
+            setupNotes: b.setup_notes || undefined,
+            // Recurring
+            isRecurring: b.is_recurring || false,
+            recurringParentId: b.recurring_parent_id || undefined,
+            recurringWeekNumber: b.recurring_week_number || undefined,
+            // Payment
+            baseAmount: b.base_amount ? Number(b.base_amount) : undefined,
+            platformFeeRate: b.platform_fee_rate ? Number(b.platform_fee_rate) : undefined,
+            platformFeeAmount: b.platform_fee_amount ? Number(b.platform_fee_amount) : undefined,
+            // Joined
             slotTypeName: (b.slot_types as any)?.name,
             inventoryDate: (b.slot_inventory as any)?.date,
           })));
