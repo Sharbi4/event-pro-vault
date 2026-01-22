@@ -13,6 +13,8 @@ import { VendorListings } from '@/components/vendor-dashboard/VendorListings';
 import { VendorAvailability } from '@/components/vendor-dashboard/VendorAvailability';
 import { VendorEarnings } from '@/components/vendor-dashboard/VendorEarnings';
 import { AvatarUpload } from '@/components/vendor-dashboard/AvatarUpload';
+import { CoverPhotoUpload } from '@/components/vendor-dashboard/CoverPhotoUpload';
+import { ImageIcon } from 'lucide-react';
 
 const VendorDashboard = () => {
   const navigate = useNavigate();
@@ -39,13 +41,17 @@ const VendorDashboard = () => {
   } = useVendorDashboard();
   
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
   
-  // Sync avatar URL from profile
+  // Sync avatar and cover URL from profile/vendor details
   useEffect(() => {
     if (profile?.avatar_url) {
       setAvatarUrl(profile.avatar_url);
     }
-  }, [profile?.avatar_url]);
+    if (vendorDetails?.cover_image_url) {
+      setCoverUrl(vendorDetails.cover_image_url);
+    }
+  }, [profile?.avatar_url, vendorDetails?.cover_image_url]);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -185,6 +191,24 @@ const VendorDashboard = () => {
                   displayName={profile?.display_name || profile?.full_name}
                   onUploadComplete={(url) => {
                     setAvatarUrl(url || null);
+                    refetch();
+                  }}
+                />
+              </div>
+
+              {/* Cover Photo Section */}
+              <div className="p-6 rounded-lg border bg-card">
+                <div className="flex items-center gap-2 mb-6">
+                  <ImageIcon className="w-5 h-5 text-primary" />
+                  <h3 className="font-semibold">Cover Photo</h3>
+                </div>
+                <p className="text-sm text-muted-foreground mb-4">
+                  This image appears as the header background on your public profile.
+                </p>
+                <CoverPhotoUpload
+                  currentCoverUrl={coverUrl}
+                  onUploadComplete={(url) => {
+                    setCoverUrl(url || null);
                     refetch();
                   }}
                 />

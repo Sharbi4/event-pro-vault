@@ -82,6 +82,7 @@ export interface VendorDetails {
   service_categories: string[] | null;
   service_area: string | null;
   website_url: string | null;
+  cover_image_url: string | null;
 }
 
 export function useVendorDashboard() {
