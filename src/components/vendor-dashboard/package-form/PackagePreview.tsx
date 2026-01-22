@@ -1,6 +1,5 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
 import { 
   Clock, 
   Calendar, 
@@ -9,7 +8,7 @@ import {
   Check, 
   Gift,
   AlertCircle,
-  DollarSign
+  Play
 } from 'lucide-react';
 import { categories } from '@/data/categories';
 import { PackageFormData } from './PackageFormWizard';
@@ -19,187 +18,162 @@ interface PackagePreviewProps {
 }
 
 const cancellationLabels: Record<string, string> = {
-  flexible: 'Flexible - Full refund up to 24 hours before',
-  moderate: 'Moderate - Full refund up to 5 days before',
-  strict: 'Strict - 50% refund up to 7 days before',
+  flexible: 'Flexible',
+  moderate: 'Moderate',
+  strict: 'Strict',
   non_refundable: 'Non-refundable'
 };
 
 export function PackagePreview({ formData }: PackagePreviewProps) {
   const category = categories.find(c => c.id === formData.category);
-  const coverImage = formData.images[0];
+  const coverMedia = formData.images[0];
+  const isVideo = coverMedia?.toLowerCase().match(/\.(mp4|mov|webm|avi)$/);
 
   return (
-    <div className="space-y-6">
-      <div className="space-y-2">
-        <h3 className="text-lg font-semibold">Preview your package</h3>
-        <p className="text-muted-foreground text-sm">
-          This is how customers will see your package listing.
-        </p>
+    <div className="space-y-4">
+      <div className="text-center pb-2">
+        <h3 className="font-semibold">Preview</h3>
+        <p className="text-xs text-muted-foreground">How customers will see your package</p>
       </div>
 
-      {/* Preview Card */}
-      <Card className="overflow-hidden">
-        {/* Cover Image */}
-        {coverImage ? (
-          <div className="aspect-video relative">
-            <img
-              src={coverImage}
-              alt={formData.name}
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            <div className="absolute bottom-4 left-4 right-4">
-              <h2 className="text-2xl font-bold text-white">{formData.name || 'Package Name'}</h2>
-              {category && (
-                <Badge variant="secondary" className="mt-2">
-                  {category.name}
-                </Badge>
-              )}
+      {/* Compact Preview Card */}
+      <div className="rounded-xl border overflow-hidden bg-card">
+        {/* Cover */}
+        <div className="aspect-[16/9] relative bg-muted">
+          {coverMedia ? (
+            isVideo ? (
+              <div className="relative w-full h-full">
+                <video src={coverMedia} className="w-full h-full object-cover" muted playsInline />
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                  <div className="w-12 h-12 rounded-full bg-white/90 flex items-center justify-center">
+                    <Play className="w-6 h-6 ml-0.5" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <img src={coverMedia} alt={formData.name} className="w-full h-full object-cover" />
+            )
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-muted-foreground text-sm">
+              No cover image
             </div>
-          </div>
-        ) : (
-          <div className="aspect-video bg-muted flex items-center justify-center">
-            <p className="text-muted-foreground">No cover image</p>
-          </div>
-        )}
-
-        <CardContent className="p-6 space-y-6">
-          {/* Pricing Header */}
-          <div className="flex items-center justify-between">
-            <div>
-              <span className="text-3xl font-bold gradient-text">
-                ${formData.price}
-              </span>
-              <span className="text-muted-foreground">
-                /{formData.type === 'HOURLY' ? 'hr' : 'day'}
-              </span>
-              {formData.min_units > 1 && (
-                <span className="text-sm text-muted-foreground ml-2">
-                  ({formData.min_units} min)
-                </span>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Badge variant="gradient">
-                {formData.type === 'HOURLY' ? (
-                  <><Clock className="w-3 h-3 mr-1" /> Hourly</>
-                ) : (
-                  <><Calendar className="w-3 h-3 mr-1" /> Daily</>
-                )}
+          )}
+          
+          {/* Overlay badges */}
+          <div className="absolute top-2 left-2 flex gap-1.5">
+            {formData.instant_book && (
+              <Badge variant="trust" className="text-xs">
+                <Zap className="w-3 h-3 mr-0.5" /> Instant
               </Badge>
-              {formData.instant_book && (
-                <Badge variant="trust">
-                  <Zap className="w-3 h-3 mr-1" />
-                  Instant Book
-                </Badge>
-              )}
+            )}
+          </div>
+          
+          {/* Price overlay */}
+          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+            <div className="flex items-end justify-between">
+              <div>
+                <h2 className="font-bold text-white text-lg leading-tight">
+                  {formData.name || 'Package Name'}
+                </h2>
+                {category && (
+                  <span className="text-white/70 text-xs">{category.name}</span>
+                )}
+              </div>
+              <div className="text-right">
+                <span className="text-xl font-bold text-white">${formData.price}</span>
+                <span className="text-white/70 text-xs">/{formData.type === 'HOURLY' ? 'hr' : 'day'}</span>
+              </div>
             </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="p-3 space-y-3">
+          {/* Quick info row */}
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              {formData.type === 'HOURLY' ? <Clock className="w-3 h-3" /> : <Calendar className="w-3 h-3" />}
+              {formData.min_units} {formData.type === 'HOURLY' ? 'hr' : 'day'} min
+            </span>
+            <span className="flex items-center gap-1">
+              <MapPin className="w-3 h-3" />
+              {formData.travel_radius} mi
+            </span>
+            <span className="ml-auto">{cancellationLabels[formData.cancellation_policy]}</span>
           </div>
 
           {/* Description */}
           {formData.description && (
-            <p className="text-muted-foreground">{formData.description}</p>
+            <p className="text-xs text-muted-foreground line-clamp-2">{formData.description}</p>
           )}
 
-          {/* Travel Info */}
-          <div className="flex items-center gap-4 p-3 rounded-lg bg-muted/50">
-            <MapPin className="w-5 h-5 text-primary" />
-            <div>
-              <p className="font-medium">Travel Radius: {formData.travel_radius} miles</p>
-              {formData.travel_fee_per_mile > 0 && (
-                <p className="text-sm text-muted-foreground">
-                  ${formData.travel_fee_per_mile}/mile travel fee
-                </p>
-              )}
-            </div>
-          </div>
-
-          {/* What's Included */}
+          {/* Includes */}
           {formData.includes.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="font-semibold flex items-center gap-2">
-                <Check className="w-4 h-4 text-green-500" />
-                What's Included
-              </h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {formData.includes.map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm">
-                    <Check className="w-4 h-4 text-green-500 shrink-0" />
-                    {item}
-                  </div>
-                ))}
-              </div>
+            <div className="flex flex-wrap gap-1">
+              {formData.includes.slice(0, 4).map((item, i) => (
+                <span key={i} className="inline-flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                  <Check className="w-3 h-3" />
+                  <span className="max-w-[80px] truncate">{item}</span>
+                </span>
+              ))}
+              {formData.includes.length > 4 && (
+                <span className="text-xs text-muted-foreground">+{formData.includes.length - 4} more</span>
+              )}
             </div>
           )}
 
           {/* Add-ons */}
           {formData.add_ons.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="font-semibold flex items-center gap-2">
-                <Gift className="w-4 h-4 text-purple-500" />
-                Optional Add-ons
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {formData.add_ons.map((addon, i) => (
-                  <Badge key={i} variant="secondary">
-                    {addon.name} (+${addon.price})
-                  </Badge>
-                ))}
-              </div>
+            <div className="flex flex-wrap gap-1">
+              {formData.add_ons.slice(0, 3).map((addon, i) => (
+                <Badge key={i} variant="secondary" className="text-xs py-0 h-5">
+                  <Gift className="w-2.5 h-2.5 mr-0.5 text-purple-500" />
+                  {addon.name} +${addon.price}
+                </Badge>
+              ))}
+              {formData.add_ons.length > 3 && (
+                <span className="text-xs text-muted-foreground">+{formData.add_ons.length - 3}</span>
+              )}
             </div>
           )}
 
           {/* Requirements */}
           {formData.requirements.length > 0 && (
-            <div className="space-y-3">
-              <h4 className="font-semibold flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 text-amber-500" />
-                Requirements
-              </h4>
-              <ul className="space-y-1">
-                {formData.requirements.map((req, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span className="w-1 h-1 rounded-full bg-amber-500" />
-                    {req}
-                  </li>
-                ))}
-              </ul>
+            <div className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+              <AlertCircle className="w-3 h-3" />
+              <span>{formData.requirements.length} requirement{formData.requirements.length > 1 ? 's' : ''}</span>
             </div>
           )}
 
-          {/* Cancellation Policy */}
-          <div className="pt-4 border-t">
-            <p className="text-sm">
-              <span className="font-medium">Cancellation Policy: </span>
-              <span className="text-muted-foreground">
-                {cancellationLabels[formData.cancellation_policy]}
-              </span>
-            </p>
-          </div>
-
-          {/* Preview CTA */}
-          <Button variant="gradient" className="w-full" disabled>
-            Book Now — ${formData.price * formData.min_units} minimum
+          {/* CTA */}
+          <Button variant="gradient" size="sm" className="w-full" disabled>
+            Book Now — ${formData.price * formData.min_units} min
           </Button>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
-      {/* Additional Images Preview */}
+      {/* Gallery thumbnails */}
       {formData.images.length > 1 && (
-        <div className="space-y-3">
-          <h4 className="font-medium">Gallery ({formData.images.length} images)</h4>
-          <div className="flex gap-2 overflow-x-auto pb-2">
-            {formData.images.slice(1).map((url, index) => (
-              <img
-                key={index}
-                src={url}
-                alt={`Gallery image ${index + 2}`}
-                className="w-20 h-20 rounded-lg object-cover shrink-0"
-              />
-            ))}
-          </div>
+        <div className="flex gap-1.5 justify-center">
+          {formData.images.slice(0, 6).map((url, i) => (
+            <div 
+              key={i} 
+              className={`w-10 h-10 rounded-lg overflow-hidden ${i === 0 ? 'ring-2 ring-primary' : 'opacity-60'}`}
+            >
+              {url.toLowerCase().match(/\.(mp4|mov|webm|avi)$/) ? (
+                <div className="w-full h-full bg-muted flex items-center justify-center">
+                  <Play className="w-4 h-4" />
+                </div>
+              ) : (
+                <img src={url} alt="" className="w-full h-full object-cover" />
+              )}
+            </div>
+          ))}
+          {formData.images.length > 6 && (
+            <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center text-xs font-medium">
+              +{formData.images.length - 6}
+            </div>
+          )}
         </div>
       )}
     </div>
