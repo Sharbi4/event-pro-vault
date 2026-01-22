@@ -11,7 +11,10 @@ export type OnboardingStep =
   | 'media'
   | 'packages'
   | 'availability'
+  | 'payout'
   | 'review';
+
+export type PaymentMethod = 'cash' | 'stripe' | 'both';
 
 export interface ProfileBasicsData {
   firstName: string;
@@ -63,6 +66,7 @@ export interface OnboardingState {
   weeklyAvailability: WeeklyAvailability[];
   bufferSettings: BufferSettings;
   timezone: string;
+  paymentMethod: PaymentMethod;
   isPublished: boolean;
 }
 
@@ -105,6 +109,7 @@ const initialState: OnboardingState = {
     availableByRequestOnly: false,
   },
   timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+  paymentMethod: 'stripe',
   isPublished: false,
 };
 
@@ -118,6 +123,8 @@ export function useEventProOnboarding() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [stripeStatus, setStripeStatus] = useState<string>('not_started');
+  const [connectLoading, setConnectLoading] = useState(false);
 
   const steps: OnboardingStep[] = [
     'profile-basics',
@@ -126,6 +133,7 @@ export function useEventProOnboarding() {
     'media',
     'packages',
     'availability',
+    'payout',
     'review',
   ];
 
@@ -422,9 +430,76 @@ export function useEventProOnboarding() {
     if (state.categories.length === 0) missing.push('At least 1 category');
     if (!state.serviceArea.formattedAddress) missing.push('Service Area');
     if (state.mediaItems.filter(m => m.type === 'image').length === 0) missing.push('At least 1 photo');
+    // Stripe is required if they selected stripe or both
+    if ((state.paymentMethod === 'stripe' || state.paymentMethod === 'both') && stripeStatus !== 'active') {
+      missing.push('Stripe payment setup');
+    }
 
     return { canPublish: missing.length === 0, missing };
   };
+
+  const checkStripeStatus = async () => {
+    try {
+      const { data, error } = await supabase.functions.invoke('check-connect-status');
+      if (error) throw error;
+      setStripeStatus(data.status || 'not_started');
+      return data.status;
+    } catch (error) {
+      console.error('Error checking Stripe status:', error);
+      return 'not_started';
+    }
+  };
+
+  const connectStripe = async () => {
+    setConnectLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-connect-account');
+      if (error) throw error;
+      if (data.url) {
+        window.location.href = data.url;
+      }
+    } catch (error) {
+      console.error('Error connecting Stripe:', error);
+      toast.error('Failed to start payment setup');
+    } finally {
+      setConnectLoading(false);
+    }
+  };
+
+  const savePaymentMethod = async () => {
+    if (!user) return;
+    setSaving(true);
+    
+    try {
+      const acceptsCash = state.paymentMethod === 'cash' || state.paymentMethod === 'both';
+      const acceptsStripe = state.paymentMethod === 'stripe' || state.paymentMethod === 'both';
+      
+      await supabase
+        .from('vendor_details')
+        .update({
+          payment_methods: state.paymentMethod === 'both' ? ['cash', 'stripe'] : [state.paymentMethod],
+          accepts_cash: acceptsCash,
+          accepts_stripe: acceptsStripe,
+        })
+        .eq('user_id', user.id);
+        
+      setLastSaved(new Date());
+    } catch (error) {
+      console.error('Error saving payment method:', error);
+      toast.error('Failed to save payment settings');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Check for Stripe return URL params
+  useEffect(() => {
+    const step = searchParams.get('step');
+    if (step === 'connect-complete' || step === 'connect-refresh') {
+      checkStripeStatus();
+      setCurrentStep('payout');
+    }
+  }, [searchParams]);
 
   return {
     currentStep,
@@ -434,14 +509,19 @@ export function useEventProOnboarding() {
     lastSaved,
     steps,
     stepIndex,
+    stripeStatus,
+    connectLoading,
     updateState,
     saveProgress,
     saveAvailability,
+    savePaymentMethod,
     publishProfile,
     nextStep,
     prevStep,
     goToStep,
     canPublish,
     loadExistingData,
+    checkStripeStatus,
+    connectStripe,
   };
 }

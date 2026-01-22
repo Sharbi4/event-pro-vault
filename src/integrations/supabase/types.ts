@@ -361,6 +361,8 @@ export type Database = {
       }
       vendor_details: {
         Row: {
+          accepts_cash: boolean | null
+          accepts_stripe: boolean | null
           base_location_lat: number | null
           base_location_lng: number | null
           business_description: string | null
@@ -372,6 +374,7 @@ export type Database = {
           formatted_address: string | null
           id: string
           media_items: Json | null
+          payment_methods: string[] | null
           service_area: string | null
           service_area_type: string | null
           service_categories: string[] | null
@@ -384,6 +387,8 @@ export type Database = {
           website_url: string | null
         }
         Insert: {
+          accepts_cash?: boolean | null
+          accepts_stripe?: boolean | null
           base_location_lat?: number | null
           base_location_lng?: number | null
           business_description?: string | null
@@ -395,6 +400,7 @@ export type Database = {
           formatted_address?: string | null
           id?: string
           media_items?: Json | null
+          payment_methods?: string[] | null
           service_area?: string | null
           service_area_type?: string | null
           service_categories?: string[] | null
@@ -407,6 +413,8 @@ export type Database = {
           website_url?: string | null
         }
         Update: {
+          accepts_cash?: boolean | null
+          accepts_stripe?: boolean | null
           base_location_lat?: number | null
           base_location_lng?: number | null
           business_description?: string | null
@@ -418,6 +426,7 @@ export type Database = {
           formatted_address?: string | null
           id?: string
           media_items?: Json | null
+          payment_methods?: string[] | null
           service_area?: string | null
           service_area_type?: string | null
           service_categories?: string[] | null
