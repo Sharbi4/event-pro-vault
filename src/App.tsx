@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { GoogleMapsProvider } from "@/contexts/GoogleMapsContext";
 import Browse from "./pages/Browse";
 import Markets from "./pages/Markets";
+import MarketDetail from "./pages/MarketDetail";
 import VendorProfile from "./pages/VendorProfile";
 import PackageDetail from "./pages/PackageDetail";
 import BecomePro from "./pages/BecomePro";
@@ -34,6 +35,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Browse />} />
               <Route path="/markets" element={<Markets />} />
+              <Route path="/market/:id" element={<MarketDetail />} />
               <Route path="/vendor/:id" element={<VendorProfile />} />
               <Route path="/package/:id" element={<PackageDetail />} />
               <Route path="/become-a-pro" element={<BecomePro />} />
