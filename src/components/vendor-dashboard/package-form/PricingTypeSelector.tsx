@@ -1,56 +1,68 @@
-import { Clock, Calendar } from 'lucide-react';
+import { Clock, Calendar, DollarSign, Users, Package, HelpCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+export type PricingType = 'hourly' | 'daily' | 'flat' | 'per_guest' | 'per_item' | 'custom_quote';
 
 interface PricingTypeSelectorProps {
-  type: 'HOURLY' | 'DAILY';
-  onTypeChange: (type: 'HOURLY' | 'DAILY') => void;
+  type: PricingType;
+  onTypeChange: (type: PricingType) => void;
 }
+
+const pricingTypes: {
+  id: PricingType;
+  label: string;
+  helper: string;
+  icon: typeof Clock;
+}[] = [
+  { id: 'hourly', label: 'Hourly', helper: 'Per hour', icon: Clock },
+  { id: 'daily', label: 'Daily', helper: 'Per day', icon: Calendar },
+  { id: 'flat', label: 'Flat Rate', helper: 'Per event', icon: DollarSign },
+  { id: 'per_guest', label: 'Per Guest', helper: 'Per person', icon: Users },
+  { id: 'per_item', label: 'Per Item', helper: 'Per unit', icon: Package },
+  { id: 'custom_quote', label: 'Quote Only', helper: 'Inquiry required', icon: HelpCircle },
+];
 
 export function PricingTypeSelector({ type, onTypeChange }: PricingTypeSelectorProps) {
   return (
-    <div className="grid grid-cols-2 gap-2">
-      <button
-        type="button"
-        onClick={() => onTypeChange('HOURLY')}
-        className={`p-3 rounded-xl border-2 transition-all text-left ${
-          type === 'HOURLY'
-            ? 'border-primary bg-primary/5'
-            : 'border-border hover:border-muted-foreground/50'
-        }`}
-      >
-        <div className="flex items-center gap-2.5">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-            type === 'HOURLY' ? 'bg-primary/10' : 'bg-muted'
-          }`}>
-            <Clock className={`w-4 h-4 ${type === 'HOURLY' ? 'text-primary' : 'text-muted-foreground'}`} />
-          </div>
-          <div>
-            <p className="font-medium text-sm">Hourly</p>
-            <p className="text-xs text-muted-foreground">Per hour</p>
-          </div>
-        </div>
-      </button>
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+      {pricingTypes.map((pt) => {
+        const Icon = pt.icon;
+        const isSelected = type === pt.id;
 
-      <button
-        type="button"
-        onClick={() => onTypeChange('DAILY')}
-        className={`p-3 rounded-xl border-2 transition-all text-left ${
-          type === 'DAILY'
-            ? 'border-primary bg-primary/5'
-            : 'border-border hover:border-muted-foreground/50'
-        }`}
-      >
-        <div className="flex items-center gap-2.5">
-          <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-            type === 'DAILY' ? 'bg-primary/10' : 'bg-muted'
-          }`}>
-            <Calendar className={`w-4 h-4 ${type === 'DAILY' ? 'text-primary' : 'text-muted-foreground'}`} />
-          </div>
-          <div>
-            <p className="font-medium text-sm">Daily</p>
-            <p className="text-xs text-muted-foreground">Per day</p>
-          </div>
-        </div>
-      </button>
+        return (
+          <button
+            key={pt.id}
+            type="button"
+            onClick={() => onTypeChange(pt.id)}
+            className={cn(
+              'p-3 rounded-xl border-2 transition-all text-left',
+              isSelected
+                ? 'border-primary bg-primary/5'
+                : 'border-border hover:border-muted-foreground/50'
+            )}
+          >
+            <div className="flex items-center gap-2">
+              <div
+                className={cn(
+                  'w-8 h-8 rounded-lg flex items-center justify-center shrink-0',
+                  isSelected ? 'bg-primary/10' : 'bg-muted'
+                )}
+              >
+                <Icon
+                  className={cn(
+                    'w-4 h-4',
+                    isSelected ? 'text-primary' : 'text-muted-foreground'
+                  )}
+                />
+              </div>
+              <div className="min-w-0">
+                <p className="font-medium text-sm truncate">{pt.label}</p>
+                <p className="text-xs text-muted-foreground truncate">{pt.helper}</p>
+              </div>
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }

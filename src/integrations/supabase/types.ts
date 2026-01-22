@@ -434,31 +434,41 @@ export type Database = {
       vendor_packages: {
         Row: {
           add_ons: Json | null
+          additional_fees: Json | null
           breakdown_time_minutes: number | null
           cancellation_policy: string | null
           category: string | null
           cover_image_url: string | null
           created_at: string
           customer_requirements: string | null
+          deposit: number | null
           description: string | null
           duration_minutes: number | null
+          fee_per_mile: number | null
           id: string
           images: string[] | null
+          included_miles: number | null
           included_travel_miles: number | null
           includes: string[] | null
           instant_book: boolean | null
           is_active: boolean | null
           is_published: boolean | null
+          max_travel_miles: number | null
+          min_guests: number | null
           min_hours: number | null
+          min_quantity: number | null
           min_spend: number | null
           min_units: number
           name: string
+          overtime_rate: number | null
+          pickup_only: boolean | null
           price: number
           price_per_mile: number | null
           pricing_type: string | null
           requirements: string[] | null
           setup_time_minutes: number | null
           sort_order: number | null
+          starting_at: number | null
           travel_fee_per_mile: number | null
           travel_radius: number | null
           type: string
@@ -467,31 +477,41 @@ export type Database = {
         }
         Insert: {
           add_ons?: Json | null
+          additional_fees?: Json | null
           breakdown_time_minutes?: number | null
           cancellation_policy?: string | null
           category?: string | null
           cover_image_url?: string | null
           created_at?: string
           customer_requirements?: string | null
+          deposit?: number | null
           description?: string | null
           duration_minutes?: number | null
+          fee_per_mile?: number | null
           id?: string
           images?: string[] | null
+          included_miles?: number | null
           included_travel_miles?: number | null
           includes?: string[] | null
           instant_book?: boolean | null
           is_active?: boolean | null
           is_published?: boolean | null
+          max_travel_miles?: number | null
+          min_guests?: number | null
           min_hours?: number | null
+          min_quantity?: number | null
           min_spend?: number | null
           min_units?: number
           name: string
+          overtime_rate?: number | null
+          pickup_only?: boolean | null
           price: number
           price_per_mile?: number | null
           pricing_type?: string | null
           requirements?: string[] | null
           setup_time_minutes?: number | null
           sort_order?: number | null
+          starting_at?: number | null
           travel_fee_per_mile?: number | null
           travel_radius?: number | null
           type?: string
@@ -500,31 +520,41 @@ export type Database = {
         }
         Update: {
           add_ons?: Json | null
+          additional_fees?: Json | null
           breakdown_time_minutes?: number | null
           cancellation_policy?: string | null
           category?: string | null
           cover_image_url?: string | null
           created_at?: string
           customer_requirements?: string | null
+          deposit?: number | null
           description?: string | null
           duration_minutes?: number | null
+          fee_per_mile?: number | null
           id?: string
           images?: string[] | null
+          included_miles?: number | null
           included_travel_miles?: number | null
           includes?: string[] | null
           instant_book?: boolean | null
           is_active?: boolean | null
           is_published?: boolean | null
+          max_travel_miles?: number | null
+          min_guests?: number | null
           min_hours?: number | null
+          min_quantity?: number | null
           min_spend?: number | null
           min_units?: number
           name?: string
+          overtime_rate?: number | null
+          pickup_only?: boolean | null
           price?: number
           price_per_mile?: number | null
           pricing_type?: string | null
           requirements?: string[] | null
           setup_time_minutes?: number | null
           sort_order?: number | null
+          starting_at?: number | null
           travel_fee_per_mile?: number | null
           travel_radius?: number | null
           type?: string
