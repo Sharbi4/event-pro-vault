@@ -93,7 +93,7 @@ const VendorDashboard = () => {
               {vendorDetails?.business_name || 'Vendor Dashboard'}
             </h1>
             <p className="text-muted-foreground">
-              Manage your listings, bookings, and earnings
+              Manage your packages, bookings, and earnings
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -128,9 +128,9 @@ const VendorDashboard = () => {
               <Calendar className="w-4 h-4 hidden sm:inline" />
               Bookings
             </TabsTrigger>
-            <TabsTrigger value="listings" className="gap-2">
+            <TabsTrigger value="packages" className="gap-2">
               <Package className="w-4 h-4 hidden sm:inline" />
-              Listings
+              Packages
             </TabsTrigger>
             <TabsTrigger value="availability" className="gap-2">
               <CalendarX className="w-4 h-4 hidden sm:inline" />
@@ -163,7 +163,7 @@ const VendorDashboard = () => {
             />
           </TabsContent>
 
-          <TabsContent value="listings">
+          <TabsContent value="packages">
             <VendorListings
               packages={packages}
               onCreate={createPackage}
