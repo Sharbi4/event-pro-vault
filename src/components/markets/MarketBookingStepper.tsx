@@ -11,11 +11,10 @@ import { Badge } from '@/components/ui/badge';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Switch } from '@/components/ui/switch';
-import { Skeleton } from '@/components/ui/skeleton';
+
 import { 
   Sheet, 
-  SheetContent, 
-  SheetHeader, 
+  SheetContent,
   SheetTitle,
 } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
@@ -23,8 +22,7 @@ import {
   Calendar, Clock, MapPin, Loader2, 
   CheckCircle, ChevronRight, ChevronLeft, AlertCircle,
   Repeat, CreditCard, AlertTriangle, TrendingUp, Users,
-  Check, Truck, Tent, Table, Store, Zap, Droplets, Wifi,
-  Building, User, Phone, Mail, FileText, DollarSign
+  Check, Truck, Tent, Table, Store, Zap, Droplets, Wifi
 } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { SlotType, InventoryItem } from '@/hooks/useMarketDetail';
@@ -269,7 +267,8 @@ export function MarketBookingStepper({
       case 'slot-datetime':
         return !!selectedSlotType && !!selectedInventory;
       case 'frequency':
-        return !isRecurring || (isRecurring && inventoryIdsToBook.length > 0);
+        // For recurring, ALL weeks must be available (full series requirement)
+        return !isRecurring || (isRecurring && allWeeksAvailable && inventoryIdsToBook.length > 0);
       case 'vendor-info':
         return vendorName.trim() && vendorCategory && vendorEmail.trim();
       case 'setup-needs':
@@ -434,12 +433,23 @@ export function MarketBookingStepper({
                 <div className="flex items-center gap-2 text-sm">
                   <Tent className="w-4 h-4 text-muted-foreground" />
                   <span>{selectedSlotType.name}</span>
+                  {selectedSlotType.sizePreset && (
+                    <Badge variant="outline" className="text-xs">{selectedSlotType.sizePreset}</Badge>
+                  )}
                 </div>
                 {isRecurring && inventoryIdsToBook.length > 1 ? (
-                  <div className="space-y-1">
+                  <div className="space-y-2">
                     <div className="flex items-center gap-2 text-sm">
-                      <Repeat className="w-4 h-4 text-muted-foreground" />
-                      <span>{inventoryIdsToBook.length} weekly dates booked</span>
+                      <Repeat className="w-4 h-4 text-primary" />
+                      <span className="font-medium">{inventoryIdsToBook.length} weekly dates</span>
+                    </div>
+                    <div className="ml-6 space-y-1 text-sm text-muted-foreground">
+                      {availableWeeks.slice(0, 3).map((week, i) => (
+                        <p key={i}>{format(week.date, 'EEE, MMM d')}</p>
+                      ))}
+                      {availableWeeks.length > 3 && (
+                        <p className="text-xs">+{availableWeeks.length - 3} more dates</p>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -453,9 +463,23 @@ export function MarketBookingStepper({
                   <span>{formatTime(selectedInventory.startTime)} – {formatTime(selectedInventory.endTime)}</span>
                 </div>
                 <Separator />
-                <div className="flex justify-between items-center">
-                  <span className="text-muted-foreground">Total paid</span>
-                  <span className="font-bold text-foreground">${grandTotal.toFixed(2)}</span>
+                {/* Receipt breakdown */}
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">
+                      ${basePrice.toFixed(2)} × {numWeeks} {numWeeks === 1 ? 'spot' : 'spots'}
+                    </span>
+                    <span>${subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Platform fee (12.9%)</span>
+                    <span>${platformFee.toFixed(2)}</span>
+                  </div>
+                  <Separator />
+                  <div className="flex justify-between font-bold">
+                    <span>Total paid</span>
+                    <span className="text-trust">${grandTotal.toFixed(2)}</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -474,13 +498,9 @@ export function MarketBookingStepper({
             <Button 
               variant="outline"
               className="w-full"
-              onClick={() => {
-                setShowConfirmation(false);
-                setCurrentStep('slot-datetime');
-                onOpenChange(false);
-              }}
+              onClick={() => navigate('/browse?mode=markets')}
             >
-              Done
+              Browse More Markets
             </Button>
           </div>
         </div>
@@ -580,6 +600,48 @@ export function MarketBookingStepper({
         );
 
       case 'frequency':
+        // Calculate availability for each duration
+        const getWeeksForDuration = (duration: RecurringDuration) => {
+          if (!selectedDate || !selectedSlotType || !selectedInventory) return [];
+          
+          const weekCount = parseInt(duration.replace('-weeks', '')) || 1;
+          const startTime = selectedInventory.startTime;
+          const endTime = selectedInventory.endTime;
+          
+          const weeks: { date: Date; available: boolean; inventoryId?: string }[] = [];
+          
+          for (let i = 0; i < weekCount; i++) {
+            const weekDate = addWeeks(selectedDate, i);
+            const dateStr = format(weekDate, 'yyyy-MM-dd');
+            
+            const matchingInventory = filteredInventory.find(inv => 
+              inv.date === dateStr && 
+              inv.startTime === startTime && 
+              inv.endTime === endTime &&
+              inv.slotsRemaining > 0
+            );
+            
+            weeks.push({
+              date: weekDate,
+              available: !!matchingInventory,
+              inventoryId: matchingInventory?.id,
+            });
+          }
+          
+          return weeks;
+        };
+
+        const durationAvailability = {
+          '4-weeks': getWeeksForDuration('4-weeks'),
+          '8-weeks': getWeeksForDuration('8-weeks'),
+          '12-weeks': getWeeksForDuration('12-weeks'),
+        };
+
+        const isDurationFullyAvailable = (duration: RecurringDuration) => {
+          const weeks = durationAvailability[duration];
+          return weeks.length > 0 && weeks.every(w => w.available);
+        };
+
         return (
           <div className="space-y-6">
             <div className="text-center mb-4">
@@ -616,55 +678,96 @@ export function MarketBookingStepper({
               </div>
 
               <Separator className="my-2" />
-              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Weekly Recurring</p>
+              <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider">Weekly Recurring (Full Series)</p>
 
               {(['4-weeks', '8-weeks', '12-weeks'] as RecurringDuration[]).map(duration => {
                 const weeks = parseInt(duration.replace('-weeks', ''));
                 const total = basePrice * weeks;
+                const isAvailable = isDurationFullyAvailable(duration);
+                const durationWeeks = durationAvailability[duration];
+                const unavailableCount = durationWeeks.filter(w => !w.available).length;
+                
                 return (
                   <div 
                     key={duration}
                     className={cn(
-                      "flex items-center gap-3 p-4 rounded-xl border cursor-pointer transition-all",
-                      isRecurring && recurringDuration === duration 
+                      "relative flex items-center gap-3 p-4 rounded-xl border transition-all",
+                      !isAvailable && "opacity-60 cursor-not-allowed",
+                      isAvailable && "cursor-pointer",
+                      isRecurring && recurringDuration === duration && isAvailable
                         ? "border-primary bg-primary/5 ring-2 ring-primary" 
                         : "border-border"
                     )}
+                    onClick={() => {
+                      if (isAvailable) {
+                        setIsRecurring(true);
+                        setRecurringDuration(duration);
+                      }
+                    }}
                   >
-                    <RadioGroupItem value={duration} id={duration} />
-                    <Label htmlFor={duration} className="flex-1 cursor-pointer">
+                    <RadioGroupItem 
+                      value={duration} 
+                      id={duration} 
+                      disabled={!isAvailable}
+                    />
+                    <Label htmlFor={duration} className={cn(
+                      "flex-1",
+                      isAvailable ? "cursor-pointer" : "cursor-not-allowed"
+                    )}>
                       <div className="flex items-center gap-2">
-                        <Repeat className="w-4 h-4 text-primary" />
+                        <Repeat className={cn("w-4 h-4", isAvailable ? "text-primary" : "text-muted-foreground")} />
                         <span className="font-medium">{weeks} weeks</span>
+                        {!isAvailable && (
+                          <Badge variant="outline" className="text-xs text-muted-foreground">
+                            Unavailable
+                          </Badge>
+                        )}
                       </div>
                       <div className="text-sm text-muted-foreground">
                         Every {selectedInventory && format(parseISO(selectedInventory.date), 'EEEE')}
                       </div>
                     </Label>
                     <div className="text-right">
-                      <div className="font-bold">${total.toFixed(2)}</div>
+                      <div className={cn("font-bold", !isAvailable && "text-muted-foreground")}>
+                        ${total.toFixed(2)}
+                      </div>
                       <div className="text-xs text-muted-foreground">${basePrice}/week</div>
                     </div>
+                    
+                    {/* Show unavailable reason on hover/tap */}
+                    {!isAvailable && unavailableCount > 0 && (
+                      <div className="absolute -bottom-1 left-4 right-4 text-xs text-destructive">
+                        {unavailableCount} week{unavailableCount > 1 ? 's' : ''} sold out
+                      </div>
+                    )}
                   </div>
                 );
               })}
             </RadioGroup>
 
-            {isRecurring && !allWeeksAvailable && recurringWeeksAvailable.length > 0 && (
-              <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
-                <div className="flex items-start gap-2">
-                  <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5" />
+            {isRecurring && !allWeeksAvailable && (
+              <div className="p-4 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-sm font-medium text-amber-600">
-                      {availableWeeks.length} of {recurringWeeksAvailable.length} weeks available
+                    <p className="font-medium text-amber-700 dark:text-amber-500">
+                      Some weeks aren't available
                     </p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Some weeks are sold out. You'll be booked for available dates only.
+                    <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
+                      Try a different start date or shorter duration.
                     </p>
                   </div>
                 </div>
               </div>
             )}
+
+            {/* Recurring pricing note */}
+            <div className="p-3 rounded-lg bg-muted/50 border border-border">
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <CreditCard className="w-4 h-4" />
+                <span>Full series charged upfront at checkout</span>
+              </div>
+            </div>
           </div>
         );
 
