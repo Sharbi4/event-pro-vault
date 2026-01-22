@@ -38,18 +38,18 @@ export function StepPackages({
       description: formData.description,
       type: formData.type,
       price: formData.price,
-      min_units: formData.minUnits,
+      min_units: formData.min_units,
       includes: formData.includes,
-      add_ons: formData.addOns,
+      add_ons: formData.add_ons,
       requirements: formData.requirements,
-      instant_book: formData.instantBook,
+      instant_book: formData.instant_book,
       is_active: true,
       sort_order: packages.length,
       category: formData.category,
       images: formData.images,
-      travel_radius: formData.travelRadius,
-      travel_fee_per_mile: formData.travelFeePerMile,
-      cancellation_policy: formData.cancellationPolicy,
+      travel_radius: formData.travel_radius,
+      travel_fee_per_mile: formData.travel_fee_per_mile,
+      cancellation_policy: formData.cancellation_policy,
     };
 
     if (editingPackage) {
@@ -152,29 +152,13 @@ export function StepPackages({
       {/* Package Form Modal */}
       {showForm && (
         <PackageFormWizard
-          isOpen={showForm}
+          open={showForm}
           onClose={() => {
             setShowForm(false);
             setEditingPackage(null);
           }}
-          onSave={handleSave}
-          editingPackage={editingPackage ? {
-            name: editingPackage.name,
-            description: editingPackage.description || '',
-            type: editingPackage.type,
-            price: editingPackage.price,
-            minUnits: editingPackage.min_units,
-            includes: editingPackage.includes,
-            addOns: editingPackage.add_ons,
-            requirements: editingPackage.requirements,
-            instantBook: editingPackage.instant_book,
-            category: editingPackage.category || '',
-            images: editingPackage.images,
-            travelRadius: editingPackage.travel_radius,
-            travelFeePerMile: editingPackage.travel_fee_per_mile,
-            cancellationPolicy: editingPackage.cancellation_policy,
-          } : undefined}
-          categories={selectedCategories}
+          onSubmit={handleSave}
+          initialData={editingPackage}
         />
       )}
     </div>

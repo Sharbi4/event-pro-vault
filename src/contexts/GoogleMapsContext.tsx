@@ -7,11 +7,13 @@ const libraries: Libraries = ['places'];
 interface GoogleMapsContextType {
   isLoaded: boolean;
   loadError: boolean;
+  apiKey: string;
 }
 
 const GoogleMapsContext = createContext<GoogleMapsContextType>({
   isLoaded: false,
   loadError: false,
+  apiKey: '',
 });
 
 export function GoogleMapsProvider({ children }: { children: ReactNode }) {
@@ -27,7 +29,7 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
   // If no API key, just render children without the script
   if (!googleApiKey) {
     return (
-      <GoogleMapsContext.Provider value={{ isLoaded: false, loadError: false }}>
+      <GoogleMapsContext.Provider value={{ isLoaded: false, loadError: false, apiKey: '' }}>
         {children}
       </GoogleMapsContext.Provider>
     );
@@ -40,7 +42,7 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
       onLoad={() => setIsLoaded(true)}
       onError={() => setLoadError(true)}
     >
-      <GoogleMapsContext.Provider value={{ isLoaded: true, loadError }}>
+      <GoogleMapsContext.Provider value={{ isLoaded: true, loadError, apiKey: googleApiKey }}>
         {children}
       </GoogleMapsContext.Provider>
     </LoadScript>
