@@ -156,13 +156,21 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          display_name: string | null
+          first_name: string | null
           full_name: string | null
           id: string
           identity_verification_session_id: string | null
           identity_verification_status: string | null
+          instagram_handle: string | null
+          is_published: boolean | null
           is_vendor: boolean | null
+          last_name: string | null
           onboarding_completed_at: string | null
+          onboarding_step: string | null
           phone: string | null
+          primary_city: string | null
+          short_bio: string | null
           stripe_account_id: string | null
           stripe_account_status: string | null
           updated_at: string
@@ -171,13 +179,21 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          display_name?: string | null
+          first_name?: string | null
           full_name?: string | null
           id?: string
           identity_verification_session_id?: string | null
           identity_verification_status?: string | null
+          instagram_handle?: string | null
+          is_published?: boolean | null
           is_vendor?: boolean | null
+          last_name?: string | null
           onboarding_completed_at?: string | null
+          onboarding_step?: string | null
           phone?: string | null
+          primary_city?: string | null
+          short_bio?: string | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
           updated_at?: string
@@ -186,13 +202,21 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           created_at?: string
+          display_name?: string | null
+          first_name?: string | null
           full_name?: string | null
           id?: string
           identity_verification_session_id?: string | null
           identity_verification_status?: string | null
+          instagram_handle?: string | null
+          is_published?: boolean | null
           is_vendor?: boolean | null
+          last_name?: string | null
           onboarding_completed_at?: string | null
+          onboarding_step?: string | null
           phone?: string | null
+          primary_city?: string | null
+          short_bio?: string | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
           updated_at?: string
@@ -302,39 +326,105 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_buffer_settings: {
+        Row: {
+          available_by_request_only: boolean
+          buffer_after_minutes: number
+          buffer_before_minutes: number
+          created_at: string
+          id: string
+          respect_setup_breakdown: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          available_by_request_only?: boolean
+          buffer_after_minutes?: number
+          buffer_before_minutes?: number
+          created_at?: string
+          id?: string
+          respect_setup_breakdown?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          available_by_request_only?: boolean
+          buffer_after_minutes?: number
+          buffer_before_minutes?: number
+          created_at?: string
+          id?: string
+          respect_setup_breakdown?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       vendor_details: {
         Row: {
+          base_location_lat: number | null
+          base_location_lng: number | null
           business_description: string | null
           business_name: string | null
           business_type: string | null
+          city: string | null
+          cover_image_url: string | null
           created_at: string
+          formatted_address: string | null
           id: string
+          media_items: Json | null
           service_area: string | null
+          service_area_type: string | null
           service_categories: string[] | null
+          state: string | null
+          timezone: string | null
+          travel_fee_enabled: boolean | null
+          travel_radius_miles: number | null
           updated_at: string
           user_id: string
           website_url: string | null
         }
         Insert: {
+          base_location_lat?: number | null
+          base_location_lng?: number | null
           business_description?: string | null
           business_name?: string | null
           business_type?: string | null
+          city?: string | null
+          cover_image_url?: string | null
           created_at?: string
+          formatted_address?: string | null
           id?: string
+          media_items?: Json | null
           service_area?: string | null
+          service_area_type?: string | null
           service_categories?: string[] | null
+          state?: string | null
+          timezone?: string | null
+          travel_fee_enabled?: boolean | null
+          travel_radius_miles?: number | null
           updated_at?: string
           user_id: string
           website_url?: string | null
         }
         Update: {
+          base_location_lat?: number | null
+          base_location_lng?: number | null
           business_description?: string | null
           business_name?: string | null
           business_type?: string | null
+          city?: string | null
+          cover_image_url?: string | null
           created_at?: string
+          formatted_address?: string | null
           id?: string
+          media_items?: Json | null
           service_area?: string | null
+          service_area_type?: string | null
           service_categories?: string[] | null
+          state?: string | null
+          timezone?: string | null
+          travel_fee_enabled?: boolean | null
+          travel_radius_miles?: number | null
           updated_at?: string
           user_id?: string
           website_url?: string | null
@@ -344,19 +434,30 @@ export type Database = {
       vendor_packages: {
         Row: {
           add_ons: Json | null
+          breakdown_time_minutes: number | null
           cancellation_policy: string | null
           category: string | null
+          cover_image_url: string | null
           created_at: string
+          customer_requirements: string | null
           description: string | null
+          duration_minutes: number | null
           id: string
           images: string[] | null
+          included_travel_miles: number | null
           includes: string[] | null
           instant_book: boolean | null
           is_active: boolean | null
+          is_published: boolean | null
+          min_hours: number | null
+          min_spend: number | null
           min_units: number
           name: string
           price: number
+          price_per_mile: number | null
+          pricing_type: string | null
           requirements: string[] | null
+          setup_time_minutes: number | null
           sort_order: number | null
           travel_fee_per_mile: number | null
           travel_radius: number | null
@@ -366,19 +467,30 @@ export type Database = {
         }
         Insert: {
           add_ons?: Json | null
+          breakdown_time_minutes?: number | null
           cancellation_policy?: string | null
           category?: string | null
+          cover_image_url?: string | null
           created_at?: string
+          customer_requirements?: string | null
           description?: string | null
+          duration_minutes?: number | null
           id?: string
           images?: string[] | null
+          included_travel_miles?: number | null
           includes?: string[] | null
           instant_book?: boolean | null
           is_active?: boolean | null
+          is_published?: boolean | null
+          min_hours?: number | null
+          min_spend?: number | null
           min_units?: number
           name: string
           price: number
+          price_per_mile?: number | null
+          pricing_type?: string | null
           requirements?: string[] | null
+          setup_time_minutes?: number | null
           sort_order?: number | null
           travel_fee_per_mile?: number | null
           travel_radius?: number | null
@@ -388,19 +500,30 @@ export type Database = {
         }
         Update: {
           add_ons?: Json | null
+          breakdown_time_minutes?: number | null
           cancellation_policy?: string | null
           category?: string | null
+          cover_image_url?: string | null
           created_at?: string
+          customer_requirements?: string | null
           description?: string | null
+          duration_minutes?: number | null
           id?: string
           images?: string[] | null
+          included_travel_miles?: number | null
           includes?: string[] | null
           instant_book?: boolean | null
           is_active?: boolean | null
+          is_published?: boolean | null
+          min_hours?: number | null
+          min_spend?: number | null
           min_units?: number
           name?: string
           price?: number
+          price_per_mile?: number | null
+          pricing_type?: string | null
           requirements?: string[] | null
+          setup_time_minutes?: number | null
           sort_order?: number | null
           travel_fee_per_mile?: number | null
           travel_radius?: number | null
@@ -432,6 +555,39 @@ export type Database = {
           day_of_week?: number
           id?: string
           is_blocked?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vendor_weekly_availability: {
+        Row: {
+          created_at: string
+          day_of_week: number
+          end_time: string
+          id: string
+          is_enabled: boolean
+          start_time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          day_of_week: number
+          end_time: string
+          id?: string
+          is_enabled?: boolean
+          start_time: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          day_of_week?: number
+          end_time?: string
+          id?: string
+          is_enabled?: boolean
+          start_time?: string
           updated_at?: string
           user_id?: string
         }

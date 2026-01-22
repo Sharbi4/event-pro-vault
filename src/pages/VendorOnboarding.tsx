@@ -194,7 +194,7 @@ export default function VendorOnboarding() {
         .order('sort_order', { ascending: true });
       
       if (error) throw error;
-      setPackages((data || []) as VendorPackage[]);
+      setPackages((data || []) as unknown as VendorPackage[]);
     } catch (error) {
       console.error('Error loading packages:', error);
     } finally {

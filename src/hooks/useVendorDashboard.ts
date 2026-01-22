@@ -105,7 +105,7 @@ export function useVendorDashboard() {
         .maybeSingle()
     ]);
 
-    if (packagesRes.data) setPackages(packagesRes.data as VendorPackage[]);
+    if (packagesRes.data) setPackages(packagesRes.data as unknown as VendorPackage[]);
     if (bookingsRes.data) setBookings(bookingsRes.data as VendorBooking[]);
     if (profileRes.data) setProfile(profileRes.data as VendorProfile);
     if (detailsRes.data) setVendorDetails(detailsRes.data as VendorDetails);
@@ -150,7 +150,7 @@ export function useVendorDashboard() {
       description: "Your new listing is now live"
     });
 
-    setPackages(prev => [...prev, data as VendorPackage]);
+    setPackages(prev => [...prev, data as unknown as VendorPackage]);
     return data;
   };
 
@@ -175,7 +175,7 @@ export function useVendorDashboard() {
       title: "Package updated!",
     });
 
-    setPackages(prev => prev.map(p => p.id === id ? (data as VendorPackage) : p));
+    setPackages(prev => prev.map(p => p.id === id ? (data as unknown as VendorPackage) : p));
     return data;
   };
 
