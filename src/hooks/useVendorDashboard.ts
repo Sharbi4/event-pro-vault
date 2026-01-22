@@ -67,6 +67,7 @@ export interface VendorProfile {
   full_name: string | null;
   display_name: string | null;
   short_bio: string | null;
+  avatar_url: string | null;
   is_vendor: boolean | null;
   is_published: boolean | null;
   stripe_account_status: string | null;
