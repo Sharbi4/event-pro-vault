@@ -76,6 +76,52 @@ serve(async (req) => {
     const inventoryIds = JSON.parse(meta.inventoryIds || '[]');
     const isRecurring = meta.isRecurring === 'true';
     
+    // Get market and slot type details for email
+    const { data: market } = await supabaseAdmin
+      .from('markets')
+      .select('name, formatted_address, user_id')
+      .eq('id', meta.marketId)
+      .single();
+
+    const { data: slotType } = await supabaseAdmin
+      .from('slot_types')
+      .select('name')
+      .eq('id', meta.slotTypeId)
+      .single();
+
+    // Get market host profile for email
+    let hostEmail = '';
+    let hostName = 'Market Host';
+    if (market) {
+      const { data: hostProfile } = await supabaseAdmin
+        .from('profiles')
+        .select('full_name, display_name')
+        .eq('user_id', market.user_id)
+        .single();
+      
+      // Get host email from auth
+      const { data: hostAuth } = await supabaseAdmin.auth.admin.getUserById(market.user_id);
+      hostEmail = hostAuth?.user?.email || '';
+      hostName = hostProfile?.display_name || hostProfile?.full_name || 'Market Host';
+    }
+
+    // Get inventory dates and times for email
+    const slotDates: string[] = [];
+    let slotTime = '';
+    for (const invId of inventoryIds) {
+      const { data: inv } = await supabaseAdmin
+        .from('slot_inventory')
+        .select('date, start_time, end_time')
+        .eq('id', invId)
+        .single();
+      if (inv) {
+        slotDates.push(inv.date);
+        if (!slotTime) {
+          slotTime = `${inv.start_time} - ${inv.end_time}`;
+        }
+      }
+    }
+    
     // Create bookings for each inventory slot
     const bookingIds: string[] = [];
     let parentBookingId: string | null = null;
@@ -158,6 +204,61 @@ serve(async (req) => {
           updated_at: new Date().toISOString()
         })
         .eq('id', invId);
+    }
+
+    // Send email notifications to vendor and market host
+    if (bookingIds.length > 0 && meta.vendorEmail && hostEmail) {
+      try {
+        const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
+        const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+        
+        const notificationPayload = {
+          booking_id: bookingIds[0],
+          market_name: market?.name || 'Market',
+          market_address: market?.formatted_address || '',
+          slot_type_name: slotType?.name || 'Vendor Spot',
+          slot_dates: slotDates,
+          slot_time: slotTime,
+          is_recurring: isRecurring,
+          recurring_weeks: inventoryIds.length,
+          vendor_name: meta.vendorName || '',
+          vendor_email: meta.vendorEmail || '',
+          vendor_phone: meta.vendorPhone || '',
+          vendor_category: meta.vendorCategory || '',
+          vendor_type: meta.vendorType || '',
+          booth_size: meta.boothSize || null,
+          needs_power: meta.needsPower === 'true',
+          power_amps: meta.powerAmps ? parseInt(meta.powerAmps) : null,
+          needs_water: meta.needsWater === 'true',
+          needs_wifi: meta.needsWifi === 'true',
+          has_generator: meta.hasGenerator === 'true',
+          arrival_time: meta.arrivalTime || null,
+          setup_notes: meta.setupNotes || null,
+          host_email: hostEmail,
+          host_name: hostName,
+          base_amount: parseFloat(meta.baseAmount) || 0,
+          platform_fee: parseFloat(meta.platformFeeAmount) || 0,
+          total_amount: parseFloat(meta.totalAmount) || 0,
+        };
+
+        const emailResponse = await fetch(
+          `${supabaseUrl}/functions/v1/send-slot-booking-notification`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${supabaseAnonKey}`,
+            },
+            body: JSON.stringify(notificationPayload),
+          }
+        );
+
+        const emailResult = await emailResponse.json();
+        console.log('Email notification result:', emailResult);
+      } catch (emailError) {
+        // Log but don't fail the booking if email fails
+        console.error('Failed to send email notifications:', emailError);
+      }
     }
 
     return new Response(
