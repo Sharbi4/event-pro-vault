@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Menu, X, User, Sparkles, Store } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import logo from '@/assets/logo.png';
+import logo from '@/assets/eventpro-logo.png';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
