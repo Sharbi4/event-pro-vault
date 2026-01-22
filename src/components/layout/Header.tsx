@@ -203,56 +203,83 @@ export function Header() {
           {mobileMenuOpen && (
             <div className="lg:hidden py-4 border-t border-border/50 animate-fade-in bg-background">
               <nav className="flex flex-col gap-1">
-                {navLinks.map((link) => (
-                  <Link 
-                    key={link.to}
-                    to={link.to} 
-                    className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
-                      location.pathname === link.to 
-                        ? 'text-foreground bg-secondary' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-                    }`}
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-                
-                {!user && (
+                {user ? (
                   <>
-                    <div className="h-px bg-border my-3" />
+                    {/* Logged in: Dashboard, FAQ, Contact */}
+                    <div className="px-2 pb-3">
+                      <ModeSwitcher compact />
+                    </div>
                     
-                    <button 
-                      className="flex items-center gap-3 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
-                      onClick={handleListService}
+                    <div className="h-px bg-border my-2" />
+                    
+                    <Link 
+                      to="/faq" 
+                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                        location.pathname === '/faq' 
+                          ? 'text-foreground bg-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
                     >
-                      <Sparkles className="w-4 h-4" />
-                      List your service
-                    </button>
+                      FAQ
+                    </Link>
                     <button 
-                      className="flex items-center gap-3 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
-                      onClick={handleListMarket}
+                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        window.open('https://support.zendesk.com', '_blank');
+                      }}
                     >
-                      <Store className="w-4 h-4" />
-                      List a market
+                      <MessageCircle className="w-4 h-4" />
+                      Contact Us
                     </button>
                   </>
-                )}
-
-                <div className="h-px bg-border my-3" />
-
-                {user ? (
-                  <div className="px-2">
-                    <ModeSwitcher compact />
-                  </div>
                 ) : (
-                  <Link 
-                    to="/auth" 
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
-                  >
-                    Sign in
-                  </Link>
+                  <>
+                    {/* Guest: Sign In, Create Profile, Learn More, FAQ */}
+                    <Link 
+                      to="/auth" 
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
+                    >
+                      Sign In
+                    </Link>
+                    
+                    <button 
+                      className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        setProfileModalOpen(true);
+                      }}
+                    >
+                      Create a Free Profile
+                    </button>
+                    
+                    <div className="h-px bg-border my-2" />
+                    
+                    <Link 
+                      to="/learn" 
+                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                        location.pathname === '/learn' 
+                          ? 'text-foreground bg-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Learn More
+                    </Link>
+                    <Link 
+                      to="/faq" 
+                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                        location.pathname === '/faq' 
+                          ? 'text-foreground bg-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      FAQ
+                    </Link>
+                  </>
                 )}
               </nav>
             </div>
