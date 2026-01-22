@@ -100,8 +100,8 @@ export default function EventProOnboarding() {
       const { error } = await supabase.from('vendor_packages').insert(insertData as any);
 
       if (error) throw error;
-      toast.success('Package created!');
-      await loadPackages();
+      toast.success('Package created! Redirecting to your dashboard...');
+      navigate('/vendor-dashboard?tab=listings');
     } catch (error) {
       console.error('Error creating package:', error);
       toast.error('Failed to create package');

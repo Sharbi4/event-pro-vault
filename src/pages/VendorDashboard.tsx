@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVendorDashboard } from '@/hooks/useVendorDashboard';
@@ -13,6 +13,8 @@ import { VendorAvailability } from '@/components/vendor-dashboard/VendorAvailabi
 import { VendorEarnings } from '@/components/vendor-dashboard/VendorEarnings';
 const VendorDashboard = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const defaultTab = searchParams.get('tab') || 'overview';
   const { user, loading: authLoading, signOut } = useAuth();
   const {
     packages,
@@ -85,7 +87,7 @@ const VendorDashboard = () => {
         </div>
 
         {/* Main Tabs */}
-        <Tabs defaultValue="overview" className="space-y-6">
+        <Tabs defaultValue={defaultTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
             <TabsTrigger value="overview" className="gap-2">
               <LayoutDashboard className="w-4 h-4 hidden sm:inline" />
