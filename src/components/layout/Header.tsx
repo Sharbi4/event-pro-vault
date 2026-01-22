@@ -39,7 +39,7 @@ export function Header() {
                     Dashboard
                   </Button>
                 </Link>
-                <Link to="/eventpro-onboarding">
+                <Link to="/onboarding">
                   <Button variant="gradient" size="default" className="gap-2">
                     <Sparkles className="w-4 h-4" />
                     Create Your Profile
@@ -51,10 +51,10 @@ export function Header() {
                 <Link to="/auth">
                   <Button variant="ghost" size="sm">Sign In</Button>
                 </Link>
-                <Link to="/eventpro-onboarding">
+                <Link to="/onboarding">
                   <Button variant="gradient" size="default" className="gap-2">
                     <Sparkles className="w-4 h-4" />
-                    Become an EventPro
+                    Get Started
                   </Button>
                 </Link>
               </>
@@ -94,7 +94,7 @@ export function Header() {
                         Dashboard
                       </Button>
                     </Link>
-                    <Link to="/eventpro-onboarding" onClick={() => setMobileMenuOpen(false)}>
+                    <Link to="/onboarding" onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="gradient" className="w-full gap-2">
                         <Sparkles className="w-4 h-4" />
                         Create Your Profile
@@ -106,10 +106,10 @@ export function Header() {
                     <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="outline" className="w-full">Sign In</Button>
                     </Link>
-                    <Link to="/eventpro-onboarding" onClick={() => setMobileMenuOpen(false)}>
+                    <Link to="/onboarding" onClick={() => setMobileMenuOpen(false)}>
                       <Button variant="gradient" className="w-full gap-2">
                         <Sparkles className="w-4 h-4" />
-                        Become an EventPro
+                        Get Started
                       </Button>
                     </Link>
                   </>
