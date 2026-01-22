@@ -4,6 +4,7 @@ import { Sparkles, Store, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { setAuthIntent, type ProfileType as AuthProfileType } from '@/lib/authIntent';
 
 interface ProfileTypeModalProps {
   open: boolean;
@@ -20,8 +21,7 @@ const profileOptions = [
     description: 'Create service packages, set your availability, and get booked for events.',
     features: ['Hourly & daily packages', 'Instant book or review requests', 'Accept online & cash payments'],
     icon: Sparkles,
-    route: '/eventpro-onboarding',
-    dashboardRoute: '/vendor-dashboard',
+    intent: 'EVENT_PRO_ONBOARDING' as const,
   },
   {
     type: 'MARKET_SPACE' as ProfileType,
@@ -30,8 +30,7 @@ const profileOptions = [
     description: 'List your market, create slot types, and manage vendor bookings.',
     features: ['Flexible slot types', 'Inventory calendar', 'Recurring weekly bookings'],
     icon: Store,
-    route: '/marketspace-onboarding',
-    dashboardRoute: '/marketspace-dashboard',
+    intent: 'MARKET_ONBOARDING' as const,
   },
 ];
 
@@ -48,18 +47,24 @@ export function ProfileTypeModal({ open, onOpenChange }: ProfileTypeModalProps) 
     const selectedOption = profileOptions.find(opt => opt.type === selected);
     if (!selectedOption) return;
 
-    // Store the intent for after auth
-    localStorage.setItem('profileTypeIntent', selected);
+    // Store the intent using the new auth intent system
+    const profileType: AuthProfileType = selected === 'EVENT_PRO' ? 'EVENT_PRO' : 'MARKET_SPACE';
+    
+    setAuthIntent({
+      intent: selectedOption.intent,
+      profileType,
+    });
 
     if (!user) {
-      // Redirect to auth with return path
-      const returnPath = selected === 'EVENT_PRO' 
-        ? '/vendor-dashboard?onboarding=1' 
-        : '/marketspace-dashboard?onboarding=1';
-      navigate(`/auth?returnTo=${encodeURIComponent(returnPath)}&profileType=${selected}`);
+      // Redirect to auth with intent params
+      const params = new URLSearchParams({
+        intent: selectedOption.intent,
+        profileType,
+      });
+      navigate(`/auth?${params.toString()}`);
     } else {
-      // User is authenticated, go directly to onboarding
-      navigate(`${selectedOption.dashboardRoute}?onboarding=1`);
+      // User is authenticated, go to post-auth router which will decide the correct destination
+      navigate('/post-auth');
     }
 
     onOpenChange(false);

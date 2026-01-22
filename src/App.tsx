@@ -15,6 +15,7 @@ import BecomePro from "./pages/BecomePro";
 import HowItWorks from "./pages/HowItWorks";
 import Learn from "./pages/Learn";
 import Auth from "./pages/Auth";
+import PostAuth from "./pages/PostAuth";
 import Dashboard from "./pages/Dashboard";
 import VendorDashboard from "./pages/VendorDashboard";
 import VendorOnboarding from "./pages/VendorOnboarding";
@@ -47,6 +48,8 @@ const App = () => (
               <Route path="/learn" element={<Learn />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/signin" element={<Auth />} />
+              <Route path="/post-auth" element={<PostAuth />} />
+              <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/vendor-dashboard" element={<VendorDashboard />} />
               <Route path="/vendor-onboarding" element={<VendorOnboarding />} />
