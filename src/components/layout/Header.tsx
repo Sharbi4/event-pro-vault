@@ -122,10 +122,6 @@ export function Header() {
                   >
                     Create free profile
                   </Button>
-
-                  <Button variant="outline" size="sm" onClick={handleListService}>
-                    List your service
-                  </Button>
                 </>
               )}
             </div>
