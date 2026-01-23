@@ -79,25 +79,8 @@ export function Header() {
               </div>
             </Link>
 
-            {/* Desktop Navigation - Center */}
-            <nav className="hidden lg:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
-              {navLinks.map((link) => (
-                <Link 
-                  key={link.to}
-                  to={link.to} 
-                  className={`text-sm font-medium transition-colors ${
-                    location.pathname === link.to 
-                      ? 'text-foreground' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Desktop CTA - Right */}
-            <div className="hidden lg:flex items-center gap-3">
+            {/* Right Actions - Both Desktop & Mobile */}
+            <div className="flex items-center gap-2 sm:gap-3">
               {user ? (
                 <>
                   <button
@@ -107,49 +90,21 @@ export function Header() {
                   >
                     <MessageCircle className="w-5 h-5 text-muted-foreground hover:text-foreground" />
                   </button>
-                  <ModeSwitcher />
-                </>
-              ) : (
-                <>
-                  <Link to="/auth">
-                    <Button variant="ghost" size="sm">Sign in</Button>
-                  </Link>
-
-                  <Button 
-                    variant="darkShine" 
-                    size="default" 
-                    onClick={() => setProfileModalOpen(true)}
-                  >
-                    Create free profile
-                  </Button>
-                </>
-              )}
-            </div>
-
-            {/* Mobile Right Actions */}
-            <div className="flex lg:hidden items-center gap-2">
-              {user ? (
-                <>
-                  <button
-                    onClick={() => window.open('https://support.zendesk.com', '_blank')}
-                    className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
-                    aria-label="Chat support"
-                  >
-                    <MessageCircle className="w-5 h-5 text-muted-foreground" />
-                  </button>
                 </>
               ) : (
                 <Button 
                   variant="darkShine" 
                   size="sm"
+                  className="hidden sm:inline-flex"
                   onClick={() => setProfileModalOpen(true)}
                 >
                   Create free profile
                 </Button>
               )}
               <button
-                className="p-2"
+                className="p-2 rounded-lg hover:bg-secondary/50 transition-colors"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle menu"
               >
                 {mobileMenuOpen ? (
                   <X className="w-6 h-6 text-foreground" />
@@ -160,9 +115,9 @@ export function Header() {
             </div>
           </div>
 
-          {/* Mobile Menu */}
+          {/* Hamburger Menu - Both Desktop & Mobile */}
           {mobileMenuOpen && (
-            <div className="lg:hidden py-4 border-t border-border/50 animate-fade-in bg-background">
+            <div className="py-4 border-t border-border/50 animate-fade-in bg-background">
               <nav className="flex flex-col gap-1">
                 {user ? (
                   <>
