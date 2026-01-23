@@ -4,7 +4,6 @@ import { Sparkles, Check } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { setAuthIntent } from '@/lib/authIntent';
 
 interface ProfileTypeModalProps {
   open: boolean;
@@ -26,23 +25,16 @@ export function ProfileTypeModal({ open, onOpenChange }: ProfileTypeModalProps) 
 
   const handleContinue = async () => {
     setIsLoading(true);
-
-    setAuthIntent({
-      intent: 'EVENT_PRO_ONBOARDING',
-      profileType: 'EVENT_PRO',
-    });
+    onOpenChange(false);
 
     if (!user) {
-      const params = new URLSearchParams({
-        intent: 'EVENT_PRO_ONBOARDING',
-        profileType: 'EVENT_PRO',
-      });
-      navigate(`/auth?${params.toString()}`);
+      // Not logged in - go to auth first
+      navigate('/auth');
     } else {
-      navigate('/post-auth');
+      // Already logged in - go straight to onboarding
+      navigate('/eventpro-onboarding');
     }
 
-    onOpenChange(false);
     setIsLoading(false);
   };
 
@@ -53,7 +45,7 @@ export function ProfileTypeModal({ open, onOpenChange }: ProfileTypeModalProps) 
       <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden">
         <DialogHeader className="p-6 pb-4">
           <DialogTitle className="text-2xl font-bold text-center">
-            Create your free profile
+            Become an Event Pro
           </DialogTitle>
           <p className="text-muted-foreground text-center text-sm mt-1">
             Start getting booked for events
@@ -95,11 +87,11 @@ export function ProfileTypeModal({ open, onOpenChange }: ProfileTypeModalProps) 
             disabled={isLoading}
             onClick={handleContinue}
           >
-            {isLoading ? 'Loading...' : 'Get Started'}
+            {isLoading ? 'Loading...' : user ? 'Get Started' : 'Sign Up to Get Started'}
           </Button>
           {!user && (
             <p className="text-xs text-muted-foreground text-center mt-3">
-              You'll create an account or sign in on the next step
+              You'll create an account or sign in first
             </p>
           )}
         </div>

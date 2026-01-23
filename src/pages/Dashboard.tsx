@@ -226,29 +226,27 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        {/* Quick Actions for Vendors */}
-        {(hasVendorPackages || profile?.is_vendor) && (
-          <div className="flex flex-wrap gap-2 mb-6">
-            {hasVendorPackages && (
-              <Button variant="outline" size="sm" onClick={() => navigate('/vendor-dashboard')} className="gap-2">
-                <Users className="w-4 h-4" />
-                Vendor Dashboard
-              </Button>
-            )}
-            {profile?.is_published && profile?.is_vendor && (
-              <Button variant="outline" size="sm" onClick={() => navigate(`/vendor/${user.id}`)} className="gap-2">
-                <ExternalLink className="w-4 h-4" />
-                View Public Profile
-              </Button>
-            )}
-            {!hasVendorPackages && (
-              <Button variant="gradient" size="sm" onClick={() => navigate('/become-pro')} className="gap-2">
-                <Star className="w-4 h-4" />
-                Become a Pro
-              </Button>
-            )}
-          </div>
-        )}
+        {/* Quick Actions */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {hasVendorPackages && (
+            <Button variant="outline" size="sm" onClick={() => navigate('/vendor-dashboard')} className="gap-2">
+              <Users className="w-4 h-4" />
+              Vendor Dashboard
+            </Button>
+          )}
+          {profile?.is_published && profile?.is_vendor && (
+            <Button variant="outline" size="sm" onClick={() => navigate(`/vendor/${user.id}`)} className="gap-2">
+              <ExternalLink className="w-4 h-4" />
+              View Public Profile
+            </Button>
+          )}
+          {!hasVendorPackages && (
+            <Button variant="gradient" size="sm" onClick={() => navigate('/eventpro-onboarding')} className="gap-2">
+              <Star className="w-4 h-4" />
+              Become an Event Pro
+            </Button>
+          )}
+        </div>
 
         {/* Stats Row */}
         <div className="grid grid-cols-4 gap-3 mb-6">
