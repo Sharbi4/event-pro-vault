@@ -1,440 +1,470 @@
 
-# Complete Premium UI/UX Redesign: "The Invisible Concierge"
+# "The Art Gallery" Redesign: Zero-to-One Transformation
+## EventPro by Vendibook - Radical Swiss Minimalism
+
+---
 
 ## Vision Statement
 
-Transform Event Pro from a "cluttered directory-style listing site" into a **Zero-to-One vertical marketplace** that feels like a high-end concierge service. Users will feel smart just by using it.
+Transform EventPro from a cluttered directory into **"The Art Gallery"** - a radical reduction where the vendor IS the UI. Following Peter Thiel's Zero-to-One philosophy: if it doesn't help the user book, delete it.
+
+**The Mantra:** "Make users look smart, make vendors look famous."
 
 ---
 
-## Phase 1: Design System Foundation - "The Swiss Canvas"
+## Architecture Overview
+
+```text
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│   VIEW 1: THE SENTENCE ENGINE                                          │
+│   ─────────────────────────────                                         │
+│   A blank white screen. No navbar. No footer. No distractions.         │
+│                                                                         │
+│   "I am planning a [ Wedding ▼ ] in [ Austin ] on [ March 15 ]."       │
+│                                                                         │
+│                    [ Reveal Matches → ]                                 │
+│                    (fades in when complete)                             │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   VIEW 2: THE HORIZONTAL DECK                                          │
+│   ──────────────────────────────                                        │
+│   One vendor at a time. Full-screen. Snap-scroll horizontal.           │
+│                                                                         │
+│   ┌─────────────────────────────────────────────────────────────────┐  │
+│   │                                                                 │  │
+│   │         ░░░░ FULL-SCREEN VENDOR VIDEO ░░░░░░░░░░░░░░░         │  │
+│   │         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░          │  │
+│   │                                                                 │  │
+│   │   ┌──────────────────────────┐                 ┌─────────────┐ │  │
+│   │   │ Who: Nexus Events ✓      │                 │  Secure    │ │  │
+│   │   │ What: 4-Hour DJ Set      │                 │  This Date │ │  │
+│   │   │ How much: $1,500         │                 └─────────────┘ │  │
+│   │   └──────────────────────────┘                                  │  │
+│   │            (frosted glass pane)                                 │  │
+│   │                                                                 │  │
+│   └─────────────────────────────────────────────────────────────────┘  │
+│                            ← swipe →                                    │
+│                                                                         │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│   VIEW 3: BOOKING DRAWER (Side Sheet)                                  │
+│   ────────────────────────────────────                                  │
+│   40% width on desktop, 100% on mobile                                 │
+│   Heavy blur backdrop                                                   │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Phase 1: Design System - "Pure Swiss"
 
 ### 1.1 Typography Revolution
-**Current:** Sofia Pro Soft font throughout
-**New:** Inter (Variable Weight)
+
+**Current State:**
+- Font: Sofia Pro Soft (soft, friendly)
+- Standard tracking
+- Regular weights
+
+**New State:**
+- Headings: **Inter Tight** (weight 800, tracking -0.04em)
+- Body: Inter (weight 400)
+- Data (prices, dates, times): **JetBrains Mono** (monospaced for instrument precision)
 
 **Files to modify:**
-- `index.html` - Add Google Fonts preconnect and link
-- `src/index.css` (lines 5-11, 91-98) - Update font-face and body rules
-- `tailwind.config.ts` (lines 16-19) - Update fontFamily config
+- `index.html` - Add Google Fonts for Inter Tight and JetBrains Mono
+- `src/index.css` - Replace font-face and body rules
+- `tailwind.config.ts` - Add fontFamily configurations
 
-**Typography Scale:**
+**Font Scale:**
 ```text
-Display:   text-6xl (60px), font-weight 800, tracking-tighter
-Headline:  text-4xl (36px), font-weight 700, tracking-tight  
-Title:     text-2xl (24px), font-weight 600
-Body:      text-base (16px), font-weight 400, leading-relaxed
-Caption:   text-sm (14px), font-weight 400
+Display:    6rem (96px), font-800, tracking-[-0.04em]
+Headline:   4rem (64px), font-700, tracking-[-0.03em]
+Title:      2rem (32px), font-600
+Body:       1rem (16px), font-400
+Data/Price: JetBrains Mono, 1.25rem (20px)
 ```
 
-### 1.2 Color Palette: Monochrome + Blurple
-**Current:** Purple/Blue gradient spectrum with gold accents
-**New:** Strict monochrome with single Blurple accent
+### 1.2 Color Palette: Pure Black & White
+
+**Current State:**
+- Background: Light gray (#F8F8FA)
+- Foreground: Dark gray
+- Multiple accent colors (purple gradients, gold)
+
+**New State:**
+- Background: Pure White (#FFFFFF)
+- Foreground: Ink Black (#000000)
+- Zero grays (except for subtle disabled states)
+- Single accent: None - let imagery speak
 
 **Files to modify:**
-- `src/index.css` (lines 14-83) - Complete CSS variable overhaul
+- `src/index.css` - Complete CSS variable overhaul
 
-**New Palette:**
+**New Variables:**
 ```text
---background:      0 0% 100%          (Pure White #FFFFFF)
---foreground:      0 0% 0%            (True Black #000000)
---muted:           0 0% 96%           (Gray-100)
---muted-foreground: 0 0% 45%          (Gray-500)
---border:          0 0% 92%           (Gray-200, barely visible)
---card:            0 0% 100% / 0.80   (White 80% for glass)
-
---accent:          250 100% 60%       (Blurple #5865F2)
---accent-gradient: linear-gradient(135deg, #5865F2, #8B5CF6)
+--background: 0 0% 100%;       /* Pure White #FFFFFF */
+--foreground: 0 0% 0%;         /* Ink Black #000000 */
+--muted: 0 0% 0% / 0.05;       /* Black at 5% for subtle hover */
+--muted-foreground: 0 0% 0% / 0.6;  /* Black at 60% for secondary text */
+--border: 0 0% 0% / 0.1;       /* Black at 10% for minimal borders */
 ```
 
-### 1.3 Shape & Radius System
-**Current:** `--radius: 0.875rem` (14px)
-**New:** Deep rounded corners throughout
+### 1.3 Shapes & Shadows
 
-**Files to modify:**
-- `src/index.css` - Update --radius variable
-- `tailwind.config.ts` (lines 69-73) - Add extended radius values
-
-**New Values:**
-```text
---radius:     1.5rem (24px) - default
-Buttons:      rounded-full
-Cards:        rounded-2xl or rounded-3xl
-Inputs:       rounded-xl
-Modals:       rounded-3xl
-```
-
-### 1.4 Shadow System: Soft Depth
-**Current:** Complex multi-layer shadows with purple glows
-**New:** Large, diffuse colored shadows
-
-**Files to modify:**
-- `src/index.css` (lines 179-291) - Replace glow utilities
-
-**New Shadow Utilities:**
-```css
-.shadow-soft      { box-shadow: 0 4px 24px rgba(0,0,0,0.04); }
-.shadow-medium    { box-shadow: 0 12px 40px rgba(0,0,0,0.06); }
-.shadow-elevated  { box-shadow: 0 24px 64px rgba(0,0,0,0.08); }
-.shadow-active    { box-shadow: 0 8px 32px rgb(88 101 242 / 0.2); } /* Blurple */
-```
+**New Design Tokens:**
+- Border-radius: `--radius: 1rem` (16px) for buttons, `2rem` for cards
+- Shadows: Removed entirely (high contrast implies confidence)
+- Borders: Removed where possible (imagery defines edges)
 
 ---
 
-## Phase 2: Floating Island Navigation
+## Phase 2: View 1 - The "Sentence Engine" Landing
 
-### 2.1 Glassmorphic Navigation Island
-**Current:** Full-width sticky header (lines 48-160 of Header.tsx)
-**New:** Centered floating pill navigation
+### 2.1 Create Immersive Landing Page
 
-**Files to modify:**
-- `src/components/layout/Header.tsx` - Complete rewrite
-- `src/components/layout/Layout.tsx` - Adjust body padding
-
-**New Design Structure:**
-```text
-          ┌────────────────────────────────────────────┐
-          │  [Logo]   Browse   Your Events   Profile  │
-          └────────────────────────────────────────────┘
-                        (centered floating pill)
-```
-
-**Technical Specs:**
-- Position: Fixed, top-4, left-1/2, transform: translateX(-50%)
-- Background: `bg-white/80 backdrop-blur-xl`
-- Border: none (shadow only)
-- Border-radius: `rounded-full`
-- Shadow: `shadow-medium`
-- Padding: `px-6 py-3`
-- Links: `text-sm font-medium` with hover color shift
-- Logo: Use uploaded new logo (needs to be added to assets)
-
-### 2.2 Update Logo Asset
-**Action:** Copy uploaded logo to `src/assets/eventpro-logo-new.png`
-
-**Files to modify:**
-- `src/components/layout/Header.tsx` - Import new logo
-- `src/components/layout/Footer.tsx` - Import new logo
-
-### 2.3 Minimal Footer
-**Current:** Multi-column footer with navigation links (Footer.tsx lines 1-119)
-**New:** Single-row minimal footer
-
-**Files to modify:**
-- `src/components/layout/Footer.tsx` - Complete rewrite
-
-**New Structure:**
-```text
-┌──────────────────────────────────────────────────────────────┐
-│    [Logo]     Browse  •  Support  •  Privacy     Made for   │
-│                                                Event Pros    │
-└──────────────────────────────────────────────────────────────┘
-```
-
----
-
-## Phase 3: The "Godin" Hero Section - Cinematic Inspiration
-
-### 3.1 Full-Screen Immersive Hero
-**Current:** Gradient background with search bar (HeroSection.tsx lines 35-123)
-**New:** Cinematic video/image with floating glass search
-
-**Files to modify:**
-- `src/components/home/HeroSection.tsx` - Complete rewrite
-- `src/index.css` - Add hero video utilities
-
-**New Structure:**
-```text
-┌──────────────────────────────────────────────────────────────┐
-│                                                              │
-│        ░░░░░░░░░ CINEMATIC VIDEO/IMAGE ░░░░░░░░░░           │
-│        ░░░░░░░░░ (Wedding/Event Scene) ░░░░░░░░░░           │
-│                                                              │
-│               "Events, elevated."                            │
-│     The world's best vendors, matched to your moment.       │
-│                                                              │
-│       ┌──────────────────────────────────────────┐          │
-│       │ Planning a wedding in Austin for 150... │ 🔍       │
-│       └──────────────────────────────────────────┘          │
-│              (Natural Language Search Input)                 │
-│                                                              │
-└──────────────────────────────────────────────────────────────┘
-```
-
-**Design Specs:**
-- Height: `min-h-[85vh]`
-- Background: High-quality video loop OR Ken Burns animated image
-- Overlay: `linear-gradient(to bottom, rgba(0,0,0,0.2), rgba(0,0,0,0.5))`
-- Headline: `text-6xl font-extrabold text-white tracking-tighter`
-- Subheadline: `text-xl text-white/80`
-- Search Container: `bg-white/90 backdrop-blur-xl rounded-full shadow-2xl`
-- Search Input: Single natural language input
-- Placeholder: "Planning a wedding in Austin for 150 guests..."
-
-### 3.2 Apple Intelligence Search Bar
-**New Component:** Natural language single-input search
+**Concept:** Stop asking users to "Search." Ask them to "Declare."
 
 **Files to create:**
-- `src/components/home/IntelligentSearch.tsx`
-
-**Features:**
-- Single input field, no separate fields for date/location/type
-- Placeholder typing animation cycling through examples
-- Subtle glass background with blur
-- Blurple gradient search icon button
-
----
-
-## Phase 4: The "Chris Do" Bento Grid Discovery
-
-### 4.1 Bento Grid Layout
-**Current:** Horizontal scroll rows (CategoryRows.tsx lines 72-217)
-**New:** Asymmetric masonry/bento grid
-
-**Files to create:**
-- `src/components/home/BentoGrid.tsx`
-- `src/components/home/BentoCard.tsx`
+- `src/pages/SentenceLanding.tsx` - New immersive landing
+- `src/components/landing/SentenceBuilder.tsx` - Mad Libs interface
+- `src/components/landing/RevealButton.tsx` - Animated reveal CTA
 
 **Files to modify:**
-- `src/pages/Browse.tsx` - Replace grid with BentoGrid
+- `src/App.tsx` - Add new route and update home route
 
-**Grid Layout (Desktop 12-column):**
+**Page Structure:**
 ```text
-┌─────────────┬─────────────┬────────────────────────────┐
-│  TALL 4col  │  SQUARE     │                            │
-│  span-2-row │  4col       │     WIDE FEATURED          │
-│             │             │        4col                │
-├─────────────┼─────────────┼─────────────┬──────────────┤
-│             │  SQUARE     │  SQUARE     │   TALL       │
-│ WIDE 6col   │  3col       │  3col       │   span-2     │
-│             │             │             │              │
-└─────────────┴─────────────┴─────────────┴──────────────┘
+┌──────────────────────────────────────────────────────────────────────┐
+│                                                                      │
+│                   (No header. No navigation.)                        │
+│                                                                      │
+│                                                                      │
+│                                                                      │
+│      "I am planning a [ Wedding ▼ ] in [ Austin ] on [ Mar 15 ]."   │
+│                                                                      │
+│                      (Inter Tight, 4rem, centered)                   │
+│                                                                      │
+│                                                                      │
+│                       [ Reveal Matches → ]                           │
+│                       (fades in when complete)                       │
+│                                                                      │
+│                                                                      │
+│                                                                      │
+│                                                                      │
+│                                                                      │
+└──────────────────────────────────────────────────────────────────────┘
 ```
 
-### 4.2 Borderless Bento Card
-**Current:** Cards with visible borders and structured content (BrowsePackageCard.tsx)
-**New:** Edge-to-edge images with overlay text
+**Interaction Details:**
+- Each `[ slot ]` is an inline selector that expands on click
+- Event types: Wedding, Corporate Event, Birthday, Private Party
+- Location: Autocomplete with Google Places
+- Date: Minimal date picker (no time - that's View 2)
+- Background: Subtle deep blur of event video when typing
+- "Reveal Matches" button: Only appears when all 3 slots filled
+- Transition: Sentence morphs into header on the results page
 
-**Files to modify:**
-- `src/components/browse/BrowsePackageCard.tsx` - Rewrite as BentoCard variant
+### 2.2 Sentence to Results Animation
 
-**New Card Specs:**
-- Border: none
-- Border-radius: `rounded-2xl` or `rounded-3xl`
-- Image: 100% fill, `object-cover`
-- Text: Bottom-aligned with gradient fade overlay
-- Gradient: `linear-gradient(to top, rgba(0,0,0,0.7), transparent)`
-- Price Pill: `absolute top-4 right-4 bg-black/40 backdrop-blur text-white rounded-full px-3 py-1.5`
-- Hover: Image `scale-105`, shadow elevates
-- Trust Badge: Gold checkmark glow effect
-
-### 4.3 Section Header Copy Update
-**Current:** "Packages available for your event"
-**New:** "Curated for you" or "Hand-picked for [Location]"
+**Using Framer Motion `layout` prop:**
+- The sentence shrinks and moves to top as results appear
+- Elements have `layoutId` to maintain identity across views
+- Spring physics for natural motion
 
 ---
 
-## Phase 5: Split-Screen Package Detail
+## Phase 3: View 2 - The Horizontal "Tinder for Luxury" Deck
 
-### 5.1 Masonry Gallery (Left 60%)
-**Current:** Single main image with carousel (PackageGallery.tsx)
-**New:** Pinterest-style scrollable wall of imagery
+### 3.1 Create Snap-Scroll Results View
 
-**Files to modify:**
-- `src/pages/PackageDetailNew.tsx` - Restructure layout
-- `src/components/package-detail/PackageGallery.tsx` - Convert to masonry
-
-**Design:**
-- No carousel, just beautiful scrolling images
-- Masonry layout with varying heights
-- Images: `rounded-2xl`
-- Gap: `16px`
-- Hover: Subtle zoom + overlay lightbox trigger
-
-### 5.2 Floating Glass Booking Dock (Right 40%)
-**Current:** Card with form fields (StickyBookingCard.tsx lines 91-253)
-**New:** Floating glass panel with dynamic pricing
+**Concept:** Vertical scrolling creates choice overload. Horizontal swiping creates focus.
 
 **Files to create:**
-- `src/components/package-detail/GlassBookingDock.tsx`
+- `src/pages/PackageDeck.tsx` - Horizontal snap-scroll results
+- `src/components/deck/DeckCard.tsx` - Full-screen package card
+- `src/components/deck/GlassInfoPane.tsx` - Frosted overlay with info
+- `src/components/deck/DeckNavigation.tsx` - Subtle navigation dots
 
 **Files to modify:**
-- `src/components/package-detail/StickyBookingCard.tsx` - Replace with GlassBookingDock
+- `src/App.tsx` - Add route for deck view
 
-**Design Specs:**
+**Card Structure (100vh):**
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                     │
+│   ┌─────────────────────────────────────────────────────────────┐   │
+│   │                                                             │   │
+│   │           ░░░░ VENDOR VIDEO (100vh) ░░░░░░░░░░░░           │   │
+│   │           ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░            │   │
+│   │           ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░            │   │
+│   │                                                             │   │
+│   │   ┌────────────────────────┐                                │   │
+│   │   │ NEXUS EVENTS ✓         │                                │   │
+│   │   │ 4-Hour Sunset DJ Set   │                                │   │
+│   │   │ ────────────────────── │                                │   │
+│   │   │ $1,500 total           │   ← JetBrains Mono, precision  │   │
+│   │   └────────────────────────┘                                │   │
+│   │      (bg-white/80 backdrop-blur-2xl)                        │   │
+│   │                                                             │   │
+│   │                          ┌──────────────────┐               │   │
+│   │                          │ Secure This Date │               │   │
+│   │                          └──────────────────┘               │   │
+│   │                          (black button, high contrast)      │   │
+│   │                                                             │   │
+│   └─────────────────────────────────────────────────────────────┘   │
+│                                                                     │
+│                          • • ○ • •                                  │
+│                      (navigation dots)                              │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+**Technical Implementation:**
+- CSS Scroll Snap: `scroll-snap-type: x mandatory`
+- Each card: `scroll-snap-align: center; width: 100vw; height: 100vh`
+- Keyboard navigation: Arrow keys to navigate
+- Mobile: Swipe gestures via touch events
+- Preload: Next/prev images for smooth scrolling
+
+### 3.2 The "Co-Pilot" Viral Button
+
+**Concept:** Next to "Secure This Date," add "Ask [Partner's Name]"
+
+**Implementation:**
+- Generates a beautiful preview card image (canvas or html-to-image)
+- Opens native share sheet (Web Share API)
+- Fallback: Copy shareable link to clipboard
+
+---
+
+## Phase 4: View 3 - The Spatial Booking Drawer
+
+### 4.1 Convert Modal to Side Sheet
+
+**Current State:**
+- Dialog modal (centered)
+- Multiple steps in wizard
+- Standard form styling
+
+**New State:**
+- Side Sheet (right side, 40% width desktop, 100% mobile)
+- Heavy backdrop blur
+- Minimal form with dynamic pricing
+
+**Files to create:**
+- `src/components/booking/SpatialDrawer.tsx` - New booking drawer
+- `src/components/booking/DurationSlider.tsx` - Visual hour slider
+- `src/components/booking/TravelCheck.tsx` - Distance indicator
+- `src/components/booking/PaymentToggle.tsx` - Custom pay toggle
+
+**Files to modify:**
+- `src/components/ui/sheet.tsx` - Add wider variant (40% width)
+- `src/pages/PackageDetailNew.tsx` - Replace BookingModal usage
+
+**Drawer Content Hierarchy:**
 ```text
 ┌─────────────────────────────────────┐
-│   Wedding Photography               │
-│   ━━━━━━━━━━━━━━━━━━━━━━━━━━━       │
 │                                     │
-│   $500/hr                          │
-│   (massive, bold)                   │
+│   [←]                      [✕]     │
 │                                     │
-│   [Date Selector - glass input]     │
-│   [Time Range - subtle toggles]     │
+│   ┌───────────────────────────┐     │
+│   │ ○ Nexus Events            │     │
+│   │   ★ 4.9 · 127 bookings    │     │
+│   └───────────────────────────┘     │
 │                                     │
-│   Total: $2,500                     │
-│   (updates dynamically)             │
+│   ─────────────────────────────     │
 │                                     │
-│   ╔═════════════════════════════╗   │
-│   ║   Secure This Date   ✨    ║   │ ← Shimmer Button
-│   ╚═════════════════════════════╝   │
+│   4-Hour Sunset DJ Set              │
 │                                     │
-│   ✓ Verified Pro  ✓ 100% Refund    │
-│   ✓ Instant Chat                    │
+│   What's included:                  │
+│   • Professional DJ                 │
+│   • Premium sound system            │
+│   • Lighting setup                  │
+│                                     │
+│   ─────────────────────────────     │
+│                                     │
+│   Duration                          │
+│   ○────────●──────────○             │
+│   4 hours            +$150/hr       │
+│                                     │
+│   Travel                            │
+│   📍 15 miles to Austin, TX         │
+│   ✓ Included                        │
+│                                     │
+│   ─────────────────────────────     │
+│                                     │
+│   ┌───────────┐ ┌───────────┐       │
+│   │ 💳 Online │ │ 💵 Cash   │       │
+│   └───────────┘ └───────────┘       │
+│                                     │
+│   ─────────────────────────────     │
+│                                     │
+│   Total                             │
+│   $1,500                            │
+│   (JetBrains Mono, large)           │
+│                                     │
+│   ╔═══════════════════════════╗     │
+│   ║   Secure This Date        ║     │
+│   ╚═══════════════════════════╝     │
+│   (shimmer animation for instant)   │
+│                                     │
+│   "Booked by 14 couples             │
+│    in Austin this month."           │
 │                                     │
 └─────────────────────────────────────┘
 ```
 
-**Technical Specs:**
-- Position: `sticky top-24`
-- Background: `bg-white/70 backdrop-blur-2xl`
-- Border: none
-- Shadow: `shadow-elevated`
-- Border-radius: `rounded-3xl`
-- Padding: `p-8`
+---
 
-### 5.3 Shimmer CTA Button
-**New button variant:** Apple-style blurple gradient with shimmer animation
+## Phase 5: Growth Psychology Features
 
-**Files to modify:**
-- `src/components/ui/button.tsx` - Add "shimmer" variant
-- `src/index.css` - Add shimmer keyframes (already exists, enhance)
+### 5.1 Scarcity Badges (Truthful)
+
+**Logic:** If vendor is booked 3+ weekends in a row, show "High Demand" badge
+
+**Files to create:**
+- `src/components/badges/DemandBadge.tsx` - Pulsing badge component
 
 **Implementation:**
-```css
-.btn-shimmer {
-  background: linear-gradient(135deg, #5865F2, #8B5CF6);
-  position: relative;
-  overflow: hidden;
-}
-.btn-shimmer::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-  animation: shimmer 2s infinite;
-}
+- Query booking data to calculate demand
+- Gentle pulse animation (not aggressive)
+- Only show when genuinely high demand
+
+### 5.2 Social Proof - The "Tribe"
+
+**Replace:** "★ 5.0 (12 reviews)"
+**With:** "Booked by 14 couples in Austin this month."
+
+**Files to modify:**
+- `src/components/deck/GlassInfoPane.tsx` - Update proof display
+
+### 5.3 Post-Booking Share Loop
+
+**Concept:** Full-screen success state with share prompt
+
+**New Success State:**
+```text
+┌─────────────────────────────────────────────────────────────────────┐
+│                                                                     │
+│                                                                     │
+│                         ✓                                           │
+│                                                                     │
+│              "You've secured the date."                             │
+│                                                                     │
+│                                                                     │
+│        ┌─────────────────────────────────────┐                     │
+│        │  Send the itinerary to your guests? │                     │
+│        └─────────────────────────────────────┘                     │
+│                                                                     │
+│                    [ Share Booking ]                                │
+│                                                                     │
+│                                                                     │
+└─────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Phase 6: Micro-Copy Transformation
+## Phase 6: Animation System with Framer Motion
 
-### 6.1 Global Copy Updates
+### 6.1 Install Dependency
 
-| Location | Current | New |
-|----------|---------|-----|
-| Hero headline | "Find event pros near you" | "Events, elevated." |
-| Hero subtext | "Book food trucks, DJs..." | "The world's best vendors, matched to your moment." |
-| Search placeholder | "What do you need?" | "Planning a wedding in Austin for 150 guests..." |
-| Results header | "Packages available for your event" | "Curated for you" |
-| Section headers | "Packages available" | "Hand-picked for [Location]" |
-| CTA Button | "Book now" | "Secure this date" |
-| Request CTA | "Request to book" | "Reserve your spot" |
-| Filter label | "Quick filters:" | "Refine" |
+**Action:** Add framer-motion to dependencies
 
-**Files to modify:**
-- `src/components/home/HeroSection.tsx` - Headline/subtext
-- `src/pages/Browse.tsx` (lines 333-337) - Results header
-- `src/components/browse/BrowsePackageCard.tsx` - Any CTA text
-- `src/components/package-detail/StickyBookingCard.tsx` (lines 230-238) - Button text
-- `src/components/package-detail/GlassBookingDock.tsx` - New component with new copy
-
----
-
-## Phase 7: Framer Motion Animations
-
-### 7.1 Add Dependency
-**Action:** Install framer-motion package
-
-### 7.2 Animation Patterns
+### 6.2 Core Animation Patterns
 
 **Files to create:**
-- `src/components/animations/FadeUp.tsx` - Wrapper component
-- `src/components/animations/ScaleIn.tsx` - Wrapper component
+- `src/components/animations/LayoutTransition.tsx` - Shared layout wrapper
 
-**Entry Animations:**
-- Cards: `fadeUp` with stagger (0.1s delay between items)
-- Hero elements: `fadeIn` + `scale(0.95 → 1)` with spring physics
-- Modals: `fadeIn` + `slideUp`
+**Key Animations:**
 
-**Micro-interactions:**
-- Button hover: `scale(1.02)` with spring
-- Card hover: `translateY(-4px)` + shadow elevation
-- Input focus: Ring with blurple color
+1. **Sentence → Results Morph:**
+   - Sentence elements have `layoutId`
+   - Spring transition: `type: "spring", stiffness: 300, damping: 30`
 
-**Files to modify:**
-- `src/components/home/BentoGrid.tsx` - Add motion.div with stagger
-- `src/components/home/HeroSection.tsx` - Add motion for headline
-- `src/components/package-detail/GlassBookingDock.tsx` - Add motion for entry
+2. **Card Entry:**
+   - Scale from 0.95 to 1
+   - Opacity 0 to 1
+   - Duration: 0.4s
+
+3. **Drawer Slide:**
+   - From x: "100%" to x: 0
+   - Backdrop blur animates from 0 to blur-2xl
+
+4. **Button Shimmer (Instant Book):**
+   - Gradient sweep animation
+   - 2s duration, infinite
 
 ---
 
-## Phase 8: Mobile Responsive Adaptations
+## Phase 7: Mobile Adaptations
 
-### 8.1 Bento Grid Mobile Collapse
-**Current:** Grid of cards
-**New:** "Swipe Stack" - horizontal scroll with snap
+### 7.1 Sentence Landing (Mobile)
 
-**Files to modify:**
-- `src/components/home/BentoGrid.tsx` - Add responsive breakpoints
+- Same centered sentence
+- Larger touch targets for selectors
+- Bottom sheet pickers instead of dropdowns
 
-**Mobile Design:**
-- Single column stack OR
-- Horizontal snap-scroll with large cards
-- Full-width cards with minimal padding
+### 7.2 Horizontal Deck (Mobile)
 
-### 8.2 Navigation Island Mobile
-**Files to modify:**
-- `src/components/layout/Header.tsx`
+- Native swipe gestures
+- Slightly smaller glass pane
+- CTA button larger (thumb zone)
 
-**Mobile Adaptation:**
-- Island stays centered but smaller
-- Links collapse to hamburger icon
-- Mobile menu slides up as sheet (not down)
+### 7.3 Booking Drawer (Mobile)
+
+- Full-height bottom sheet (100% width)
+- Drag-to-dismiss handle
+- Sticky CTA at bottom
 
 ---
 
 ## Implementation Order (Prioritized for "Happy Path")
 
-### Sprint 1: Foundation (Core Design System)
-1. Typography: Inter font + index.html + tailwind.config.ts + index.css
-2. Colors: Monochrome + Blurple palette in index.css
-3. Shadows: New soft shadow utilities
-4. Border-radius: Deep corners throughout
+### Sprint 1: Design Foundation
+1. Typography: Inter Tight + JetBrains Mono fonts
+2. Colors: Pure black & white palette
+3. Remove shadows and unnecessary borders
+4. Update button and card styling
 
-### Sprint 2: Hero + Search (The Hook)
-5. HeroSection rewrite with cinematic background
-6. Natural language search input
-7. Copy updates for hero
+### Sprint 2: The Sentence Engine (View 1)
+5. Create SentenceLanding page
+6. Build SentenceBuilder component
+7. Implement inline selectors
+8. Add RevealButton with fade-in logic
+9. Background video/blur effect
 
-### Sprint 3: Navigation + Footer
-8. Floating Island Header
-9. Logo update (new asset)
-10. Minimal Footer
+### Sprint 3: The Horizontal Deck (View 2)
+10. Create PackageDeck page
+11. Build DeckCard (full-screen)
+12. Implement GlassInfoPane
+13. CSS Scroll Snap setup
+14. Navigation dots
 
-### Sprint 4: Discovery Grid (The Browse Experience)
-11. BentoGrid component
-12. BentoCard component (borderless design)
-13. Replace Browse page grid
-14. Copy updates ("Curated for you")
+### Sprint 4: Animations & Transitions
+15. Install framer-motion
+16. Sentence to Results morph animation
+17. Card entry animations
+18. Drawer slide animation
 
-### Sprint 5: Package Detail (The Conversion)
-15. Split-screen layout restructure
-16. GlassBookingDock component
-17. Shimmer button variant
-18. Masonry gallery
+### Sprint 5: Booking Drawer (View 3)
+19. Create SpatialDrawer component
+20. DurationSlider component
+21. PaymentToggle component
+22. Dynamic pricing display
+23. Shimmer CTA button
 
-### Sprint 6: Animations + Polish
-19. Install Framer Motion
-20. Add entry animations to cards and hero
-21. Micro-interactions for buttons/cards
-22. Mobile responsive testing
+### Sprint 6: Growth Features & Polish
+24. DemandBadge component
+25. Social proof ("Booked by X couples...")
+26. Post-booking share loop
+27. Mobile responsive testing
 
 ---
 
-## Technical Requirements Summary
+## Technical Summary
 
 ### Dependencies to Add
 ```json
@@ -447,59 +477,59 @@ Modals:       rounded-3xl
 ```html
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 ```
 
-### New Files to Create
-1. `src/assets/eventpro-logo-new.png` - From user upload
-2. `src/components/home/BentoGrid.tsx` - Asymmetric grid container
-3. `src/components/home/BentoCard.tsx` - Borderless image card
-4. `src/components/home/IntelligentSearch.tsx` - Natural language search
-5. `src/components/package-detail/GlassBookingDock.tsx` - Floating booking panel
-6. `src/components/package-detail/MasonryGallery.tsx` - Image wall
-7. `src/components/animations/FadeUp.tsx` - Motion wrapper
+### Files to Create (New)
+1. `src/pages/SentenceLanding.tsx` - Immersive landing
+2. `src/pages/PackageDeck.tsx` - Horizontal snap-scroll results
+3. `src/components/landing/SentenceBuilder.tsx` - Mad Libs interface
+4. `src/components/landing/RevealButton.tsx` - Animated CTA
+5. `src/components/deck/DeckCard.tsx` - Full-screen card
+6. `src/components/deck/GlassInfoPane.tsx` - Frosted info overlay
+7. `src/components/deck/DeckNavigation.tsx` - Navigation dots
+8. `src/components/booking/SpatialDrawer.tsx` - Side sheet booking
+9. `src/components/booking/DurationSlider.tsx` - Visual slider
+10. `src/components/booking/PaymentToggle.tsx` - Custom toggle
+11. `src/components/badges/DemandBadge.tsx` - Scarcity indicator
+12. `src/components/animations/LayoutTransition.tsx` - Motion wrapper
 
 ### Files with Heavy Modifications
-1. `src/index.css` - Complete theme overhaul
-2. `tailwind.config.ts` - Typography and radius
-3. `src/components/layout/Header.tsx` - Floating island
-4. `src/components/layout/Footer.tsx` - Minimal footer
-5. `src/components/home/HeroSection.tsx` - Cinematic hero
-6. `src/pages/Browse.tsx` - Bento grid + copy
-7. `src/pages/PackageDetailNew.tsx` - Split-screen layout
-8. `src/components/ui/button.tsx` - Shimmer variant
-9. `src/components/browse/BrowsePackageCard.tsx` - Borderless redesign
+1. `index.html` - Google Fonts
+2. `src/index.css` - Complete design system overhaul
+3. `tailwind.config.ts` - Typography, colors, radius
+4. `src/App.tsx` - New routes (/, /results)
+5. `src/components/ui/sheet.tsx` - Add 40% width variant
+6. `src/components/ui/button.tsx` - Black/white variants, shimmer
 
-### Files with Minor Updates
-- Various components for copy changes ("Book now" → "Secure this date")
-- `src/components/package-detail/StickyBookingCard.tsx` - Copy updates
-
----
-
-## Hero Media Options
-
-**Option A: Stock Video**
-- Source: Pexels/Mixkit (royalty-free)
-- Content: Elegant wedding reception, slow-motion confetti, celebration moments
-- Format: MP4, muted autoplay loop
-- Fallback: High-res image for slower connections
-
-**Option B: Animated Image**
-- Ken Burns effect on high-quality static image
-- Subtle zoom/pan animation (CSS transform)
-- Faster loading, still cinematic
-
-**Option C: Gradient Mesh Fallback**
-- For loading states or as backup
-- Subtle animated gradient in monochrome with blurple accent
+### Files to Remove/Replace
+- `src/pages/Browse.tsx` - Replaced by PackageDeck
+- `src/components/home/HeroSection.tsx` - Replaced by SentenceBuilder
+- `src/pages/Index.tsx` - Replaced by SentenceLanding
+- Current navigation header (replaced by minimal back arrow on results)
 
 ---
 
-## Success Metrics
+## Success Criteria
 
-After implementation, the redesign should:
-1. **Feel Expensive** - First impression should be "this is premium"
-2. **Load Fast** - Images lazy-loaded, smooth 60fps animations
-3. **Convert Better** - Clear path: Hero → Browse → Package → Book
-4. **Reduce Cognitive Load** - Users know exactly what to do at every step
-5. **Build Trust** - Verified badges, clean design, clear pricing
+After implementation:
+
+1. **Radical Reduction:** If it doesn't help book, it's gone
+2. **100vh Imagery:** Vendors ARE the UI, not thumbnails
+3. **Zero Choice Overload:** One package at a time
+4. **Precision Data:** Prices/dates in monospace = financial confidence
+5. **Viral Mechanics:** Share button creates beautiful preview cards
+6. **Focus on Conversion:** Sentence → Match → Book (3 steps total)
+
+---
+
+## The "Zero to One" Principle
+
+This redesign isn't an iteration - it's a category shift:
+
+- From "directory" to "declaration engine"
+- From "browse many" to "focus on one"
+- From "search and filter" to "reveal matches"
+- From "book now" to "secure this date"
+
+The user doesn't search. They declare their intent. The system reveals the perfect match.
