@@ -5,26 +5,25 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-lg hover:bg-primary/90",
-        destructive: "bg-destructive text-destructive-foreground shadow-md hover:bg-destructive/90",
-        outline: "border border-border bg-transparent text-foreground hover:bg-secondary",
-        secondary: "bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80",
-        ghost: "hover:bg-secondary hover:text-secondary-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
-        gradient: "gradient-primary text-white shadow-lg hover:shadow-xl hover-glow border-0",
-        glass: "glass-card text-foreground hover:bg-secondary/30 border-0",
-        darkShine: "dark-shine",
+        default: "bg-primary text-primary-foreground rounded-full shadow-soft hover:shadow-medium hover:-translate-y-0.5",
+        destructive: "bg-destructive text-destructive-foreground rounded-2xl shadow-soft hover:bg-destructive/90",
+        outline: "border border-border bg-transparent text-foreground rounded-full hover:bg-secondary",
+        secondary: "bg-secondary text-secondary-foreground rounded-full hover:bg-secondary/80",
+        ghost: "hover:bg-secondary hover:text-foreground rounded-xl",
+        link: "text-foreground underline-offset-4 hover:underline",
+        shimmer: "btn-shimmer text-white rounded-full shadow-medium hover:shadow-elevated hover:-translate-y-0.5",
+        glass: "glass-float text-foreground rounded-full hover:bg-white/90",
       },
       size: {
-        default: "h-11 px-5 py-2",
-        sm: "h-9 rounded-md px-4 text-xs",
-        lg: "h-12 rounded-lg px-8 text-base",
-        xl: "h-14 rounded-xl px-10 text-lg",
-        icon: "h-10 w-10",
+        default: "h-11 px-6 py-2",
+        sm: "h-9 px-4 text-sm",
+        lg: "h-12 px-8 text-base",
+        xl: "h-14 px-10 text-lg",
+        icon: "h-10 w-10 rounded-full",
       },
     },
     defaultVariants: {
