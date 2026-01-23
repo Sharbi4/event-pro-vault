@@ -1,370 +1,158 @@
 
-# MVP Full Integration: Email Notifications, Real-Time Availability, Booking Success & Mobile-First Redesign
+# Demo Data Enhancement for Investor Showcase
 
 ## Overview
-
-This plan addresses four key areas plus a logo/footer redesign with mobile-first responsive implementation:
-
-1. **Email Notifications to Vendors** - Wire vendor email retrieval and ensure notifications are sent
-2. **Real-Time Availability Calendar** - Show booked dates dynamically with Supabase realtime
-3. **Booking Success Page** - Dedicated confirmation page after Stripe checkout
-4. **Logo & Footer Redesign** - Clean logo at top, "by Vendibook" at bottom
-5. **Mobile-First Responsive Design** - Ensure all components work seamlessly on all devices
+Adding realistic mock data throughout the app to create a "live" demo experience for investors and early adopters. The focus is on making the sentence builder landing page flow → results page feel authentic with 2026 dates, real US cities, and varied event types.
 
 ---
 
-## Part 1: Email Notifications to Vendors
+## Strategy
 
-### Current State
-- The `send-booking-notification` Edge Function exists and works
-- The `useBookings` hook calls it, but only when `vendor_email` is provided
-- **Problem**: `useBrowsePackages` doesn't fetch vendor email, so notifications are never triggered
+The app currently pulls data from the Supabase database (6 packages, 1 vendor in Los Angeles). To create a realistic demo without adding fake database records, I'll seed additional demo vendor profiles and packages directly into the database with:
 
-### Solution: Fetch Vendor Email from Auth Users
+- **8-10 demo vendors** across major US metros
+- **20-25 packages** covering different service categories  
+- **Realistic 2026 availability** with package-level weekly schedules
+- **Demo reviews** for social proof
 
-**Files to modify:**
-- `src/hooks/useBrowsePackages.ts` - Add vendor_email to the package data
-- `src/components/booking/SpatialDrawer.tsx` - Pass vendor_email to createBooking
+---
 
-**Implementation:**
-1. Query the vendor's email from the `auth.users` table via a new Edge Function (since client can't access auth.users directly)
-2. Alternatively, store email in `profiles` or `vendor_details` table during onboarding
-3. Pass email through the booking flow to trigger notifications
+## Data to Add
 
-**New Edge Function:** `get-vendor-contact`
-```text
-Input: vendor_user_id
-Output: { email, phone, display_name }
-- Uses service role to query auth.users for email
-- Returns vendor contact info for notifications
-```
+### Demo Cities (Targeting Major Event Markets)
+| City | State | Why |
+|------|-------|-----|
+| Los Angeles | CA | Entertainment/wedding hub |
+| Miami | FL | Beach weddings, corporate retreats |
+| Austin | TX | Tech events, festivals |
+| New York | NY | Corporate, luxury weddings |
+| Chicago | IL | Midwest corporate hub |
+| Atlanta | GA | Southern weddings, conferences |
+| Denver | CO | Outdoor events, wellness |
+| Nashville | TN | Music, country weddings |
 
-**Database Migration:**
-Add `email` column to `profiles` table to cache the user's email for easier access:
+### Demo Vendors (10 total)
+1. **Blaze & Grill Co.** (Los Angeles) - Food Trucks, BBQ
+2. **DJ Quantum** (Miami) - DJs, Club & Wedding
+3. **Mixology Masters** (New York) - Mobile Bartending
+4. **Chef Isabella** (San Francisco) - Private Chef
+5. **The Magic of Marco** (Las Vegas) - Performers
+6. **Party Perfect Rentals** (Austin) - Event Rentals
+7. **Zen Vibes Wellness** (Denver) - Wellness
+8. **Peach State Catering** (Atlanta) - Catering
+9. **Windy City DJs** (Chicago) - DJs
+10. **Nashville Harmonics** (Nashville) - Live Music
+
+### Demo Packages (25 total, varied pricing)
+- **Food/Catering**: BBQ Feast ($450), Taco Truck ($300), Private Chef Dinner ($1,200)
+- **DJs/Music**: Club DJ ($275/hr), Wedding DJ ($350/hr), Live Band ($800/hr)
+- **Bartending**: Cocktail Hour ($200/hr), Full Bar Service ($350/hr)
+- **Photography**: Wedding Coverage ($500/hr), Event Photos ($300/hr)
+- **Rentals**: Table/Chair Package ($150), Tent Setup ($500)
+- **Wellness**: Corporate Yoga ($250), Sound Healing ($400)
+- **Performers**: Magician ($500), Fire Dancer ($650)
+
+### Demo Availability (2026 Focus)
+Each package will have:
+- Weekly availability (Mon-Sun with realistic hours)
+- Open dates throughout **Spring/Summer 2026** (March - August)
+- A few blocked dates to show realism (holidays, already-booked weekends)
+
+### Demo Reviews (3-5 per popular vendor)
+Sample reviews with realistic names, ratings (4.5-5.0 range), and short testimonials.
+
+---
+
+## Database Changes Required
+
+### 1. Insert Demo Profiles (vendors)
 ```sql
-ALTER TABLE profiles ADD COLUMN IF NOT EXISTS email TEXT;
--- Trigger to sync from auth.users on profile creation
+INSERT INTO profiles (user_id, full_name, email, is_vendor, avatar_url, stripe_account_status, identity_verification_status)
+VALUES 
+  (gen_random_uuid(), 'Blaze & Grill Co.', 'demo+blazegrill@example.com', true, 'https://...', 'active', 'verified'),
+  -- 9 more vendors...
 ```
 
----
-
-## Part 2: Real-Time Availability Calendar
-
-### Current State
-- `usePackageAvailabilityCheck` hook exists and fetches blocked dates + bookings
-- Calendar component shows disabled dates
-- **Problem**: No real-time updates - if someone books while you're browsing, you won't see it
-
-### Solution: Supabase Realtime Subscription
-
-**Files to modify:**
-- `src/hooks/usePackageAvailabilityCheck.ts` - Add realtime subscription
-- `src/components/landing/SentenceBuilder.tsx` - Style booked dates differently
-
-**Implementation:**
-1. Subscribe to `bookings` table changes filtered by package_id
-2. When a new booking is created, add it to `existingBookings` array
-3. Calendar shows booked dates with a visual indicator (strikethrough, different color)
-
-**Code Changes:**
-```text
-// In usePackageAvailabilityCheck.ts
-useEffect(() => {
-  if (!packageId) return;
-  
-  const channel = supabase
-    .channel(`package-availability-${packageId}`)
-    .on('postgres_changes', {
-      event: 'INSERT',
-      schema: 'public',
-      table: 'bookings',
-      filter: `package_id=eq.${packageId}`
-    }, (payload) => {
-      // Add new booking date to existingBookings
-      setAvailability(prev => ({
-        ...prev,
-        existingBookings: [...prev.existingBookings, payload.new.event_date]
-      }));
-    })
-    .subscribe();
-    
-  return () => supabase.removeChannel(channel);
-}, [packageId]);
-```
-
-**Calendar Visual Updates:**
-- Booked dates: Strikethrough + muted text
-- Blocked dates: Grayed out
-- Available dates: Normal styling
-- Today: Highlighted
-
----
-
-## Part 3: Booking Success Page
-
-### Current State
-- After Stripe checkout, users are redirected to `/dashboard?payment=success`
-- Dashboard shows a toast notification but no dedicated success experience
-- **Problem**: Users miss the confirmation, no clear next steps
-
-### Solution: Dedicated `/booking-success` Page
-
-**Files to create:**
-- `src/pages/BookingSuccess.tsx` - Full-page confirmation with confetti, details, next steps
-
-**Files to modify:**
-- `src/App.tsx` - Add route for `/booking-success`
-- `supabase/functions/create-booking-checkout/index.ts` - Update success_url
-
-**Page Design (Mobile-First):**
-```text
-┌─────────────────────────────────────────┐
-│                                         │
-│            ✓ (large checkmark)          │
-│                                         │
-│         Booking Confirmed!              │
-│                                         │
-│   ┌─────────────────────────────────┐   │
-│   │ Package: Sunset DJ Experience   │   │
-│   │ Vendor: Nexus Events            │   │
-│   │ Date: March 15, 2026            │   │
-│   │ Location: Austin, TX            │   │
-│   │ Total: $1,500                   │   │
-│   └─────────────────────────────────┘   │
-│                                         │
-│         What Happens Next?              │
-│                                         │
-│   1. Confirmation email sent            │
-│   2. Vendor will contact you            │
-│   3. Final payment due on event day     │
-│                                         │
-│      [ View My Bookings ]               │
-│      [ Browse More Vendors ]            │
-│                                         │
-└─────────────────────────────────────────┘
-```
-
-**Features:**
-- Fetch booking details using `booking_id` from URL params
-- Call `verify-booking-payment` to confirm payment status
-- Show animated success state with confetti
-- Display booking summary card
-- List next steps
-- CTA buttons: "View My Bookings" → /dashboard, "Browse More" → /discover
-
----
-
-## Part 4: Logo & Footer Redesign
-
-### Current State
-From the screenshot reference:
-- Logo has glass background panel with wordmark
-- User wants: Just the logo icon at top (no background), "by Vendibook" text at bottom
-
-### Solution: Minimal Brand Presence
-
-**Files to modify:**
-- `src/pages/SentenceLanding.tsx`
-
-**New Design:**
-```text
-Top-left: Just the logo icon (h-8 or ~32px), no glass backing, no wordmark
-Bottom-center: "by Vendibook" in small muted text (16px)
-```
-
-**Implementation:**
-```text
-{/* Logo - Top Left, Clean */}
-<motion.div 
-  className="absolute top-6 left-6 z-20"
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ duration: 0.6, delay: 0.2 }}
->
-  <img 
-    src={logo} 
-    alt="Event Pro" 
-    className="h-8 w-auto"  {/* ~32px */}
-  />
-</motion.div>
-
-{/* Footer - Bottom Center */}
-<motion.div 
-  className="absolute bottom-6 left-0 right-0 flex justify-center z-20"
-  initial={{ opacity: 0 }}
-  animate={{ opacity: 1 }}
-  transition={{ delay: 0.8 }}
->
-  <span className="text-[16px] text-muted-foreground">
-    by Vendibook
-  </span>
-</motion.div>
-```
-
----
-
-## Part 5: Mobile-First Responsive Design
-
-### Philosophy
-- Design for mobile FIRST (320px - 480px)
-- Enhance progressively for tablet (768px+) and desktop (1024px+)
-- Touch-friendly tap targets (min 44px)
-- Readable text without zooming
-
-### Key Component Updates
-
-**1. SentenceLanding.tsx (Mobile-First):**
-```text
-Mobile (default):
-- Sentence text: text-2xl (24px)
-- Stack vertically on very small screens
-- Logo: h-6 (24px) top-4 left-4
-- Footer: bottom-4
-
-Tablet/Desktop (md:):
-- Sentence text: md:text-4xl lg:text-5xl
-- Horizontal flow
-- Logo: md:h-8 md:top-6 md:left-6
-- More padding
-```
-
-**2. SpatialDrawer.tsx (Mobile-First):**
-```text
-Mobile (default):
-- Full-screen drawer (w-full)
-- Larger touch targets (py-4 on buttons)
-- Sticky header with back button
-- Bottom-fixed CTA button
-
-Desktop (md:):
-- Side drawer (md:w-[480px])
-- Standard button sizing
-```
-
-**3. BookingSuccess.tsx (Mobile-First):**
-```text
-Mobile (default):
-- px-4 padding
-- Stack all content vertically
-- Full-width buttons
-- text-2xl headings
-
-Desktop (md:):
-- max-w-lg centered
-- Larger icons
-- text-3xl headings
-```
-
-**4. DeckCard.tsx (Mobile-First):**
-```text
-Mobile (default):
-- Full-screen cards with snap scrolling
-- Badge row: top-20 left-4
-- Glass pane: p-4 pb-20 (space for mobile nav)
-
-Desktop (md:):
-- Badges: md:top-24 md:left-12
-- Glass pane: md:p-12
-```
-
-**5. Calendar Component:**
-```text
-Mobile:
-- Compact day cells (w-8 h-8)
-- Touch-friendly navigation arrows
-- Modal/drawer presentation
-
-Desktop:
-- Standard sizing
-- Inline or popover presentation
-```
-
-### CSS Utilities to Add (index.css):
-```css
-/* Mobile-first touch targets */
-.touch-target {
-  min-height: 44px;
-  min-width: 44px;
-}
-
-/* Safe area padding for notched devices */
-.safe-bottom {
-  padding-bottom: env(safe-area-inset-bottom, 16px);
-}
-```
-
----
-
-## Implementation Summary
-
-### Files to Create
-1. `src/pages/BookingSuccess.tsx` - Dedicated confirmation page
-2. `supabase/functions/get-vendor-contact/index.ts` - Fetch vendor email for notifications
-
-### Database Migration
+### 2. Insert Demo Vendor Details
 ```sql
--- Add email column to profiles for caching
-ALTER TABLE profiles ADD COLUMN IF NOT EXISTS email TEXT;
-
--- Enable realtime on bookings table for live availability
-ALTER PUBLICATION supabase_realtime ADD TABLE bookings;
+INSERT INTO vendor_details (user_id, business_name, city, state, formatted_address, service_area)
+VALUES 
+  ('uuid-1', 'Blaze & Grill Co.', 'Los Angeles', 'CA', '123 Main St, Los Angeles, CA 90001', 'Los Angeles'),
+  -- 9 more...
 ```
 
-### Files to Modify
+### 3. Insert Demo Packages
+```sql
+INSERT INTO vendor_packages (user_id, name, category, type, price, description, includes, images, instant_book, is_active)
+VALUES 
+  ('uuid-1', 'Smokehouse Feast', 'food-trucks', 'HOURLY', 450, 'Award-winning BBQ...', ARRAY['Brisket','Ribs','Sides'], ARRAY['url1','url2'], true, true),
+  -- 24 more...
+```
+
+### 4. Insert Package Weekly Availability
+```sql
+INSERT INTO package_weekly_availability (package_id, day_of_week, is_enabled, start_time, end_time)
+VALUES 
+  ('pkg-uuid-1', 0, true, '10:00', '22:00'), -- Sunday
+  ('pkg-uuid-1', 1, true, '09:00', '21:00'), -- Monday
+  -- For each package...
+```
+
+### 5. Insert Demo Reviews
+```sql
+INSERT INTO reviews (vendor_user_id, package_id, rating, text, reviewer_name, created_at)
+VALUES 
+  ('uuid-1', 'pkg-uuid-1', 5, 'Amazing BBQ! Everyone loved it.', 'Sarah M.', '2025-11-15'),
+  -- More reviews...
+```
+
+---
+
+## Technical Notes
+
+### Data Isolation
+- All demo vendors use `demo+*@example.com` emails for easy identification
+- Can be filtered out or deleted post-demo if needed
+
+### Image Sources
+Using professional Unsplash images already referenced in the static `vendors.ts` file:
+- Food: `https://images.unsplash.com/photo-1529193591184-b1d58069ecdd`
+- DJ: `https://images.unsplash.com/photo-1571266028243-d220c6d6c0db`
+- Bartending: `https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b`
+
+### Realistic Touches
+- Pricing aligned with industry standards
+- Response times vary (< 1 hour to < 4 hours)
+- Mix of instant book and request-only packages
+- Some vendors verified, some pending (shows progression)
+
+---
+
+## Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/App.tsx` | Add `/booking-success` route |
-| `src/pages/SentenceLanding.tsx` | Logo top (no bg), footer "by Vendibook", mobile-first sizing |
-| `src/hooks/usePackageAvailabilityCheck.ts` | Add Supabase realtime subscription |
-| `src/hooks/useBrowsePackages.ts` | Fetch vendor_email for packages |
-| `src/components/booking/SpatialDrawer.tsx` | Pass vendor_email to createBooking, mobile-first styling |
-| `src/components/ui/calendar.tsx` | Add styling for booked dates |
-| `src/index.css` | Add mobile utility classes |
-| `supabase/functions/create-booking-checkout/index.ts` | Update success_url to `/booking-success` |
+| Database (migration) | Insert demo profiles, vendor_details, packages, availability, reviews |
+
+**No frontend code changes needed** - the existing `useBrowsePackages` hook will automatically pull this demo data from the database.
 
 ---
 
-## Technical Details
+## Demo Scenarios Enabled
 
-### BookingSuccess Page Flow
-```text
-1. User redirected from Stripe: /booking-success?booking=xxx&session=xxx
-2. Page calls verify-booking-payment to confirm
-3. Fetches booking details from database
-4. Displays animated confirmation with details
-5. Shows next steps and navigation options
-```
+After seeding this data, demos will work smoothly for:
 
-### Realtime Availability Flow
-```text
-1. User opens date picker on SentenceBuilder or SpatialDrawer
-2. Hook subscribes to bookings table for that package
-3. Calendar renders with booked dates visually marked
-4. If another user books while browsing, date updates in real-time
-5. Cleanup: unsubscribe on component unmount
-```
-
-### Vendor Email Notification Flow
-```text
-1. User creates booking via SpatialDrawer
-2. Package data includes vendor_email (fetched from profiles or auth)
-3. createBooking() calls send-booking-notification edge function
-4. Vendor receives email with customer details, event info, price
-5. Customer sees success state / redirects to success page
-```
+1. **"Wedding in Los Angeles on June 15, 2026"** → Shows photographers, DJs, caterers, florists
+2. **"Corporate Event in Austin on April 10, 2026"** → Shows rentals, catering, bartending
+3. **"Birthday Party in Miami on July 4, 2026"** → Shows DJs, food trucks, performers
+4. **"Private Party in Denver on May 22, 2026"** → Shows wellness, rentals, private chefs
 
 ---
 
-## Success Criteria
-
-After implementation:
-1. Vendors receive email notifications for every new booking
-2. Calendar shows real-time booked dates as users browse
-3. Users see a beautiful confirmation page after Stripe payment
-4. Logo appears clean at top-left without background
-5. "by Vendibook" appears at page bottom
-6. All components work flawlessly on mobile devices (tested at 375px)
-7. Touch targets are minimum 44px for accessibility
-8. No horizontal scrolling on mobile
-9. Text is readable without zooming
+## Scope Summary
+- **10 demo vendors** across 8 cities
+- **25 demo packages** across 8 categories
+- **Weekly availability** for all packages (2026 dates open)
+- **15-20 demo reviews** for social proof
+- All data inserted via database migration
+- Zero frontend code changes required
