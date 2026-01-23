@@ -1,13 +1,12 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, User } from 'lucide-react';
+import { Menu, X, MessageCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModeSwitcher } from './ModeSwitcher';
 import { ProfileTypeModal } from './ProfileTypeModal';
 import { setAuthIntent } from '@/lib/authIntent';
-import { motion, AnimatePresence } from 'framer-motion';
-import logo from '@/assets/eventpro-logo-new.png';
+import logo from '@/assets/eventpro-logo.png';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -31,6 +30,7 @@ export function Header() {
     if (user) {
       navigate('/eventpro-onboarding');
     } else {
+      // Set intent and redirect to auth
       setAuthIntent({
         intent: 'EVENT_PRO_ONBOARDING',
         profileType: 'EVENT_PRO',
@@ -39,152 +39,214 @@ export function Header() {
     }
   };
 
+
   const navLinks = [
-    { to: '/browse', label: 'Browse' },
-    { to: '/learn', label: 'Learn' },
+    { to: '/', label: 'Browse' },
+    { to: '/learn', label: 'Learn More' },
   ];
 
   return (
     <>
-      {/* Floating Island Navigation */}
-      <motion.header 
-        initial={{ y: -100, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        className="fixed top-4 left-1/2 -translate-x-1/2 z-50 w-auto"
+      <header 
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+          isScrolled 
+            ? 'glass-card border-b border-border/50 py-2' 
+            : 'bg-background/80 backdrop-blur-sm border-b border-border/30 py-3'
+        }`}
       >
-        <nav className={`
-          glass-float rounded-full px-4 py-2 lg:px-6 lg:py-3
-          transition-all duration-300
-          ${isScrolled ? 'shadow-medium' : 'shadow-soft'}
-        `}>
-          <div className="flex items-center gap-4 lg:gap-8">
+        <div className="container mx-auto px-4">
+          <div className={`flex items-center justify-between transition-all duration-300 ${
+            isScrolled ? 'h-12 lg:h-14' : 'h-14 lg:h-16'
+          }`}>
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 shrink-0">
               <img 
                 src={logo} 
-                alt="Event Pro" 
-                className="h-8 w-auto"
+                alt="Event Pro by Vendibook" 
+                className={`w-auto transition-all duration-300 ${isScrolled ? 'h-7 lg:h-8' : 'h-8 lg:h-9'}`}
               />
+              <div className="flex flex-col leading-none">
+                <span className={`font-display font-bold text-foreground transition-all duration-300 ${
+                  isScrolled ? 'text-sm lg:text-base' : 'text-base lg:text-lg'
+                }`}>
+                  Event Pro
+                </span>
+                <span className={`text-muted-foreground transition-all duration-300 ${
+                  isScrolled ? 'text-[9px] lg:text-[10px]' : 'text-[10px] lg:text-xs'
+                }`}>
+                  by Vendibook
+                </span>
+              </div>
             </Link>
 
-            {/* Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-6">
+            {/* Desktop Navigation - Center */}
+            <nav className="hidden lg:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
               {navLinks.map((link) => (
                 <Link 
                   key={link.to}
                   to={link.to} 
-                  className={`
-                    text-sm font-medium transition-colors
-                    ${location.pathname === link.to 
+                  className={`text-sm font-medium transition-colors ${
+                    location.pathname === link.to 
                       ? 'text-foreground' 
                       : 'text-muted-foreground hover:text-foreground'
-                    }
-                  `}
+                  }`}
                 >
                   {link.label}
                 </Link>
               ))}
             </nav>
 
-            {/* Divider */}
-            <div className="hidden lg:block w-px h-6 bg-border" />
-
-            {/* Desktop Actions */}
+            {/* Desktop CTA - Right */}
             <div className="hidden lg:flex items-center gap-3">
               {user ? (
-                <ModeSwitcher />
+                <>
+                  <button
+                    onClick={() => window.open('https://support.zendesk.com', '_blank')}
+                    className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
+                    aria-label="Chat support"
+                  >
+                    <MessageCircle className="w-5 h-5 text-muted-foreground hover:text-foreground" />
+                  </button>
+                  <ModeSwitcher />
+                </>
               ) : (
                 <>
                   <Link to="/auth">
-                    <Button variant="ghost" size="sm" className="text-sm">
-                      Sign in
-                    </Button>
+                    <Button variant="ghost" size="sm">Sign in</Button>
                   </Link>
+
                   <Button 
-                    size="sm"
-                    className="btn-shimmer text-white rounded-full px-6"
+                    variant="darkShine" 
+                    size="default" 
                     onClick={() => setProfileModalOpen(true)}
                   >
-                    Get Started
+                    Create free profile
                   </Button>
                 </>
               )}
             </div>
 
-            {/* Mobile Menu Button */}
-            <button
-              className="lg:hidden p-2 rounded-full hover:bg-secondary/50 transition-colors"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              {mobileMenuOpen ? (
-                <X className="w-5 h-5 text-foreground" />
-              ) : (
-                <Menu className="w-5 h-5 text-foreground" />
-              )}
-            </button>
-          </div>
-        </nav>
-
-        {/* Mobile Menu Dropdown */}
-        <AnimatePresence>
-          {mobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-              className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-[280px] glass-float rounded-2xl p-4 shadow-elevated"
-            >
-              <nav className="flex flex-col gap-1">
-                {navLinks.map((link) => (
-                  <Link 
-                    key={link.to}
-                    to={link.to} 
-                    className={`
-                      text-sm font-medium py-3 px-4 rounded-xl transition-colors
-                      ${location.pathname === link.to 
-                        ? 'text-foreground bg-secondary' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-                      }
-                    `}
-                    onClick={() => setMobileMenuOpen(false)}
+            {/* Mobile Right Actions */}
+            <div className="flex lg:hidden items-center gap-2">
+              {user ? (
+                <>
+                  <button
+                    onClick={() => window.open('https://support.zendesk.com', '_blank')}
+                    className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
+                    aria-label="Chat support"
                   >
-                    {link.label}
-                  </Link>
-                ))}
-                
-                <div className="h-px bg-border my-2" />
-                
+                    <MessageCircle className="w-5 h-5 text-muted-foreground" />
+                  </button>
+                </>
+              ) : (
+                <Button 
+                  variant="darkShine" 
+                  size="sm"
+                  onClick={() => setProfileModalOpen(true)}
+                >
+                  Create free profile
+                </Button>
+              )}
+              <button
+                className="p-2"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              >
+                {mobileMenuOpen ? (
+                  <X className="w-6 h-6 text-foreground" />
+                ) : (
+                  <Menu className="w-6 h-6 text-foreground" />
+                )}
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Menu */}
+          {mobileMenuOpen && (
+            <div className="lg:hidden py-4 border-t border-border/50 animate-fade-in bg-background">
+              <nav className="flex flex-col gap-1">
                 {user ? (
-                  <div className="px-2">
-                    <ModeSwitcher compact />
-                  </div>
+                  <>
+                    {/* Logged in: Dashboard, FAQ, Contact */}
+                    <div className="px-2 pb-3">
+                      <ModeSwitcher compact />
+                    </div>
+                    
+                    <div className="h-px bg-border my-2" />
+                    
+                    <Link 
+                      to="/faq" 
+                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                        location.pathname === '/faq' 
+                          ? 'text-foreground bg-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      FAQ
+                    </Link>
+                    <button 
+                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        window.open('https://support.zendesk.com', '_blank');
+                      }}
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Contact Us
+                    </button>
+                  </>
                 ) : (
                   <>
+                    {/* Guest: Sign In, Create Profile, Learn More, FAQ */}
                     <Link 
                       to="/auth" 
                       onClick={() => setMobileMenuOpen(false)}
-                      className="text-sm font-medium py-3 px-4 rounded-xl text-muted-foreground hover:text-foreground hover:bg-secondary/50 transition-colors"
+                      className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
                     >
                       Sign In
                     </Link>
+                    
                     <button 
-                      className="btn-shimmer text-white text-sm font-medium py-3 px-4 rounded-xl mt-1"
+                      className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
                       onClick={() => {
                         setMobileMenuOpen(false);
                         setProfileModalOpen(true);
                       }}
                     >
-                      Get Started
+                      Create a Free Profile
                     </button>
+                    
+                    <div className="h-px bg-border my-2" />
+                    
+                    <Link 
+                      to="/learn" 
+                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                        location.pathname === '/learn' 
+                          ? 'text-foreground bg-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Learn More
+                    </Link>
+                    <Link 
+                      to="/faq" 
+                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                        location.pathname === '/faq' 
+                          ? 'text-foreground bg-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      FAQ
+                    </Link>
                   </>
                 )}
               </nav>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
-      </motion.header>
+        </div>
+      </header>
 
       <ProfileTypeModal 
         open={profileModalOpen} 
