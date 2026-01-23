@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SentenceBuilder } from '@/components/landing/SentenceBuilder';
 import { RevealButton } from '@/components/landing/RevealButton';
@@ -74,11 +74,13 @@ export default function SentenceLanding() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        <img 
-          src={logo} 
-          alt="Event Pro" 
-          className="h-22 md:h-28 w-auto drop-shadow-md"
-        />
+        <Link to="/" className="block transition-transform duration-200 hover:scale-105">
+          <img 
+            src={logo} 
+            alt="Event Pro" 
+            className="h-22 md:h-28 w-auto drop-shadow-md"
+          />
+        </Link>
       </motion.div>
 
       {/* Footer - Bottom Center */}
