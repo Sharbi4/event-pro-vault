@@ -1,291 +1,292 @@
 
-# Implementation Plan: Growth Features, Cinematic Hero & Logo Integration
+# MVP Full Integration & Cinematic Background Slideshow
 
 ## Overview
 
-This plan implements four key enhancements to the "Art Gallery" redesign:
-1. **"Ask Partner" Co-Pilot Feature** - Viral sharing mechanism with Web Share API
-2. **High Demand Badge** - Truthful scarcity indicator with pulse animation
-3. **Cinematic Video Background** - Immersive hero with blur effects
-4. **New Logo Integration** - Updated branding across the app
+This plan addresses two critical areas:
+1. **Frontend-Backend Integration Gaps** - Wire all the new "Art Gallery" components to the database
+2. **Strategic Background Slideshow** - Replace the repetitive video with an immersive image slideshow
 
 ---
 
-## Feature 1: "Ask Partner" Co-Pilot Button
+## Part 1: Critical Integration Fixes
 
-### Concept
-Next to "Secure This Date", add a "Ask Partner" button that generates a beautiful shareable preview card for WhatsApp/iMessage. This creates a viral loop where users share packages with their partners before booking.
+### Issue 1: Search Filters Not Applied
 
-### Files to Create
-- `src/components/deck/AskPartnerButton.tsx` - The share button component
-- `src/components/deck/SharePreviewCard.tsx` - Visual preview card generator
+**Problem:** When users complete the sentence "I am planning a Wedding in Austin on March 15" and click "Reveal Matches", the filters are extracted from the URL but never applied to the package query. All packages show regardless of search criteria.
 
-### Files to Modify
-- `src/components/deck/GlassInfoPane.tsx` - Add the button below the CTA
-- `src/components/deck/DeckCard.tsx` - Pass package data for sharing
+**Files to modify:**
+- `src/pages/PackageDeck.tsx`
 
-### Implementation Details
+**Solution:**
+- Add a `useEffect` that applies URL search params to the `useBrowsePackages` hook filters
+- Call `updateFilter()` for each parameter (location, date, category based on event type)
 
-**AskPartnerButton.tsx:**
 ```text
-- Button with "Ask Partner" or "Send to Partner" label
-- Heart icon or users icon for visual cue
-- onClick triggers share flow:
-  1. Generate a preview image/card with package details
-  2. If Web Share API available (navigator.share):
-     - Share with title, text, and URL
-     - Include package name, price, vendor name
-  3. Fallback: Copy link to clipboard with toast notification
-```
+Current flow:
+  SentenceLanding → navigate('/discover?event=Wedding&location=Austin&date=2026-03-15')
+  PackageDeck → const { packages } = useBrowsePackages() // Filters ignored!
 
-**Share Content:**
-```text
-Title: "What do you think about [Package Name]?"
-Text: "Check out [Package Name] by [Vendor] - [Price]. Let me know if you like it!"
-URL: [Current page URL with package ID]
+Fixed flow:
+  PackageDeck → useEffect applies URL params to useBrowsePackages filters
+  → Query executes with proper filters
 ```
-
-**Visual Style:**
-- Glass background (`bg-white/20 backdrop-blur`)
-- White text, rounded-full
-- Subtle hover animation
-- Positioned next to or below the main CTA
 
 ---
 
-## Feature 2: High Demand Badge
+### Issue 2: Booking Drawer Not Creating Bookings
 
-### Concept
-When a vendor is booked 3+ weekends in a row, display a "High Demand" badge with a gentle pulse animation. This creates truthful scarcity without being aggressive.
+**Problem:** The SpatialDrawer's "Secure This Date" button only logs to console. It doesn't:
+- Create a booking record in the database
+- Trigger vendor notifications
+- Initiate Stripe checkout for deposits
 
-### Files to Create
-- `src/components/badges/HighDemandBadge.tsx` - The badge component
+**Files to modify:**
+- `src/components/booking/SpatialDrawer.tsx`
+- `src/hooks/useBrowsePackages.ts` (to include vendor_user_id)
 
-### Files to Modify
-- `src/index.css` - Add high-demand pulse animation (separate from instant-badge)
-- `src/components/deck/DeckCard.tsx` - Display badge based on booking data
-- `src/components/deck/GlassInfoPane.tsx` - Optional inline indicator
+**Solution:**
+1. Import and use the `useBookings` hook
+2. Gather all required booking data from the package prop
+3. On "Secure This Date" click:
+   - For Stripe payments: Create booking → Invoke `create-booking-checkout` → Redirect to Stripe
+   - For cash payments: Create booking → Show success state
+4. Add authentication check - prompt login if needed
 
-### Implementation Details
-
-**HighDemandBadge.tsx:**
+**Required data flow:**
 ```text
-Props:
-- isHighDemand: boolean (calculated from booking data)
-- variant?: 'overlay' | 'inline' (for different placements)
+SpatialDrawer receives:
+  - package.id
+  - package.name
+  - package.price
+  - package.vendor_user_id (MISSING - needs adding)
+  - eventDate (from props)
 
-Visual:
-- Icon: Flame or TrendingUp
-- Text: "High Demand" or "Trending"
-- Background: Subtle amber/orange gradient
-- Animation: Gentle pulse (not aggressive)
+SpatialDrawer calculates:
+  - total_price (based on hours)
+  - event_location (needs adding to UI)
+  
+Calls:
+  - createBooking() → creates DB record
+  - supabase.functions.invoke('create-booking-checkout') → Stripe session
+  - Redirect to checkout URL
 ```
 
-**CSS Animation (gentle-pulse):**
-```css
-@keyframes high-demand-pulse {
-  0%, 100% { 
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% { 
-    opacity: 0.85;
-    transform: scale(1.02);
-  }
+---
+
+### Issue 3: Missing Vendor User ID in Package Data
+
+**Problem:** `useBrowsePackages` returns packages but doesn't include `vendor_user_id`, which is required for:
+- Creating bookings (required field)
+- Sending vendor notifications
+- Stripe Connect transfers
+
+**Files to modify:**
+- `src/hooks/useBrowsePackages.ts`
+
+**Solution:**
+Add `vendor_user_id` to the BrowsePackage interface and include it in the enriched package data:
+
+```text
+interface BrowsePackage {
+  // existing fields...
+  vendor_user_id: string;  // ADD THIS
 }
 
-.high-demand-badge {
-  animation: high-demand-pulse 3s ease-in-out infinite;
-  background: linear-gradient(135deg, hsl(35 90% 55%), hsl(25 95% 50%));
-  color: white;
+// In enrichedPackages mapping:
+return {
+  // existing fields...
+  vendor_user_id: pkg.user_id,  // Already have this data!
 }
 ```
 
-**Logic:**
-- For now, mock the high-demand calculation
-- Badge appears if `pkg.is_high_demand` is true
-- Future: Query actual booking data to calculate demand
-
 ---
 
-## Feature 3: Cinematic Video Background
+### Issue 4: SpatialDrawer Missing Event Location Input
 
-### Concept
-Add a full-screen cinematic video background to the Sentence Landing page. The video blurs and dims as users interact with the form fields, creating an immersive "focus" effect.
+**Problem:** Bookings require an `event_location` field, but the SpatialDrawer has no input for this. Users can't specify where their event is happening.
 
-### Files to Modify
-- `src/pages/SentenceLanding.tsx` - Add video background layer
-- `src/index.css` - Add video background utilities
+**Files to modify:**
+- `src/components/booking/SpatialDrawer.tsx`
 
-### Video Options
-1. **Stock Video** - Host a royalty-free wedding/event video
-2. **Embedded Video** - Use a service like Cloudinary or Mux
-3. **Fallback Image** - High-quality still image with Ken Burns animation
+**Solution:**
+Add a location input field using the existing `LocationAutocomplete` component:
 
-### Implementation Details
-
-**Video Layer Structure:**
 ```text
-<div className="absolute inset-0 z-0 overflow-hidden">
-  {/* Video Element */}
-  <video 
-    autoPlay 
-    muted 
-    loop 
-    playsInline
-    className="w-full h-full object-cover"
-  >
-    <source src="/videos/hero-event.mp4" type="video/mp4" />
-  </video>
-  
-  {/* Gradient Overlay */}
-  <div className="absolute inset-0 bg-white/40" />
-  
-  {/* Dynamic Blur (increases on interaction) */}
-  <motion.div 
-    className="absolute inset-0 backdrop-blur-sm bg-white/20"
-    animate={{ 
-      backdropFilter: isComplete ? 'blur(8px)' : 'blur(2px)',
-      backgroundColor: isComplete ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.3)'
-    }}
-  />
-</div>
-```
-
-**Interaction Effects:**
-- Initially: Subtle blur (2px), light white overlay
-- On field focus: Blur increases slightly
-- When complete: Stronger blur (8px), focus shifts to content
-- Framer Motion handles smooth transitions
-
-**Fallback (No Video):**
-- Use a high-quality gradient mesh
-- Or Ken Burns effect on a static image
-- Graceful degradation for slow connections
-
----
-
-## Feature 4: New Logo Integration
-
-### Concept
-Replace the current `eventpro-logo.png` with the new logo provided by the user. The new logo features:
-- Circular icon with inner square element
-- Blue accent dot
-- "Event Pro" wordmark in clean sans-serif
-
-### Files to Modify
-- Copy new logo to `src/assets/eventpro-logo.png` (replace existing)
-- `src/components/layout/Header.tsx` - Already uses this asset
-- `src/components/layout/Footer.tsx` - Already uses this asset
-- `src/pages/SentenceLanding.tsx` - Add logo to minimal footer
-
-### Implementation Details
-
-**Logo Asset:**
-- Copy `user-uploads://Gemini_Generated_Image_xta3frxta3frxta3_1-2.png` to `src/assets/eventpro-logo.png`
-- This will automatically update Header and Footer
-
-**SentenceLanding.tsx Update:**
-```text
-Current footer:
-<p className="text-sm text-muted-foreground">
-  EventPro by Vendibook
-</p>
-
-New footer:
-<div className="flex items-center justify-center gap-2">
-  <img src={logo} alt="Event Pro" className="h-6 w-auto" />
-</div>
+New UI element:
+┌─────────────────────────────────────┐
+│   Event Location                    │
+│   ┌─────────────────────────────┐   │
+│   │ 📍 Enter event address      │   │
+│   └─────────────────────────────┘   │
+└─────────────────────────────────────┘
 ```
 
 ---
 
-## Implementation Order
+### Issue 5: Authentication Flow for Booking
 
-### Phase 1: Design Foundation Updates
-1. Add new CSS animations for high-demand badge
-2. Add video background utilities
+**Problem:** If a user tries to book without being logged in, there's no handling. The booking will fail silently.
 
-### Phase 2: Logo Integration
-3. Copy new logo to assets folder
-4. Update SentenceLanding footer to show logo
+**Files to modify:**
+- `src/components/booking/SpatialDrawer.tsx`
 
-### Phase 3: High Demand Badge
-5. Create HighDemandBadge component
-6. Integrate into DeckCard
-
-### Phase 4: Cinematic Video Background
-7. Add video background to SentenceLanding
-8. Implement blur effect on interaction
-
-### Phase 5: Ask Partner Co-Pilot
-9. Create AskPartnerButton component
-10. Integrate into GlassInfoPane
-11. Implement Web Share API with fallback
+**Solution:**
+1. Check if user is authenticated before creating booking
+2. If not logged in:
+   - Store booking intent in localStorage (package ID, date, location, etc.)
+   - Redirect to `/auth` page
+   - On post-auth, retrieve intent and resume booking flow
+3. Alternative: Implement guest checkout flow (already partially supported in useBookings)
 
 ---
 
-## Technical Summary
+## Part 2: Strategic Background Slideshow
 
-### New Files
-1. `src/components/badges/HighDemandBadge.tsx`
-2. `src/components/deck/AskPartnerButton.tsx`
+### Concept
 
-### Modified Files
-1. `src/assets/eventpro-logo.png` - Replace with new logo
-2. `src/index.css` - Add high-demand animation
-3. `src/pages/SentenceLanding.tsx` - Add video background + logo
-4. `src/components/deck/DeckCard.tsx` - Add HighDemandBadge
-5. `src/components/deck/GlassInfoPane.tsx` - Add AskPartnerButton
+Replace the single looping video with a Ken Burns-style slideshow that:
+1. Showcases real package images from the database (teasing the platform's variety)
+2. Cross-fades between images with slow zoom animation
+3. Dynamically increases blur as users complete the form (existing behavior)
 
-### Dependencies
-- No new dependencies required
-- Uses existing framer-motion for animations
-- Uses native Web Share API
+### Implementation
 
-### Fallbacks
-- Web Share API → Copy to clipboard
-- Video background → Gradient mesh or static image
-- High Demand → Only shown when data indicates true demand
+**Files to modify:**
+- `src/pages/SentenceLanding.tsx`
 
----
+**New component to create:**
+- `src/components/landing/BackgroundSlideshow.tsx`
 
-## Visual Summary
+**Data source:**
+Use package images from the database. Current packages have these images:
+- Wedding Photography (floral arch)
+- DJ Setup (turntables/lighting)
+- Luxury Florals (bouquets)
+- Cocktail Bar (bartender mixing)
+- Food Trucks (BBQ, gourmet food)
 
-**Sentence Landing with Video:**
+**Slideshow behavior:**
+```text
+1. Fetch featured package images from vendor_packages table
+2. Cycle through images every 6-8 seconds
+3. Apply Ken Burns effect (slow zoom 1.0 → 1.15 over duration)
+4. Cross-fade between images (1s transition)
+5. Overlay blur increases as form completes (existing behavior)
+```
+
+**Visual structure:**
 ```text
 ┌──────────────────────────────────────────────────────────────────────┐
+│   Image 1 (fading out)           Image 2 (fading in)                 │
+│   ░░░░░░░░░░░░░░░░░░░░░░         ░░░░░░░░░░░░░░░░░░░░░░░            │
+│   ░░ Ken Burns zoom ░░░         ░░ Ken Burns zoom ░░░░░░            │
+│   ░░░░░░░░░░░░░░░░░░░░░░         ░░░░░░░░░░░░░░░░░░░░░░░            │
 │                                                                      │
-│   ░░░░░░░░░ CINEMATIC VIDEO (blurred) ░░░░░░░░░░░░░░░░░░░░░        │
-│   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░         │
+│            [ White/blur overlay - increases with form ]              │
 │                                                                      │
-│      "I am planning a [ Wedding ▼ ] in [ Austin ] on [ Mar 15 ]."   │
-│                                                                      │
-│                       [ Reveal Matches → ]                           │
-│                                                                      │
-│                          [○ Event Pro]                               │
+│      "I am planning a [ Wedding ] in [ Austin ] on [ Mar 15 ]."     │
 │                                                                      │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-**Deck Card with High Demand + Ask Partner:**
+**Fallback behavior:**
+- If no packages or images available: Show gradient mesh background
+- If images fail to load: Use placeholder gradient
+
+---
+
+## Implementation Summary
+
+### Files to Create
+1. `src/components/landing/BackgroundSlideshow.tsx` - Image slideshow with Ken Burns
+
+### Files to Modify
+
+1. **`src/pages/PackageDeck.tsx`**
+   - Add useEffect to apply URL params to useBrowsePackages filters
+   - Pass location/date filters on mount
+
+2. **`src/hooks/useBrowsePackages.ts`**
+   - Add `vendor_user_id` to BrowsePackage interface
+   - Include it in enriched package return
+
+3. **`src/components/booking/SpatialDrawer.tsx`**
+   - Import useBookings hook and useAuth
+   - Add event location input field
+   - Implement full booking flow:
+     - Auth check → Booking creation → Stripe checkout → Success/Error handling
+   - Add loading state during booking
+
+4. **`src/pages/SentenceLanding.tsx`**
+   - Replace video element with BackgroundSlideshow component
+   - Keep dynamic blur behavior
+
+---
+
+## Technical Details
+
+### BackgroundSlideshow Component
+
 ```text
-┌─────────────────────────────────────────────────────────────────────┐
-│ [⚡ Instant] [🔥 High Demand]                      [Share]          │
-│                                                                     │
-│           ░░░░ FULL-SCREEN VENDOR VIDEO ░░░░░░░░░░░░                │
-│                                                                     │
-│   ┌────────────────────────┐                                        │
-│   │ NEXUS EVENTS ✓         │                                        │
-│   │ 4-Hour Sunset DJ Set   │                                        │
-│   │ ────────────────────── │                                        │
-│   │ $1,500 total           │                                        │
-│   │                        │                                        │
-│   │ [   Secure This Date   ]│                                       │
-│   │ [   💕 Ask Partner     ]│  ← NEW                                │
-│   │                        │                                        │
-│   │ Booked by 14 couples   │                                        │
-│   └────────────────────────┘                                        │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+Props:
+  - images: string[] (fallback images if no packages)
+  - interval?: number (default 7000ms)
+  - blurIntensity?: number (controlled by parent based on form state)
+
+State:
+  - currentIndex: number
+  - nextIndex: number
+  - isTransitioning: boolean
+
+Effects:
+  - Fetch package images on mount
+  - Timer to cycle images
+  - Framer Motion for Ken Burns animation
+
+Styling:
+  - position: absolute, inset: 0
+  - overflow: hidden
+  - Two image layers for cross-fade
+  - CSS: transform: scale() animated from 1.0 to 1.15
 ```
+
+### Booking Flow Integration
+
+```text
+handleSecure():
+  1. Validate: eventDate, eventLocation, hours
+  2. Check auth: if (!user) → redirect to /auth with intent
+  3. Create booking:
+     const booking = await createBooking({
+       vendor_id: pkg.id,
+       vendor_user_id: pkg.vendor_user_id,
+       package_id: pkg.id,
+       event_date: format(eventDate, 'yyyy-MM-dd'),
+       event_location: eventLocation,
+       units: hours,
+       total_price: totalPrice,
+       payment_method: paymentMethod,
+       booking_mode: isInstant ? 'INSTANT' : 'REQUEST',
+     });
+  
+  4. If Stripe payment:
+     const { url } = await supabase.functions.invoke('create-booking-checkout', {
+       body: { booking_id: booking.id }
+     });
+     window.location.href = url;
+  
+  5. If cash payment:
+     Show success state → Close drawer
+```
+
+---
+
+## Success Criteria
+
+After implementation:
+1. Users can search by event type, location, and date - results are filtered
+2. Clicking "Secure This Date" creates a real booking and initiates payment
+3. Vendors receive booking notifications
+4. Landing page showcases variety of event services with elegant slideshow
+5. Full end-to-end MVP flow works: Declare Intent → Browse Matches → Secure Booking
