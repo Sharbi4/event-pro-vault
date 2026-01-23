@@ -10,11 +10,9 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
-import { Sparkles, Store, ChevronDown, Plus, User, LogOut } from 'lucide-react';
+import { Sparkles, ChevronDown, Plus, User, LogOut } from 'lucide-react';
 import { useUserDashboards } from '@/hooks/useUserDashboards';
 import { useAuth } from '@/contexts/AuthContext';
-
-type UserMode = 'vendor' | 'market' | 'customer';
 
 interface ModeSwitcherProps {
   compact?: boolean;
@@ -23,12 +21,12 @@ interface ModeSwitcherProps {
 export function ModeSwitcher({ compact = false }: ModeSwitcherProps) {
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
-  const { hasVendorPackages, hasMarket, loading } = useUserDashboards();
+  const { hasVendorPackages, loading } = useUserDashboards();
   const [open, setOpen] = useState(false);
 
   if (!user || loading) return null;
 
-  const handleModeSwitch = (mode: UserMode) => {
+  const handleModeSwitch = (mode: 'vendor' | 'customer') => {
     setOpen(false);
     switch (mode) {
       case 'vendor':
@@ -36,13 +34,6 @@ export function ModeSwitcher({ compact = false }: ModeSwitcherProps) {
           navigate('/vendor-dashboard');
         } else {
           navigate('/eventpro-onboarding');
-        }
-        break;
-      case 'market':
-        if (hasMarket) {
-          navigate('/marketspace-dashboard');
-        } else {
-          navigate('/marketspace/create');
         }
         break;
       case 'customer':
@@ -91,28 +82,6 @@ export function ModeSwitcher({ compact = false }: ModeSwitcherProps) {
             </p>
           </div>
           {!hasVendorPackages && <Plus className="w-4 h-4 text-muted-foreground" />}
-        </DropdownMenuItem>
-
-        {/* Market Manager Mode */}
-        <DropdownMenuItem 
-          onClick={() => handleModeSwitch('market')}
-          className="flex items-center gap-3 py-3 cursor-pointer"
-        >
-          <div className="w-8 h-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
-            <Store className="w-4 h-4 text-amber-500" />
-          </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <span className="font-medium">Market Manager</span>
-              {hasMarket && (
-                <Badge variant="secondary" className="text-[10px] px-1.5">Active</Badge>
-              )}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              {hasMarket ? 'Manage your market' : 'Create your market'}
-            </p>
-          </div>
-          {!hasMarket && <Plus className="w-4 h-4 text-muted-foreground" />}
         </DropdownMenuItem>
 
         <DropdownMenuSeparator />

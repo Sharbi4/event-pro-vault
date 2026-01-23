@@ -1,17 +1,11 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, ChevronDown, Sparkles, Store, MessageCircle } from 'lucide-react';
+import { Menu, X, MessageCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModeSwitcher } from './ModeSwitcher';
 import { ProfileTypeModal } from './ProfileTypeModal';
 import { setAuthIntent } from '@/lib/authIntent';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
 import logo from '@/assets/eventpro-logo.png';
 
 export function Header() {
@@ -45,24 +39,9 @@ export function Header() {
     }
   };
 
-  const handleListMarket = () => {
-    setMobileMenuOpen(false);
-    
-    if (user) {
-      navigate('/marketspace/create');
-    } else {
-      // Set intent and redirect to auth
-      setAuthIntent({
-        intent: 'MARKET_ONBOARDING',
-        profileType: 'MARKET_SPACE',
-      });
-      navigate('/auth?intent=MARKET_ONBOARDING&profileType=MARKET_SPACE');
-    }
-  };
 
   const navLinks = [
     { to: '/', label: 'Browse' },
-    { to: '/markets', label: 'Markets' },
     { to: '/learn', label: 'Learn More' },
   ];
 
@@ -144,23 +123,9 @@ export function Header() {
                     Create free profile
                   </Button>
 
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="gap-1">
-                        List <ChevronDown className="w-3 h-3" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 bg-popover">
-                      <DropdownMenuItem onClick={handleListService} className="gap-2 cursor-pointer">
-                        <Sparkles className="w-4 h-4" />
-                        List your service
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleListMarket} className="gap-2 cursor-pointer">
-                        <Store className="w-4 h-4" />
-                        List a market
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <Button variant="outline" size="sm" onClick={handleListService}>
+                    List your service
+                  </Button>
                 </>
               )}
             </div>

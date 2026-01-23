@@ -3,17 +3,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVendorDashboard } from '@/hooks/useVendorDashboard';
-import { useUserDashboards } from '@/hooks/useUserDashboards';
-import { useSlotBookings } from '@/hooks/useSlotBookings';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, Store, ExternalLink, User, ImageIcon, Tent } from 'lucide-react';
+import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon } from 'lucide-react';
 import { VendorOverview } from '@/components/vendor-dashboard/VendorOverview';
 import { VendorBookings } from '@/components/vendor-dashboard/VendorBookings';
 import { VendorListings } from '@/components/vendor-dashboard/VendorListings';
 import { VendorAvailability } from '@/components/vendor-dashboard/VendorAvailability';
 import { VendorEarnings } from '@/components/vendor-dashboard/VendorEarnings';
-import { VendorMarketBookings } from '@/components/vendor-dashboard/VendorMarketBookings';
+
 import { AvatarUpload } from '@/components/vendor-dashboard/AvatarUpload';
 import { CoverPhotoUpload } from '@/components/vendor-dashboard/CoverPhotoUpload';
 import { StripeConnectBanner } from '@/components/vendor-dashboard/StripeConnectBanner';
@@ -25,7 +23,7 @@ const VendorDashboard = () => {
   const [searchParams] = useSearchParams();
   const defaultTab = searchParams.get('tab') || 'overview';
   const { user, loading: authLoading, signOut } = useAuth();
-  const { hasMarket } = useUserDashboards();
+  
   const {
     packages,
     bookings,
@@ -44,11 +42,6 @@ const VendorDashboard = () => {
     refetch
   } = useVendorDashboard();
   
-  const { 
-    bookings: slotBookings, 
-    loading: slotBookingsLoading, 
-    cancelBooking 
-  } = useSlotBookings();
   
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
@@ -107,12 +100,6 @@ const VendorDashboard = () => {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            {hasMarket && (
-              <Button variant="outline" onClick={() => navigate('/marketspace-dashboard')} className="gap-2">
-                <Store className="w-4 h-4" />
-                Market Dashboard
-              </Button>
-            )}
             <Button variant="outline" onClick={() => navigate(`/vendor/${user.id}`)} className="gap-2">
               <ExternalLink className="w-4 h-4" />
               View Public Profile
@@ -125,7 +112,7 @@ const VendorDashboard = () => {
 
         {/* Main Tabs */}
         <Tabs defaultValue={defaultTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
             <TabsTrigger value="overview" className="gap-2">
               <LayoutDashboard className="w-4 h-4 hidden sm:inline" />
               Overview
@@ -137,10 +124,6 @@ const VendorDashboard = () => {
             <TabsTrigger value="bookings" className="gap-2">
               <Calendar className="w-4 h-4 hidden sm:inline" />
               Bookings
-            </TabsTrigger>
-            <TabsTrigger value="markets" className="gap-2">
-              <Tent className="w-4 h-4 hidden sm:inline" />
-              Markets
             </TabsTrigger>
             <TabsTrigger value="packages" className="gap-2">
               <Package className="w-4 h-4 hidden sm:inline" />
@@ -193,13 +176,6 @@ const VendorDashboard = () => {
             />
           </TabsContent>
 
-          <TabsContent value="markets">
-            <VendorMarketBookings
-              bookings={slotBookings}
-              loading={slotBookingsLoading}
-              onCancel={cancelBooking}
-            />
-          </TabsContent>
 
           <TabsContent value="packages">
             <VendorListings
