@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SentenceBuilder } from '@/components/landing/SentenceBuilder';
 import { RevealButton } from '@/components/landing/RevealButton';
+import { BackgroundSlideshow } from '@/components/landing/BackgroundSlideshow';
 import logo from '@/assets/eventpro-logo.png';
 
 export default function SentenceLanding() {
@@ -28,32 +29,8 @@ export default function SentenceLanding() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 relative overflow-hidden">
-      {/* Cinematic Video Background */}
-      <div className="absolute inset-0 z-0 overflow-hidden">
-        <video 
-          autoPlay 
-          muted 
-          loop 
-          playsInline
-          className="w-full h-full object-cover"
-        >
-          <source src="/videos/hero-event.mp4" type="video/mp4" />
-        </video>
-        
-        {/* Base overlay */}
-        <div className="absolute inset-0 bg-white/30" />
-        
-        {/* Dynamic blur layer - increases as user completes form */}
-        <motion.div 
-          className="absolute inset-0"
-          initial={{ backdropFilter: 'blur(4px)' }}
-          animate={{ 
-            backdropFilter: isComplete ? 'blur(12px)' : 'blur(4px)',
-            backgroundColor: isComplete ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.3)'
-          }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-        />
-      </div>
+      {/* Cinematic Background Slideshow */}
+      <BackgroundSlideshow isComplete={isComplete} interval={7000} />
 
       {/* Main content */}
       <motion.div 
