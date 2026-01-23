@@ -1,25 +1,25 @@
-import { Button } from '@/components/ui/button';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Search, Calendar as CalendarIcon } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { Search, MapPin, Calendar } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { LocationAutocomplete } from '@/components/browse/LocationAutocomplete';
+import { format } from 'date-fns';
+import { motion } from 'framer-motion';
 
 export function HeroSection() {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [location, setLocation] = useState('');
-  const [date, setDate] = useState<Date | undefined>();
+  const [selectedDate, setSelectedDate] = useState<Date>();
   const [calendarOpen, setCalendarOpen] = useState(false);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
     if (searchQuery) params.set('q', searchQuery);
     if (location) params.set('location', location);
-    if (date) params.set('date', format(date, 'yyyy-MM-dd'));
+    if (selectedDate) params.set('date', selectedDate.toISOString());
     navigate(`/browse?${params.toString()}`);
   };
 
@@ -27,97 +27,109 @@ export function HeroSection() {
     if (e.key === 'Enter') handleSearch();
   };
 
-  const handleDateSelect = (selectedDate: Date | undefined) => {
-    setDate(selectedDate);
-    setCalendarOpen(false);
-  };
-
   return (
-    <section className="relative pt-8 pb-4 overflow-hidden">
-      {/* Animated gradient background */}
-      <div className="hero-gradient-bg" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/50 to-background pointer-events-none" />
+    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden">
+      {/* Hero Background Image */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: `url('https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80')`,
+        }}
+      />
+      
+      {/* Gradient Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/60" />
 
-      <div className="container mx-auto px-4 relative z-10">
-        <div className="max-w-4xl mx-auto">
-          {/* Compact headline */}
-          <div className="text-center mb-6">
-            <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-3">
-              Find event pros <span className="gradient-text">near you</span>
-            </h1>
-            <p className="text-muted-foreground max-w-xl mx-auto">
-              Book food trucks, DJs, caterers, and more for your next event
-            </p>
-          </div>
+      {/* Content */}
+      <div className="relative z-10 container mx-auto px-4 text-center">
+        {/* Headline */}
+        <motion.h1 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+          className="text-white text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6"
+        >
+          Don't just plan.
+          <br />
+          <span className="gradient-blurple-text">Experience.</span>
+        </motion.h1>
 
-          {/* Turo-style Search Bar */}
-          <div className="bg-card border border-border rounded-full p-1.5 shadow-xl max-w-3xl mx-auto">
-            <div className="flex items-center gap-1">
-              {/* Search Query */}
-              <div className="flex-1 flex items-center gap-3 px-4 py-3 bg-transparent rounded-full hover:bg-secondary/30 transition-colors">
-                <Search className="w-5 h-5 text-muted-foreground shrink-0" />
-                <input
-                  type="text"
-                  placeholder="What do you need?"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none min-w-0"
-                />
-              </div>
+        <motion.p 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2, ease: [0.4, 0, 0.2, 1] }}
+          className="text-white/80 text-lg md:text-xl max-w-2xl mx-auto mb-12"
+        >
+          Book premium event professionals in minutes
+        </motion.p>
 
-              {/* Divider */}
-              <div className="w-px h-8 bg-border hidden sm:block" />
+        {/* Capsule Search Bar */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
+          className="capsule-search max-w-3xl mx-auto"
+        >
+          <div className="flex flex-col md:flex-row items-stretch">
+            {/* What's the occasion */}
+            <div className="flex-1 flex items-center px-6 py-4 border-b md:border-b-0 md:border-r border-border/30">
+              <Search className="w-5 h-5 text-muted-foreground mr-3 flex-shrink-0" />
+              <input
+                type="text"
+                placeholder="What's the occasion?"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                className="w-full bg-transparent text-foreground placeholder:text-muted-foreground text-sm font-medium focus:outline-none"
+              />
+            </div>
 
-              {/* Location */}
-              <div className="hidden sm:flex items-center px-4 py-3 rounded-full hover:bg-secondary/30 transition-colors min-w-[160px]">
-                <LocationAutocomplete
-                  value={location}
-                  onChange={setLocation}
-                  placeholder="Where"
-                />
-              </div>
+            {/* Where */}
+            <div className="flex-1 flex items-center px-6 py-4 border-b md:border-b-0 md:border-r border-border/30">
+              <LocationAutocomplete
+                value={location}
+                onChange={setLocation}
+                placeholder="Where?"
+                className="flex-1"
+              />
+            </div>
 
-              {/* Divider */}
-              <div className="w-px h-8 bg-border hidden md:block" />
-
-              {/* Date Picker */}
+            {/* When */}
+            <div className="flex items-center px-6 py-4">
               <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
                 <PopoverTrigger asChild>
-                  <button className="hidden md:flex items-center gap-3 px-4 py-3 rounded-full hover:bg-secondary/30 transition-colors">
-                    <CalendarIcon className="w-5 h-5 text-muted-foreground shrink-0" />
-                    <span className={cn(
-                      "text-sm whitespace-nowrap",
-                      date ? "text-foreground" : "text-muted-foreground"
-                    )}>
-                      {date ? format(date, "MMM d, yyyy") : "When"}
+                  <button className="flex items-center text-left flex-1 md:flex-none">
+                    <Calendar className="w-5 h-5 text-muted-foreground mr-3 flex-shrink-0" />
+                    <span className={`text-sm font-medium ${selectedDate ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      {selectedDate ? format(selectedDate, 'MMM d') : 'When?'}
                     </span>
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="center">
-                  <Calendar
+                <PopoverContent className="w-auto p-0 rounded-2xl shadow-elevated" align="center">
+                  <CalendarComponent
                     mode="single"
-                    selected={date}
-                    onSelect={handleDateSelect}
+                    selected={selectedDate}
+                    onSelect={(date) => {
+                      setSelectedDate(date);
+                      setCalendarOpen(false);
+                    }}
+                    disabled={(date) => date < new Date()}
                     initialFocus
-                    disabled={(d) => d < new Date()}
-                    className={cn("p-3 pointer-events-auto")}
+                    className="pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
 
               {/* Search Button */}
               <Button 
-                variant="gradient" 
-                size="icon"
                 onClick={handleSearch}
-                className="rounded-full h-12 w-12 shrink-0"
+                className="ml-4 rounded-full w-12 h-12 p-0 shimmer-button flex-shrink-0"
               >
                 <Search className="w-5 h-5" />
               </Button>
             </div>
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
