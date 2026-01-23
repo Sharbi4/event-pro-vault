@@ -5,6 +5,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { GoogleMapsProvider } from "@/contexts/GoogleMapsContext";
+
+// New "Art Gallery" views
+import SentenceLanding from "./pages/SentenceLanding";
+import PackageDeck from "./pages/PackageDeck";
+
+// Existing pages
 import Browse from "./pages/Browse";
 import VendorProfile from "./pages/VendorProfile";
 import PackageDetail from "./pages/PackageDetailNew";
@@ -35,7 +41,13 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Browse />} />
+              {/* New "Art Gallery" Flow */}
+              <Route path="/" element={<SentenceLanding />} />
+              <Route path="/discover" element={<PackageDeck />} />
+              
+              {/* Legacy browse (still accessible) */}
+              <Route path="/browse" element={<Browse />} />
+              
               <Route path="/vendor/:id" element={<VendorProfile />} />
               <Route path="/pro/:id" element={<ProProfile />} />
               <Route path="/package/:id" element={<PackageDetail />} />
