@@ -153,8 +153,8 @@ serve(async (req) => {
           vendor_user_id: booking.vendor_user_id || '',
         },
       },
-      success_url: `${req.headers.get("origin")}/dashboard?payment=success&booking=${booking_id}&type=deposit`,
-      cancel_url: `${req.headers.get("origin")}/dashboard?payment=cancelled&booking=${booking_id}`,
+      success_url: `${req.headers.get("origin")}/booking-success?booking=${booking_id}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get("origin")}/discover?payment=cancelled&booking=${booking_id}`,
       metadata: {
         booking_id: booking_id,
         payment_type: 'deposit',

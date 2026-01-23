@@ -67,28 +67,30 @@ export default function SentenceLanding() {
         </AnimatePresence>
       </motion.div>
 
-      {/* Logo - Top Left with Glass Backing */}
+      {/* Logo - Top Left, Clean (no background) */}
       <motion.div 
-        className="absolute top-6 left-6 z-20"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+        className="absolute top-4 left-4 md:top-6 md:left-6 z-20"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
       >
-        <div className="flex items-center gap-3 bg-white/80 backdrop-blur-xl rounded-2xl px-4 py-3 shadow-lg">
-          <img 
-            src={logo} 
-            alt="Event Pro" 
-            className="h-10 w-auto"
-          />
-          <div className="flex flex-col leading-none">
-            <span className="font-display font-bold text-foreground text-lg">
-              Event Pro
-            </span>
-            <span className="text-muted-foreground text-xs">
-              by Vendibook
-            </span>
-          </div>
-        </div>
+        <img 
+          src={logo} 
+          alt="Event Pro" 
+          className="h-6 md:h-8 w-auto"
+        />
+      </motion.div>
+
+      {/* Footer - Bottom Center */}
+      <motion.div 
+        className="absolute bottom-4 md:bottom-6 left-0 right-0 flex justify-center z-20"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.8 }}
+      >
+        <span className="text-[16px] text-muted-foreground">
+          by Vendibook
+        </span>
       </motion.div>
     </div>
   );

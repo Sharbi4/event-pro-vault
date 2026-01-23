@@ -23,6 +23,7 @@ export interface BrowsePackage {
   vendor_city: string | null;
   vendor_state: string | null;
   vendor_formatted_address: string | null;
+  vendor_email: string | null; // Added for notifications
   is_verified: boolean;
   // Rating info
   avg_rating: number;
@@ -150,7 +151,7 @@ export function useBrowsePackages() {
           .in('user_id', vendorIds),
         supabase
           .from('profiles')
-          .select('user_id, full_name, avatar_url, stripe_account_status, identity_verification_status')
+          .select('user_id, full_name, avatar_url, stripe_account_status, identity_verification_status, email')
           .in('user_id', vendorIds)
           .eq('is_vendor', true)
           .eq('stripe_account_status', 'active'),
@@ -180,7 +181,14 @@ export function useBrowsePackages() {
       const vendorDetailsMap = new Map(
         (vendorDetailsResult.data || []).map(v => [v.user_id, v])
       );
-      const profilesMap = new Map(
+      const profilesMap = new Map<string, {
+        user_id: string;
+        full_name: string | null;
+        avatar_url: string | null;
+        stripe_account_status: string | null;
+        identity_verification_status: string | null;
+        email: string | null;
+      }>(
         (profilesResult.data || []).map(p => [p.user_id, p])
       );
 
@@ -317,6 +325,7 @@ export function useBrowsePackages() {
             vendor_city: vendorDetails?.city || null,
             vendor_state: vendorDetails?.state || null,
             vendor_formatted_address: vendorDetails?.formatted_address || null,
+            vendor_email: profile?.email || null, // Include vendor email for notifications
             is_verified: profile?.stripe_account_status === 'active' && 
                         profile?.identity_verification_status === 'verified',
             avg_rating: avgRating,

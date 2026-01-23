@@ -28,6 +28,7 @@ export function usePackageAvailabilityCheck(packageId: string | undefined) {
     existingBookings: []
   });
 
+  // Fetch initial data
   useEffect(() => {
     if (!packageId) {
       setLoading(false);
@@ -77,6 +78,57 @@ export function usePackageAvailabilityCheck(packageId: string | undefined) {
     }
 
     fetchAvailability();
+  }, [packageId]);
+
+  // Real-time subscription for booking changes
+  useEffect(() => {
+    if (!packageId) return;
+
+    const channel = supabase
+      .channel(`package-availability-${packageId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'bookings',
+          filter: `package_id=eq.${packageId}`
+        },
+        (payload) => {
+          // Add new booking date to existingBookings
+          const newBooking = payload.new as { event_date: string; status: string };
+          if (newBooking.status === 'confirmed' || newBooking.status === 'pending') {
+            setAvailability(prev => ({
+              ...prev,
+              existingBookings: [...prev.existingBookings, newBooking.event_date]
+            }));
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'bookings',
+          filter: `package_id=eq.${packageId}`
+        },
+        (payload) => {
+          const updatedBooking = payload.new as { event_date: string; status: string };
+          // If booking was cancelled, remove from existingBookings
+          if (updatedBooking.status === 'cancelled') {
+            setAvailability(prev => ({
+              ...prev,
+              existingBookings: prev.existingBookings.filter(d => d !== updatedBooking.event_date)
+            }));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [packageId]);
 
   // Check if a specific date is available

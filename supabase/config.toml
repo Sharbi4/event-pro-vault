@@ -1,5 +1,8 @@
 project_id = "nswjmgrqgvgxlchefeca"
 
+[functions.get-vendor-contact]
+verify_jwt = false
+
 [functions.check-connect-status]
 verify_jwt = false
 

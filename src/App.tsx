@@ -9,6 +9,7 @@ import { GoogleMapsProvider } from "@/contexts/GoogleMapsContext";
 // New "Art Gallery" views
 import SentenceLanding from "./pages/SentenceLanding";
 import PackageDeck from "./pages/PackageDeck";
+import BookingSuccess from "./pages/BookingSuccess";
 
 // Existing pages
 import Browse from "./pages/Browse";
@@ -44,6 +45,9 @@ const App = () => (
               {/* New "Art Gallery" Flow */}
               <Route path="/" element={<SentenceLanding />} />
               <Route path="/discover" element={<PackageDeck />} />
+              
+              {/* Booking Success */}
+              <Route path="/booking-success" element={<BookingSuccess />} />
               
               {/* Legacy browse (still accessible) */}
               <Route path="/browse" element={<Browse />} />
