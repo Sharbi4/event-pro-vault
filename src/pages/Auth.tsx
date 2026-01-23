@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,35 +8,13 @@ import { Mail, Lock, User, Eye, EyeOff, Loader2, ArrowRight, Phone } from 'lucid
 import { z } from 'zod';
 import { useAuthIntent } from '@/hooks/useAuthIntent';
 import { supabase } from '@/integrations/supabase/client';
-import logoIcon from '@/assets/logo-icon.png';
 
-// Custom hook to set favicon on auth pages
-const useAuthFavicon = () => {
-  useEffect(() => {
-    const originalFavicon = document.querySelector("link[rel='icon']") as HTMLLinkElement;
-    const originalHref = originalFavicon?.href;
-    
-    // Set auth-specific favicon
-    if (originalFavicon) {
-      originalFavicon.href = '/auth-favicon.png';
-    }
-    
-    // Restore original favicon on unmount
-    return () => {
-      if (originalFavicon && originalHref) {
-        originalFavicon.href = originalHref;
-      }
-    };
-  }, []);
-};
 
 const emailSchema = z.string().email('Please enter a valid email');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
 const phoneSchema = z.string().optional();
 
 export default function Auth() {
-  // Set auth-specific favicon
-  useAuthFavicon();
   
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -144,25 +122,6 @@ export default function Auth() {
     updateProfileWithPhone();
   }, [user, isSignUp, phone, firstName, lastName]);
 
-  // Get context message based on intent
-  const getContextMessage = () => {
-    if (!intent) return null;
-    
-    switch (intent.intent) {
-      case 'EVENT_PRO_ONBOARDING':
-        return 'Create your Event Pro profile';
-      case 'MARKET_ONBOARDING':
-        return 'Set up your market';
-      case 'BOOK_PACKAGE':
-        return 'Complete your booking';
-      case 'BOOK_SLOT':
-        return 'Reserve your spot';
-      default:
-        return null;
-    }
-  };
-
-  const contextMessage = getContextMessage();
 
   return (
     <Layout>
@@ -177,27 +136,12 @@ export default function Auth() {
           <div className="max-w-sm mx-auto">
             {/* Header */}
             <div className="text-center mb-6">
-              <Link to="/" className="inline-block mb-4">
-                <img src={logoIcon} alt="EventPro" className="h-14 w-auto mx-auto" />
-              </Link>
-              
-              <h1 className="font-display text-2xl font-bold text-foreground">
-                EventPro
-              </h1>
-              <p className="text-xs text-muted-foreground">Powered by Vendibook</p>
-              
-              {contextMessage && (
-                <div className="inline-block px-3 py-1 bg-primary/10 text-primary text-xs font-medium rounded-full mb-3">
-                  {contextMessage}
-                </div>
-              )}
-              
               <h1 className="font-display text-2xl font-bold text-foreground">
                 {isSignUp ? 'Create account' : 'Welcome back'}
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
                 {isSignUp 
-                  ? 'Get started with EventPro'
+                  ? 'Get started'
                   : 'Sign in to continue'
                 }
               </p>
