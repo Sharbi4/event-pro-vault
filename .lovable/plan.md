@@ -1,292 +1,112 @@
 
-# MVP Full Integration & Cinematic Background Slideshow
+# Fix Logo Visibility on Landing Page
 
-## Overview
+## Problem
+The logo on the Sentence Landing page is:
+- Too small: `h-8` (32px height)
+- Too faint: `opacity-70` makes it nearly invisible against the cinematic slideshow
+- Awkward placement: Absolute bottom center fights with the content hierarchy
 
-This plan addresses two critical areas:
-1. **Frontend-Backend Integration Gaps** - Wire all the new "Art Gallery" components to the database
-2. **Strategic Background Slideshow** - Replace the repetitive video with an immersive image slideshow
+## Solution: Prominent Top-Left Brand Anchor
 
----
+Move the logo to the **top-left corner** with a glassmorphism backing, similar to how premium apps show branding on immersive landing pages. This establishes brand presence without competing with the central sentence.
 
-## Part 1: Critical Integration Fixes
+### Visual Layout
 
-### Issue 1: Search Filters Not Applied
-
-**Problem:** When users complete the sentence "I am planning a Wedding in Austin on March 15" and click "Reveal Matches", the filters are extracted from the URL but never applied to the package query. All packages show regardless of search criteria.
-
-**Files to modify:**
-- `src/pages/PackageDeck.tsx`
-
-**Solution:**
-- Add a `useEffect` that applies URL search params to the `useBrowsePackages` hook filters
-- Call `updateFilter()` for each parameter (location, date, category based on event type)
-
-```text
-Current flow:
-  SentenceLanding → navigate('/discover?event=Wedding&location=Austin&date=2026-03-15')
-  PackageDeck → const { packages } = useBrowsePackages() // Filters ignored!
-
-Fixed flow:
-  PackageDeck → useEffect applies URL params to useBrowsePackages filters
-  → Query executes with proper filters
 ```
-
----
-
-### Issue 2: Booking Drawer Not Creating Bookings
-
-**Problem:** The SpatialDrawer's "Secure This Date" button only logs to console. It doesn't:
-- Create a booking record in the database
-- Trigger vendor notifications
-- Initiate Stripe checkout for deposits
-
-**Files to modify:**
-- `src/components/booking/SpatialDrawer.tsx`
-- `src/hooks/useBrowsePackages.ts` (to include vendor_user_id)
-
-**Solution:**
-1. Import and use the `useBookings` hook
-2. Gather all required booking data from the package prop
-3. On "Secure This Date" click:
-   - For Stripe payments: Create booking → Invoke `create-booking-checkout` → Redirect to Stripe
-   - For cash payments: Create booking → Show success state
-4. Add authentication check - prompt login if needed
-
-**Required data flow:**
-```text
-SpatialDrawer receives:
-  - package.id
-  - package.name
-  - package.price
-  - package.vendor_user_id (MISSING - needs adding)
-  - eventDate (from props)
-
-SpatialDrawer calculates:
-  - total_price (based on hours)
-  - event_location (needs adding to UI)
-  
-Calls:
-  - createBooking() → creates DB record
-  - supabase.functions.invoke('create-booking-checkout') → Stripe session
-  - Redirect to checkout URL
-```
-
----
-
-### Issue 3: Missing Vendor User ID in Package Data
-
-**Problem:** `useBrowsePackages` returns packages but doesn't include `vendor_user_id`, which is required for:
-- Creating bookings (required field)
-- Sending vendor notifications
-- Stripe Connect transfers
-
-**Files to modify:**
-- `src/hooks/useBrowsePackages.ts`
-
-**Solution:**
-Add `vendor_user_id` to the BrowsePackage interface and include it in the enriched package data:
-
-```text
-interface BrowsePackage {
-  // existing fields...
-  vendor_user_id: string;  // ADD THIS
-}
-
-// In enrichedPackages mapping:
-return {
-  // existing fields...
-  vendor_user_id: pkg.user_id,  // Already have this data!
-}
-```
-
----
-
-### Issue 4: SpatialDrawer Missing Event Location Input
-
-**Problem:** Bookings require an `event_location` field, but the SpatialDrawer has no input for this. Users can't specify where their event is happening.
-
-**Files to modify:**
-- `src/components/booking/SpatialDrawer.tsx`
-
-**Solution:**
-Add a location input field using the existing `LocationAutocomplete` component:
-
-```text
-New UI element:
-┌─────────────────────────────────────┐
-│   Event Location                    │
-│   ┌─────────────────────────────┐   │
-│   │ 📍 Enter event address      │   │
-│   └─────────────────────────────┘   │
-└─────────────────────────────────────┘
-```
-
----
-
-### Issue 5: Authentication Flow for Booking
-
-**Problem:** If a user tries to book without being logged in, there's no handling. The booking will fail silently.
-
-**Files to modify:**
-- `src/components/booking/SpatialDrawer.tsx`
-
-**Solution:**
-1. Check if user is authenticated before creating booking
-2. If not logged in:
-   - Store booking intent in localStorage (package ID, date, location, etc.)
-   - Redirect to `/auth` page
-   - On post-auth, retrieve intent and resume booking flow
-3. Alternative: Implement guest checkout flow (already partially supported in useBookings)
-
----
-
-## Part 2: Strategic Background Slideshow
-
-### Concept
-
-Replace the single looping video with a Ken Burns-style slideshow that:
-1. Showcases real package images from the database (teasing the platform's variety)
-2. Cross-fades between images with slow zoom animation
-3. Dynamically increases blur as users complete the form (existing behavior)
-
-### Implementation
-
-**Files to modify:**
-- `src/pages/SentenceLanding.tsx`
-
-**New component to create:**
-- `src/components/landing/BackgroundSlideshow.tsx`
-
-**Data source:**
-Use package images from the database. Current packages have these images:
-- Wedding Photography (floral arch)
-- DJ Setup (turntables/lighting)
-- Luxury Florals (bouquets)
-- Cocktail Bar (bartender mixing)
-- Food Trucks (BBQ, gourmet food)
-
-**Slideshow behavior:**
-```text
-1. Fetch featured package images from vendor_packages table
-2. Cycle through images every 6-8 seconds
-3. Apply Ken Burns effect (slow zoom 1.0 → 1.15 over duration)
-4. Cross-fade between images (1s transition)
-5. Overlay blur increases as form completes (existing behavior)
-```
-
-**Visual structure:**
-```text
 ┌──────────────────────────────────────────────────────────────────────┐
-│   Image 1 (fading out)           Image 2 (fading in)                 │
-│   ░░░░░░░░░░░░░░░░░░░░░░         ░░░░░░░░░░░░░░░░░░░░░░░            │
-│   ░░ Ken Burns zoom ░░░         ░░ Ken Burns zoom ░░░░░░            │
-│   ░░░░░░░░░░░░░░░░░░░░░░         ░░░░░░░░░░░░░░░░░░░░░░░            │
 │                                                                      │
-│            [ White/blur overlay - increases with form ]              │
+│   ┌─────────────────┐                                               │
+│   │ [○] Event Pro   │  ← Top-left, glass backing, prominent         │
+│   └─────────────────┘                                               │
 │                                                                      │
 │      "I am planning a [ Wedding ] in [ Austin ] on [ Mar 15 ]."     │
+│                                                                      │
+│                       [ Reveal Matches → ]                           │
+│                                                                      │
 │                                                                      │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
-**Fallback behavior:**
-- If no packages or images available: Show gradient mesh background
-- If images fail to load: Use placeholder gradient
+### Implementation Details
 
----
+**File to modify:** `src/pages/SentenceLanding.tsx`
 
-## Implementation Summary
+**Changes:**
 
-### Files to Create
-1. `src/components/landing/BackgroundSlideshow.tsx` - Image slideshow with Ken Burns
+1. **Move logo from bottom to top-left corner**
+   - Position: `absolute top-6 left-6` (or `top-8 left-8` for more padding)
+   - This mirrors where users expect branding (top-left is universal)
 
-### Files to Modify
+2. **Increase logo size**
+   - Change from `h-8` (32px) to `h-12` or `h-14` (48-56px)
+   - Large enough to be legible but not overwhelming
 
-1. **`src/pages/PackageDeck.tsx`**
-   - Add useEffect to apply URL params to useBrowsePackages filters
-   - Pass location/date filters on mount
+3. **Add glass backing for visibility**
+   - Wrap in a container with `bg-white/80 backdrop-blur-xl rounded-2xl px-4 py-3`
+   - This ensures the logo is visible regardless of what slideshow image is showing
 
-2. **`src/hooks/useBrowsePackages.ts`**
-   - Add `vendor_user_id` to BrowsePackage interface
-   - Include it in enriched package return
+4. **Remove reduced opacity**
+   - Change from `opacity-70 hover:opacity-100` to full `opacity-100`
+   - The glass backing provides enough contrast
 
-3. **`src/components/booking/SpatialDrawer.tsx`**
-   - Import useBookings hook and useAuth
-   - Add event location input field
-   - Implement full booking flow:
-     - Auth check → Booking creation → Stripe checkout → Success/Error handling
-   - Add loading state during booking
+5. **Add the wordmark text (optional)**
+   - Similar to Header: Logo icon + "Event Pro" text beside it
+   - Creates stronger brand recognition
 
-4. **`src/pages/SentenceLanding.tsx`**
-   - Replace video element with BackgroundSlideshow component
-   - Keep dynamic blur behavior
-
----
-
-## Technical Details
-
-### BackgroundSlideshow Component
+### Code Structure
 
 ```text
-Props:
-  - images: string[] (fallback images if no packages)
-  - interval?: number (default 7000ms)
-  - blurIntensity?: number (controlled by parent based on form state)
-
-State:
-  - currentIndex: number
-  - nextIndex: number
-  - isTransitioning: boolean
-
-Effects:
-  - Fetch package images on mount
-  - Timer to cycle images
-  - Framer Motion for Ken Burns animation
-
-Styling:
-  - position: absolute, inset: 0
-  - overflow: hidden
-  - Two image layers for cross-fade
-  - CSS: transform: scale() animated from 1.0 to 1.15
+{/* Logo - Top Left with Glass Backing */}
+<motion.div 
+  className="absolute top-6 left-6 z-20"
+  initial={{ opacity: 0, x: -20 }}
+  animate={{ opacity: 1, x: 0 }}
+  transition={{ duration: 0.6, delay: 0.2 }}
+>
+  <div className="flex items-center gap-3 bg-white/80 backdrop-blur-xl rounded-2xl px-4 py-3 shadow-lg">
+    <img 
+      src={logo} 
+      alt="Event Pro" 
+      className="h-10 w-auto"
+    />
+    <div className="flex flex-col leading-none">
+      <span className="font-display font-bold text-foreground text-lg">
+        Event Pro
+      </span>
+      <span className="text-muted-foreground text-xs">
+        by Vendibook
+      </span>
+    </div>
+  </div>
+</motion.div>
 ```
 
-### Booking Flow Integration
+### Animation
+- Fade in from left with subtle slide (`x: -20 → 0`)
+- Slight delay (`0.2s`) so it appears after the background settles
+- Natural spring physics for polish
 
-```text
-handleSecure():
-  1. Validate: eventDate, eventLocation, hours
-  2. Check auth: if (!user) → redirect to /auth with intent
-  3. Create booking:
-     const booking = await createBooking({
-       vendor_id: pkg.id,
-       vendor_user_id: pkg.vendor_user_id,
-       package_id: pkg.id,
-       event_date: format(eventDate, 'yyyy-MM-dd'),
-       event_location: eventLocation,
-       units: hours,
-       total_price: totalPrice,
-       payment_method: paymentMethod,
-       booking_mode: isInstant ? 'INSTANT' : 'REQUEST',
-     });
-  
-  4. If Stripe payment:
-     const { url } = await supabase.functions.invoke('create-booking-checkout', {
-       body: { booking_id: booking.id }
-     });
-     window.location.href = url;
-  
-  5. If cash payment:
-     Show success state → Close drawer
-```
+### Mobile Considerations
+- On mobile: Same top-left position
+- Slightly smaller sizing: `h-8` with reduced padding
+- Glass backing remains for visibility
+
+### Alternative Option: Larger Centered Bottom
+If you prefer keeping the logo at the bottom:
+- Increase to `h-14` (56px)
+- Add glass pill backing: `bg-white/80 backdrop-blur-xl rounded-full px-6 py-3`
+- Move up slightly: `bottom-12` instead of `bottom-8`
 
 ---
 
-## Success Criteria
+## Summary
 
-After implementation:
-1. Users can search by event type, location, and date - results are filtered
-2. Clicking "Secure This Date" creates a real booking and initiates payment
-3. Vendors receive booking notifications
-4. Landing page showcases variety of event services with elegant slideshow
-5. Full end-to-end MVP flow works: Declare Intent → Browse Matches → Secure Booking
+| Property | Current | Proposed |
+|----------|---------|----------|
+| Position | Bottom center | Top-left |
+| Size | `h-8` (32px) | `h-10` to `h-12` (40-48px) |
+| Opacity | 70% | 100% |
+| Background | None | Glass morphism (`bg-white/80 backdrop-blur-xl`) |
+| Wordmark | No | Yes (Event Pro + by Vendibook) |
+| Animation | Fade in | Slide from left + fade |
