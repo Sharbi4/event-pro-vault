@@ -4,10 +4,13 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { SentenceBuilder } from '@/components/landing/SentenceBuilder';
 import { RevealButton } from '@/components/landing/RevealButton';
 import { BackgroundSlideshow } from '@/components/landing/BackgroundSlideshow';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 import logo from '@/assets/eventpro-logo.png';
 
 export default function SentenceLanding() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [eventType, setEventType] = useState<string>('');
   const [location, setLocation] = useState<string>('');
   const [date, setDate] = useState<Date | undefined>();
@@ -69,7 +72,7 @@ export default function SentenceLanding() {
 
       {/* Logo - Top Left, Clean (no background) */}
       <motion.div 
-        className="absolute top-4 left-4 md:top-6 md:left-6 z-20"
+        className="absolute top-6 left-6 md:top-8 md:left-8 z-20"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
@@ -78,10 +81,29 @@ export default function SentenceLanding() {
           <img 
             src={logo} 
             alt="Event Pro" 
-            className="h-22 md:h-28 w-auto drop-shadow-md"
+            className="h-32 md:h-40 w-auto drop-shadow-md"
           />
         </Link>
       </motion.div>
+
+      {/* Sign In - Top Right */}
+      {!user && (
+        <motion.div 
+          className="absolute top-6 right-6 md:top-8 md:right-8 z-20"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        >
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={() => navigate('/auth')}
+            className="text-foreground hover:bg-secondary/50"
+          >
+            Sign In
+          </Button>
+        </motion.div>
+      )}
 
       {/* Footer - Bottom Center */}
       <motion.div 
