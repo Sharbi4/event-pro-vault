@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Sofia Pro Soft', 'sans-serif'],
-        display: ['Sofia Pro Soft', 'sans-serif'],
+        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        display: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -70,6 +70,14 @@ export default {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+        xl: "var(--radius-lg)",
+        "2xl": "var(--radius-xl)",
+        "3xl": "2rem",
+      },
+      boxShadow: {
+        soft: "0 4px 32px rgba(0, 0, 0, 0.06)",
+        medium: "0 8px 48px rgba(0, 0, 0, 0.08)",
+        elevated: "0 24px 64px rgba(0, 0, 0, 0.12)",
       },
       keyframes: {
         "accordion-down": {
@@ -80,21 +88,10 @@ export default {
           from: { height: "var(--radix-accordion-content-height)" },
           to: { height: "0" },
         },
-        shimmer: {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
-        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        shimmer: "shimmer 2s linear infinite",
-      },
-      backgroundImage: {
-        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'gradient-primary': 'linear-gradient(135deg, hsl(var(--gradient-purple)) 0%, hsl(var(--gradient-indigo)) 50%, hsl(var(--gradient-blue)) 100%)',
-        'gradient-warm': 'linear-gradient(135deg, hsl(var(--gradient-lavender)) 0%, hsl(var(--gradient-purple)) 50%, hsl(var(--gradient-violet)) 100%)',
-        'gradient-sunset': 'linear-gradient(135deg, hsl(var(--gradient-cyan)) 0%, hsl(var(--gradient-blue)) 35%, hsl(var(--gradient-purple)) 100%)',
       },
     },
   },

@@ -1,257 +1,159 @@
+import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, MessageCircle } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { Menu, X, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { ModeSwitcher } from './ModeSwitcher';
-import { ProfileTypeModal } from './ProfileTypeModal';
-import { setAuthIntent } from '@/lib/authIntent';
-import logo from '@/assets/eventpro-logo.png';
+import logo from '@/assets/eventpro-logo-new.png';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handleListService = () => {
-    setMobileMenuOpen(false);
-    
-    if (user) {
-      navigate('/eventpro-onboarding');
-    } else {
-      // Set intent and redirect to auth
-      setAuthIntent({
-        intent: 'EVENT_PRO_ONBOARDING',
-        profileType: 'EVENT_PRO',
-      });
-      navigate('/auth?intent=EVENT_PRO_ONBOARDING&profileType=EVENT_PRO');
-    }
-  };
-
+  const { user } = useAuth();
 
   const navLinks = [
-    { to: '/', label: 'Browse' },
-    { to: '/learn', label: 'Learn More' },
+    { label: 'Browse', href: '/browse' },
+    { label: 'Your Events', href: '/dashboard' },
   ];
+
+  const isActive = (path: string) => location.pathname === path;
 
   return (
     <>
-      <header 
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          isScrolled 
-            ? 'glass-card border-b border-border/50 py-2' 
-            : 'bg-background/80 backdrop-blur-sm border-b border-border/30 py-3'
-        }`}
+      {/* Floating Island Navigation */}
+      <motion.nav 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+        className="nav-island"
       >
-        <div className="container mx-auto px-4">
-          <div className={`flex items-center justify-between transition-all duration-300 ${
-            isScrolled ? 'h-12 lg:h-14' : 'h-14 lg:h-16'
-          }`}>
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 shrink-0">
-              <img 
-                src={logo} 
-                alt="Event Pro by Vendibook" 
-                className={`w-auto transition-all duration-300 ${isScrolled ? 'h-7 lg:h-8' : 'h-8 lg:h-9'}`}
-              />
-              <div className="flex flex-col leading-none">
-                <span className={`font-display font-bold text-foreground transition-all duration-300 ${
-                  isScrolled ? 'text-sm lg:text-base' : 'text-base lg:text-lg'
-                }`}>
-                  Event Pro
-                </span>
-                <span className={`text-muted-foreground transition-all duration-300 ${
-                  isScrolled ? 'text-[9px] lg:text-[10px]' : 'text-[10px] lg:text-xs'
-                }`}>
-                  by Vendibook
-                </span>
-              </div>
-            </Link>
+        <div className="flex items-center gap-1">
+          {/* Logo */}
+          <Link 
+            to="/" 
+            className="flex items-center px-3 py-1.5 rounded-full hover:bg-secondary/60 transition-colors"
+          >
+            <img 
+              src={logo} 
+              alt="Event Pro" 
+              className="h-8 w-auto"
+            />
+          </Link>
 
-            {/* Desktop Navigation - Center */}
-            <nav className="hidden lg:flex items-center gap-6 absolute left-1/2 -translate-x-1/2">
-              {navLinks.map((link) => (
-                <Link 
-                  key={link.to}
-                  to={link.to} 
-                  className={`text-sm font-medium transition-colors ${
-                    location.pathname === link.to 
-                      ? 'text-foreground' 
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-
-            {/* Desktop CTA - Right */}
-            <div className="hidden lg:flex items-center gap-3">
-              {user ? (
-                <>
-                  <button
-                    onClick={() => window.open('https://support.zendesk.com', '_blank')}
-                    className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
-                    aria-label="Chat support"
-                  >
-                    <MessageCircle className="w-5 h-5 text-muted-foreground hover:text-foreground" />
-                  </button>
-                  <ModeSwitcher />
-                </>
-              ) : (
-                <>
-                  <Link to="/auth">
-                    <Button variant="ghost" size="sm">Sign in</Button>
-                  </Link>
-
-                  <Button 
-                    variant="darkShine" 
-                    size="default" 
-                    onClick={() => setProfileModalOpen(true)}
-                  >
-                    Create free profile
-                  </Button>
-                </>
-              )}
-            </div>
-
-            {/* Mobile Right Actions */}
-            <div className="flex lg:hidden items-center gap-2">
-              {user ? (
-                <>
-                  <button
-                    onClick={() => window.open('https://support.zendesk.com', '_blank')}
-                    className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
-                    aria-label="Chat support"
-                  >
-                    <MessageCircle className="w-5 h-5 text-muted-foreground" />
-                  </button>
-                </>
-              ) : (
-                <Button 
-                  variant="darkShine" 
-                  size="sm"
-                  onClick={() => setProfileModalOpen(true)}
-                >
-                  Create free profile
-                </Button>
-              )}
-              <button
-                className="p-2"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          {/* Desktop Nav Links */}
+          <div className="hidden md:flex items-center">
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                to={link.href}
+                className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 ${
+                  isActive(link.href)
+                    ? 'bg-secondary text-foreground'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                }`}
               >
-                {mobileMenuOpen ? (
-                  <X className="w-6 h-6 text-foreground" />
-                ) : (
-                  <Menu className="w-6 h-6 text-foreground" />
-                )}
-              </button>
-            </div>
+                {link.label}
+              </Link>
+            ))}
           </div>
 
-          {/* Mobile Menu */}
-          {mobileMenuOpen && (
-            <div className="lg:hidden py-4 border-t border-border/50 animate-fade-in bg-background">
-              <nav className="flex flex-col gap-1">
-                {user ? (
-                  <>
-                    {/* Logged in: Dashboard, FAQ, Contact */}
-                    <div className="px-2 pb-3">
-                      <ModeSwitcher compact />
-                    </div>
-                    
-                    <div className="h-px bg-border my-2" />
-                    
-                    <Link 
-                      to="/faq" 
-                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
-                        location.pathname === '/faq' 
-                          ? 'text-foreground bg-secondary' 
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-                      }`}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      FAQ
-                    </Link>
-                    <button 
-                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        window.open('https://support.zendesk.com', '_blank');
-                      }}
-                    >
-                      <MessageCircle className="w-4 h-4" />
-                      Contact Us
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    {/* Guest: Sign In, Create Profile, Learn More, FAQ */}
-                    <Link 
-                      to="/auth" 
-                      onClick={() => setMobileMenuOpen(false)}
-                      className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
-                    >
-                      Sign In
-                    </Link>
-                    
-                    <button 
-                      className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        setProfileModalOpen(true);
-                      }}
-                    >
-                      Create a Free Profile
-                    </button>
-                    
-                    <div className="h-px bg-border my-2" />
-                    
-                    <Link 
-                      to="/learn" 
-                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
-                        location.pathname === '/learn' 
-                          ? 'text-foreground bg-secondary' 
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-                      }`}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Learn More
-                    </Link>
-                    <Link 
-                      to="/faq" 
-                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
-                        location.pathname === '/faq' 
-                          ? 'text-foreground bg-secondary' 
-                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
-                      }`}
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      FAQ
-                    </Link>
-                  </>
-                )}
-              </nav>
-            </div>
-          )}
-        </div>
-      </header>
+          {/* Auth Actions */}
+          <div className="hidden md:flex items-center ml-2">
+            {user ? (
+              <Link to="/dashboard">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="rounded-full w-9 h-9"
+                >
+                  <User className="w-4 h-4" />
+                </Button>
+              </Link>
+            ) : (
+              <Link to="/auth">
+                <Button 
+                  className="rounded-full px-5 h-9 text-sm font-medium shimmer-button"
+                >
+                  Sign in
+                </Button>
+              </Link>
+            )}
+          </div>
 
-      <ProfileTypeModal 
-        open={profileModalOpen} 
-        onOpenChange={setProfileModalOpen} 
-      />
+          {/* Mobile Menu Toggle */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden rounded-full w-9 h-9 ml-1"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+          </Button>
+        </div>
+      </motion.nav>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-40 bg-background/95 backdrop-blur-lg md:hidden"
+          >
+            <motion.div 
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 20, opacity: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="flex flex-col items-center justify-center h-full gap-8"
+            >
+              {navLinks.map((link, index) => (
+                <motion.div
+                  key={link.href}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ duration: 0.3, delay: 0.1 + index * 0.05 }}
+                >
+                  <Link
+                    to={link.href}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`text-2xl font-semibold transition-colors ${
+                      isActive(link.href) 
+                        ? 'text-foreground' 
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                </motion.div>
+              ))}
+              
+              <motion.div
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.3, delay: 0.25 }}
+              >
+                {user ? (
+                  <Link to="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="rounded-full px-8 h-12 text-base shimmer-button">
+                      My Account
+                    </Button>
+                  </Link>
+                ) : (
+                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="rounded-full px-8 h-12 text-base shimmer-button">
+                      Sign in
+                    </Button>
+                  </Link>
+                )}
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
