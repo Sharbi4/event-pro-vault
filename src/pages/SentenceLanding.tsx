@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SentenceBuilder } from '@/components/landing/SentenceBuilder';
 import { RevealButton } from '@/components/landing/RevealButton';
+import logo from '@/assets/eventpro-logo.png';
 
 export default function SentenceLanding() {
   const navigate = useNavigate();
@@ -27,16 +28,32 @@ export default function SentenceLanding() {
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 relative overflow-hidden">
-      {/* Subtle background gradient on interaction */}
-      <motion.div 
-        className="absolute inset-0 pointer-events-none"
-        initial={{ opacity: 0 }}
-        animate={{ 
-          opacity: isComplete ? 0.03 : 0,
-          background: 'radial-gradient(ellipse at center, hsl(0 0% 0%) 0%, transparent 70%)'
-        }}
-        transition={{ duration: 0.8 }}
-      />
+      {/* Cinematic Video Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <video 
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+          className="w-full h-full object-cover"
+        >
+          <source src="/videos/hero-event.mp4" type="video/mp4" />
+        </video>
+        
+        {/* Base overlay */}
+        <div className="absolute inset-0 bg-white/30" />
+        
+        {/* Dynamic blur layer - increases as user completes form */}
+        <motion.div 
+          className="absolute inset-0"
+          initial={{ backdropFilter: 'blur(4px)' }}
+          animate={{ 
+            backdropFilter: isComplete ? 'blur(12px)' : 'blur(4px)',
+            backgroundColor: isComplete ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.3)'
+          }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+        />
+      </div>
 
       {/* Main content */}
       <motion.div 
@@ -73,16 +90,18 @@ export default function SentenceLanding() {
         </AnimatePresence>
       </motion.div>
 
-      {/* Minimal footer */}
+      {/* Logo footer */}
       <motion.div 
-        className="absolute bottom-8 left-0 right-0 text-center"
+        className="absolute bottom-8 left-0 right-0 flex justify-center"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.5 }}
       >
-        <p className="text-sm text-muted-foreground">
-          EventPro by Vendibook
-        </p>
+        <img 
+          src={logo} 
+          alt="Event Pro" 
+          className="h-8 w-auto opacity-70 hover:opacity-100 transition-opacity"
+        />
       </motion.div>
     </div>
   );

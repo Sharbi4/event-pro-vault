@@ -193,6 +193,24 @@
     }
   }
 
+  /* High Demand Badge with gentle pulse */
+  .high-demand-badge {
+    background: linear-gradient(135deg, hsl(35 90% 55%), hsl(25 95% 50%));
+    color: white;
+    animation: high-demand-pulse 3s ease-in-out infinite;
+  }
+
+  @keyframes high-demand-pulse {
+    0%, 100% { 
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% { 
+      opacity: 0.9;
+      transform: scale(1.02);
+    }
+  }
+
   /* Horizontal snap scroll for deck */
   .snap-x-mandatory {
     scroll-snap-type: x mandatory;
