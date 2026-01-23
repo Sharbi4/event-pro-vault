@@ -1,11 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { CategoryCarousel } from '@/components/browse/CategoryCarousel';
-import { MarketCategoryCarousel } from '@/components/browse/MarketCategoryCarousel';
 import { BrowsePackageCard } from '@/components/browse/BrowsePackageCard';
-import { BrowseMarketCard } from '@/components/browse/BrowseMarketCard';
 import { BrowsePackageMap } from '@/components/browse/BrowsePackageMap';
-import { BrowseMarketMap } from '@/components/browse/BrowseMarketMap';
 import { TimeRangePicker } from '@/components/browse/TimeRangePicker';
 import { SearchSummaryPill } from '@/components/browse/SearchSummaryPill';
 import { Button } from '@/components/ui/button';
@@ -17,35 +14,21 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { 
   SlidersHorizontal, X, Star, Zap, 
   ShieldCheck, LayoutGrid, Search, MapPin,
-  CalendarDays, Package, Map, Store, Sparkles,
-  Clock, ArrowRight, MapPinOff, ChevronDown
+  CalendarDays, Package, Map, Sparkles,
+  Clock, MapPinOff, ChevronDown
 } from 'lucide-react';
 import { serviceCategories } from '@/data/service-categories';
-import { marketCategories } from '@/data/market-categories';
 import { useBrowsePackages } from '@/hooks/useBrowsePackages';
-import { useBrowseMarkets } from '@/hooks/useBrowseMarkets';
-import { format, addHours, subHours } from 'date-fns';
+import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
-type BrowseMode = 'services' | 'markets';
-
 export default function Browse() {
-  const { packages, loading: packagesLoading, filters, updateFilter, clearFilters } = useBrowsePackages();
-  const { 
-    markets, 
-    loading: marketsLoading, 
-    filters: marketFilters, 
-    updateFilter: updateMarketFilter, 
-    clearFilters: clearMarketFilters,
-    marketTypes 
-  } = useBrowseMarkets();
+  const { packages, loading, filters, updateFilter, clearFilters } = useBrowsePackages();
   
-  const [browseMode, setBrowseMode] = useState<BrowseMode>('services');
   const [showFilters, setShowFilters] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
-  const [selectedMarketId, setSelectedMarketId] = useState<string | null>(null);
   const [isSearchCollapsed, setIsSearchCollapsed] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -58,44 +41,25 @@ export default function Browse() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const loading = browseMode === 'services' ? packagesLoading : marketsLoading;
-
   // Use time from hook filters
   const startTime = filters.startTime;
   const endTime = filters.endTime;
 
-  const activeFiltersCount = browseMode === 'services' 
-    ? [filters.category, filters.date, filters.instantBook, filters.verified, filters.minRating, filters.startTime].filter(Boolean).length
-    : [marketFilters.marketType, marketFilters.date, marketFilters.category].filter(Boolean).length;
+  const activeFiltersCount = [filters.category, filters.date, filters.instantBook, filters.verified, filters.minRating, filters.startTime].filter(Boolean).length;
 
-  const hasSearched = browseMode === 'services' 
-    ? !!(filters.search || filters.location || filters.date || filters.startTime)
-    : !!(marketFilters.search || marketFilters.location || marketFilters.date);
+  const hasSearched = !!(filters.search || filters.location || filters.date || filters.startTime);
 
-  // Handle filter updates based on mode
   const handleSearchChange = (value: string) => {
-    if (browseMode === 'services') {
-      updateFilter('search', value);
-    } else {
-      updateMarketFilter('search', value);
-    }
+    updateFilter('search', value);
   };
 
   const handleLocationChange = (value: string) => {
-    if (browseMode === 'services') {
-      updateFilter('location', value);
-    } else {
-      updateMarketFilter('location', value);
-    }
+    updateFilter('location', value);
   };
 
   const handleDateChange = (date: Date | undefined) => {
     const dateStr = date ? format(date, 'yyyy-MM-dd') : null;
-    if (browseMode === 'services') {
-      updateFilter('date', dateStr);
-    } else {
-      updateMarketFilter('date', dateStr);
-    }
+    updateFilter('date', dateStr);
     setDatePickerOpen(false);
   };
 
@@ -117,11 +81,7 @@ export default function Browse() {
   };
 
   const handleClearFilters = () => {
-    if (browseMode === 'services') {
-      clearFilters();
-    } else {
-      clearMarketFilters();
-    }
+    clearFilters();
     setIsSearchCollapsed(false);
   };
 
@@ -136,9 +96,9 @@ export default function Browse() {
     }
   };
 
-  const searchValue = browseMode === 'services' ? filters.search : marketFilters.search;
-  const locationValue = browseMode === 'services' ? filters.location : marketFilters.location;
-  const dateValue = browseMode === 'services' ? filters.date : marketFilters.date;
+  const searchValue = filters.search;
+  const locationValue = filters.location;
+  const dateValue = filters.date;
 
   const formatTimeDisplay = (time: string) => {
     const [hours] = time.split(':');
@@ -151,36 +111,23 @@ export default function Browse() {
   const getResultsMessage = () => {
     if (loading) return 'Searching...';
     
-    const count = browseMode === 'services' ? packages.length : markets.length;
+    const count = packages.length;
     
     if (!hasSearched) {
-      return browseMode === 'services' 
-        ? 'Pick a date and time to see real availability'
-        : 'Search for markets near you';
+      return 'Pick a date and time to see real availability';
     }
 
-    if (browseMode === 'services') {
-      let message = `${count} package${count !== 1 ? 's' : ''} available`;
-      if (dateValue) {
-        message += ` on ${format(new Date(dateValue), 'MMM d')}`;
-      }
-      if (startTime && endTime) {
-        message += `, ${formatTimeDisplay(startTime)}–${formatTimeDisplay(endTime)}`;
-      }
-      if (locationValue) {
-        message += ` near ${locationValue}`;
-      }
-      return message;
-    } else {
-      let message = `${count} market${count !== 1 ? 's' : ''} with open spots`;
-      if (dateValue) {
-        message += ` on ${format(new Date(dateValue), 'MMM d')}`;
-      }
-      if (locationValue) {
-        message += ` near ${locationValue}`;
-      }
-      return message;
+    let message = `${count} package${count !== 1 ? 's' : ''} available`;
+    if (dateValue) {
+      message += ` on ${format(new Date(dateValue), 'MMM d')}`;
     }
+    if (startTime && endTime) {
+      message += `, ${formatTimeDisplay(startTime)}–${formatTimeDisplay(endTime)}`;
+    }
+    if (locationValue) {
+      message += ` near ${locationValue}`;
+    }
+    return message;
   };
 
   // Determine if we should show compact header
@@ -200,30 +147,10 @@ export default function Browse() {
               <div className="flex items-center justify-between gap-3 py-1">
                 {/* Mode Toggle - Compact */}
                 <div className="inline-flex items-center p-0.5 bg-secondary/50 rounded-full shrink-0">
-                  <button
-                    onClick={() => setBrowseMode('services')}
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all",
-                      browseMode === 'services'
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-primary text-primary-foreground shadow-sm">
                     <Sparkles className="w-3 h-3" />
                     <span className="hidden sm:inline">Services</span>
-                  </button>
-                  <button
-                    onClick={() => setBrowseMode('markets')}
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all",
-                      browseMode === 'markets'
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <Store className="w-3 h-3" />
-                    <span className="hidden sm:inline">Markets</span>
-                  </button>
+                  </div>
                 </div>
 
                 {/* Search Summary - Compact inline */}
@@ -246,7 +173,7 @@ export default function Browse() {
                         <span className="text-muted-foreground">{format(new Date(dateValue), 'MMM d')}</span>
                       </>
                     )}
-                    {browseMode === 'services' && startTime && endTime && (
+                    {startTime && endTime && (
                       <>
                         <span className="text-muted-foreground">•</span>
                         <span className="text-muted-foreground">{formatTimeDisplay(startTime)}–{formatTimeDisplay(endTime)}</span>
@@ -275,30 +202,10 @@ export default function Browse() {
                 {/* Mode Toggle */}
                 <div className="flex items-center justify-center mb-4">
                   <div className="inline-flex items-center p-1 bg-secondary/50 rounded-full">
-                    <button
-                      onClick={() => setBrowseMode('services')}
-                      className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
-                        browseMode === 'services'
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-primary text-primary-foreground shadow-sm">
                       <Sparkles className="w-4 h-4" />
                       Event Services
-                    </button>
-                    <button
-                      onClick={() => setBrowseMode('markets')}
-                      className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
-                        browseMode === 'markets'
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      <Store className="w-4 h-4" />
-                      Market Spaces
-                    </button>
+                    </div>
                   </div>
                 </div>
 
@@ -309,19 +216,16 @@ export default function Browse() {
                       searchQuery={searchValue}
                       location={locationValue}
                       date={dateValue}
-                      startTime={browseMode === 'services' ? startTime : null}
-                      endTime={browseMode === 'services' ? endTime : null}
+                      startTime={startTime}
+                      endTime={endTime}
                       onEdit={() => setIsSearchCollapsed(false)}
                       onClear={handleClearFilters}
                     />
                   </div>
                 )}
 
-            {/* Search Fields - Mode Aware */}
-            {(!isSearchCollapsed || !hasSearched) && (
-              <>
-                {browseMode === 'services' ? (
-                  // Event Services Search
+                {/* Search Fields */}
+                {(!isSearchCollapsed || !hasSearched) && (
                   <div className="flex flex-col gap-3">
                     <div className="flex flex-col md:flex-row gap-3">
                       {/* What are you booking? */}
@@ -417,98 +321,18 @@ export default function Browse() {
                       Results update based on availability for your selected time
                     </p>
                   </div>
-                ) : (
-                  // Market Spaces Search
-                  <div className="flex flex-col md:flex-row gap-3">
-                    {/* Search markets */}
-                    <div className="relative flex-1">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Search markets"
-                        value={searchValue}
-                        onChange={(e) => handleSearchChange(e.target.value)}
-                        className="pl-10 h-11 bg-card border-border"
-                      />
-                    </div>
-
-                    {/* Location */}
-                    <div className="relative md:w-48">
-                      <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Location"
-                        value={locationValue}
-                        onChange={(e) => handleLocationChange(e.target.value)}
-                        className="pl-10 h-11 bg-card border-border"
-                      />
-                    </div>
-
-                    {/* Date Picker */}
-                    <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
-                      <PopoverTrigger asChild>
-                        <Button 
-                          variant="outline" 
-                          className={`h-11 md:w-48 justify-start gap-2 ${dateValue ? 'text-foreground' : 'text-muted-foreground'}`}
-                        >
-                          <CalendarDays className="w-4 h-4" />
-                          {dateValue ? format(new Date(dateValue), 'MMM d, yyyy') : 'Date'}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0" align="end">
-                        <Calendar
-                          mode="single"
-                          selected={dateValue ? new Date(dateValue) : undefined}
-                          onSelect={handleDateChange}
-                          disabled={(date) => date < new Date()}
-                          initialFocus
-                          className={cn("p-3 pointer-events-auto")}
-                        />
-                        {dateValue && (
-                          <div className="p-3 border-t">
-                            <Button 
-                              variant="ghost" 
-                              size="sm" 
-                              className="w-full"
-                              onClick={() => handleDateChange(undefined)}
-                            >
-                              Clear date
-                            </Button>
-                          </div>
-                        )}
-                      </PopoverContent>
-                    </Popover>
-
-                    {/* Search Button */}
-                    <Button 
-                      variant="gradient" 
-                      className="h-11 gap-2"
-                      onClick={() => setIsSearchCollapsed(true)}
-                    >
-                      <Search className="w-4 h-4" />
-                      <span className="hidden sm:inline">Find open spots</span>
-                    </Button>
-                  </div>
                 )}
-              </>
-            )}
               </div>
             )}
           </div>
         </div>
 
-        {/* Category Carousel - Mode Specific */}
-        {browseMode === 'services' ? (
-          <CategoryCarousel
-            categories={serviceCategories}
-            selectedCategory={filters.category}
-            onSelectCategory={(cat) => updateFilter('category', cat)}
-          />
-        ) : (
-          <MarketCategoryCarousel
-            categories={marketCategories}
-            selectedCategory={marketFilters.category}
-            onSelectCategory={(cat) => updateMarketFilter('category', cat)}
-          />
-        )}
+        {/* Category Carousel */}
+        <CategoryCarousel
+          categories={serviceCategories}
+          selectedCategory={filters.category}
+          onSelectCategory={(cat) => updateFilter('category', cat)}
+        />
 
         {/* Content Area */}
         <div className="container mx-auto px-4 py-6">
@@ -516,36 +340,19 @@ export default function Browse() {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
             <div>
               <h1 className="font-display text-xl md:text-2xl font-bold text-foreground">
-                {browseMode === 'services' ? 'Packages available for your event' : 'Spots available'}
+                Packages available for your event
               </h1>
               <p className="text-sm text-muted-foreground mt-1">
                 {getResultsMessage()}
               </p>
               
               {/* Active filter badges */}
-              {((browseMode === 'services' && (filters.category || filters.date || startTime)) || 
-                (browseMode === 'markets' && (marketFilters.marketType || marketFilters.date || marketFilters.category))) && (
+              {(filters.category || filters.date || startTime) && (
                 <div className="flex flex-wrap items-center gap-2 mt-3">
-                  {browseMode === 'services' && filters.category && (
+                  {filters.category && (
                     <Badge variant="gradient" className="gap-1">
                       {serviceCategories.find(c => c.id === filters.category)?.name}
                       <button onClick={() => updateFilter('category', null)}>
-                        <X className="w-3 h-3" />
-                      </button>
-                    </Badge>
-                  )}
-                  {browseMode === 'markets' && marketFilters.category && (
-                    <Badge variant="gradient" className="gap-1">
-                      {marketCategories.find(c => c.id === marketFilters.category)?.name}
-                      <button onClick={() => updateMarketFilter('category', null)}>
-                        <X className="w-3 h-3" />
-                      </button>
-                    </Badge>
-                  )}
-                  {browseMode === 'markets' && marketFilters.marketType && (
-                    <Badge variant="gradient" className="gap-1">
-                      {marketFilters.marketType}
-                      <button onClick={() => updateMarketFilter('marketType', null)}>
                         <X className="w-3 h-3" />
                       </button>
                     </Badge>
@@ -559,7 +366,7 @@ export default function Browse() {
                       </button>
                     </Badge>
                   )}
-                  {browseMode === 'services' && startTime && endTime && (
+                  {startTime && endTime && (
                     <Badge variant="secondary" className="gap-1">
                       <Clock className="w-3 h-3" />
                       {formatTimeDisplay(startTime)}–{formatTimeDisplay(endTime)}
@@ -596,27 +403,25 @@ export default function Browse() {
                 </Button>
               </div>
               
-              {browseMode === 'services' && (
-                <Button 
-                  variant={showFilters ? 'default' : 'outline'}
-                  size="sm"
-                  className="gap-2"
-                  onClick={() => setShowFilters(!showFilters)}
-                >
-                  <SlidersHorizontal className="w-4 h-4" />
-                  Filters
-                  {activeFiltersCount > 0 && (
-                    <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-xs">
-                      {activeFiltersCount}
-                    </Badge>
-                  )}
-                </Button>
-              )}
+              <Button 
+                variant={showFilters ? 'default' : 'outline'}
+                size="sm"
+                className="gap-2"
+                onClick={() => setShowFilters(!showFilters)}
+              >
+                <SlidersHorizontal className="w-4 h-4" />
+                Filters
+                {activeFiltersCount > 0 && (
+                  <Badge variant="secondary" className="ml-1 px-1.5 py-0 text-xs">
+                    {activeFiltersCount}
+                  </Badge>
+                )}
+              </Button>
             </div>
           </div>
 
-          {/* Filter Pills - Only for Services */}
-          {browseMode === 'services' && showFilters && (
+          {/* Filter Pills */}
+          {showFilters && (
             <div className="flex flex-wrap gap-2 mb-6 p-4 bg-card rounded-xl border border-border animate-fade-in">
               <div className="flex items-center gap-2 mr-4">
                 <span className="text-sm font-medium text-foreground">Quick filters:</span>
@@ -677,7 +482,7 @@ export default function Browse() {
           )}
 
           {/* Package Grid */}
-          {!loading && browseMode === 'services' && packages.length > 0 && viewMode === 'grid' && (
+          {!loading && packages.length > 0 && viewMode === 'grid' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {packages.map((pkg, index) => (
                 <div 
@@ -691,23 +496,8 @@ export default function Browse() {
             </div>
           )}
 
-          {/* Market Grid */}
-          {!loading && browseMode === 'markets' && markets.length > 0 && viewMode === 'grid' && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {markets.map((market, index) => (
-                <div 
-                  key={market.id} 
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 0.03}s` }}
-                >
-                  <BrowseMarketCard market={market} />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Map View - Services */}
-          {!loading && browseMode === 'services' && packages.length > 0 && viewMode === 'map' && (
+          {/* Map View */}
+          {!loading && packages.length > 0 && viewMode === 'map' && (
             <div className="h-[600px] lg:h-[700px] rounded-xl overflow-hidden">
               <BrowsePackageMap 
                 packages={packages}
@@ -717,19 +507,8 @@ export default function Browse() {
             </div>
           )}
 
-          {/* Map View - Markets */}
-          {!loading && browseMode === 'markets' && markets.length > 0 && viewMode === 'map' && (
-            <div className="h-[600px] lg:h-[700px] rounded-xl overflow-hidden">
-              <BrowseMarketMap 
-                markets={markets}
-                selectedMarketId={selectedMarketId}
-                onMarketSelect={setSelectedMarketId}
-              />
-            </div>
-          )}
-
-          {/* Empty State - Services */}
-          {!loading && browseMode === 'services' && packages.length === 0 && (
+          {/* Empty State */}
+          {!loading && packages.length === 0 && (
             <div className="text-center py-16">
               <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
                 <Package className="w-10 h-10 text-muted-foreground" />
@@ -775,46 +554,6 @@ export default function Browse() {
                   >
                     Browse without time filter
                     <span className="text-xs ml-1">(availability may vary)</span>
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Empty State - Markets */}
-          {!loading && browseMode === 'markets' && markets.length === 0 && (
-            <div className="text-center py-16">
-              <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
-                <Store className="w-10 h-10 text-muted-foreground" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">
-                No markets found
-              </h3>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                {marketFilters.date 
-                  ? `No markets have availability on ${format(new Date(marketFilters.date), 'MMMM d, yyyy')}. Try a different date.`
-                  : 'Try adjusting your search or filters to find markets in your area.'
-                }
-              </p>
-              
-              {/* Conversion actions */}
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                {locationValue && (
-                  <Button variant="outline" onClick={() => handleLocationChange('')} className="gap-2">
-                    <MapPinOff className="w-4 h-4" />
-                    Try nearby areas
-                  </Button>
-                )}
-                <Button variant="outline" onClick={handleClearFilters}>
-                  Clear filters
-                </Button>
-                {marketFilters.date && (
-                  <Button 
-                    variant="ghost" 
-                    onClick={() => handleDateChange(undefined)}
-                    className="text-muted-foreground"
-                  >
-                    Browse without date filter
                   </Button>
                 )}
               </div>

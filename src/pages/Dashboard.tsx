@@ -40,7 +40,7 @@ export default function Dashboard() {
   const { favorites, loading: favLoading, toggleFavorite } = useFavorites();
   const { bookings, loading: bookingsLoading, refetch } = useBookings();
   const { bookings: slotBookings, loading: slotBookingsLoading, cancelBooking } = useSlotBookings();
-  const { hasVendorPackages, hasMarket, loading: dashboardsLoading } = useUserDashboards();
+  const { hasVendorPackages, loading: dashboardsLoading } = useUserDashboards();
   const { isAdmin, pendingEventPros, pendingMarkets } = useAdminReview();
   const { toast } = useToast();
   const [payingBooking, setPayingBooking] = useState<string | null>(null);
@@ -226,19 +226,13 @@ export default function Dashboard() {
           </Button>
         </div>
 
-        {/* Quick Actions for Vendors/Market Owners */}
-        {(hasVendorPackages || hasMarket || profile?.is_vendor) && (
+        {/* Quick Actions for Vendors */}
+        {(hasVendorPackages || profile?.is_vendor) && (
           <div className="flex flex-wrap gap-2 mb-6">
             {hasVendorPackages && (
               <Button variant="outline" size="sm" onClick={() => navigate('/vendor-dashboard')} className="gap-2">
                 <Users className="w-4 h-4" />
                 Vendor Dashboard
-              </Button>
-            )}
-            {hasMarket && (
-              <Button variant="outline" size="sm" onClick={() => navigate('/marketspace-dashboard')} className="gap-2">
-                <Store className="w-4 h-4" />
-                Market Dashboard
               </Button>
             )}
             {profile?.is_published && profile?.is_vendor && (
@@ -247,7 +241,7 @@ export default function Dashboard() {
                 View Public Profile
               </Button>
             )}
-            {!hasVendorPackages && !hasMarket && (
+            {!hasVendorPackages && (
               <Button variant="gradient" size="sm" onClick={() => navigate('/become-pro')} className="gap-2">
                 <Star className="w-4 h-4" />
                 Become a Pro
