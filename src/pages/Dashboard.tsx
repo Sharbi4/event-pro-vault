@@ -11,13 +11,14 @@ import { useBookings, BookingData } from '@/hooks/useBookings';
 import { useUserDashboards } from '@/hooks/useUserDashboards';
 import { useAdminReview } from '@/hooks/useAdminReview';
 import { AdminReviewTab } from '@/components/dashboard/AdminReviewTab';
+import { CancellationDialog } from '@/components/shared/CancellationDialog';
 import { vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar, MapPin, Clock, Heart, Package, 
   User, LogOut, ChevronRight, Loader2, Star, Search,
-  CreditCard, CheckCircle, AlertCircle, Banknote, Users, ExternalLink, ShieldCheck
+  CreditCard, CheckCircle, AlertCircle, Banknote, Users, ExternalLink, ShieldCheck, XCircle
 } from 'lucide-react';
 
 interface ExtendedBooking extends BookingData {
@@ -42,6 +43,8 @@ export default function Dashboard() {
   const { toast } = useToast();
   const [payingBooking, setPayingBooking] = useState<string | null>(null);
   const [profile, setProfile] = useState<{ display_name?: string; is_vendor?: boolean; is_published?: boolean } | null>(null);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [bookingToCancel, setBookingToCancel] = useState<ExtendedBooking | null>(null);
 
   // Fetch user profile
   useEffect(() => {
@@ -425,6 +428,21 @@ export default function Dashboard() {
                                 Pay at event
                               </Badge>
                             )}
+                            {/* Cancel button - show for pending/confirmed bookings that aren't already cancelled */}
+                            {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-xs gap-1 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                onClick={() => {
+                                  setBookingToCancel(extBooking);
+                                  setCancelDialogOpen(true);
+                                }}
+                              >
+                                <XCircle className="w-3 h-3" />
+                                Cancel
+                              </Button>
+                            )}
                             {vendor && (
                               <Link to={`/vendor/${vendor.id}`}>
                                 <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2">
@@ -545,6 +563,27 @@ export default function Dashboard() {
             </TabsContent>
           )}
         </Tabs>
+
+        {/* Cancellation Dialog */}
+        {bookingToCancel && (
+          <CancellationDialog
+            open={cancelDialogOpen}
+            onOpenChange={setCancelDialogOpen}
+            bookingId={bookingToCancel.id}
+            bookingType="booking"
+            totalPaid={
+              (((bookingToCancel as any).deposit_amount || 0) + 
+              ((bookingToCancel as any).final_amount || 0)) / 100 || 
+              bookingToCancel.total_price
+            }
+            eventDate={bookingToCancel.event_date}
+            isPaid={(bookingToCancel as any).deposit_paid_at || (bookingToCancel as any).final_paid_at}
+            onSuccess={() => {
+              setBookingToCancel(null);
+              refetch();
+            }}
+          />
+        )}
       </div>
     </Layout>
   );
