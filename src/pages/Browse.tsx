@@ -199,15 +199,6 @@ export default function Browse() {
             ) : (
               /* Full Header - Shows when not scrolled */
               <div className="py-4">
-                {/* Mode Toggle */}
-                <div className="flex items-center justify-center mb-4">
-                  <div className="inline-flex items-center p-1 bg-secondary/50 rounded-full">
-                    <div className="flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium bg-primary text-primary-foreground shadow-sm">
-                      <Sparkles className="w-4 h-4" />
-                      Event Services
-                    </div>
-                  </div>
-                </div>
 
                 {/* Mobile: Collapsed Search Summary */}
                 {isSearchCollapsed && hasSearched && (
