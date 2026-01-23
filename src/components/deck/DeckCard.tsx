@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Zap, Share2 } from 'lucide-react';
 import { GlassInfoPane } from './GlassInfoPane';
+import { HighDemandBadge } from '@/components/badges/HighDemandBadge';
 
 interface DeckCardProps {
   package: {
@@ -17,6 +18,7 @@ interface DeckCardProps {
     vendor_name?: string;
     vendor_avatar?: string | null;
     is_verified?: boolean;
+    is_high_demand?: boolean;
   };
   isActive: boolean;
   onSecure: () => void;
@@ -69,14 +71,22 @@ export function DeckCard({ package: pkg, isActive, onSecure, eventDate }: DeckCa
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
       </div>
 
-      {isInstant && (
-        <motion.div className="absolute top-24 left-6 md:left-12 z-20" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-          <div className="instant-badge demand-pulse inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium">
-            <Zap className="w-4 h-4" />
-            Instant Book
-          </div>
-        </motion.div>
-      )}
+      {/* Badges row */}
+      <div className="absolute top-24 left-6 md:left-12 z-20 flex items-center gap-3">
+        {isInstant && (
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
+            <div className="instant-badge demand-pulse inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium">
+              <Zap className="w-4 h-4" />
+              Instant Book
+            </div>
+          </motion.div>
+        )}
+        {pkg.is_high_demand && (
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
+            <HighDemandBadge variant="overlay" />
+          </motion.div>
+        )}
+      </div>
 
       <motion.button onClick={handleShare} className="absolute top-24 right-6 md:right-12 z-20 glass-panel p-3 rounded-full" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
         <Share2 className="w-5 h-5 text-white" />
@@ -91,6 +101,7 @@ export function DeckCard({ package: pkg, isActive, onSecure, eventDate }: DeckCa
           price={getPriceDisplay()}
           isInstant={isInstant}
           onSecure={onSecure}
+          packageId={pkg.id}
         />
       </motion.div>
     </motion.div>

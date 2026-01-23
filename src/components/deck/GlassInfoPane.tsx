@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { Check, ArrowRight } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { AskPartnerButton } from './AskPartnerButton';
 
 interface GlassInfoPaneProps {
   vendorName: string;
@@ -10,6 +11,7 @@ interface GlassInfoPaneProps {
   price: string;
   isInstant: boolean;
   onSecure: () => void;
+  packageId?: string;
 }
 
 export function GlassInfoPane({
@@ -20,6 +22,7 @@ export function GlassInfoPane({
   price,
   isInstant,
   onSecure,
+  packageId,
 }: GlassInfoPaneProps) {
   return (
     <div className="glass-panel rounded-2xl md:rounded-3xl p-6 md:p-8 space-y-6">
@@ -76,6 +79,14 @@ export function GlassInfoPane({
         <span>{isInstant ? 'Secure This Date' : 'Request Booking'}</span>
         <ArrowRight className="w-5 h-5" />
       </motion.button>
+
+      {/* Ask Partner Co-Pilot Button */}
+      <AskPartnerButton
+        packageName={packageName}
+        vendorName={vendorName}
+        price={price}
+        packageId={packageId}
+      />
 
       {/* Social Proof */}
       <p className="text-sm text-white/70 text-center">
