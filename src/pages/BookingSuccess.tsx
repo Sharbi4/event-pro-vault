@@ -126,8 +126,8 @@ export default function BookingSuccess() {
       >
         <img 
           src={logo} 
-          alt="Event Pro" 
-          className="h-6 md:h-8 w-auto"
+          alt="Event Pro by Vendibook" 
+          className="h-12 md:h-[72px] w-auto"
         />
       </motion.div>
 

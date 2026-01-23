@@ -5,21 +5,44 @@ import { SentenceBuilder } from '@/components/landing/SentenceBuilder';
 import { RevealButton } from '@/components/landing/RevealButton';
 import { BackgroundSlideshow } from '@/components/landing/BackgroundSlideshow';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/contexts/AuthContext';
+import { User, LogOut, LayoutDashboard } from 'lucide-react';
 import logo from '@/assets/eventpro-logo.png';
 
 export default function SentenceLanding() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, signOut } = useAuth();
   const [eventType, setEventType] = useState<string>('');
   const [location, setLocation] = useState<string>('');
   const [date, setDate] = useState<Date | undefined>();
   const [isComplete, setIsComplete] = useState(false);
+  const [userInitial, setUserInitial] = useState<string>('U');
 
   useEffect(() => {
     const complete = Boolean(eventType && location && date);
     setIsComplete(complete);
   }, [eventType, location, date]);
+
+  // Fetch user initial from profile
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      const { supabase } = await import('@/integrations/supabase/client');
+      const { data } = await supabase
+        .from('profiles')
+        .select('first_name, display_name')
+        .eq('user_id', user.id)
+        .single();
+      if (data) {
+        setUserInitial(data.first_name?.[0] || data.display_name?.[0] || user.email?.[0]?.toUpperCase() || 'U');
+      } else {
+        setUserInitial(user.email?.[0]?.toUpperCase() || 'U');
+      }
+    };
+    fetchProfile();
+  }, [user]);
 
   const handleReveal = () => {
     const params = new URLSearchParams();
@@ -86,24 +109,62 @@ export default function SentenceLanding() {
         </Link>
       </motion.div>
 
-      {/* Sign In - Top Right */}
-      {!user && (
-        <motion.div 
-          className="absolute top-6 right-6 md:top-8 md:right-8 z-20"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        >
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={() => navigate('/auth')}
-            className="text-foreground hover:bg-secondary/50"
-          >
-            Sign In
-          </Button>
-        </motion.div>
-      )}
+      {/* Top Right Actions */}
+      <motion.div 
+        className="absolute top-6 right-6 md:top-8 md:right-8 z-20 flex items-center gap-3"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.3 }}
+      >
+        {user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 p-1 rounded-full hover:bg-secondary/50 transition-colors">
+                <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                  <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
+                    {userInitial}
+                  </AvatarFallback>
+                </Avatar>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <div className="px-2 py-1.5">
+                <p className="text-xs text-muted-foreground truncate">
+                  {user.email}
+                </p>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                <LayoutDashboard className="w-4 h-4 mr-2" />
+                Dashboard
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => signOut()} className="text-destructive">
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => navigate('/auth')}
+              className="text-foreground hover:bg-secondary/50"
+            >
+              Sign In
+            </Button>
+            <Button 
+              variant="darkShine" 
+              size="sm"
+              onClick={() => navigate('/auth?signup=true')}
+            >
+              Create Profile
+            </Button>
+          </>
+        )}
+      </motion.div>
 
       {/* Footer - Bottom Center */}
       <motion.div 

@@ -12,8 +12,8 @@ export function Footer() {
             <Link to="/" className="inline-block mb-4">
               <img 
                 src={logo} 
-                alt="EventPro by Vendibook" 
-                className="h-16 w-auto"
+                alt="Event Pro by Vendibook" 
+                className="h-[72px] w-auto"
               />
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">

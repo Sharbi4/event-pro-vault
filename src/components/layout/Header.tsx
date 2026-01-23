@@ -58,25 +58,13 @@ export function Header() {
           <div className={`flex items-center justify-between transition-all duration-300 ${
             isScrolled ? 'h-12 lg:h-14' : 'h-14 lg:h-16'
           }`}>
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 shrink-0">
+            {/* Logo - PNG only, ~72px standard */}
+            <Link to="/" className="shrink-0">
               <img 
                 src={logo} 
                 alt="Event Pro by Vendibook" 
-                className={`w-auto transition-all duration-300 ${isScrolled ? 'h-12 lg:h-14' : 'h-14 lg:h-16'}`}
+                className={`w-auto transition-all duration-300 ${isScrolled ? 'h-14 lg:h-16' : 'h-16 lg:h-[72px]'}`}
               />
-              <div className="flex flex-col leading-none">
-                <span className={`font-display font-bold text-foreground transition-all duration-300 ${
-                  isScrolled ? 'text-sm lg:text-base' : 'text-base lg:text-lg'
-                }`}>
-                  Event Pro
-                </span>
-                <span className={`text-muted-foreground transition-all duration-300 ${
-                  isScrolled ? 'text-[9px] lg:text-[10px]' : 'text-[10px] lg:text-xs'
-                }`}>
-                  by Vendibook
-                </span>
-              </div>
             </Link>
 
             {/* Right Actions - Both Desktop & Mobile */}
