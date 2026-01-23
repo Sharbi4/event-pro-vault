@@ -151,8 +151,8 @@ export function Header() {
                     </button>
                   </>
                 ) : (
-                  <>
-                    {/* Guest: Sign In, Create Profile, Learn More, FAQ */}
+                <>
+                    {/* Guest: Sign In, Create Profile, Browse, Learn More, FAQ */}
                     <Link 
                       to="/auth" 
                       onClick={() => setMobileMenuOpen(false)}
@@ -172,6 +172,18 @@ export function Header() {
                     </button>
                     
                     <div className="h-px bg-border my-2" />
+                    
+                    <Link 
+                      to="/" 
+                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                        location.pathname === '/' 
+                          ? 'text-foreground bg-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Browse
+                    </Link>
                     
                     <Link 
                       to="/learn" 
