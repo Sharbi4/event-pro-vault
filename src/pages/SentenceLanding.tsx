@@ -77,7 +77,7 @@ export default function SentenceLanding() {
         <img 
           src={logo} 
           alt="Event Pro" 
-          className="h-6 md:h-8 w-auto"
+          className="h-11 md:h-14 w-auto"
         />
       </motion.div>
 
