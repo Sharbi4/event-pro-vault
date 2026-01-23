@@ -40,13 +40,13 @@ export function SentenceBuilder({
   const [dateOpen, setDateOpen] = useState(false);
 
   return (
-    <div className="flex flex-wrap items-baseline justify-center gap-x-4 gap-y-4 text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">
+    <div className="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-3 md:gap-x-4 md:gap-y-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight px-2">
       <span className="text-foreground">I am planning a</span>
       
       {/* Event Type Selector */}
       <Popover open={eventOpen} onOpenChange={setEventOpen}>
         <PopoverTrigger asChild>
-          <button className="inline-flex items-center gap-2 group">
+          <button className="inline-flex items-center gap-1 md:gap-2 group touch-target">
             <span 
               className={cn(
                 "border-b-2 pb-1 transition-all",
@@ -58,12 +58,12 @@ export function SentenceBuilder({
               {eventType || 'event type'}
             </span>
             <ChevronDown className={cn(
-              "w-6 h-6 transition-transform text-muted-foreground",
+              "w-5 h-5 md:w-6 md:h-6 transition-transform text-muted-foreground",
               eventOpen && "rotate-180"
             )} />
           </button>
         </PopoverTrigger>
-        <PopoverContent className="w-64 p-2" align="start">
+        <PopoverContent className="w-56 md:w-64 p-2" align="start">
           <div className="space-y-1">
             {EVENT_TYPES.map((type) => (
               <button
@@ -73,7 +73,7 @@ export function SentenceBuilder({
                   setEventOpen(false);
                 }}
                 className={cn(
-                  "w-full text-left px-4 py-3 rounded-lg text-base font-medium transition-colors",
+                  "w-full text-left px-3 md:px-4 py-3 rounded-lg text-sm md:text-base font-medium transition-colors touch-target",
                   eventType === type 
                     ? "bg-foreground text-background" 
                     : "hover:bg-secondary"
@@ -91,8 +91,8 @@ export function SentenceBuilder({
       {/* Location Selector */}
       <Popover open={locationOpen} onOpenChange={setLocationOpen}>
         <PopoverTrigger asChild>
-          <button className="inline-flex items-center gap-2 group">
-            <MapPin className="w-6 h-6 text-muted-foreground" />
+          <button className="inline-flex items-center gap-1 md:gap-2 group touch-target">
+            <MapPin className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
             <span 
               className={cn(
                 "border-b-2 pb-1 transition-all",
@@ -105,7 +105,7 @@ export function SentenceBuilder({
             </span>
           </button>
         </PopoverTrigger>
-        <PopoverContent className="w-80 p-4" align="start">
+        <PopoverContent className="w-72 md:w-80 p-3 md:p-4" align="start">
           <LocationAutocomplete
             value={location}
             onChange={(value) => {
@@ -113,7 +113,7 @@ export function SentenceBuilder({
               setLocationOpen(false);
             }}
             placeholder="Enter city or zip code"
-            className="text-base"
+            className="text-sm md:text-base"
           />
         </PopoverContent>
       </Popover>
@@ -123,11 +123,11 @@ export function SentenceBuilder({
       {/* Date Selector */}
       <Popover open={dateOpen} onOpenChange={setDateOpen}>
         <PopoverTrigger asChild>
-          <button className="inline-flex items-center gap-2 group">
-            <Calendar className="w-6 h-6 text-muted-foreground" />
+          <button className="inline-flex items-center gap-1 md:gap-2 group touch-target">
+            <Calendar className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
             <span 
               className={cn(
-                "border-b-2 pb-1 transition-all font-mono",
+                "border-b-2 pb-1 transition-all font-mono text-base md:text-inherit",
                 date 
                   ? "text-foreground border-foreground" 
                   : "text-muted-foreground border-muted-foreground/30 hover:border-muted-foreground"

@@ -28,6 +28,7 @@ interface SpatialDrawerProps {
     min_hours?: number;
     vendor_user_id?: string;
     payment_options?: string;
+    vendor_email?: string | null; // Added for notifications
     vendor?: {
       display_name?: string;
       avatar_url?: string;
@@ -113,7 +114,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
     setBookingState('loading');
 
     try {
-      // Create the booking
+      // Create the booking with vendor email for notifications
       const booking = await createBooking({
         vendor_id: pkg.id,
         vendor_user_id: pkg.vendor_user_id || null,
@@ -128,6 +129,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
         customer_email: isGuest ? customerEmail.trim() : user?.email,
         customer_name: user?.user_metadata?.full_name || customerEmail.split('@')[0],
         vendor_name: pkg.vendor?.display_name || 'Vendor',
+        vendor_email: pkg.vendor_email || undefined, // Pass vendor email for notifications
         package_name: pkg.name,
         unit_type: isHourly ? 'hours' : 'booking',
         is_guest: isGuest,
@@ -204,20 +206,20 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
             onClick={() => !isLoading && onOpenChange(false)}
           />
 
-          {/* Drawer */}
+          {/* Drawer - Mobile-first: full width on mobile, side drawer on desktop */}
           <motion.div
-            className="fixed top-0 right-0 bottom-0 z-50 w-full md:w-[480px] bg-background overflow-y-auto"
+            className="fixed top-0 right-0 bottom-0 z-50 w-full md:w-[480px] bg-background overflow-y-auto safe-bottom"
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
           >
-            {/* Header */}
-            <div className="sticky top-0 z-10 bg-background/90 backdrop-blur-sm border-b border-border p-6">
+            {/* Header - Sticky with safe area */}
+            <div className="sticky top-0 z-10 bg-background/90 backdrop-blur-sm border-b border-border p-4 md:p-6">
               <div className="flex items-center justify-between">
                 <button 
                   onClick={() => !isLoading && onOpenChange(false)}
-                  className="p-2 -ml-2 hover:bg-secondary rounded-full transition-colors"
+                  className="p-3 -ml-3 hover:bg-secondary rounded-full transition-colors touch-target"
                   disabled={isLoading}
                 >
                   <X className="w-5 h-5" />
@@ -248,34 +250,34 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                 </p>
               </div>
             ) : (
-              /* Content */
-              <div className="p-6 space-y-8">
+              /* Content - Mobile-first spacing */
+              <div className="p-4 md:p-6 space-y-6 md:space-y-8 pb-32 md:pb-6">
                 {/* Vendor Info */}
-                <div className="flex items-center gap-4">
-                  <Avatar className="w-14 h-14 border border-border">
+                <div className="flex items-center gap-3 md:gap-4">
+                  <Avatar className="w-12 h-12 md:w-14 md:h-14 border border-border">
                     <AvatarImage src={pkg.vendor?.avatar_url} alt={pkg.vendor?.display_name} />
-                    <AvatarFallback className="bg-secondary text-lg font-medium">
+                    <AvatarFallback className="bg-secondary text-base md:text-lg font-medium">
                       {pkg.vendor?.display_name?.slice(0, 2).toUpperCase() || 'EP'}
                     </AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold">{pkg.vendor?.display_name || 'Event Pro'}</span>
+                      <span className="font-semibold text-sm md:text-base">{pkg.vendor?.display_name || 'Event Pro'}</span>
                       {pkg.vendor?.is_verified && (
-                        <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-foreground text-background">
-                          <Check className="w-3 h-3" strokeWidth={3} />
+                        <span className="inline-flex items-center justify-center w-4 h-4 md:w-5 md:h-5 rounded-full bg-foreground text-background">
+                          <Check className="w-2.5 h-2.5 md:w-3 md:h-3" strokeWidth={3} />
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-muted-foreground">127 bookings</p>
+                    <p className="text-xs md:text-sm text-muted-foreground">127 bookings</p>
                   </div>
                 </div>
 
                 {/* Package Name */}
                 <div>
-                  <h2 className="text-2xl font-bold tracking-tight">{pkg.name}</h2>
+                  <h2 className="text-xl md:text-2xl font-bold tracking-tight">{pkg.name}</h2>
                   {pkg.description && (
-                    <p className="mt-2 text-muted-foreground">{pkg.description}</p>
+                    <p className="mt-2 text-sm md:text-base text-muted-foreground">{pkg.description}</p>
                   )}
                 </div>
 
@@ -364,7 +366,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                         onClick={() => setPaymentMethod('stripe')}
                         disabled={isLoading}
                         className={cn(
-                          "flex items-center gap-3 p-4 rounded-xl border-2 transition-all",
+                          "flex items-center gap-2 md:gap-3 p-3 md:p-4 rounded-xl border-2 transition-all touch-target",
                           paymentMethod === 'stripe'
                             ? "border-foreground bg-secondary"
                             : "border-border hover:border-muted-foreground",
@@ -372,7 +374,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                         )}
                       >
                         <CreditCard className="w-5 h-5" />
-                        <span className="font-medium">Pay Online</span>
+                        <span className="font-medium text-sm md:text-base">Pay Online</span>
                       </button>
                     )}
                     {canPayCash && (
@@ -380,7 +382,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                         onClick={() => setPaymentMethod('cash')}
                         disabled={isLoading}
                         className={cn(
-                          "flex items-center gap-3 p-4 rounded-xl border-2 transition-all",
+                          "flex items-center gap-2 md:gap-3 p-3 md:p-4 rounded-xl border-2 transition-all touch-target",
                           paymentMethod === 'cash'
                             ? "border-foreground bg-secondary"
                             : "border-border hover:border-muted-foreground",
@@ -388,7 +390,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                         )}
                       >
                         <Banknote className="w-5 h-5" />
-                        <span className="font-medium">Cash</span>
+                        <span className="font-medium text-sm md:text-base">Cash</span>
                       </button>
                     )}
                   </div>
