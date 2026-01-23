@@ -8,10 +8,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useBookings, BookingData } from '@/hooks/useBookings';
-import { useSlotBookings } from '@/hooks/useSlotBookings';
 import { useUserDashboards } from '@/hooks/useUserDashboards';
 import { useAdminReview } from '@/hooks/useAdminReview';
-import { SlotBookingsSection } from '@/components/dashboard/SlotBookingsSection';
 import { AdminReviewTab } from '@/components/dashboard/AdminReviewTab';
 import { vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,7 +17,7 @@ import { useToast } from '@/hooks/use-toast';
 import { 
   Calendar, MapPin, Clock, Heart, Package, 
   User, LogOut, ChevronRight, Loader2, Star, Search,
-  CreditCard, CheckCircle, AlertCircle, Banknote, Store, Users, ExternalLink, ShieldCheck
+  CreditCard, CheckCircle, AlertCircle, Banknote, Users, ExternalLink, ShieldCheck
 } from 'lucide-react';
 
 interface ExtendedBooking extends BookingData {
@@ -39,9 +37,8 @@ export default function Dashboard() {
   const { user, loading: authLoading, signOut } = useAuth();
   const { favorites, loading: favLoading, toggleFavorite } = useFavorites();
   const { bookings, loading: bookingsLoading, refetch } = useBookings();
-  const { bookings: slotBookings, loading: slotBookingsLoading, cancelBooking } = useSlotBookings();
   const { hasVendorPackages, loading: dashboardsLoading } = useUserDashboards();
-  const { isAdmin, pendingEventPros, pendingMarkets } = useAdminReview();
+  const { isAdmin, pendingEventPros } = useAdminReview();
   const { toast } = useToast();
   const [payingBooking, setPayingBooking] = useState<string | null>(null);
   const [profile, setProfile] = useState<{ display_name?: string; is_vendor?: boolean; is_published?: boolean } | null>(null);
@@ -249,14 +246,10 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Row */}
-        <div className="grid grid-cols-4 gap-3 mb-6">
+        <div className="grid grid-cols-3 gap-3 mb-6">
           <Card variant="glass" className="p-3 text-center">
             <p className="text-2xl font-bold gradient-text">{bookings.length}</p>
             <p className="text-xs text-muted-foreground">Bookings</p>
-          </Card>
-          <Card variant="glass" className="p-3 text-center">
-            <p className="text-2xl font-bold gradient-text">{slotBookings.length}</p>
-            <p className="text-xs text-muted-foreground">Market Spots</p>
           </Card>
           <Card variant="glass" className="p-3 text-center">
             <p className="text-2xl font-bold gradient-text">{favorites.length}</p>
@@ -280,13 +273,6 @@ export default function Dashboard() {
               Bookings
             </TabsTrigger>
             <TabsTrigger 
-              value="markets" 
-              className="flex-1 text-xs data-[state=active]:gradient-primary data-[state=active]:text-white gap-1.5"
-            >
-              <Store className="w-3.5 h-3.5" />
-              Markets
-            </TabsTrigger>
-            <TabsTrigger 
               value="favorites" 
               className="flex-1 text-xs data-[state=active]:gradient-primary data-[state=active]:text-white gap-1.5"
             >
@@ -307,9 +293,9 @@ export default function Dashboard() {
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
                 Admin
-                {(pendingEventPros.length + pendingMarkets.length) > 0 && (
+                {pendingEventPros.length > 0 && (
                   <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-[10px] flex items-center justify-center">
-                    {pendingEventPros.length + pendingMarkets.length}
+                    {pendingEventPros.length}
                   </Badge>
                 )}
               </TabsTrigger>
@@ -457,14 +443,6 @@ export default function Dashboard() {
             )}
           </TabsContent>
 
-          {/* Market Bookings Tab */}
-          <TabsContent value="markets" className="space-y-3">
-            <SlotBookingsSection 
-              bookings={slotBookings}
-              loading={slotBookingsLoading}
-              onCancel={cancelBooking}
-            />
-          </TabsContent>
 
           {/* Favorites Tab */}
           <TabsContent value="favorites" className="space-y-3">
