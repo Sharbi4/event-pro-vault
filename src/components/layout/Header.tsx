@@ -63,7 +63,7 @@ export function Header() {
               <img 
                 src={logo} 
                 alt="Event Pro by Vendibook" 
-                className={`w-auto transition-all duration-300 ${isScrolled ? 'h-16 lg:h-20' : 'h-20 lg:h-24'}`}
+                className={`w-auto transition-all duration-300 ${isScrolled ? 'h-7 lg:h-8' : 'h-8 lg:h-9'}`}
               />
               <div className="flex flex-col leading-none">
                 <span className={`font-display font-bold text-foreground transition-all duration-300 ${
