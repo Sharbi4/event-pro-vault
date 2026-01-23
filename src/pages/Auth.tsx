@@ -1,46 +1,33 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
-import { Mail, Lock, User, Eye, EyeOff, Loader2, ArrowRight, Phone } from 'lucide-react';
+import { Mail, Lock, User, Eye, EyeOff, Loader2, ArrowRight } from 'lucide-react';
 import { z } from 'zod';
-import { useAuthIntent } from '@/hooks/useAuthIntent';
 import { supabase } from '@/integrations/supabase/client';
-
 
 const emailSchema = z.string().email('Please enter a valid email');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
-const phoneSchema = z.string().optional();
 
 export default function Auth() {
-  
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
   const { user, signIn, signUp, loading: authLoading } = useAuth();
-  const { intent } = useAuthIntent();
   
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Determine if we should require phone (for providers)
-  const isProviderIntent = intent?.intent === 'EVENT_PRO_ONBOARDING' || 
-                           intent?.intent === 'MARKET_ONBOARDING' ||
-                           intent?.profileType === 'EVENT_PRO' ||
-                           intent?.profileType === 'MARKET_SPACE';
-
   // Redirect if already authenticated
   useEffect(() => {
     if (user && !authLoading) {
-      navigate('/post-auth');
+      navigate('/dashboard');
     }
   }, [user, authLoading, navigate]);
 
@@ -48,12 +35,6 @@ export default function Auth() {
     try {
       emailSchema.parse(email);
       passwordSchema.parse(password);
-      
-      if (isSignUp && isProviderIntent && !phone) {
-        setError('Phone number is required for providers');
-        return false;
-      }
-      
       return true;
     } catch (err) {
       if (err instanceof z.ZodError) {
@@ -84,9 +65,6 @@ export default function Auth() {
         setLoading(false);
         return;
       }
-
-      // After successful signup, update profile with additional fields
-      // The user will be set after the auth state change
     } else {
       const { error: signInError } = await signIn(email, password);
       if (signInError) {
@@ -104,14 +82,13 @@ export default function Auth() {
     setLoading(false);
   };
 
-  // Update profile with phone after signup
+  // Update profile with name after signup
   useEffect(() => {
-    const updateProfileWithPhone = async () => {
-      if (user && isSignUp && phone) {
+    const updateProfileWithName = async () => {
+      if (user && isSignUp && (firstName || lastName)) {
         await supabase
           .from('profiles')
           .update({
-            phone,
             first_name: firstName,
             last_name: lastName,
           })
@@ -119,9 +96,8 @@ export default function Auth() {
       }
     };
     
-    updateProfileWithPhone();
-  }, [user, isSignUp, phone, firstName, lastName]);
-
+    updateProfileWithName();
+  }, [user, isSignUp, firstName, lastName]);
 
   return (
     <Layout>
@@ -151,61 +127,39 @@ export default function Auth() {
               <CardContent className="p-5">
                 <form onSubmit={handleSubmit} className="space-y-3">
                   {isSignUp && (
-                    <>
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-                            First Name
-                          </label>
-                          <div className="flex items-center gap-2.5 bg-secondary/50 rounded-lg px-3 py-2.5 border border-border/50 focus-within:border-primary/50 transition-colors">
-                            <User className="w-4 h-4 text-muted-foreground" />
-                            <input
-                              type="text"
-                              placeholder="John"
-                              value={firstName}
-                              onChange={(e) => setFirstName(e.target.value)}
-                              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none w-full"
-                              required
-                            />
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-                            Last Name
-                          </label>
-                          <div className="flex items-center gap-2.5 bg-secondary/50 rounded-lg px-3 py-2.5 border border-border/50 focus-within:border-primary/50 transition-colors">
-                            <input
-                              type="text"
-                              placeholder="Doe"
-                              value={lastName}
-                              onChange={(e) => setLastName(e.target.value)}
-                              className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none w-full"
-                              required
-                            />
-                          </div>
-                        </div>
-                      </div>
-
+                    <div className="grid grid-cols-2 gap-3">
                       <div>
                         <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-                          Phone {isProviderIntent && <span className="text-destructive">*</span>}
+                          First Name
                         </label>
                         <div className="flex items-center gap-2.5 bg-secondary/50 rounded-lg px-3 py-2.5 border border-border/50 focus-within:border-primary/50 transition-colors">
-                          <Phone className="w-4 h-4 text-muted-foreground" />
+                          <User className="w-4 h-4 text-muted-foreground" />
                           <input
-                            type="tel"
-                            placeholder="(555) 123-4567"
-                            value={phone}
-                            onChange={(e) => setPhone(e.target.value)}
-                            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
-                            required={isProviderIntent}
+                            type="text"
+                            placeholder="John"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none w-full"
+                            required
                           />
                         </div>
-                        {!isProviderIntent && (
-                          <p className="text-xs text-muted-foreground mt-1">Optional for customers</p>
-                        )}
                       </div>
-                    </>
+                      <div>
+                        <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                          Last Name
+                        </label>
+                        <div className="flex items-center gap-2.5 bg-secondary/50 rounded-lg px-3 py-2.5 border border-border/50 focus-within:border-primary/50 transition-colors">
+                          <input
+                            type="text"
+                            placeholder="Doe"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none w-full"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
                   )}
 
                   <div>
