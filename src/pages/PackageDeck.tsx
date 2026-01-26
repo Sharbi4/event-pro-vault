@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, ChevronLeft, ChevronRight, Grid3X3 } from 'lucide-react';
 import { DeckCard } from '@/components/deck/DeckCard';
 import { DeckNavigation } from '@/components/deck/DeckNavigation';
 import { SpatialDrawer } from '@/components/booking/SpatialDrawer';
+import ResultsOverlay from '@/components/deck/ResultsOverlay';
 import { useBrowsePackages } from '@/hooks/useBrowsePackages';
 
 // Map event types to categories for filtering
@@ -27,6 +28,7 @@ export default function PackageDeck() {
   const [selectedPackage, setSelectedPackage] = useState<any>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [filtersApplied, setFiltersApplied] = useState(false);
+  const [resultsOverlayOpen, setResultsOverlayOpen] = useState(false);
 
   // Get search params from sentence landing
   const eventType = searchParams.get('event') || '';
@@ -160,14 +162,24 @@ export default function PackageDeck() {
             <span className="text-sm font-medium">Back</span>
           </button>
 
+          {/* See Results Button */}
+          <button
+            onClick={() => setResultsOverlayOpen(true)}
+            className="glass-panel px-4 py-2 rounded-full text-sm font-medium flex items-center gap-2 hover:bg-white/10 transition-colors"
+          >
+            <Grid3X3 className="w-4 h-4" />
+            <span>See Results</span>
+            <span className="ml-1 px-2 py-0.5 bg-primary/20 text-primary text-xs rounded-full">
+              {packages.length}
+            </span>
+          </button>
+
           {/* Search context pill */}
-          <div className="glass-panel px-4 py-2 rounded-full text-sm">
+          <div className="hidden md:flex glass-panel px-4 py-2 rounded-full text-sm">
             <span className="text-muted-foreground">{eventType || 'All events'}</span>
             {location && <span className="text-muted-foreground"> in {location}</span>}
             {date && <span className="text-muted-foreground"> on {date.toLocaleDateString()}</span>}
           </div>
-
-          <div className="w-20" /> {/* Spacer for balance */}
         </div>
       </motion.header>
 
@@ -246,6 +258,20 @@ export default function PackageDeck() {
         onOpenChange={setDrawerOpen}
         package={selectedPackage}
         eventDate={date}
+      />
+
+      {/* Results Overlay */}
+      <ResultsOverlay
+        open={resultsOverlayOpen}
+        onClose={() => setResultsOverlayOpen(false)}
+        packages={packages}
+        location={location}
+        date={date}
+        activeIndex={activeIndex}
+        onSelectPackage={(index) => {
+          setActiveIndex(index);
+          scrollToIndex(index);
+        }}
       />
     </div>
   );
