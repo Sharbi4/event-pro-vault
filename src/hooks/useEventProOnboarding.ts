@@ -23,6 +23,7 @@ export interface ProfileBasicsData {
   shortBio: string;
   websiteUrl: string;
   instagramHandle: string;
+  avatarUrl: string;
 }
 
 export interface ServiceAreaData {
@@ -88,6 +89,7 @@ const initialState: OnboardingState = {
     shortBio: '',
     websiteUrl: '',
     instagramHandle: '',
+    avatarUrl: '',
   },
   categories: [],
   serviceArea: {
@@ -188,6 +190,7 @@ export function useEventProOnboarding() {
           shortBio: profile.short_bio || '',
           websiteUrl: vendorDetails?.website_url || '',
           instagramHandle: profile.instagram_handle || '',
+          avatarUrl: profile.avatar_url || '',
         };
         newState.isPublished = profile.is_published || false;
 

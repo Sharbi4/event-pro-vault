@@ -19,24 +19,26 @@ export default function SentenceLanding() {
   const [date, setDate] = useState<Date | undefined>();
   const [isComplete, setIsComplete] = useState(false);
   const [userInitial, setUserInitial] = useState<string>('U');
+  const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
     const complete = Boolean(eventType && location && date);
     setIsComplete(complete);
   }, [eventType, location, date]);
 
-  // Fetch user initial from profile
+  // Fetch user profile data
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
       const { supabase } = await import('@/integrations/supabase/client');
       const { data } = await supabase
         .from('profiles')
-        .select('first_name, display_name')
+        .select('first_name, display_name, avatar_url')
         .eq('user_id', user.id)
         .single();
       if (data) {
         setUserInitial(data.first_name?.[0] || data.display_name?.[0] || user.email?.[0]?.toUpperCase() || 'U');
+        setUserAvatarUrl(data.avatar_url);
       } else {
         setUserInitial(user.email?.[0]?.toUpperCase() || 'U');
       }
@@ -123,6 +125,7 @@ export default function SentenceLanding() {
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 p-1 rounded-full hover:bg-secondary/50 transition-colors">
                 <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                  <AvatarImage src={userAvatarUrl || undefined} alt="Profile" />
                   <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
                     {userInitial}
                   </AvatarFallback>

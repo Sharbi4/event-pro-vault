@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { ModeSwitcher } from './ModeSwitcher';
 import { ProfileTypeModal } from './ProfileTypeModal';
 import { setAuthIntent } from '@/lib/authIntent';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/eventpro-logo.png';
@@ -28,17 +28,20 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Fetch user initial from profile
+  const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
+
+  // Fetch user profile data
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return;
       const { data } = await supabase
         .from('profiles')
-        .select('first_name, display_name')
+        .select('first_name, display_name, avatar_url')
         .eq('user_id', user.id)
         .single();
       if (data) {
         setUserInitial(data.first_name?.[0] || data.display_name?.[0] || user.email?.[0]?.toUpperCase() || 'U');
+        setUserAvatarUrl(data.avatar_url);
       } else {
         setUserInitial(user.email?.[0]?.toUpperCase() || 'U');
       }
@@ -96,6 +99,7 @@ export function Header() {
                   <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-2 p-1 rounded-full hover:bg-secondary/50 transition-colors">
                       <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                        <AvatarImage src={userAvatarUrl || undefined} alt="Profile" />
                         <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
                           {userInitial}
                         </AvatarFallback>
