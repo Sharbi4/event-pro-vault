@@ -65,6 +65,36 @@ interface RefundRequest {
   refund_type: "policy" | "full" | "partial" | "none";
   refund_amount?: number; // Optional override amount in cents
   reason?: string;
+  cancelled_by?: "customer" | "vendor"; // Who initiated the cancellation
+}
+
+// Deposit refund rules:
+// - Non-refundable by default
+// - Exception 1: Vendor cancels → full deposit refund
+// - Exception 2: Customer cancels within 1 hour of booking AND event is 7+ days away → deposit refund
+function isDepositRefundable(
+  cancelledBy: "customer" | "vendor",
+  bookingCreatedAt: string,
+  eventDate: string
+): { refundable: boolean; reason: string } {
+  // If vendor cancels, always refund deposit
+  if (cancelledBy === "vendor") {
+    return { refundable: true, reason: "Vendor cancelled - full deposit refund" };
+  }
+
+  // Check grace period: within 1 hour of booking AND event 7+ days away
+  const now = new Date();
+  const bookingTime = new Date(bookingCreatedAt);
+  const event = new Date(eventDate);
+  
+  const hoursSinceBooking = (now.getTime() - bookingTime.getTime()) / (1000 * 60 * 60);
+  const daysUntilEvent = (event.getTime() - now.getTime()) / (1000 * 60 * 60 * 24);
+  
+  if (hoursSinceBooking <= 1 && daysUntilEvent >= 7) {
+    return { refundable: true, reason: "Grace period - cancelled within 1 hour, event 7+ days away" };
+  }
+
+  return { refundable: false, reason: "Deposit is non-refundable per policy" };
 }
 
 serve(async (req) => {
@@ -93,7 +123,7 @@ serve(async (req) => {
     }
 
     const body: RefundRequest = await req.json();
-    const { booking_id, booking_type, refund_type, refund_amount, reason } = body;
+    const { booking_id, booking_type, refund_type, refund_amount, reason, cancelled_by } = body;
 
     if (!booking_id || !booking_type) {
       return new Response(JSON.stringify({ error: "Missing required fields" }), {
@@ -103,9 +133,13 @@ serve(async (req) => {
     }
 
     let paymentIntentId: string | null = null;
+    let depositPaymentIntentId: string | null = null;
     let totalPaidCents: number = 0;
+    let depositPaidCents: number = 0;
     let eventDate: string | null = null;
+    let bookingCreatedAt: string | null = null;
     let isOwner = false;
+    let isVendor = false;
     let cancellationPolicyType: string | null = null;
 
     // Fetch booking based on type
@@ -160,7 +194,8 @@ serve(async (req) => {
       }
 
       // Check if user is vendor or the booker
-      isOwner = booking.vendor_user_id === user.id || booking.user_id === user.id;
+      isVendor = booking.vendor_user_id === user.id;
+      isOwner = isVendor || booking.user_id === user.id;
       
       if (!isOwner) {
         return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -178,12 +213,13 @@ serve(async (req) => {
 
       // Get the payment intent - could be deposit or full payment
       paymentIntentId = booking.stripe_payment_intent_id || 
-                        booking.stripe_deposit_payment_intent_id;
+                        booking.stripe_final_payment_intent_id;
+      depositPaymentIntentId = booking.stripe_deposit_payment_intent_id;
       
-      // Calculate total paid
-      const depositPaid = booking.deposit_paid_at ? (booking.deposit_amount || 0) : 0;
+      // Calculate total paid and deposit separately
+      depositPaidCents = booking.deposit_paid_at ? (booking.deposit_amount || 0) : 0;
       const finalPaid = booking.final_paid_at ? (booking.final_amount || 0) : 0;
-      totalPaidCents = depositPaid + finalPaid;
+      totalPaidCents = depositPaidCents + finalPaid;
       
       // If no cents calculated, use total_price
       if (totalPaidCents === 0) {
@@ -191,54 +227,114 @@ serve(async (req) => {
       }
       
       eventDate = booking.event_date;
+      bookingCreatedAt = booking.created_at;
       
       // Get cancellation policy for policy-based refunds
       cancellationPolicyType = booking.vendor_packages?.cancellation_policy || 'standard';
     }
 
-    if (!paymentIntentId) {
+    if (!paymentIntentId && !depositPaymentIntentId) {
       return new Response(JSON.stringify({ error: "No payment intent found for refund" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    // Determine who cancelled (default based on user role if not specified)
+    const cancelledByRole = cancelled_by || (isVendor ? "vendor" : "customer");
+
     // Calculate refund amount based on type
     let refundAmountCents = 0;
+    let depositRefundCents = 0;
     let refundPercentage = 0;
+    let depositRefundInfo = { refundable: false, reason: "No deposit" };
+
+    // Check deposit refund eligibility
+    if (depositPaidCents > 0 && bookingCreatedAt && eventDate) {
+      depositRefundInfo = isDepositRefundable(cancelledByRole, bookingCreatedAt, eventDate);
+      if (depositRefundInfo.refundable) {
+        depositRefundCents = depositPaidCents;
+      }
+      console.log(`Deposit refund check: ${depositRefundInfo.reason}`);
+    }
 
     if (refund_type === "policy" && eventDate && cancellationPolicyType) {
-      // Policy-based refund
+      // Policy-based refund (applies to non-deposit portion)
+      const nonDepositPaid = totalPaidCents - depositPaidCents;
       const policyPercentage = getRefundPercentageFromPolicy(cancellationPolicyType, eventDate);
-      refundAmountCents = Math.round(totalPaidCents * (policyPercentage / 100));
-      refundPercentage = policyPercentage;
+      const policyRefundCents = Math.round(nonDepositPaid * (policyPercentage / 100));
+      
+      // Add deposit refund if eligible
+      refundAmountCents = policyRefundCents + depositRefundCents;
+      refundPercentage = totalPaidCents > 0 ? Math.round((refundAmountCents / totalPaidCents) * 100) : 0;
     } else if (refund_type === "full") {
+      // Full refund includes deposit (vendor override or special case)
       refundAmountCents = refund_amount ?? totalPaidCents;
       refundPercentage = 100;
     } else if (refund_type === "partial") {
       refundAmountCents = refund_amount ?? Math.round(totalPaidCents * 0.5);
       refundPercentage = Math.round((refundAmountCents / totalPaidCents) * 100);
     } else if (refund_type === "none") {
-      refundAmountCents = 0;
-      refundPercentage = 0;
+      // Even with "none", deposit may be refundable due to grace period or vendor cancel
+      refundAmountCents = depositRefundCents;
+      refundPercentage = totalPaidCents > 0 ? Math.round((refundAmountCents / totalPaidCents) * 100) : 0;
     }
 
     // Process refund with Stripe if amount > 0
     let refundResult = null;
+    let depositRefundResult = null;
+    
     if (refundAmountCents > 0) {
       try {
-        refundResult = await stripe.refunds.create({
-          payment_intent: paymentIntentId,
-          amount: refundAmountCents,
-          reason: "requested_by_customer",
-          metadata: {
-            booking_id,
-            booking_type,
-            refund_reason: reason || "Booking cancelled",
-          },
-        });
+        // If there's a separate deposit payment intent and we need to refund deposit
+        if (depositRefundCents > 0 && depositPaymentIntentId && depositPaymentIntentId !== paymentIntentId) {
+          // Refund deposit separately
+          depositRefundResult = await stripe.refunds.create({
+            payment_intent: depositPaymentIntentId,
+            amount: depositRefundCents,
+            reason: "requested_by_customer",
+            metadata: {
+              booking_id,
+              booking_type,
+              refund_reason: depositRefundInfo.reason,
+              refund_type: "deposit",
+            },
+          });
+          console.log(`Deposit refund created: ${depositRefundResult.id} for ${depositRefundCents / 100}`);
 
-        console.log(`Refund created: ${refundResult.id} for ${refundAmountCents / 100}`);
+          // Refund remaining from main payment
+          const remainingRefund = refundAmountCents - depositRefundCents;
+          if (remainingRefund > 0 && paymentIntentId) {
+            refundResult = await stripe.refunds.create({
+              payment_intent: paymentIntentId,
+              amount: remainingRefund,
+              reason: "requested_by_customer",
+              metadata: {
+                booking_id,
+                booking_type,
+                refund_reason: reason || "Booking cancelled",
+              },
+            });
+            console.log(`Main refund created: ${refundResult.id} for ${remainingRefund / 100}`);
+          }
+        } else {
+          // Single payment intent - refund everything from it
+          const intentToRefund = paymentIntentId || depositPaymentIntentId;
+          if (intentToRefund) {
+            refundResult = await stripe.refunds.create({
+              payment_intent: intentToRefund,
+              amount: refundAmountCents,
+              reason: "requested_by_customer",
+              metadata: {
+                booking_id,
+                booking_type,
+                refund_reason: reason || "Booking cancelled",
+                deposit_refund_reason: depositRefundInfo.reason,
+              },
+            });
+            console.log(`Refund created: ${refundResult.id} for ${refundAmountCents / 100}`);
+          }
+        }
       } catch (stripeError: any) {
         console.error("Stripe refund error:", stripeError);
         
@@ -315,11 +411,13 @@ serve(async (req) => {
 
     return new Response(JSON.stringify({
       success: true,
-      refund_id: refundResult?.id || null,
+      refund_id: refundResult?.id || depositRefundResult?.id || null,
       refund_amount: refundAmountCents / 100,
       refund_percentage: refundPercentage,
+      deposit_refunded: depositRefundCents > 0,
+      deposit_refund_reason: depositRefundInfo.reason,
       message: refundAmountCents > 0 
-        ? `Refund of $${(refundAmountCents / 100).toFixed(2)} processed successfully`
+        ? `Refund of $${(refundAmountCents / 100).toFixed(2)} processed successfully${depositRefundCents > 0 ? ` (includes $${(depositRefundCents / 100).toFixed(2)} deposit)` : ''}`
         : "Booking cancelled without refund",
     }), {
       status: 200,
