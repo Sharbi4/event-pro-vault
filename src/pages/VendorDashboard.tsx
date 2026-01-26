@@ -45,11 +45,17 @@ const VendorDashboard = () => {
     refetch
   } = useVendorDashboard();
 
-  const { totalUnreadCount } = useVendorMessages();
+  const { totalUnreadCount, getOrCreateConversationForBooking, setActiveConversationId } = useVendorMessages();
   
-  
+  const [activeTab, setActiveTab] = useState(defaultTab);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  
+  // Handler to message a client from booking card
+  const handleMessageClient = async (booking: { id: string; customer_email: string; event_location: string }) => {
+    await getOrCreateConversationForBooking(booking);
+    setActiveTab('messages');
+  };
   
   // Sync avatar and cover URL from profile/vendor details
   useEffect(() => {
@@ -124,7 +130,7 @@ const VendorDashboard = () => {
         </div>
 
         {/* Main Tabs */}
-        <Tabs defaultValue={defaultTab} className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
             <TabsTrigger value="overview" className="gap-2">
               <LayoutDashboard className="w-4 h-4 hidden sm:inline" />
@@ -195,6 +201,7 @@ const VendorDashboard = () => {
             <VendorBookings
               bookings={bookings}
               onUpdateStatus={updateBookingStatus}
+              onMessageClient={handleMessageClient}
             />
           </TabsContent>
 
