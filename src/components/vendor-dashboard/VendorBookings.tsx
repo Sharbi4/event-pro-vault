@@ -3,15 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Check, X, Clock, MapPin, Calendar, CreditCard, Loader2, DollarSign, Undo2 } from 'lucide-react';
+import { Check, X, Clock, MapPin, Calendar, CreditCard, Loader2, DollarSign, Undo2, MessageCircle } from 'lucide-react';
 import { VendorBooking } from '@/hooks/useVendorDashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { CancellationDialog } from '@/components/shared/CancellationDialog';
-
 interface VendorBookingsProps {
   bookings: VendorBooking[];
   onUpdateStatus: (id: string, status: string) => Promise<unknown>;
+  onMessageClient?: (booking: { id: string; customer_email: string; event_location: string }) => void;
 }
 
 interface ExtendedBooking extends VendorBooking {
@@ -24,15 +24,15 @@ interface ExtendedBooking extends VendorBooking {
   deposit_paid_at?: string;
   final_paid_at?: string;
   deposit_percentage?: number;
+  customer_email?: string;
 }
 
-export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps) {
+export function VendorBookings({ bookings, onUpdateStatus, onMessageClient }: VendorBookingsProps) {
   const [updating, setUpdating] = useState<string | null>(null);
   const [requestingPayment, setRequestingPayment] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<ExtendedBooking | null>(null);
   const { toast } = useToast();
-
   const handleStatusUpdate = async (id: string, status: string) => {
     setUpdating(id);
     await onUpdateStatus(id, status);
@@ -296,6 +296,23 @@ export function VendorBookings({ bookings, onUpdateStatus }: VendorBookingsProps
                 </Badge>
                 {getPaymentBadge(booking)}
               </div>
+              
+              {/* Message Client Button */}
+              {onMessageClient && booking.customer_email && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="gap-1.5 text-muted-foreground hover:text-foreground"
+                  onClick={() => onMessageClient({
+                    id: booking.id,
+                    customer_email: booking.customer_email!,
+                    event_location: booking.event_location
+                  })}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  Message Client
+                </Button>
+              )}
               
               {isPending && !isPast && (
                 <div className="flex flex-col gap-2 mt-2">
