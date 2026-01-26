@@ -230,3 +230,161 @@ export function useRecentReviews(limit = 3) {
     staleTime: 5 * 60 * 1000,
   });
 }
+
+interface CategoryCount {
+  category: string;
+  count: number;
+}
+
+export function useCategoryCounts() {
+  return useQuery({
+    queryKey: ['category-counts'],
+    queryFn: async (): Promise<Map<string, number>> => {
+      // Fetch all active packages with their categories
+      const { data: packages, error } = await supabase
+        .from('vendor_packages')
+        .select('category, user_id')
+        .eq('is_active', true)
+        .eq('is_published', true);
+
+      if (error) throw error;
+
+      // Also check that vendors are verified (have active Stripe)
+      const userIds = [...new Set(packages?.map(p => p.user_id) || [])];
+      
+      if (userIds.length === 0) return new Map();
+      
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .in('user_id', userIds)
+        .eq('stripe_account_status', 'active');
+
+      const activeUserIds = new Set(profiles?.map(p => p.user_id) || []);
+
+      // Count packages per category from verified vendors only
+      const counts = new Map<string, number>();
+      
+      packages?.forEach(pkg => {
+        if (pkg.category && activeUserIds.has(pkg.user_id)) {
+          counts.set(pkg.category, (counts.get(pkg.category) || 0) + 1);
+        }
+      });
+
+      return counts;
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+}
+
+interface CategoryPackage {
+  id: string;
+  name: string;
+  price: number;
+  type: string;
+  cover_image_url: string | null;
+  category: string | null;
+  vendor_user_id: string;
+  vendor_name: string;
+  vendor_city: string | null;
+  avg_rating: number;
+  is_verified: boolean;
+  instant_book: boolean;
+}
+
+export function useCategoryPackages(categoryIds: string[], limit = 6) {
+  return useQuery({
+    queryKey: ['category-packages', categoryIds, limit],
+    queryFn: async (): Promise<CategoryPackage[]> => {
+      if (!categoryIds.length) return [];
+
+      // Fetch active packages for specified categories
+      const { data: packages, error } = await supabase
+        .from('vendor_packages')
+        .select(`
+          id,
+          name,
+          price,
+          type,
+          cover_image_url,
+          category,
+          user_id,
+          instant_book
+        `)
+        .eq('is_active', true)
+        .eq('is_published', true)
+        .in('category', categoryIds)
+        .order('created_at', { ascending: false })
+        .limit(limit * 3); // Fetch more to filter
+
+      if (error) throw error;
+      if (!packages?.length) return [];
+
+      // Get vendor details
+      const vendorIds = [...new Set(packages.map(p => p.user_id))];
+      
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('user_id, display_name, primary_city, stripe_account_status, identity_verification_status')
+        .in('user_id', vendorIds)
+        .eq('stripe_account_status', 'active');
+
+      const { data: vendorDetails } = await supabase
+        .from('vendor_details')
+        .select('user_id, cover_image_url')
+        .in('user_id', vendorIds);
+
+      // Get review stats
+      const { data: reviews } = await supabase
+        .from('reviews')
+        .select('vendor_user_id, rating')
+        .in('vendor_user_id', vendorIds);
+
+      if (!profiles?.length) return [];
+
+      const profileMap = new Map(profiles.map(p => [p.user_id, p]));
+      const detailsMap = new Map(vendorDetails?.map(d => [d.user_id, d]) || []);
+      
+      // Calculate review stats per vendor
+      const reviewStats = new Map<string, { total: number; count: number }>();
+      reviews?.forEach(r => {
+        const existing = reviewStats.get(r.vendor_user_id) || { total: 0, count: 0 };
+        reviewStats.set(r.vendor_user_id, {
+          total: existing.total + r.rating,
+          count: existing.count + 1,
+        });
+      });
+
+      // Filter and enrich packages
+      const enrichedPackages = packages
+        .filter(pkg => profileMap.has(pkg.user_id))
+        .map(pkg => {
+          const profile = profileMap.get(pkg.user_id);
+          const details = detailsMap.get(pkg.user_id);
+          const stats = reviewStats.get(pkg.user_id) || { total: 0, count: 0 };
+          const avgRating = stats.count > 0 ? stats.total / stats.count : 0;
+
+          return {
+            id: pkg.id,
+            name: pkg.name,
+            price: pkg.price,
+            type: pkg.type,
+            cover_image_url: pkg.cover_image_url || details?.cover_image_url || null,
+            category: pkg.category,
+            vendor_user_id: pkg.user_id,
+            vendor_name: profile?.display_name || 'Event Pro',
+            vendor_city: profile?.primary_city || null,
+            avg_rating: Math.round(avgRating * 10) / 10,
+            is_verified: profile?.stripe_account_status === 'active' && 
+                        profile?.identity_verification_status === 'verified',
+            instant_book: pkg.instant_book || false,
+          };
+        })
+        .slice(0, limit);
+
+      return enrichedPackages;
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: categoryIds.length > 0,
+  });
+}
