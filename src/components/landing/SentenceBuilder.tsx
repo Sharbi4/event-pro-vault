@@ -104,8 +104,8 @@ export function SentenceBuilder({
               {location || 'city'}
             </span>
           </button>
-        </PopoverTrigger>
-        <PopoverContent className="w-72 md:w-80 p-3 md:p-4" align="start">
+      </PopoverTrigger>
+        <PopoverContent className="w-72 md:w-80 p-3 md:p-4 overflow-visible" align="start">
           <LocationAutocomplete
             value={location}
             onChange={onLocationChange}
@@ -115,6 +115,7 @@ export function SentenceBuilder({
             }}
             placeholder="Enter city or zip code"
             className="text-sm md:text-base"
+            showGeolocation={true}
           />
         </PopoverContent>
       </Popover>

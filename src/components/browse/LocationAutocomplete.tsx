@@ -72,8 +72,15 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
       async (position) => {
         const { latitude, longitude } = position.coords;
 
-        if (geocoderRef.current && isLoaded) {
-          geocoderRef.current.geocode(
+        // Try to use geocoder if available, or create one on-demand
+        let geocoder = geocoderRef.current;
+        if (!geocoder && isLoaded && apiKey && window.google?.maps?.Geocoder) {
+          geocoder = new google.maps.Geocoder();
+          geocoderRef.current = geocoder;
+        }
+
+        if (geocoder) {
+          geocoder.geocode(
             { location: { lat: latitude, lng: longitude } },
             (results, status) => {
               setIsGeolocating(false);
@@ -135,7 +142,7 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
     );
-  }, [isLoaded, onChange, onPlaceSelect]);
+  }, [isLoaded, apiKey, onChange, onPlaceSelect]);
 
   // Fetch suggestions when input changes
   const fetchSuggestions = useCallback((input: string) => {
@@ -294,7 +301,7 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
 
       {/* Suggestions dropdown */}
       {isOpen && suggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-50 min-w-[280px] -ml-4">
+        <div data-location-dropdown className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-[100] min-w-[280px] -ml-4">
           <div className="py-2">
             {suggestions.map((prediction) => (
               <button
