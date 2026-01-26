@@ -2,13 +2,11 @@ import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
-  Sparkles, Store, Calendar, Clock, CreditCard, 
+  Sparkles, Calendar, Clock, CreditCard, 
   CheckCircle, ArrowRight, Zap, Shield, Info,
-  CalendarDays, Repeat, DollarSign, Package, MapPin,
-  Users, TrendingUp
+  DollarSign, Package, MapPin, Users
 } from 'lucide-react';
 import { useState } from 'react';
-import { ProfileTypeModal } from '@/components/layout/ProfileTypeModal';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { setAuthIntent } from '@/lib/authIntent';
@@ -24,7 +22,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AvailabilityDemoWidget } from '@/components/learn/AvailabilityDemoWidget';
 
 const eventProSteps = [
@@ -34,30 +31,26 @@ const eventProSteps = [
   { step: 4, title: 'Get booked and paid', description: 'Customers find you and book directly with secure payments.' },
 ];
 
-const marketSteps = [
-  { step: 1, title: 'Create your market listing', description: 'Add location, schedule, and market details.' },
-  { step: 2, title: 'Create slot types', description: 'Define booth sizes, amenities, and pricing.' },
-  { step: 3, title: 'Add inventory days', description: 'Set available spots per market day (weekly/biweekly/custom).' },
-  { step: 4, title: 'Vendors reserve spots instantly', description: 'Vendors book and pay online automatically.' },
-];
-
 const faqs = [
   {
     q: 'Do I need an account to browse?',
-    a: 'Nope. Browse freely—create an account when you\'re ready to book, reserve, or list.',
+    a: 'Nope. Browse freely—create an account when you\'re ready to book or list your services.',
   },
   {
     q: 'What makes EventPro different?',
     a: 'Availability-first search. You don\'t just find vendors—you find packages that are actually available for your date and time.',
   },
   {
-    q: 'Can I list as both an Event Pro and a Market?',
-    a: 'Yes. You can switch modes from your dashboard menu anytime.',
+    q: 'How do I get started as an Event Pro?',
+    a: 'Create your free profile, add your packages with pricing and availability, then publish when you\'re ready to receive bookings.',
+  },
+  {
+    q: 'Can I offer both online and cash payments?',
+    a: 'Yes. Choose "Both" and customers can pick their preferred payment method at checkout.',
   },
 ];
 
 export default function Learn() {
-  const [profileModalOpen, setProfileModalOpen] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -70,18 +63,6 @@ export default function Learn() {
         profileType: 'EVENT_PRO',
       });
       navigate('/auth?intent=EVENT_PRO_ONBOARDING&profileType=EVENT_PRO');
-    }
-  };
-
-  const handleListMarket = () => {
-    if (user) {
-      navigate('/marketspace/create');
-    } else {
-      setAuthIntent({
-        intent: 'MARKET_ONBOARDING',
-        profileType: 'MARKET_SPACE',
-      });
-      navigate('/auth?intent=MARKET_ONBOARDING&profileType=MARKET_SPACE');
     }
   };
 
@@ -112,25 +93,21 @@ export default function Learn() {
                     <p className="text-sm">Results update based on your selected date and time—no guessing, no back-and-forth.</p>
                   </TooltipContent>
                 </Tooltip>
-                —bookable packages for events, and open vendor spots for markets.
+                —bookable packages from trusted event professionals.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8">
                 <Button 
                   variant="darkShine" 
                   size="lg"
-                  onClick={() => setProfileModalOpen(true)}
+                  onClick={handleListService}
                 >
-                  Create free profile
+                  Become an Event Pro
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
-              </div>
-              <div className="flex flex-wrap justify-center gap-4 mt-4">
-                <Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Explore Event Pros
-                </Link>
-                <span className="text-muted-foreground">•</span>
-                <Link to="/markets" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Explore Markets
+                <Link to="/">
+                  <Button variant="outline" size="lg">
+                    Browse packages
+                  </Button>
                 </Link>
               </div>
             </div>
@@ -185,133 +162,82 @@ export default function Learn() {
           </div>
         </section>
 
-        {/* Two-Path Cards Section */}
+        {/* Features Section */}
         <section className="py-16 lg:py-24 bg-secondary/30">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto">
-              <div className="grid md:grid-cols-2 gap-8">
-                {/* Event Pros Card */}
-                <Card variant="elevated" className="p-8">
-                  <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center mb-4">
-                    <Sparkles className="w-6 h-6 text-primary-foreground" />
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-4">
+                Why Event Pros choose EventPro
+              </h2>
+              <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
+                Turn your service into bookable packages with flexible pricing and booking options.
+              </p>
+              
+              <div className="grid md:grid-cols-3 gap-8">
+                <Card variant="elevated" className="p-6">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                    <Calendar className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mb-3">
-                    Turn your service into bookable packages
-                  </h3>
-                  <p className="text-muted-foreground mb-6">
-                    Create packages, set availability per package, and choose how customers pay—online, cash, or both.
+                  <h3 className="font-bold text-foreground mb-2">Availability-first discovery</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Your packages appear when you're actually available. No more back-and-forth scheduling.
                   </p>
-                  <ul className="space-y-3 mb-6">
-                    <li className="flex items-start gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                      <span>Show up in search when you're available</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                      <span>Instant Book or review requests</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                      <span>Travel radius + pricing validated at checkout</span>
-                    </li>
-                  </ul>
-                  <Link to="/learn/event-pros">
-                    <Button variant="outline" className="w-full gap-2">
-                      Learn more for Event Pros
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
                 </Card>
 
-                {/* Markets Card */}
-                <Card variant="elevated" className="p-8">
-                  <div className="w-12 h-12 rounded-xl bg-accent flex items-center justify-center mb-4">
-                    <Store className="w-6 h-6 text-accent-foreground" />
+                <Card variant="elevated" className="p-6">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                    <Zap className="w-6 h-6 text-primary" />
                   </div>
-                  <h3 className="text-xl font-bold text-foreground mb-3">
-                    Fill vendor spots with real slot inventory
-                  </h3>
-                  <p className="text-muted-foreground mb-6">
-                    Post your market, create slot types, then add days and counts—vendors reserve instantly.
+                  <h3 className="font-bold text-foreground mb-2">Instant or request booking</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Choose Instant Book for auto-confirmation or Request to Book when you need to review first.
                   </p>
-                  <ul className="space-y-3 mb-6">
-                    <li className="flex items-start gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-accent mt-0.5 shrink-0" />
-                      <span>Slot types with sizes + amenities</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-accent mt-0.5 shrink-0" />
-                      <span>"Spots left" FOMO on every listing</span>
-                    </li>
-                    <li className="flex items-start gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-accent mt-0.5 shrink-0" />
-                      <span>Weekly series bookings (4/8/12 weeks)</span>
-                    </li>
-                  </ul>
-                  <Link to="/learn/markets">
-                    <Button variant="outline" className="w-full gap-2">
-                      Learn more for Markets
-                      <ArrowRight className="w-4 h-4" />
-                    </Button>
-                  </Link>
+                </Card>
+
+                <Card variant="elevated" className="p-6">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                    <CreditCard className="w-6 h-6 text-primary" />
+                  </div>
+                  <h3 className="font-bold text-foreground mb-2">Flexible payments</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Accept online payments, cash, or both. Connect Stripe for secure online transactions.
+                  </p>
                 </Card>
               </div>
             </div>
           </div>
         </section>
 
-        {/* How It Works Toggle Section */}
+        {/* How It Works Section */}
         <section className="py-16 lg:py-24">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-12">
                 How it works
               </h2>
               
-              <Tabs defaultValue="event-pros" className="w-full">
-                <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 mb-8">
-                  <TabsTrigger value="event-pros" className="gap-2">
-                    <Sparkles className="w-4 h-4" />
-                    Event Pros
-                  </TabsTrigger>
-                  <TabsTrigger value="markets" className="gap-2">
-                    <Store className="w-4 h-4" />
-                    Markets
-                  </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="event-pros">
-                  <Card variant="elevated" className="p-8">
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                      {eventProSteps.map((step) => (
-                        <div key={step.step} className="relative">
-                          <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold mb-3">
-                            {step.step}
-                          </div>
-                          <h4 className="font-semibold text-foreground mb-1">{step.title}</h4>
-                          <p className="text-sm text-muted-foreground">{step.description}</p>
-                        </div>
-                      ))}
+              <Card variant="elevated" className="p-8">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {eventProSteps.map((step) => (
+                    <div key={step.step} className="relative">
+                      <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-bold mb-4">
+                        {step.step}
+                      </div>
+                      <h4 className="font-semibold text-foreground mb-2">{step.title}</h4>
+                      <p className="text-sm text-muted-foreground">{step.description}</p>
                     </div>
-                  </Card>
-                </TabsContent>
-                
-                <TabsContent value="markets">
-                  <Card variant="elevated" className="p-8">
-                    <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                      {marketSteps.map((step) => (
-                        <div key={step.step} className="relative">
-                          <div className="w-8 h-8 rounded-full bg-accent text-accent-foreground flex items-center justify-center text-sm font-bold mb-3">
-                            {step.step}
-                          </div>
-                          <h4 className="font-semibold text-foreground mb-1">{step.title}</h4>
-                          <p className="text-sm text-muted-foreground">{step.description}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                </TabsContent>
-              </Tabs>
+                  ))}
+                </div>
+              </Card>
+
+              <div className="text-center mt-8">
+                <Link to="/learn/event-pros">
+                  <Button variant="outline" className="gap-2">
+                    Learn more about becoming an Event Pro
+                    <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
             </div>
           </div>
         </section>
@@ -364,7 +290,7 @@ export default function Learn() {
                 </Tooltip>
               </h2>
               
-              <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto mt-8">
+              <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mt-8">
                 <Card variant="elevated" className="p-6 text-left">
                   <div className="flex items-center gap-2 mb-3">
                     <Users className="w-5 h-5 text-trust" />
@@ -382,16 +308,6 @@ export default function Learn() {
                   </div>
                   <p className="text-sm text-muted-foreground">
                     A 12.9% commission is deducted from your earnings. Your net payout is shown in your dashboard after each booking.
-                  </p>
-                </Card>
-
-                <Card variant="elevated" className="p-6 text-left">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Store className="w-5 h-5 text-accent" />
-                    <span className="font-semibold text-foreground">Market Managers</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    A 12.9% commission plus Stripe fees are deducted from your slot price. Payouts are released 24h after each event.
                   </p>
                 </Card>
               </div>
@@ -428,35 +344,30 @@ export default function Learn() {
           <div className="container mx-auto px-4">
             <div className="max-w-3xl mx-auto text-center">
               <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
-                Ready to get listed?
+                Ready to get booked?
               </h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Create your free profile and publish when you're ready.
+                Create your Event Pro profile and start receiving bookings.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
                   variant="darkShine" 
                   size="lg"
-                  onClick={() => setProfileModalOpen(true)}
+                  onClick={handleListService}
                 >
-                  Create free profile
+                  Become an Event Pro
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
-                <Link to="/how-it-works">
+                <Link to="/">
                   <Button variant="outline" size="lg">
-                    Learn how it works
+                    Browse packages
                   </Button>
                 </Link>
               </div>
             </div>
           </div>
         </section>
-
-        <ProfileTypeModal 
-          open={profileModalOpen} 
-          onOpenChange={setProfileModalOpen} 
-        />
       </TooltipProvider>
     </Layout>
   );
