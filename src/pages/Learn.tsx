@@ -5,7 +5,6 @@ import {
   Sparkles, Calendar, Clock, CreditCard, 
   CheckCircle, ArrowRight, Zap, Shield, Info
 } from 'lucide-react';
-import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { setAuthIntent } from '@/lib/authIntent';
@@ -22,6 +21,20 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { AvailabilityDemoWidget } from '@/components/learn/AvailabilityDemoWidget';
+
+// Import service category images
+import cateringImage from '@/assets/learn/catering-hero.jpg';
+import weddingCakeImage from '@/assets/learn/wedding-cake.jpg';
+import photographerImage from '@/assets/learn/photographer-action.jpg';
+import bartenderImage from '@/assets/learn/mobile-bartender.jpg';
+
+// Service category showcase data
+const serviceShowcase = [
+  { name: 'Catering', image: cateringImage, label: 'Gourmet Catering' },
+  { name: 'Cakes', image: weddingCakeImage, label: 'Wedding Cakes' },
+  { name: 'Photography', image: photographerImage, label: 'Event Photography' },
+  { name: 'Bartending', image: bartenderImage, label: 'Mobile Bartenders' },
+];
 
 const eventProSteps = [
   { step: 1, title: 'Create your profile', description: 'Add your name/business, bio, categories, service area, and media.' },
@@ -68,11 +81,11 @@ export default function Learn() {
   return (
     <Layout>
       <TooltipProvider>
-        {/* Hero Section */}
+        {/* Hero Section with Service Images */}
         <section className="relative py-20 lg:py-28 overflow-hidden">
           <div className="hero-gradient-bg" />
           <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-3xl mx-auto text-center">
+            <div className="max-w-3xl mx-auto text-center mb-12">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
                 Book what's available.
                 <br />
@@ -109,6 +122,26 @@ export default function Learn() {
                   </Button>
                 </Link>
               </div>
+            </div>
+            
+            {/* Service Category Image Grid */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto">
+              {serviceShowcase.map((service) => (
+                <div 
+                  key={service.name}
+                  className="relative group overflow-hidden rounded-xl aspect-[4/3] shadow-lg"
+                >
+                  <img 
+                    src={service.image} 
+                    alt={service.label}
+                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute bottom-3 left-3 right-3">
+                    <span className="text-white font-medium text-sm">{service.label}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -161,7 +194,7 @@ export default function Learn() {
           </div>
         </section>
 
-        {/* Features Section */}
+        {/* Features Section with Inline Images */}
         <section className="py-16 lg:py-24 bg-secondary/30">
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto">
@@ -171,6 +204,34 @@ export default function Learn() {
               <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
                 Turn your service into bookable packages with flexible pricing and booking options.
               </p>
+              
+              {/* Image Banner */}
+              <div className="grid grid-cols-2 gap-4 mb-12">
+                <div className="relative overflow-hidden rounded-xl aspect-video">
+                  <img 
+                    src={photographerImage} 
+                    alt="Event photographer capturing moments"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
+                  <div className="absolute bottom-4 left-4 text-white">
+                    <p className="font-semibold">Photographers</p>
+                    <p className="text-sm opacity-80">Capture every moment</p>
+                  </div>
+                </div>
+                <div className="relative overflow-hidden rounded-xl aspect-video">
+                  <img 
+                    src={cateringImage} 
+                    alt="Professional catering setup"
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/50 to-transparent" />
+                  <div className="absolute bottom-4 left-4 text-white">
+                    <p className="font-semibold">Caterers</p>
+                    <p className="text-sm opacity-80">Delicious food service</p>
+                  </div>
+                </div>
+              </div>
               
               <div className="grid md:grid-cols-3 gap-8">
                 <Card variant="elevated" className="p-6">
@@ -241,31 +302,58 @@ export default function Learn() {
           </div>
         </section>
 
-        {/* Trust & Payouts Section */}
+        {/* Trust & Payouts Section with Images */}
         <section className="py-16 lg:py-24 bg-secondary/30">
           <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <div className="w-12 h-12 rounded-xl bg-trust mx-auto flex items-center justify-center mb-4">
-                <Shield className="w-6 h-6 text-trust-foreground" />
+            <div className="max-w-5xl mx-auto">
+              <div className="grid lg:grid-cols-2 gap-12 items-center">
+                {/* Images */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="relative overflow-hidden rounded-xl aspect-square">
+                    <img 
+                      src={weddingCakeImage} 
+                      alt="Beautiful wedding cake"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <div className="relative overflow-hidden rounded-xl aspect-square mt-8">
+                    <img 
+                      src={bartenderImage} 
+                      alt="Mobile bartender at event"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+                
+                {/* Content */}
+                <div className="text-center lg:text-left">
+                  <div className="w-12 h-12 rounded-xl bg-trust mx-auto lg:mx-0 flex items-center justify-center mb-4">
+                    <Shield className="w-6 h-6 text-trust-foreground" />
+                  </div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                    Payments that feel professional
+                  </h2>
+                  <p className="text-lg text-muted-foreground mb-6">
+                    Connect{' '}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="underline decoration-dotted cursor-help inline-flex items-center gap-1">
+                          Stripe
+                          <Info className="w-4 h-4" />
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs">
+                        <p className="text-sm">Stripe securely handles payouts and identity verification. Your bank info stays with Stripe.</p>
+                      </TooltipContent>
+                    </Tooltip>
+                    {' '}to accept online payments and receive payouts securely. We never store your bank details.
+                  </p>
+                  <p className="text-muted-foreground">
+                    Whether you're a baker creating stunning cakes or a mobile bartender crafting cocktails, 
+                    get paid seamlessly for every booking.
+                  </p>
+                </div>
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-                Payments that feel professional
-              </h2>
-              <p className="text-lg text-muted-foreground mb-6">
-                Connect{' '}
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="underline decoration-dotted cursor-help inline-flex items-center gap-1">
-                      Stripe
-                      <Info className="w-4 h-4" />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="text-sm">Stripe securely handles payouts and identity verification. Your bank info stays with Stripe.</p>
-                  </TooltipContent>
-                </Tooltip>
-                {' '}to accept online payments and receive payouts securely. We never store your bank details.
-              </p>
             </div>
           </div>
         </section>
