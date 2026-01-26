@@ -17,6 +17,8 @@ export type Database = {
       bookings: {
         Row: {
           add_ons: string[] | null
+          address_line1: string | null
+          address_line2: string | null
           booking_mode: string | null
           breakdown_minutes: number | null
           created_at: string
@@ -26,8 +28,11 @@ export type Database = {
           deposit_percentage: number | null
           duration_minutes: number | null
           end_time: string | null
+          event_city: string | null
           event_date: string
           event_location: string
+          event_state: string | null
+          event_zip: string | null
           final_amount: number | null
           final_paid_at: string | null
           id: string
@@ -54,6 +59,8 @@ export type Database = {
         }
         Insert: {
           add_ons?: string[] | null
+          address_line1?: string | null
+          address_line2?: string | null
           booking_mode?: string | null
           breakdown_minutes?: number | null
           created_at?: string
@@ -63,8 +70,11 @@ export type Database = {
           deposit_percentage?: number | null
           duration_minutes?: number | null
           end_time?: string | null
+          event_city?: string | null
           event_date: string
           event_location: string
+          event_state?: string | null
+          event_zip?: string | null
           final_amount?: number | null
           final_paid_at?: string | null
           id?: string
@@ -91,6 +101,8 @@ export type Database = {
         }
         Update: {
           add_ons?: string[] | null
+          address_line1?: string | null
+          address_line2?: string | null
           booking_mode?: string | null
           breakdown_minutes?: number | null
           created_at?: string
@@ -100,8 +112,11 @@ export type Database = {
           deposit_percentage?: number | null
           duration_minutes?: number | null
           end_time?: string | null
+          event_city?: string | null
           event_date?: string
           event_location?: string
+          event_state?: string | null
+          event_zip?: string | null
           final_amount?: number | null
           final_paid_at?: string | null
           id?: string
@@ -660,6 +675,8 @@ export type Database = {
       }
       slot_bookings: {
         Row: {
+          address_line1: string | null
+          address_line2: string | null
           arrival_time: string | null
           base_amount: number | null
           booth_size: string | null
@@ -691,13 +708,18 @@ export type Database = {
           updated_at: string
           user_id: string | null
           vendor_category: string | null
+          vendor_city: string | null
           vendor_email: string | null
           vendor_name: string | null
           vendor_phone: string | null
+          vendor_state: string | null
           vendor_type: string | null
           vendor_user_id: string
+          vendor_zip: string | null
         }
         Insert: {
+          address_line1?: string | null
+          address_line2?: string | null
           arrival_time?: string | null
           base_amount?: number | null
           booth_size?: string | null
@@ -729,13 +751,18 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           vendor_category?: string | null
+          vendor_city?: string | null
           vendor_email?: string | null
           vendor_name?: string | null
           vendor_phone?: string | null
+          vendor_state?: string | null
           vendor_type?: string | null
           vendor_user_id: string
+          vendor_zip?: string | null
         }
         Update: {
+          address_line1?: string | null
+          address_line2?: string | null
           arrival_time?: string | null
           base_amount?: number | null
           booth_size?: string | null
@@ -767,11 +794,14 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           vendor_category?: string | null
+          vendor_city?: string | null
           vendor_email?: string | null
           vendor_name?: string | null
           vendor_phone?: string | null
+          vendor_state?: string | null
           vendor_type?: string | null
           vendor_user_id?: string
+          vendor_zip?: string | null
         }
         Relationships: [
           {
@@ -1023,6 +1053,8 @@ export type Database = {
         Row: {
           accepts_cash: boolean | null
           accepts_stripe: boolean | null
+          address_line1: string | null
+          address_line2: string | null
           base_location_lat: number | null
           base_location_lng: number | null
           business_description: string | null
@@ -1045,10 +1077,13 @@ export type Database = {
           updated_at: string
           user_id: string
           website_url: string | null
+          zip_code: string | null
         }
         Insert: {
           accepts_cash?: boolean | null
           accepts_stripe?: boolean | null
+          address_line1?: string | null
+          address_line2?: string | null
           base_location_lat?: number | null
           base_location_lng?: number | null
           business_description?: string | null
@@ -1071,10 +1106,13 @@ export type Database = {
           updated_at?: string
           user_id: string
           website_url?: string | null
+          zip_code?: string | null
         }
         Update: {
           accepts_cash?: boolean | null
           accepts_stripe?: boolean | null
+          address_line1?: string | null
+          address_line2?: string | null
           base_location_lat?: number | null
           base_location_lng?: number | null
           business_description?: string | null
@@ -1097,6 +1135,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           website_url?: string | null
+          zip_code?: string | null
         }
         Relationships: []
       }
