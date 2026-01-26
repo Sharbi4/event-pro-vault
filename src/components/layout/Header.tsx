@@ -88,7 +88,7 @@ export function Header() {
               <img 
                 src={logo} 
                 alt="Event Pro by Vendibook" 
-                className={`w-auto transition-all duration-300 ${isScrolled ? 'h-14 lg:h-16' : 'h-16 lg:h-[72px]'}`}
+                className={`w-auto transition-all duration-300 ${isScrolled ? 'h-28 lg:h-32' : 'h-32 lg:h-36'}`}
               />
             </Link>
 
