@@ -31,9 +31,11 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
   const [isGeolocating, setIsGeolocating] = useState(false);
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false);
   const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
   const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null);
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
+  const blurTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { isLoaded, apiKey } = useGoogleMaps();
@@ -148,15 +150,20 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
   const fetchSuggestions = useCallback((input: string) => {
     if (!input.trim() || !autocompleteServiceRef.current) {
       setSuggestions([]);
+      setIsLoadingSuggestions(false);
       return;
     }
+
+    setIsLoadingSuggestions(true);
 
     autocompleteServiceRef.current.getPlacePredictions(
       {
         input,
         types: ['(cities)'], // Focus on cities for location search
+        componentRestrictions: { country: 'us' }, // Restrict to US for better results
       },
       (predictions, status) => {
+        setIsLoadingSuggestions(false);
         if (status === google.maps.places.PlacesServiceStatus.OK && predictions) {
           setSuggestions(predictions);
           setIsOpen(true);
@@ -227,7 +234,13 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      // Clean up blur timeout on unmount
+      if (blurTimeoutRef.current) {
+        clearTimeout(blurTimeoutRef.current);
+      }
+    };
   }, []);
 
   // If no API key, show basic input with geolocation
@@ -273,9 +286,17 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
           onFocus={() => {
             setIsFocused(true);
             if (suggestions.length > 0) setIsOpen(true);
+            // Clear any pending blur timeout
+            if (blurTimeoutRef.current) {
+              clearTimeout(blurTimeoutRef.current);
+              blurTimeoutRef.current = null;
+            }
           }}
           onBlur={() => {
-            setTimeout(() => setIsFocused(false), 200);
+            // Delay blur to allow click events on suggestions
+            blurTimeoutRef.current = setTimeout(() => {
+              setIsFocused(false);
+            }, 300);
           }}
           className="bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-sm w-full"
         />
@@ -294,6 +315,9 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
             )}
           </button>
         )}
+        {isLoadingSuggestions && (
+          <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
+        )}
         {!isLoaded && apiKey && (
           <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
         )}
@@ -301,7 +325,15 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
 
       {/* Suggestions dropdown */}
       {isOpen && suggestions.length > 0 && (
-        <div data-location-dropdown className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-xl overflow-hidden z-[100] min-w-[280px] -ml-4">
+        <div 
+          data-location-dropdown 
+          className="absolute top-full left-0 right-0 mt-2 bg-card border border-border rounded-xl shadow-2xl overflow-hidden z-[9999] min-w-[280px]"
+          style={{ marginLeft: '-1rem' }}
+          onMouseDown={(e) => {
+            // Prevent blur from firing when clicking on dropdown
+            e.preventDefault();
+          }}
+        >
           <div className="py-2">
             {suggestions.map((prediction) => (
               <button

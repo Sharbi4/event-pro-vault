@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useAuth } from '@/contexts/AuthContext';
-import { Menu, LogOut, LayoutDashboard, MessageCircle } from 'lucide-react';
+import { Menu, LogOut, LayoutDashboard, MessageCircle, Loader2 } from 'lucide-react';
 import { ModeSwitcher } from '@/components/layout/ModeSwitcher';
 import { ProfileTypeModal } from '@/components/layout/ProfileTypeModal';
 import logo from '@/assets/eventpro-logo.png';
@@ -22,6 +22,7 @@ export default function SentenceLanding() {
   const [location_, setLocation] = useState<string>('');
   const [date, setDate] = useState<Date | undefined>();
   const [isComplete, setIsComplete] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
   const [userInitial, setUserInitial] = useState<string>('U');
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -53,12 +54,17 @@ export default function SentenceLanding() {
   }, [user]);
 
   const handleReveal = () => {
+    setIsSearching(true);
+    
     const params = new URLSearchParams();
     if (eventType) params.set('event', eventType);
     if (location_) params.set('location', location_);
     if (date) params.set('date', date.toISOString().split('T')[0]);
     
-    navigate(`/discover?${params.toString()}`);
+    // Small delay for visual feedback
+    setTimeout(() => {
+      navigate(`/discover?${params.toString()}`);
+    }, 500);
   };
 
   const navLinkClass = (path: string) =>
@@ -72,6 +78,47 @@ export default function SentenceLanding() {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 relative overflow-hidden">
       {/* Cinematic Background Slideshow */}
       <BackgroundSlideshow isComplete={isComplete} interval={7000} />
+
+      {/* Search Loading Overlay */}
+      <AnimatePresence>
+        {isSearching && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-background/90 backdrop-blur-md flex flex-col items-center justify-center"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="flex flex-col items-center gap-6"
+            >
+              <div className="relative">
+                <motion.div
+                  className="w-20 h-20 border-2 border-primary/30 rounded-full"
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+                <motion.div
+                  className="absolute inset-0 w-20 h-20 border-2 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full"
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+              </div>
+              <div className="text-center">
+                <h3 className="text-xl font-semibold text-foreground mb-2">
+                  Finding perfect matches...
+                </h3>
+                <p className="text-muted-foreground text-sm">
+                  Searching {eventType ? eventType.toLowerCase() + ' services' : 'all services'}
+                  {location_ && ` in ${location_}`}
+                </p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main content */}
       <motion.div 
@@ -94,7 +141,7 @@ export default function SentenceLanding() {
 
         {/* Reveal Button - fades in when complete */}
         <AnimatePresence>
-          {isComplete && (
+          {isComplete && !isSearching && (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
