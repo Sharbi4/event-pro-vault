@@ -57,6 +57,7 @@ const App = () => (
               
               <Route path="/vendor/:id" element={<VendorProfile />} />
               <Route path="/pro/:id" element={<ProProfile />} />
+              <Route path="/eventpro/:username" element={<ProProfile />} />
               <Route path="/package/:id" element={<PackageDetail />} />
               <Route path="/become-a-pro" element={<BecomePro />} />
               <Route path="/how-it-works" element={<HowItWorks />} />

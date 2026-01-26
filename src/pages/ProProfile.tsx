@@ -1,5 +1,6 @@
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,17 +14,44 @@ import {
 import { useVendorProfile } from '@/hooks/useVendorProfile';
 import { cn } from '@/lib/utils';
 import { ShareButton } from '@/components/shared/ShareButton';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function ProProfile() {
-  const { id } = useParams();
+  const { id, username } = useParams();
+  const location = useLocation();
+  const [resolvedUserId, setResolvedUserId] = useState<string | undefined>(id);
+  const [resolvingUsername, setResolvingUsername] = useState(false);
+
+  // If we have a username instead of id, resolve it to user_id
+  useEffect(() => {
+    if (username && !id) {
+      setResolvingUsername(true);
+      supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('username', username)
+        .single()
+        .then(({ data, error }) => {
+          if (data?.user_id) {
+            setResolvedUserId(data.user_id);
+          }
+          setResolvingUsername(false);
+        });
+    } else if (id) {
+      setResolvedUserId(id);
+    }
+  }, [id, username]);
+
   const { 
     profile, 
     packages, 
-    loading, 
+    loading: profileLoading, 
     error,
     avgRating,
     totalReviews
-  } = useVendorProfile(id);
+  } = useVendorProfile(resolvedUserId);
+
+  const loading = profileLoading || resolvingUsername;
 
   if (loading) {
     return (
@@ -91,7 +119,7 @@ export default function ProProfile() {
             Back to browse
           </Link>
           <ShareButton
-            url={`/pro/${id}`}
+            url={profile.username ? `/eventpro/${profile.username}` : `/pro/${resolvedUserId}`}
             title={profile.displayName || profile.businessName || 'Event Pro'}
             text={`Check out ${profile.displayName || profile.businessName} on Event Pro!`}
           />
