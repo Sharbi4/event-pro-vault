@@ -93,29 +93,31 @@ export default function SentenceLanding() {
         </AnimatePresence>
       </motion.div>
 
-      {/* Logo - Top Left, Clean (no background) */}
-      <motion.div 
-        className="absolute top-6 left-6 md:top-8 md:left-8 z-20"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <Link to="/" className="block transition-transform duration-200 hover:scale-105">
-          <img 
-            src={logo} 
-            alt="Event Pro" 
-            className="h-32 md:h-40 w-auto drop-shadow-md"
-          />
-        </Link>
-      </motion.div>
+      {/* Top Navigation Bar - Logo aligned with Actions */}
+      <div className="absolute top-0 left-0 right-0 z-20 px-6 md:px-8 py-6 md:py-8">
+        <div className="flex items-center justify-between">
+          {/* Logo - Left */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+          >
+            <Link to="/" className="block transition-transform duration-200 hover:scale-105">
+              <img 
+                src={logo} 
+                alt="Event Pro" 
+                className="h-32 md:h-40 w-auto drop-shadow-md"
+              />
+            </Link>
+          </motion.div>
 
-      {/* Top Right Actions */}
-      <motion.div 
-        className="absolute top-6 right-6 md:top-8 md:right-8 z-20 flex items-center gap-3"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.3 }}
-      >
+          {/* Top Right Actions */}
+          <motion.div 
+            className="flex items-center gap-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+          >
         {user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -163,8 +165,10 @@ export default function SentenceLanding() {
               Create Profile
             </Button>
           </>
-        )}
-      </motion.div>
+          )}
+          </motion.div>
+        </div>
+      </div>
 
       {/* Footer - Bottom Center */}
       <motion.div 
