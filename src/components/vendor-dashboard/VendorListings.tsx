@@ -16,7 +16,7 @@ import {
 } from '@dnd-kit/sortable';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Crown } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,6 +34,8 @@ import { toast } from '@/hooks/use-toast';
 import { PackageWeeklyAvailability, PackageBlockedDate } from './package-form/StepAvailability';
 import { savePackageAvailability } from '@/hooks/usePackageAvailability';
 import { useAuth } from '@/contexts/AuthContext';
+import { useProSubscription } from '@/hooks/useProSubscription';
+import PremiumUpgradeModal from './PremiumUpgradeModal';
 
 interface VendorListingsProps {
   packages: VendorPackage[];
@@ -53,11 +55,23 @@ export function VendorListings({
   onReorder
 }: VendorListingsProps) {
   const { user } = useAuth();
+  const { packageLimit, tier, startCheckout, checkoutLoading } = useProSubscription();
   const [editingPackage, setEditingPackage] = useState<VendorPackage | null>(null);
   const [isCreating, setIsCreating] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [packageToDelete, setPackageToDelete] = useState<VendorPackage | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const previousOrderRef = useRef<VendorPackage[] | null>(null);
+
+  const canCreatePackage = packages.length < packageLimit;
+
+  const handleAddPackage = () => {
+    if (canCreatePackage) {
+      setIsCreating(true);
+    } else {
+      setShowUpgradeModal(true);
+    }
+  };
 
   const handleSaveWithAvailability = async (
     data: Omit<VendorPackage, 'id' | 'user_id' | 'created_at' | 'updated_at'>,
@@ -160,14 +174,20 @@ export function VendorListings({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-bold">Your Packages</h2>
-          <p className="text-sm text-muted-foreground">
-            {packages.length}/20 packages • Drag or use arrow keys to reorder
+          <p className="text-sm text-muted-foreground flex items-center gap-2">
+            {packages.length}/{packageLimit} packages
+            {tier === 'premium' && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full">
+                <Crown className="w-3 h-3" />
+                Premium
+              </span>
+            )}
+            <span className="text-muted-foreground/60">• Drag or use arrow keys to reorder</span>
           </p>
         </div>
         <Button 
           variant="gradient" 
-          onClick={() => setIsCreating(true)}
-          disabled={packages.length >= 20}
+          onClick={handleAddPackage}
         >
           <Plus className="w-4 h-4 mr-2" />
           Add Package
@@ -180,7 +200,7 @@ export function VendorListings({
             <p className="text-muted-foreground mb-4">
               You haven't created any packages yet
             </p>
-            <Button variant="gradient" onClick={() => setIsCreating(true)}>
+            <Button variant="gradient" onClick={handleAddPackage}>
               <Plus className="w-4 h-4 mr-2" />
               Create Your First Package
             </Button>
@@ -260,6 +280,18 @@ export function VendorListings({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Premium Upgrade Modal */}
+      <PremiumUpgradeModal
+        open={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        onUpgrade={() => {
+          startCheckout();
+          setShowUpgradeModal(false);
+        }}
+        loading={checkoutLoading}
+        currentPackageCount={packages.length}
+      />
     </div>
   );
 }
