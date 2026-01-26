@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useVendorDashboard } from '@/hooks/useVendorDashboard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon } from 'lucide-react';
+import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles } from 'lucide-react';
 import { VendorOverview } from '@/components/vendor-dashboard/VendorOverview';
 import { VendorBookings } from '@/components/vendor-dashboard/VendorBookings';
 import { VendorListings } from '@/components/vendor-dashboard/VendorListings';
@@ -100,6 +100,14 @@ const VendorDashboard = () => {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/eventpro-best-practices')} 
+              className="gap-2 border-primary/30 hover:bg-primary/5"
+            >
+              <Sparkles className="w-4 h-4 text-primary" />
+              Best Practices Guide
+            </Button>
             <Button variant="outline" onClick={() => navigate(`/vendor/${user.id}`)} className="gap-2">
               <ExternalLink className="w-4 h-4" />
               View Public Profile

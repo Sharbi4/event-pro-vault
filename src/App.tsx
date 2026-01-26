@@ -28,6 +28,7 @@ import Dashboard from "./pages/Dashboard";
 import VendorDashboard from "./pages/VendorDashboard";
 import VendorOnboarding from "./pages/VendorOnboarding";
 import EventProOnboarding from "./pages/EventProOnboarding";
+import EventProBestPractices from "./pages/EventProBestPractices";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
 
@@ -68,6 +69,7 @@ const App = () => (
               <Route path="/vendor-dashboard" element={<VendorDashboard />} />
               <Route path="/vendor-onboarding" element={<VendorOnboarding />} />
               <Route path="/eventpro-onboarding" element={<EventProOnboarding />} />
+              <Route path="/eventpro-best-practices" element={<EventProBestPractices />} />
               <Route path="/onboarding" element={<Onboarding />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
