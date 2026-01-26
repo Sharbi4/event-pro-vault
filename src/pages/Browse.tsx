@@ -4,6 +4,7 @@ import { CategoryCarousel } from '@/components/browse/CategoryCarousel';
 import { BrowsePackageCard } from '@/components/browse/BrowsePackageCard';
 import { BrowsePackageMap } from '@/components/browse/BrowsePackageMap';
 import { SearchModal } from '@/components/browse/SearchModal';
+import { InlineNewsletterCard } from '@/components/browse/InlineNewsletterCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -370,15 +371,32 @@ export default function Browse() {
           {/* Package Grid */}
           {!loading && packages.length > 0 && viewMode === 'grid' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {packages.map((pkg, index) => (
-                <div 
-                  key={pkg.id} 
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 0.03}s` }}
-                >
-                  <BrowsePackageCard pkg={pkg} />
+              {packages.map((pkg, index) => {
+                // Insert newsletter card after the 4th item (index 3)
+                const showNewsletter = index === 4;
+                return (
+                  <>
+                    {showNewsletter && (
+                      <div key="newsletter" className="animate-fade-in" style={{ animationDelay: `${index * 0.03}s` }}>
+                        <InlineNewsletterCard />
+                      </div>
+                    )}
+                    <div 
+                      key={pkg.id} 
+                      className="animate-fade-in"
+                      style={{ animationDelay: `${(showNewsletter ? index + 1 : index) * 0.03}s` }}
+                    >
+                      <BrowsePackageCard pkg={pkg} />
+                    </div>
+                  </>
+                );
+              })}
+              {/* Show newsletter at end if less than 5 packages */}
+              {packages.length > 0 && packages.length < 5 && (
+                <div className="animate-fade-in">
+                  <InlineNewsletterCard />
                 </div>
-              ))}
+              )}
             </div>
           )}
 
