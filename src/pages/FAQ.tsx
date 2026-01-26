@@ -21,6 +21,7 @@ import {
   User, Store, Shield, Settings, Headphones, Info
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { ZendeskWidget } from '@/components/shared/ZendeskWidget';
 
 type FAQCategory = 
   | 'getting-started'
@@ -356,6 +357,9 @@ export default function FAQ() {
 
   return (
     <Layout>
+      {/* Zendesk Chat Widget */}
+      <ZendeskWidget />
+      
       <div className="min-h-screen bg-background pt-16 lg:pt-20">
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-secondary/50 to-background border-b border-border">

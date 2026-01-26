@@ -1,15 +1,7 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/components/ui/dialog';
 import { 
   Mail, 
   Phone, 
@@ -25,6 +17,7 @@ import {
   ArrowRight,
   X
 } from 'lucide-react';
+import { ZendeskWidget, openZendeskChat } from '@/components/shared/ZendeskWidget';
 
 const helpTopics = [
   { icon: Calendar, label: 'Booking a package', anchor: 'booking-packages' },
@@ -37,10 +30,10 @@ const helpTopics = [
 ];
 
 export default function Support() {
-  const [chatModalOpen, setChatModalOpen] = useState(false);
-
   return (
     <Layout>
+      {/* Zendesk Chat Widget */}
+      <ZendeskWidget />
       {/* Hero Section */}
       <section className="relative py-16 lg:py-24 overflow-hidden">
         {/* Background effects */}
@@ -62,7 +55,7 @@ export default function Support() {
                 variant="darkShine" 
                 size="lg" 
                 className="gap-2"
-                onClick={() => setChatModalOpen(true)}
+                onClick={openZendeskChat}
               >
                 <MessageCircle className="w-5 h-5" />
                 Chat now
@@ -231,39 +224,7 @@ export default function Support() {
             </Link>
           </div>
         </div>
-      </section>
-
-      {/* Chat Coming Soon Modal */}
-      <Dialog open={chatModalOpen} onOpenChange={setChatModalOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <MessageCircle className="w-5 h-5 text-primary" />
-              Chat is coming soon
-            </DialogTitle>
-            <DialogDescription>
-              We'll be adding live chat shortly. For now, email or call support.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col sm:flex-row gap-3 mt-4">
-            <a href="mailto:support@vendibook.com" className="flex-1">
-              <Button variant="outline" className="w-full gap-2">
-                <Mail className="w-4 h-4" />
-                Email support
-              </Button>
-            </a>
-            <a href="tel:18778836342" className="flex-1">
-              <Button variant="darkShine" className="w-full gap-2">
-                <Phone className="w-4 h-4" />
-                Call now
-              </Button>
-            </a>
-          </div>
-          <p className="text-xs text-muted-foreground text-center mt-4">
-            Zendesk chat integration will be added later.
-          </p>
-        </DialogContent>
-      </Dialog>
+        </section>
     </Layout>
   );
 }
