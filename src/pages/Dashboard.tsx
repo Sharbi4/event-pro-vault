@@ -13,6 +13,7 @@ import { useUserDashboards } from '@/hooks/useUserDashboards';
 import { useAdminReview } from '@/hooks/useAdminReview';
 import { AdminReviewTab } from '@/components/dashboard/AdminReviewTab';
 import { CancellationDialog } from '@/components/shared/CancellationDialog';
+import { DepositRefundIndicator } from '@/components/shared/DepositRefundIndicator';
 import { vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -476,6 +477,17 @@ export default function Dashboard() {
                               Balance: ${finalAmount.toFixed(0)} {finalPaid ? '✓' : ''}
                             </span>
                           </div>
+                        )}
+
+                        {/* Deposit refund eligibility indicator */}
+                        {!isCancelled && depositPaid && extBooking.deposit_amount && extBooking.deposit_amount > 0 && (
+                          <DepositRefundIndicator
+                            bookingCreatedAt={booking.created_at}
+                            eventDate={booking.event_date}
+                            depositPaidAt={depositPaid}
+                            depositAmount={extBooking.deposit_amount}
+                            className="mt-1.5"
+                          />
                         )}
 
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
