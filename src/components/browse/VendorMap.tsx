@@ -1,9 +1,7 @@
 import { useCallback, useState } from 'react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { Vendor } from '@/types';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Key, MapPin } from 'lucide-react';
+import { MapPin } from 'lucide-react';
 import { useGoogleMaps } from '@/contexts/GoogleMapsContext';
 
 // Vendor location coordinates (mock data based on their cities)
@@ -53,22 +51,10 @@ interface VendorMapProps {
 }
 
 export function VendorMap({ vendors, onVendorSelect, selectedVendorId }: VendorMapProps) {
-  const [googleApiKey, setGoogleApiKey] = useState<string>(
-    localStorage.getItem('google_maps_token') || ''
-  );
-  const [isTokenSet, setIsTokenSet] = useState(!!localStorage.getItem('google_maps_token'));
   const [activeMarker, setActiveMarker] = useState<string | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
-  const { isLoaded, loadError } = useGoogleMaps();
-
-  const handleSetToken = () => {
-    if (googleApiKey.trim()) {
-      localStorage.setItem('google_maps_token', googleApiKey.trim());
-      setIsTokenSet(true);
-      window.location.reload(); // Reload to reinitialize with new key
-    }
-  };
+  const { isLoaded, loadError, apiKey } = useGoogleMaps();
 
   const onLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
@@ -98,32 +84,12 @@ export function VendorMap({ vendors, onVendorSelect, selectedVendorId }: VendorM
     }
   }
 
-  if (!isTokenSet) {
+  // Show fallback if no API key
+  if (!apiKey) {
     return (
       <div className="h-full flex flex-col items-center justify-center bg-card/50 rounded-xl p-8">
-        <div className="w-16 h-16 rounded-full gradient-primary flex items-center justify-center mb-4">
-          <Key className="w-8 h-8 text-white" />
-        </div>
-        <h3 className="font-display text-lg font-semibold text-foreground mb-2">
-          Google Maps API Key Required
-        </h3>
-        <p className="text-sm text-muted-foreground text-center mb-4 max-w-sm">
-          Enter your Google Maps API key to enable the map view. 
-          Get one at <a href="https://console.cloud.google.com/google/maps-apis" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Google Cloud Console</a>
-        </p>
-        <div className="flex gap-2 w-full max-w-sm">
-          <Input
-            type="text"
-            placeholder="AIza..."
-            value={googleApiKey}
-            onChange={(e) => setGoogleApiKey(e.target.value)}
-            className="flex-1"
-          />
-          <Button variant="gradient" onClick={handleSetToken}>
-            <MapPin className="w-4 h-4 mr-2" />
-            Set Key
-          </Button>
-        </div>
+        <MapPin className="w-12 h-12 text-muted-foreground mb-4" />
+        <p className="text-muted-foreground text-center">Map view unavailable</p>
       </div>
     );
   }
@@ -131,17 +97,7 @@ export function VendorMap({ vendors, onVendorSelect, selectedVendorId }: VendorM
   if (loadError) {
     return (
       <div className="h-full flex flex-col items-center justify-center bg-card/50 rounded-xl p-8">
-        <p className="text-destructive">Error loading Google Maps. Please check your API key.</p>
-        <Button 
-          variant="outline" 
-          className="mt-4"
-          onClick={() => {
-            localStorage.removeItem('google_maps_token');
-            setIsTokenSet(false);
-          }}
-        >
-          Reset API Key
-        </Button>
+        <p className="text-destructive">Error loading Google Maps.</p>
       </div>
     );
   }
