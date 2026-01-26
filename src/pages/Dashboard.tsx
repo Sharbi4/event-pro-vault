@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useBookings, BookingData } from '@/hooks/useBookings';
@@ -15,10 +16,12 @@ import { CancellationDialog } from '@/components/shared/CancellationDialog';
 import { vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { 
   Calendar, MapPin, Clock, Heart, Package, 
   User, LogOut, ChevronRight, Loader2, Star, Search,
-  CreditCard, CheckCircle, AlertCircle, Banknote, Users, ExternalLink, ShieldCheck, XCircle
+  CreditCard, CheckCircle, AlertCircle, Banknote, Users, ExternalLink, ShieldCheck, XCircle,
+  MessageCircle
 } from 'lucide-react';
 
 interface ExtendedBooking extends BookingData {
@@ -40,8 +43,9 @@ export default function Dashboard() {
   const { bookings, loading: bookingsLoading, refetch } = useBookings();
   const { hasVendorPackages, loading: dashboardsLoading } = useUserDashboards();
   const { isAdmin, pendingEventPros } = useAdminReview();
-  const { toast } = useToast();
+  const { toast: toastHook } = useToast();
   const [payingBooking, setPayingBooking] = useState<string | null>(null);
+  const [messagingBooking, setMessagingBooking] = useState<string | null>(null);
   const [profile, setProfile] = useState<{ display_name?: string; is_vendor?: boolean; is_published?: boolean } | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<ExtendedBooking | null>(null);
@@ -67,17 +71,15 @@ export default function Dashboard() {
     const paymentType = searchParams.get('type') || 'deposit';
     
     if (payment === 'success' && bookingId) {
-      // Verify the payment
       verifyPayment(bookingId, paymentType);
     } else if (payment === 'cancelled') {
-      toast({
+      toastHook({
         title: "Payment cancelled",
         description: "You can complete your payment later from your dashboard.",
         variant: "destructive"
       });
     }
     
-    // Clear the URL params
     if (payment) {
       navigate('/dashboard', { replace: true });
     }
@@ -93,7 +95,7 @@ export default function Dashboard() {
 
       if (data?.paid) {
         const isDeposit = data.payment_type === 'deposit';
-        toast({
+        toastHook({
           title: isDeposit ? "Deposit paid!" : "Payment complete!",
           description: isDeposit 
             ? "Your booking is confirmed. Remaining balance due on event day."
@@ -121,13 +123,66 @@ export default function Dashboard() {
       }
     } catch (error) {
       console.error('Error creating checkout:', error);
-      toast({
+      toastHook({
         title: "Payment failed",
         description: error instanceof Error ? error.message : "Please try again",
         variant: "destructive"
       });
     } finally {
       setPayingBooking(null);
+    }
+  };
+
+  const handleMessageVendor = async (booking: ExtendedBooking) => {
+    if (!user || !booking.vendor_user_id) {
+      toast.error('Unable to start conversation');
+      return;
+    }
+
+    setMessagingBooking(booking.id);
+
+    try {
+      // Check if conversation already exists for this booking
+      const { data: existingConvo } = await supabase
+        .from('conversations')
+        .select('id')
+        .eq('client_user_id', user.id)
+        .eq('vendor_user_id', booking.vendor_user_id)
+        .eq('booking_id', booking.id)
+        .maybeSingle();
+
+      if (existingConvo) {
+        // Navigate to existing conversation
+        navigate(`/vendor-dashboard?tab=messages&conversation=${existingConvo.id}`);
+        return;
+      }
+
+      // Create new conversation
+      const { data: newConvo, error } = await supabase
+        .from('conversations')
+        .insert({
+          vendor_user_id: booking.vendor_user_id,
+          client_user_id: user.id,
+          client_name: profile?.display_name || user.email?.split('@')[0] || 'Customer',
+          client_email: user.email,
+          booking_id: booking.id,
+          subject: `Booking: ${booking.package_name || 'Package'} - ${new Date(booking.event_date).toLocaleDateString()}`,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast.success('Conversation started! The vendor will be notified.');
+      
+      // Navigate to messages - for now just show success since customer doesn't have message UI
+      // In the future, we could add a customer messages page
+      navigate(`/dashboard?tab=bookings`);
+    } catch (error) {
+      console.error('Error starting conversation:', error);
+      toast.error('Failed to start conversation');
+    } finally {
+      setMessagingBooking(null);
     }
   };
 
@@ -149,9 +204,6 @@ export default function Dashboard() {
 
   const favoriteVendors = vendors.filter(v => favorites.includes(v.id));
 
-  const getVendor = (vendorId: string) => vendors.find(v => v.id === vendorId);
-  const getPackage = (packageId: string) => packages.find(p => p.id === packageId);
-
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
@@ -159,8 +211,8 @@ export default function Dashboard() {
 
   const getStatusBadge = (booking: ExtendedBooking) => {
     const status = booking.status;
-    const depositPaid = (booking as any).deposit_paid_at;
-    const finalPaid = (booking as any).final_paid_at;
+    const depositPaid = booking.deposit_paid_at;
+    const finalPaid = booking.final_paid_at;
     
     if (status === 'awaiting_payment') {
       return (
@@ -329,52 +381,75 @@ export default function Dashboard() {
               </Card>
             ) : (
               bookings.map(booking => {
-                const vendor = getVendor(booking.vendor_id);
-                const pkg = getPackage(booking.package_id);
-                const isAwaitingPayment = booking.status === 'awaiting_payment';
                 const extBooking = booking as ExtendedBooking;
-                const depositAmount = ((extBooking as any).deposit_amount || 0) / 100;
-                const finalAmount = ((extBooking as any).final_amount || 0) / 100;
-                const depositPaid = (extBooking as any).deposit_paid_at;
-                const finalPaid = (extBooking as any).final_paid_at;
+                const isAwaitingPayment = booking.status === 'awaiting_payment';
+                const depositAmount = (extBooking.deposit_amount || 0) / 100;
+                const finalAmount = (extBooking.final_amount || 0) / 100;
+                const depositPaid = extBooking.deposit_paid_at;
+                const finalPaid = extBooking.final_paid_at;
                 const needsFinalPayment = depositPaid && !finalPaid && finalAmount > 0;
-                const paymentMethod = (extBooking as any).payment_method || 'stripe';
+                const paymentMethod = extBooking.payment_method || 'stripe';
                 const isCashPayment = paymentMethod === 'cash';
+                const isCancelled = booking.status === 'cancelled';
                 
                 return (
-                  <Card key={booking.id} variant={isAwaitingPayment || needsFinalPayment ? 'gradient' : 'glow'} className="p-4">
+                  <Card 
+                    key={booking.id} 
+                    variant={isAwaitingPayment || needsFinalPayment ? 'gradient' : 'glow'} 
+                    className={`p-4 ${isCancelled ? 'opacity-60' : ''}`}
+                  >
                     <div className="flex gap-3">
-                      {vendor && (
-                        <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
+                      {/* Package/Vendor Image */}
+                      <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
+                        {booking.package_cover_image ? (
                           <img
-                            src={vendor.gallery[0]}
-                            alt={vendor.name}
+                            src={booking.package_cover_image}
+                            alt={booking.package_name || 'Package'}
                             className="w-full h-full object-cover"
                           />
-                        </div>
-                      )}
+                        ) : booking.vendor_avatar ? (
+                          <img
+                            src={booking.vendor_avatar}
+                            alt={booking.vendor_display_name || 'Vendor'}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-primary/10">
+                            <Package className="w-6 h-6 text-primary" />
+                          </div>
+                        )}
+                      </div>
+
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <div className="min-w-0">
                             <h3 className="font-semibold text-sm text-foreground truncate">
-                              {pkg?.name || 'Package'}
+                              {booking.package_name || 'Package'}
                             </h3>
                             <p className="text-xs text-muted-foreground truncate">
-                              {vendor?.name || 'Vendor'}
+                              {booking.vendor_display_name || 'Event Pro'}
                             </p>
                           </div>
                           {getStatusBadge(extBooking)}
                         </div>
+
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
                             {new Date(booking.event_date).toLocaleDateString()}
                           </span>
+                          {booking.start_time && (
+                            <span className="flex items-center gap-1">
+                              <Clock className="w-3 h-3" />
+                              {booking.start_time}
+                            </span>
+                          )}
                           <span className="flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
                             {booking.event_location}
                           </span>
                         </div>
+
                         {/* Payment method indicator */}
                         <div className="flex items-center gap-2 text-xs mt-1">
                           {isCashPayment ? (
@@ -389,6 +464,7 @@ export default function Dashboard() {
                             </span>
                           )}
                         </div>
+
                         {/* Payment breakdown - only for Stripe payments */}
                         {!isCashPayment && (depositAmount > 0 || finalAmount > 0) && (
                           <div className="text-[10px] text-muted-foreground mt-1">
@@ -401,16 +477,35 @@ export default function Dashboard() {
                             </span>
                           </div>
                         )}
+
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
                           <span className="font-bold text-sm gradient-text">${booking.total_price}</span>
-                          <div className="flex items-center gap-2">
-                            {/* Only show Pay Now for Stripe bookings awaiting payment */}
+                          <div className="flex items-center gap-1.5">
+                            {/* Message button */}
+                            {booking.vendor_user_id && !isCancelled && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 text-xs gap-1 px-2"
+                                onClick={() => handleMessageVendor(extBooking)}
+                                disabled={messagingBooking === booking.id}
+                              >
+                                {messagingBooking === booking.id ? (
+                                  <Loader2 className="w-3 h-3 animate-spin" />
+                                ) : (
+                                  <MessageCircle className="w-3 h-3" />
+                                )}
+                                <span className="hidden sm:inline">Message</span>
+                              </Button>
+                            )}
+
+                            {/* Pay Now for Stripe bookings awaiting payment */}
                             {isAwaitingPayment && !isCashPayment && (
                               <Button 
                                 variant="default" 
                                 size="sm" 
                                 className="h-7 text-xs gap-1 px-3"
-                                onClick={() => handlePayNow(booking as ExtendedBooking)}
+                                onClick={() => handlePayNow(extBooking)}
                                 disabled={payingBooking === booking.id}
                               >
                                 {payingBooking === booking.id ? (
@@ -421,15 +516,17 @@ export default function Dashboard() {
                                 Pay Now
                               </Button>
                             )}
-                            {/* For cash bookings awaiting payment, show info */}
+
+                            {/* For cash bookings awaiting payment */}
                             {isAwaitingPayment && isCashPayment && (
                               <Badge variant="secondary" className="text-[10px] h-6">
                                 <Banknote className="w-3 h-3 mr-1" />
                                 Pay at event
                               </Badge>
                             )}
-                            {/* Cancel button - show for pending/confirmed bookings that aren't already cancelled */}
-                            {booking.status !== 'cancelled' && booking.status !== 'completed' && (
+
+                            {/* Cancel button */}
+                            {!isCancelled && booking.status !== 'completed' && (
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -440,13 +537,15 @@ export default function Dashboard() {
                                 }}
                               >
                                 <XCircle className="w-3 h-3" />
-                                Cancel
+                                <span className="hidden sm:inline">Cancel</span>
                               </Button>
                             )}
-                            {vendor && (
-                              <Link to={`/vendor/${vendor.id}`}>
+
+                            {/* View vendor profile */}
+                            {booking.vendor_user_id && (
+                              <Link to={`/vendor/${booking.vendor_user_id}`}>
                                 <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2">
-                                  View
+                                  <span className="hidden sm:inline">View</span>
                                   <ChevronRight className="w-3 h-3" />
                                 </Button>
                               </Link>
@@ -572,12 +671,12 @@ export default function Dashboard() {
             bookingId={bookingToCancel.id}
             bookingType="booking"
             totalPaid={
-              (((bookingToCancel as any).deposit_amount || 0) + 
-              ((bookingToCancel as any).final_amount || 0)) / 100 || 
+              ((bookingToCancel.deposit_amount || 0) + 
+              (bookingToCancel.final_amount || 0)) / 100 || 
               bookingToCancel.total_price
             }
             eventDate={bookingToCancel.event_date}
-            isPaid={(bookingToCancel as any).deposit_paid_at || (bookingToCancel as any).final_paid_at}
+            isPaid={!!bookingToCancel.deposit_paid_at || !!bookingToCancel.final_paid_at}
             onSuccess={() => {
               setBookingToCancel(null);
               refetch();
