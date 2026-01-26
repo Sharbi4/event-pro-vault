@@ -23,11 +23,13 @@ import {
   MapPin,
   Image as ImageIcon,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  Share2
 } from 'lucide-react';
 import { VendorPackage } from '@/hooks/useVendorDashboard';
 import { categories } from '@/data/categories';
 import { KeyboardEvent } from 'react';
+import { toast } from '@/hooks/use-toast';
 
 interface SortablePackageCardProps {
   pkg: VendorPackage;
@@ -80,6 +82,43 @@ export function SortablePackageCard({
     } else if (e.key === 'ArrowDown' && !isLast && onMoveDown) {
       e.preventDefault();
       onMoveDown();
+    }
+  };
+
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/package/${pkg.id}`;
+    const shareData = {
+      title: pkg.name,
+      text: `Check out ${pkg.name} on Event Pro!`,
+      url: shareUrl,
+    };
+
+    if (navigator.share && navigator.canShare?.(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        if ((error as Error).name !== 'AbortError') {
+          copyToClipboard(shareUrl);
+        }
+      }
+    } else {
+      copyToClipboard(shareUrl);
+    }
+  };
+
+  const copyToClipboard = async (url: string) => {
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({
+        title: 'Link copied!',
+        description: 'Share this link with your clients.',
+      });
+    } catch {
+      toast({
+        title: 'Failed to copy',
+        description: 'Please copy the URL manually.',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -214,7 +253,7 @@ export function SortablePackageCard({
                   <MoreVertical className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
+              <DropdownMenuContent align="end" className="bg-background border border-border">
                 <DropdownMenuItem onClick={() => onEdit(pkg)}>
                   <Pencil className="w-4 h-4 mr-2" />
                   Edit
@@ -222,6 +261,10 @@ export function SortablePackageCard({
                 <DropdownMenuItem onClick={() => onDuplicate(pkg.id)}>
                   <Copy className="w-4 h-4 mr-2" />
                   Duplicate
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleShare}>
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share Link
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 

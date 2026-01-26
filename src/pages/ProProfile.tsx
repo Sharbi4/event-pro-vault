@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useVendorProfile } from '@/hooks/useVendorProfile';
 import { cn } from '@/lib/utils';
+import { ShareButton } from '@/components/shared/ShareButton';
 
 export default function ProProfile() {
   const { id } = useParams();
@@ -80,14 +81,21 @@ export default function ProProfile() {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        {/* Back link */}
-        <Link 
-          to="/"
-          className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Back to browse
-        </Link>
+        {/* Back link and Share */}
+        <div className="flex items-center justify-between mb-6">
+          <Link 
+            to="/"
+            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Back to browse
+          </Link>
+          <ShareButton
+            url={`/pro/${id}`}
+            title={profile.displayName || profile.businessName || 'Event Pro'}
+            text={`Check out ${profile.displayName || profile.businessName} on Event Pro!`}
+          />
+        </div>
 
         {/* Hero section */}
         <div className="flex flex-col md:flex-row items-start gap-6 mb-8 pb-8 border-b">
