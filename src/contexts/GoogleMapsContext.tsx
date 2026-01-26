@@ -23,8 +23,15 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
   // Use environment variable for API key
   const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
+  // Debug logging
+  useEffect(() => {
+    console.log('[GoogleMapsContext] API Key available:', !!googleApiKey);
+    console.log('[GoogleMapsContext] API Key length:', googleApiKey?.length || 0);
+  }, [googleApiKey]);
+
   // If no API key, just render children without the script
   if (!googleApiKey) {
+    console.log('[GoogleMapsContext] No API key - rendering without LoadScript');
     return (
       <GoogleMapsContext.Provider value={{ isLoaded: false, loadError: false, apiKey: '' }}>
         {children}
@@ -32,14 +39,22 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
     );
   }
 
+  console.log('[GoogleMapsContext] Loading Google Maps with key');
+
   return (
     <LoadScript
       googleMapsApiKey={googleApiKey}
       libraries={libraries}
-      onLoad={() => setIsLoaded(true)}
-      onError={() => setLoadError(true)}
+      onLoad={() => {
+        console.log('[GoogleMapsContext] Google Maps loaded successfully');
+        setIsLoaded(true);
+      }}
+      onError={(error) => {
+        console.error('[GoogleMapsContext] Google Maps load error:', error);
+        setLoadError(true);
+      }}
     >
-      <GoogleMapsContext.Provider value={{ isLoaded: true, loadError, apiKey: googleApiKey }}>
+      <GoogleMapsContext.Provider value={{ isLoaded, loadError, apiKey: googleApiKey }}>
         {children}
       </GoogleMapsContext.Provider>
     </LoadScript>
