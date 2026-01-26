@@ -102,6 +102,44 @@ export function useVendorDashboard() {
     }
   }, [user]);
 
+  // Real-time subscription for bookings
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('vendor-bookings-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bookings',
+          filter: `vendor_user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            // Add new booking to the list
+            setBookings(prev => [...prev, payload.new as VendorBooking].sort(
+              (a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime()
+            ));
+          } else if (payload.eventType === 'UPDATE') {
+            // Update existing booking
+            setBookings(prev => prev.map(b => 
+              b.id === (payload.new as VendorBooking).id ? (payload.new as VendorBooking) : b
+            ));
+          } else if (payload.eventType === 'DELETE') {
+            // Remove deleted booking
+            setBookings(prev => prev.filter(b => b.id !== (payload.old as VendorBooking).id));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const fetchVendorData = async () => {
     if (!user) return;
     

@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export interface BrowsePackage {
   id: string;
@@ -387,6 +388,59 @@ export function useBrowsePackages() {
   useEffect(() => {
     fetchPackages();
   }, [fetchPackages]);
+
+  // Track if we've shown the realtime toast to avoid spamming
+  const hasShownRealtimeToast = useRef(false);
+
+  // Real-time subscription for booking changes (affects availability)
+  useEffect(() => {
+    // Only subscribe if a date filter is applied (availability matters)
+    if (!filters.date) return;
+
+    const channel = supabase
+      .channel('browse-availability-updates')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'bookings',
+        },
+        (payload) => {
+          // Refetch packages when a new booking is made
+          fetchPackages();
+          
+          // Show a subtle notification only once per session
+          if (!hasShownRealtimeToast.current) {
+            toast.info('Availability updated', { 
+              description: 'Results refreshed with latest bookings',
+              duration: 2000 
+            });
+            hasShownRealtimeToast.current = true;
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'bookings',
+        },
+        (payload) => {
+          const updatedBooking = payload.new as { status: string };
+          // Refetch if booking status changed (cancelled, confirmed, etc.)
+          if (['cancelled', 'confirmed'].includes(updatedBooking.status)) {
+            fetchPackages();
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [filters.date, fetchPackages]);
 
   const updateFilter = (key: keyof BrowseFilters, value: any) => {
     setFilters(prev => ({ ...prev, [key]: value }));

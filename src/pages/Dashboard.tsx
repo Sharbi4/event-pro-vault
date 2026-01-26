@@ -11,6 +11,7 @@ import { useFavorites } from '@/hooks/useFavorites';
 import { useBookings, BookingData } from '@/hooks/useBookings';
 import { useUserDashboards } from '@/hooks/useUserDashboards';
 import { useAdminReview } from '@/hooks/useAdminReview';
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { AdminReviewTab } from '@/components/dashboard/AdminReviewTab';
 import { CancellationDialog } from '@/components/shared/CancellationDialog';
 import { DepositRefundIndicator } from '@/components/shared/DepositRefundIndicator';
@@ -25,7 +26,7 @@ import {
   Calendar, MapPin, Clock, Heart, Package, 
   User, LogOut, ChevronRight, Loader2, Star, Search,
   CreditCard, CheckCircle, AlertCircle, Banknote, Users, ExternalLink, ShieldCheck, XCircle,
-  MessageCircle, AlertTriangle
+  MessageCircle, AlertTriangle, Bell
 } from 'lucide-react';
 
 interface ExtendedBooking extends BookingData {
@@ -47,6 +48,7 @@ export default function Dashboard() {
   const { bookings, loading: bookingsLoading, refetch } = useBookings();
   const { hasVendorPackages, loading: dashboardsLoading } = useUserDashboards();
   const { isAdmin, pendingEventPros } = useAdminReview();
+  const { unreadCount: notificationCount } = useRealtimeNotifications();
   const { toast: toastHook } = useToast();
   const [payingBooking, setPayingBooking] = useState<string | null>(null);
   const [messagingBooking, setMessagingBooking] = useState<string | null>(null);

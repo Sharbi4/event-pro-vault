@@ -83,6 +83,37 @@ export function useBookings() {
     }
   }, [user]);
 
+  // Real-time subscription for customer's booking updates
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel('customer-bookings-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'bookings',
+          filter: `user_id=eq.${user.id}`,
+        },
+        (payload) => {
+          // Update the booking in state when it changes
+          const updatedBooking = payload.new as BookingData;
+          setBookings(prev => prev.map(b => 
+            b.id === updatedBooking.id 
+              ? { ...b, ...updatedBooking } 
+              : b
+          ));
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const fetchBookings = async () => {
     if (!user) return;
     
