@@ -5,13 +5,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { 
   Mail, Lock, User, Eye, EyeOff, Loader2, ArrowRight, 
-  Sparkles, Calendar, DollarSign, CheckCircle, TrendingUp,
-  CreditCard, CalendarCheck
+  Sparkles, DollarSign, CheckCircle, CalendarCheck
 } from 'lucide-react';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
-
+import AnimatedDashboardPreview from '@/components/auth/AnimatedDashboardPreview';
 
 const emailSchema = z.string().email('Please enter a valid email');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -32,12 +31,6 @@ const features = [
     title: 'Get Paid Securely',
     description: 'Receive payouts directly to your bank via Stripe integration.',
   },
-];
-
-const dashboardStats = [
-  { label: 'This Month', value: '$4,280', trend: '+12%' },
-  { label: 'Bookings', value: '23', trend: '+8%' },
-  { label: 'Rating', value: '4.9', trend: '★' },
 ];
 
 export default function Auth() {
@@ -179,65 +172,8 @@ export default function Auth() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="relative"
             >
-              <Card variant="glass" className="p-6 border-border/30 backdrop-blur-xl">
-                {/* Stats Row */}
-                <div className="grid grid-cols-3 gap-4 mb-6">
-                  {dashboardStats.map((stat, idx) => (
-                    <motion.div
-                      key={stat.label}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 + idx * 0.1 }}
-                      className="text-center"
-                    >
-                      <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                      <div className="flex items-center justify-center gap-1">
-                        <span className="text-xs text-muted-foreground">{stat.label}</span>
-                        <span className="text-xs text-trust font-medium">{stat.trend}</span>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-
-                {/* Mock Booking List */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg border border-border/50">
-                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">Wedding DJ Package</p>
-                      <p className="text-xs text-muted-foreground">Saturday, Feb 15 • 6:00 PM</p>
-                    </div>
-                    <span className="text-sm font-semibold text-foreground">$600</span>
-                  </div>
-                  <div className="flex items-center gap-3 p-3 bg-background/50 rounded-lg border border-border/50 opacity-70">
-                    <div className="w-10 h-10 rounded-lg bg-trust/10 flex items-center justify-center">
-                      <CreditCard className="w-5 h-5 text-trust" />
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-foreground">Corporate Event</p>
-                      <p className="text-xs text-muted-foreground">Friday, Feb 21 • 2:00 PM</p>
-                    </div>
-                    <span className="text-sm font-semibold text-foreground">$1,200</span>
-                  </div>
-                </div>
-              </Card>
-
-              {/* Floating Badge */}
-              <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.8 }}
-                className="absolute -right-4 -top-4"
-              >
-                <div className="bg-trust text-trust-foreground px-3 py-1.5 rounded-full text-xs font-medium shadow-lg flex items-center gap-1.5">
-                  <TrendingUp className="w-3 h-3" />
-                  Growing 12% this month
-                </div>
-              </motion.div>
+              <AnimatedDashboardPreview />
             </motion.div>
 
             {/* Feature Highlights */}
