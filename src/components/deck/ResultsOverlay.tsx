@@ -65,7 +65,15 @@ export default function ResultsOverlay({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="fixed inset-4 md:inset-8 lg:inset-16 z-50 flex flex-col rounded-3xl overflow-hidden"
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
+            className="fixed inset-4 md:inset-8 lg:inset-16 z-50 flex flex-col rounded-3xl overflow-hidden touch-none"
             style={{
               background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
               backdropFilter: 'blur(40px)',
@@ -74,6 +82,10 @@ export default function ResultsOverlay({
               boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25), inset 0 1px 1px rgba(255,255,255,0.1)',
             }}
           >
+            {/* Swipe Indicator */}
+            <div className="flex justify-center pt-3 md:hidden">
+              <div className="w-10 h-1 rounded-full bg-white/30" />
+            </div>
             {/* Header */}
             <div className="flex items-center justify-between p-4 md:p-6 border-b border-white/10">
               <div>
