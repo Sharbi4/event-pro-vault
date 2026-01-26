@@ -90,6 +90,12 @@ const handler = async (req: Request): Promise<Response> => {
             </tr>
           `).join('')}
         </table>
+        <div style="margin-top: 16px; padding-top: 12px; border-top: 1px dashed #86efac;">
+          <h4 style="color: #166534; font-size: 13px; margin: 0 0 8px 0; font-weight: 600;">💰 Deposit Refund Policy</h4>
+          <p style="color: #15803d; font-size: 12px; margin: 0 0 4px 0;">• Deposits are <strong>non-refundable</strong> by default</p>
+          <p style="color: #15803d; font-size: 12px; margin: 0 0 4px 0;">• If the Event Pro cancels → <strong>full deposit refund</strong></p>
+          <p style="color: #15803d; font-size: 12px; margin: 0;">• Grace period: Cancel within 1 hour of booking <em>and</em> event is 7+ days away → <strong>deposit refunded</strong></p>
+        </div>
         <p style="color: #15803d; font-size: 11px; margin: 12px 0 0 0; font-style: italic;">
           Platform fees are non-refundable. Contact support for questions.
         </p>

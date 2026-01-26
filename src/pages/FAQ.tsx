@@ -135,17 +135,23 @@ const faqData: FAQItem[] = [
   {
     category: 'cancellations',
     question: 'What is your cancellation policy?',
-    answer: 'Each package or market may have its own cancellation terms. You\'ll see the cancellation terms during the booking review step before you confirm.',
+    answer: 'Each package has its own cancellation policy (Flexible, Standard, or Strict). You\'ll see the specific terms during booking before you confirm.',
   },
   {
     category: 'cancellations',
     question: 'Can I get a refund if I cancel?',
-    answer: 'Refund eligibility depends on the cancellation terms for that booking and how close the cancellation is to the event date/time.',
+    answer: 'Refund eligibility depends on the package\'s cancellation policy and how close you are to the event date. Check the policy details shown during booking.',
+  },
+  {
+    category: 'cancellations',
+    question: 'Is there a deposit? Is it refundable?',
+    answer: 'Some packages require a deposit to reserve the date. Deposits are non-refundable by default, except: (1) If the Event Pro cancels, your deposit is refunded in full. (2) Grace period: If you cancel within 1 hour of booking and your event is 7+ days away, your deposit will be refunded.',
+    hasTooltip: 'deposit-refund',
   },
   {
     category: 'cancellations',
     question: 'What if the Event Pro cancels?',
-    answer: 'If an Event Pro cancels an online-paid booking, you\'ll be notified and refunds (if applicable) will be processed back to your original payment method based on the booking terms.',
+    answer: 'If an Event Pro cancels your booking, you\'ll receive a full refund including any deposit paid. We\'ll notify you immediately and process the refund to your original payment method.',
   },
   {
     category: 'cancellations',
@@ -289,6 +295,7 @@ const tooltipContent: Record<string, string> = {
   'request-to-book': 'Booking confirms after the Event Pro approves.',
   'weekly-series': 'Pay once to reserve your spot for every week in the series.',
   'stripe': 'Stripe securely handles payouts and verification. We never store bank details.',
+  'deposit-refund': 'Cancel within 1 hour of booking + event 7+ days away = deposit refunded. Event Pro cancels = always refunded.',
 };
 
 export default function FAQ() {
