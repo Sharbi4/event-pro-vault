@@ -9,6 +9,7 @@ interface Package {
   name: string;
   price: number;
   cover_image_url?: string;
+  images?: string[];
   vendor_name?: string;
   vendor_avatar?: string;
   category?: string;
@@ -140,15 +141,18 @@ export default function ResultsOverlay({
                   >
                     {/* Image */}
                     <div className="aspect-[4/3] relative overflow-hidden">
-                      {pkg.cover_image_url ? (
-                        <img
-                          src={pkg.cover_image_url}
-                          alt={pkg.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20" />
-                      )}
+                      {(() => {
+                        const imageUrl = pkg.cover_image_url || (pkg.images && pkg.images.length > 0 ? pkg.images[0] : null);
+                        return imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={pkg.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-primary/20 to-accent/20" />
+                        );
+                      })()}
                       
                       {/* Badges */}
                       <div className="absolute top-2 left-2 flex gap-1">
