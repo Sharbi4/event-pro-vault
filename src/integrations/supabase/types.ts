@@ -18,11 +18,14 @@ export type Database = {
         Row: {
           add_ons: string[] | null
           booking_mode: string | null
+          breakdown_minutes: number | null
           created_at: string
           customer_email: string | null
           deposit_amount: number | null
           deposit_paid_at: string | null
           deposit_percentage: number | null
+          duration_minutes: number | null
+          end_time: string | null
           event_date: string
           event_location: string
           final_amount: number | null
@@ -34,6 +37,8 @@ export type Database = {
           payment_method: string | null
           payment_status: string | null
           platform_fee_amount: number | null
+          setup_minutes: number | null
+          start_time: string | null
           status: string
           stripe_checkout_session_id: string | null
           stripe_deposit_payment_intent_id: string | null
@@ -50,11 +55,14 @@ export type Database = {
         Insert: {
           add_ons?: string[] | null
           booking_mode?: string | null
+          breakdown_minutes?: number | null
           created_at?: string
           customer_email?: string | null
           deposit_amount?: number | null
           deposit_paid_at?: string | null
           deposit_percentage?: number | null
+          duration_minutes?: number | null
+          end_time?: string | null
           event_date: string
           event_location: string
           final_amount?: number | null
@@ -66,6 +74,8 @@ export type Database = {
           payment_method?: string | null
           payment_status?: string | null
           platform_fee_amount?: number | null
+          setup_minutes?: number | null
+          start_time?: string | null
           status?: string
           stripe_checkout_session_id?: string | null
           stripe_deposit_payment_intent_id?: string | null
@@ -82,11 +92,14 @@ export type Database = {
         Update: {
           add_ons?: string[] | null
           booking_mode?: string | null
+          breakdown_minutes?: number | null
           created_at?: string
           customer_email?: string | null
           deposit_amount?: number | null
           deposit_paid_at?: string | null
           deposit_percentage?: number | null
+          duration_minutes?: number | null
+          end_time?: string | null
           event_date?: string
           event_location?: string
           final_amount?: number | null
@@ -98,6 +111,8 @@ export type Database = {
           payment_method?: string | null
           payment_status?: string | null
           platform_fee_amount?: number | null
+          setup_minutes?: number | null
+          start_time?: string | null
           status?: string
           stripe_checkout_session_id?: string | null
           stripe_deposit_payment_intent_id?: string | null
