@@ -17,14 +17,11 @@ const GoogleMapsContext = createContext<GoogleMapsContextType>({
 });
 
 export function GoogleMapsProvider({ children }: { children: ReactNode }) {
-  const [googleApiKey, setGoogleApiKey] = useState<string>('');
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadError, setLoadError] = useState(false);
 
-  useEffect(() => {
-    const key = localStorage.getItem('google_maps_token') || '';
-    setGoogleApiKey(key);
-  }, []);
+  // Use environment variable for API key
+  const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
   // If no API key, just render children without the script
   if (!googleApiKey) {
