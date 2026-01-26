@@ -16,6 +16,7 @@ import { CancellationDialog } from '@/components/shared/CancellationDialog';
 import { DepositRefundIndicator } from '@/components/shared/DepositRefundIndicator';
 import { ReportIssueDialog } from '@/components/shared/ReportIssueDialog';
 import { ReportIssueButton } from '@/components/shared/ReportIssueButton';
+import { ReviewDialog } from '@/components/reviews/ReviewDialog';
 import { vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -54,6 +55,26 @@ export default function Dashboard() {
   const [bookingToCancel, setBookingToCancel] = useState<ExtendedBooking | null>(null);
   const [reportIssueDialogOpen, setReportIssueDialogOpen] = useState(false);
   const [bookingToReport, setBookingToReport] = useState<ExtendedBooking | null>(null);
+  const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
+  const [bookingToReview, setBookingToReview] = useState<ExtendedBooking | null>(null);
+  const [reviewedBookings, setReviewedBookings] = useState<Set<string>>(new Set());
+
+  // Check which bookings already have reviews
+  useEffect(() => {
+    if (user && bookings.length > 0) {
+      const bookingIds = bookings.map(b => b.id);
+      supabase
+        .from('reviews')
+        .select('booking_id')
+        .eq('reviewer_user_id', user.id)
+        .in('booking_id', bookingIds)
+        .then(({ data }) => {
+          if (data) {
+            setReviewedBookings(new Set(data.map(r => r.booking_id).filter(Boolean) as string[]));
+          }
+        });
+    }
+  }, [user, bookings]);
 
   // Fetch user profile
   useEffect(() => {
@@ -554,6 +575,25 @@ export default function Dashboard() {
                               />
                             )}
 
+                            {/* Leave Review button - shows after event date */}
+                            {!isCancelled && 
+                             !reviewedBookings.has(booking.id) &&
+                             new Date(booking.event_date) < new Date() &&
+                             booking.vendor_user_id && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-7 text-xs gap-1 px-2 border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
+                                onClick={() => {
+                                  setBookingToReview(extBooking);
+                                  setReviewDialogOpen(true);
+                                }}
+                              >
+                                <Star className="w-3 h-3" />
+                                <span className="hidden sm:inline">Review</span>
+                              </Button>
+                            )}
+
                             {/* Cancel button */}
                             {!isCancelled && booking.status !== 'completed' && (
                               <Button
@@ -727,6 +767,24 @@ export default function Dashboard() {
               setBookingToReport(null);
               refetch();
             }}
+          />
+        )}
+
+        {/* Review Dialog */}
+        {bookingToReview && bookingToReview.vendor_user_id && (
+          <ReviewDialog
+            open={reviewDialogOpen}
+            onOpenChange={(open) => {
+              setReviewDialogOpen(open);
+              if (!open) setBookingToReview(null);
+            }}
+            bookingId={bookingToReview.id}
+            vendorUserId={bookingToReview.vendor_user_id}
+            vendorName={bookingToReview.vendor_display_name || 'Event Pro'}
+            packageId={bookingToReview.package_id}
+            packageName={bookingToReview.package_name}
+            eventDate={bookingToReview.event_date}
+            reviewerName={profile?.display_name || user.email?.split('@')[0] || 'Customer'}
           />
         )}
       </div>
