@@ -183,7 +183,7 @@ export default function AuthBooking() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Link to="/">
-              <img src={logo} alt="EventPro" className="h-12 w-auto" />
+              <img src={logo} alt="EventPro" className="h-20 w-auto" />
             </Link>
           </motion.div>
 
@@ -319,9 +319,9 @@ export default function AuthBooking() {
             transition={{ duration: 0.5 }}
           >
             <Link to="/">
-              <img src={logo} alt="EventPro" className="h-10 w-auto mx-auto mb-4" />
+              <img src={logo} alt="EventPro" className="h-16 w-auto mx-auto mb-4" />
             </Link>
-            <motion.div 
+            <motion.div
               className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-trust/10 text-trust text-sm font-medium"
               initial={{ scale: 0.9 }}
               animate={{ scale: 1 }}
