@@ -14,6 +14,8 @@ import { useAdminReview } from '@/hooks/useAdminReview';
 import { AdminReviewTab } from '@/components/dashboard/AdminReviewTab';
 import { CancellationDialog } from '@/components/shared/CancellationDialog';
 import { DepositRefundIndicator } from '@/components/shared/DepositRefundIndicator';
+import { ReportIssueDialog } from '@/components/shared/ReportIssueDialog';
+import { ReportIssueButton } from '@/components/shared/ReportIssueButton';
 import { vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -22,7 +24,7 @@ import {
   Calendar, MapPin, Clock, Heart, Package, 
   User, LogOut, ChevronRight, Loader2, Star, Search,
   CreditCard, CheckCircle, AlertCircle, Banknote, Users, ExternalLink, ShieldCheck, XCircle,
-  MessageCircle
+  MessageCircle, AlertTriangle
 } from 'lucide-react';
 
 interface ExtendedBooking extends BookingData {
@@ -50,6 +52,8 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<{ display_name?: string; is_vendor?: boolean; is_published?: boolean } | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<ExtendedBooking | null>(null);
+  const [reportIssueDialogOpen, setReportIssueDialogOpen] = useState(false);
+  const [bookingToReport, setBookingToReport] = useState<ExtendedBooking | null>(null);
 
   // Fetch user profile
   useEffect(() => {
@@ -537,6 +541,19 @@ export default function Dashboard() {
                               </Badge>
                             )}
 
+                            {/* Report Issue button - shows within 24 hours after event ends */}
+                            {!isCancelled && (
+                              <ReportIssueButton
+                                eventDate={booking.event_date}
+                                eventEndTime={booking.end_time}
+                                paymentMethod={paymentMethod}
+                                onClick={() => {
+                                  setBookingToReport(extBooking);
+                                  setReportIssueDialogOpen(true);
+                                }}
+                              />
+                            )}
+
                             {/* Cancel button */}
                             {!isCancelled && booking.status !== 'completed' && (
                               <Button
@@ -691,6 +708,23 @@ export default function Dashboard() {
             isPaid={!!bookingToCancel.deposit_paid_at || !!bookingToCancel.final_paid_at}
             onSuccess={() => {
               setBookingToCancel(null);
+              refetch();
+            }}
+          />
+        )}
+
+        {/* Report Issue Dialog */}
+        {bookingToReport && (
+          <ReportIssueDialog
+            open={reportIssueDialogOpen}
+            onOpenChange={setReportIssueDialogOpen}
+            bookingId={bookingToReport.id}
+            eventDate={bookingToReport.event_date}
+            eventEndTime={bookingToReport.end_time}
+            packageName={bookingToReport.package_name}
+            vendorName={bookingToReport.vendor_display_name}
+            onSuccess={() => {
+              setBookingToReport(null);
               refetch();
             }}
           />
