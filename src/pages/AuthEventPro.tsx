@@ -1,0 +1,446 @@
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { useAuth } from '@/contexts/AuthContext';
+import { 
+  Mail, Lock, User, Eye, EyeOff, Loader2, ArrowRight, 
+  Sparkles, DollarSign, CheckCircle, CalendarCheck, Star, TrendingUp
+} from 'lucide-react';
+import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
+import { motion } from 'framer-motion';
+import { setAuthIntent } from '@/lib/authIntent';
+import logo from '@/assets/eventpro-logo.png';
+
+const emailSchema = z.string().email('Please enter a valid email');
+const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
+
+const features = [
+  {
+    icon: Sparkles,
+    title: 'Create Your Packages',
+    description: 'Build custom service packages with pricing, add-ons, and availability.',
+  },
+  {
+    icon: CalendarCheck,
+    title: 'Accept Instant Bookings',
+    description: 'Let clients book directly from your profile with real-time availability.',
+  },
+  {
+    icon: DollarSign,
+    title: 'Get Paid Securely',
+    description: 'Receive deposits and final payments directly to your bank via Stripe.',
+  },
+  {
+    icon: TrendingUp,
+    title: 'Grow Your Business',
+    description: 'Track earnings, manage reviews, and expand your client base.',
+  },
+];
+
+const stats = [
+  { value: '500+', label: 'Event Pros' },
+  { value: '10K+', label: 'Bookings' },
+  { value: '4.9', label: 'Avg Rating', icon: Star },
+];
+
+export default function AuthEventPro() {
+  const navigate = useNavigate();
+  const { user, signIn, signUp, loading: authLoading } = useAuth();
+  
+  const [searchParams] = useSearchParams();
+  const [isSignUp, setIsSignUp] = useState(true); // Default to signup for Event Pro flow
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [activeFeature, setActiveFeature] = useState(0);
+
+  // Rotate features
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveFeature((prev) => (prev + 1) % features.length);
+    }, 4000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Handle URL parameters
+  useEffect(() => {
+    if (searchParams.get('mode') === 'signin') {
+      setIsSignUp(false);
+    }
+  }, [searchParams]);
+
+  // Set auth intent on mount
+  useEffect(() => {
+    setAuthIntent({
+      intent: 'EVENT_PRO_ONBOARDING',
+      profileType: 'EVENT_PRO',
+    });
+  }, []);
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user && !authLoading) {
+      navigate('/post-auth');
+    }
+  }, [user, authLoading, navigate]);
+
+  const validateForm = () => {
+    try {
+      emailSchema.parse(email);
+      passwordSchema.parse(password);
+      return true;
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0].message);
+      }
+      return false;
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+
+    if (!validateForm()) return;
+
+    setLoading(true);
+
+    if (isSignUp) {
+      const fullName = `${firstName} ${lastName}`.trim();
+      const { error: signUpError } = await signUp(email, password, fullName);
+      
+      if (signUpError) {
+        if (signUpError.message.includes('already registered')) {
+          setError('This email is already registered. Please sign in instead.');
+        } else {
+          setError(signUpError.message);
+        }
+        setLoading(false);
+        return;
+      }
+    } else {
+      const { error: signInError } = await signIn(email, password);
+      if (signInError) {
+        if (signInError.message.includes('Invalid login')) {
+          setError('Invalid email or password. Please try again.');
+        } else {
+          setError(signInError.message);
+        }
+        setLoading(false);
+        return;
+      }
+    }
+
+    setLoading(false);
+  };
+
+  // Update profile with name after signup
+  useEffect(() => {
+    const updateProfileWithName = async () => {
+      if (user && isSignUp && (firstName || lastName)) {
+        await supabase
+          .from('profiles')
+          .update({
+            first_name: firstName,
+            last_name: lastName,
+          })
+          .eq('user_id', user.id);
+      }
+    };
+    
+    updateProfileWithName();
+  }, [user, isSignUp, firstName, lastName]);
+
+  return (
+    <div className="min-h-screen flex">
+      {/* Left Side - Event Pro Marketing */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary/5 via-background to-accent/5 relative overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/15 rounded-full blur-[120px]" />
+          <div className="absolute bottom-1/4 right-0 w-80 h-80 bg-accent/15 rounded-full blur-[100px]" />
+        </div>
+
+        <div className="relative z-10 flex flex-col justify-between p-12 w-full">
+          {/* Logo */}
+          <Link to="/">
+            <img src={logo} alt="EventPro" className="h-12 w-auto" />
+          </Link>
+
+          {/* Main Content */}
+          <div className="flex-1 flex flex-col justify-center max-w-lg">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+                <Sparkles className="w-4 h-4" />
+                Become an Event Pro
+              </div>
+              <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
+                Turn your passion into profit
+              </h2>
+              <p className="text-lg text-muted-foreground mb-8">
+                Join our community of event professionals. Create packages, accept bookings, and get paid—all in one place.
+              </p>
+            </motion.div>
+
+            {/* Stats Row */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="flex gap-8 mb-10"
+            >
+              {stats.map((stat) => (
+                <div key={stat.label} className="text-center">
+                  <div className="flex items-center justify-center gap-1 text-2xl font-bold text-foreground">
+                    {stat.value}
+                    {stat.icon && <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />}
+                  </div>
+                  <p className="text-sm text-muted-foreground">{stat.label}</p>
+                </div>
+              ))}
+            </motion.div>
+
+            {/* Feature Highlights */}
+            <div className="space-y-3">
+              {features.map((feature, idx) => {
+                const Icon = feature.icon;
+                const isActive = idx === activeFeature;
+                return (
+                  <motion.div
+                    key={feature.title}
+                    initial={{ opacity: 0.5 }}
+                    animate={{ 
+                      opacity: isActive ? 1 : 0.6,
+                      scale: isActive ? 1 : 0.98,
+                    }}
+                    transition={{ duration: 0.3 }}
+                    className={`flex items-start gap-3 p-3 rounded-xl transition-all ${
+                      isActive ? 'bg-primary/10 border border-primary/20' : 'hover:bg-secondary/50'
+                    }`}
+                  >
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                      isActive ? 'bg-primary text-primary-foreground' : 'bg-secondary'
+                    }`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-semibold text-foreground">
+                        {feature.title}
+                      </h4>
+                      <p className="text-xs text-muted-foreground">{feature.description}</p>
+                    </div>
+                    {isActive && (
+                      <CheckCircle className="w-5 h-5 text-primary shrink-0" />
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Footer */}
+          <p className="text-xs text-muted-foreground">
+            © 2025 EventPro. All rights reserved.
+          </p>
+        </div>
+      </div>
+
+      {/* Right Side - Auth Form */}
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-background relative">
+        {/* Mobile background effects */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none lg:hidden">
+          <div className="absolute top-1/3 -left-32 w-64 h-64 bg-primary/20 rounded-full blur-[100px]" />
+          <div className="absolute bottom-1/3 -right-32 w-64 h-64 bg-accent/20 rounded-full blur-[100px]" />
+        </div>
+
+        <div className="w-full max-w-sm relative z-10">
+          {/* Mobile Logo & Badge */}
+          <div className="lg:hidden mb-8 text-center">
+            <Link to="/">
+              <img src={logo} alt="EventPro" className="h-10 w-auto mx-auto mb-4" />
+            </Link>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
+              <Sparkles className="w-4 h-4" />
+              Become an Event Pro
+            </div>
+          </div>
+
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-6"
+          >
+            <h1 className="font-display text-2xl font-bold text-foreground">
+              {isSignUp ? 'Create your Pro account' : 'Welcome back, Pro'}
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">
+              {isSignUp 
+                ? 'Start accepting bookings in minutes'
+                : 'Access your Event Pro dashboard'
+              }
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <Card variant="glass" className="border-primary/20">
+              <CardContent className="p-5">
+                <form onSubmit={handleSubmit} className="space-y-3">
+                  {isSignUp && (
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                          First Name
+                        </label>
+                        <div className="flex items-center gap-2.5 bg-secondary/50 rounded-lg px-3 py-2.5 border border-border/50 focus-within:border-primary/50 transition-colors">
+                          <User className="w-4 h-4 text-muted-foreground" />
+                          <input
+                            type="text"
+                            placeholder="John"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none w-full"
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                          Last Name
+                        </label>
+                        <div className="flex items-center gap-2.5 bg-secondary/50 rounded-lg px-3 py-2.5 border border-border/50 focus-within:border-primary/50 transition-colors">
+                          <input
+                            type="text"
+                            placeholder="Doe"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none w-full"
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                      Email
+                    </label>
+                    <div className="flex items-center gap-2.5 bg-secondary/50 rounded-lg px-3 py-2.5 border border-border/50 focus-within:border-primary/50 transition-colors">
+                      <Mail className="w-4 h-4 text-muted-foreground" />
+                      <input
+                        type="email"
+                        placeholder="you@example.com"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                      Password
+                    </label>
+                    <div className="flex items-center gap-2.5 bg-secondary/50 rounded-lg px-3 py-2.5 border border-border/50 focus-within:border-primary/50 transition-colors">
+                      <Lock className="w-4 h-4 text-muted-foreground" />
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="••••••••"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="text-muted-foreground hover:text-foreground transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {error && (
+                    <div className="p-2.5 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-xs">
+                      {error}
+                    </div>
+                  )}
+
+                  <Button 
+                    type="submit" 
+                    variant="darkShine" 
+                    className="w-full mt-4 gap-2"
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <>
+                        {isSignUp ? 'Get Started Free' : 'Sign In'}
+                        <ArrowRight className="w-4 h-4" />
+                      </>
+                    )}
+                  </Button>
+                </form>
+
+                <div className="mt-4 pt-4 border-t border-border/50 text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsSignUp(!isSignUp);
+                      setError(null);
+                    }}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    {isSignUp 
+                      ? 'Already have an account? Sign in'
+                      : "Don't have an account? Sign up"
+                    }
+                  </button>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Mobile Features */}
+          <div className="lg:hidden mt-6 space-y-2">
+            {features.slice(0, 3).map((feature) => {
+              const Icon = feature.icon;
+              return (
+                <div key={feature.title} className="flex items-center gap-3 text-sm">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Icon className="w-4 h-4 text-primary" />
+                  </div>
+                  <span className="text-muted-foreground">{feature.title}</span>
+                </div>
+              );
+            })}
+          </div>
+
+          <p className="text-center text-xs text-muted-foreground mt-6">
+            By continuing, you agree to our{' '}
+            <Link to="/terms" className="underline hover:text-foreground">Terms</Link>
+            {' '}and{' '}
+            <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}

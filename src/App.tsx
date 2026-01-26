@@ -23,6 +23,8 @@ import LearnEventPros from "./pages/LearnEventPros";
 import FAQ from "./pages/FAQ";
 import Support from "./pages/Support";
 import Auth from "./pages/Auth";
+import AuthEventPro from "./pages/AuthEventPro";
+import AuthBooking from "./pages/AuthBooking";
 import PostAuth from "./pages/PostAuth";
 import Dashboard from "./pages/Dashboard";
 import VendorDashboard from "./pages/VendorDashboard";
@@ -63,6 +65,8 @@ const App = () => (
               <Route path="/faq" element={<FAQ />} />
               <Route path="/support" element={<Support />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/auth/pro" element={<AuthEventPro />} />
+              <Route path="/auth/booking" element={<AuthBooking />} />
               <Route path="/signin" element={<Auth />} />
               <Route path="/post-auth" element={<PostAuth />} />
               <Route path="/dashboard" element={<Dashboard />} />

@@ -63,16 +63,15 @@ export function clearAuthIntent(): void {
 export function buildAuthUrl(intent: AuthIntentPayload): string {
   const params = new URLSearchParams();
   
-  params.set('intent', intent.intent);
-  
-  if (intent.profileType) {
-    params.set('profileType', intent.profileType);
+  // Determine base path based on intent type
+  let basePath = '/auth';
+  if (intent.intent === 'EVENT_PRO_ONBOARDING') {
+    basePath = '/auth/pro';
+  } else if (intent.intent === 'BOOK_PACKAGE' || intent.intent === 'BOOK_SLOT') {
+    basePath = '/auth/booking';
   }
   
-  if (intent.returnTo) {
-    params.set('returnTo', intent.returnTo);
-  }
-  
+  // Add params for booking flow
   if (intent.payload?.packageId) {
     params.set('packageId', intent.payload.packageId);
   }
@@ -85,10 +84,15 @@ export function buildAuthUrl(intent: AuthIntentPayload): string {
     params.set('draftId', intent.payload.draftId);
   }
   
+  if (intent.returnTo) {
+    params.set('returnTo', intent.returnTo);
+  }
+  
   // Also store in sessionStorage for redundancy
   setAuthIntent(intent);
   
-  return `/auth?${params.toString()}`;
+  const queryString = params.toString();
+  return queryString ? `${basePath}?${queryString}` : basePath;
 }
 
 // Parse intent from URL params

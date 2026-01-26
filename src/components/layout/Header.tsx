@@ -55,12 +55,8 @@ export function Header() {
     if (user) {
       navigate('/eventpro-onboarding');
     } else {
-      // Set intent and redirect to auth
-      setAuthIntent({
-        intent: 'EVENT_PRO_ONBOARDING',
-        profileType: 'EVENT_PRO',
-      });
-      navigate('/auth?intent=EVENT_PRO_ONBOARDING&profileType=EVENT_PRO');
+      // Use dedicated Event Pro auth page
+      navigate('/auth/pro');
     }
   };
 
