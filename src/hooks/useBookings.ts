@@ -16,6 +16,21 @@ export interface BookingData {
   status: string;
   notes: string | null;
   created_at: string;
+  start_time?: string | null;
+  end_time?: string | null;
+  duration_minutes?: number;
+  // Extended fields for display
+  package_name?: string;
+  package_cover_image?: string;
+  vendor_display_name?: string;
+  vendor_avatar?: string;
+  deposit_amount?: number;
+  final_amount?: number;
+  deposit_paid_at?: string | null;
+  final_paid_at?: string | null;
+  deposit_percentage?: number;
+  payment_method?: 'stripe' | 'cash';
+  payment_status?: string;
 }
 
 export interface CreateBookingInput {
@@ -65,17 +80,61 @@ export function useBookings() {
     if (!user) return;
     
     setLoading(true);
-    const { data, error } = await supabase
+    
+    // Fetch bookings
+    const { data: bookingsData, error: bookingsError } = await supabase
       .from('bookings')
       .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching bookings:', error);
-    } else {
-      setBookings(data as BookingData[]);
+    if (bookingsError) {
+      console.error('Error fetching bookings:', bookingsError);
+      setLoading(false);
+      return;
     }
+
+    if (!bookingsData || bookingsData.length === 0) {
+      setBookings([]);
+      setLoading(false);
+      return;
+    }
+
+    // Get unique package IDs and vendor user IDs
+    const packageIds = [...new Set(bookingsData.map(b => b.package_id).filter(Boolean))];
+    const vendorUserIds = [...new Set(bookingsData.map(b => b.vendor_user_id).filter(Boolean))];
+
+    // Fetch packages
+    const { data: packagesData } = await supabase
+      .from('vendor_packages')
+      .select('id, name, cover_image_url')
+      .in('id', packageIds);
+
+    // Fetch vendor profiles
+    const { data: profilesData } = await supabase
+      .from('profiles')
+      .select('user_id, display_name, avatar_url')
+      .in('user_id', vendorUserIds);
+
+    // Create lookup maps
+    const packagesMap = new Map(packagesData?.map(p => [p.id, p]) || []);
+    const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
+
+    // Merge data
+    const enrichedBookings: BookingData[] = bookingsData.map(booking => {
+      const pkg = packagesMap.get(booking.package_id);
+      const vendorProfile = profilesMap.get(booking.vendor_user_id);
+
+      return {
+        ...booking,
+        package_name: pkg?.name || 'Package',
+        package_cover_image: pkg?.cover_image_url || null,
+        vendor_display_name: vendorProfile?.display_name || 'Event Pro',
+        vendor_avatar: vendorProfile?.avatar_url || null,
+      } as BookingData;
+    });
+
+    setBookings(enrichedBookings);
     setLoading(false);
   };
 
@@ -138,9 +197,9 @@ export function useBookings() {
         : "Your booking request has been sent to the vendor"
     });
 
-    // Only update local bookings state if user is logged in
+    // Refetch to get enriched data
     if (!isGuest) {
-      setBookings(prev => [data as BookingData, ...prev]);
+      fetchBookings();
     }
 
     // Send email notification to vendor (fire and forget)
@@ -150,8 +209,8 @@ export function useBookings() {
           booking_id: data.id,
           vendor_email: bookingData.vendor_email,
           vendor_name: bookingData.vendor_name || 'Vendor',
-          customer_name: bookingData.customer_name || user.email?.split('@')[0] || 'Customer',
-          customer_email: bookingData.customer_email || user.email,
+          customer_name: bookingData.customer_name || user?.email?.split('@')[0] || 'Customer',
+          customer_email: bookingData.customer_email || user?.email,
           package_name: bookingData.package_name || 'Package',
           event_date: bookingData.event_date,
           event_location: bookingData.event_location,
