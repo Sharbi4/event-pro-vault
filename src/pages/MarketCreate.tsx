@@ -322,18 +322,13 @@ export default function MarketCreate() {
                     value={location.formattedAddress}
                     onChange={(value) => setLocation(prev => ({ ...prev, formattedAddress: value }))}
                     onPlaceSelect={(place) => {
-                      if (place.geometry?.location) {
-                        const addressComponents = place.formatted_address?.split(', ') || [];
-                        const city = addressComponents[0] || '';
-                        const state = addressComponents.length > 2 ? addressComponents[addressComponents.length - 2] : '';
-                        setLocation({
-                          formattedAddress: place.formatted_address || place.name || '',
-                          city,
-                          state,
-                          lat: place.geometry.location.lat(),
-                          lng: place.geometry.location.lng(),
-                        });
-                      }
+                      setLocation({
+                        formattedAddress: place.formatted_address,
+                        city: place.city || '',
+                        state: place.state || '',
+                        lat: place.lat,
+                        lng: place.lng,
+                      });
                     }}
                     placeholder="Search for your market location..."
                   />

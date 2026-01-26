@@ -1,14 +1,22 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { MapPin, Loader2 } from 'lucide-react';
+import { MapPin, Loader2, LocateFixed } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGoogleMaps } from '@/contexts/GoogleMapsContext';
+import { toast } from 'sonner';
 
 interface LocationAutocompleteProps {
   value: string;
   onChange: (value: string) => void;
-  onPlaceSelect?: (place: google.maps.places.PlaceResult) => void;
+  onPlaceSelect?: (place: {
+    formatted_address: string;
+    lat: number;
+    lng: number;
+    city?: string;
+    state?: string;
+  }) => void;
   placeholder?: string;
   className?: string;
+  showGeolocation?: boolean;
 }
 
 export function LocationAutocomplete({
@@ -17,12 +25,15 @@ export function LocationAutocomplete({
   onPlaceSelect,
   placeholder = "Where",
   className,
+  showGeolocation = true,
 }: LocationAutocompleteProps) {
   const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
+  const [isGeolocating, setIsGeolocating] = useState(false);
   const autocompleteServiceRef = useRef<google.maps.places.AutocompleteService | null>(null);
   const placesServiceRef = useRef<google.maps.places.PlacesService | null>(null);
+  const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
   const googleApiKey = localStorage.getItem('google_maps_token') || '';
@@ -35,8 +46,87 @@ export function LocationAutocomplete({
       // Create a dummy element for PlacesService
       const dummyDiv = document.createElement('div');
       placesServiceRef.current = new google.maps.places.PlacesService(dummyDiv);
+      geocoderRef.current = new google.maps.Geocoder();
     }
   }, [isLoaded, googleApiKey]);
+
+  // Handle geolocation
+  const handleGeolocation = useCallback(() => {
+    if (!navigator.geolocation) {
+      toast.error('Geolocation is not supported by your browser');
+      return;
+    }
+
+    setIsGeolocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+
+        if (geocoderRef.current && isLoaded) {
+          geocoderRef.current.geocode(
+            { location: { lat: latitude, lng: longitude } },
+            (results, status) => {
+              setIsGeolocating(false);
+              
+              if (status === google.maps.GeocoderStatus.OK && results && results[0]) {
+                // Find city and state from address components
+                let city = '';
+                let state = '';
+                
+                for (const component of results[0].address_components) {
+                  if (component.types.includes('locality')) {
+                    city = component.long_name;
+                  }
+                  if (component.types.includes('administrative_area_level_1')) {
+                    state = component.short_name;
+                  }
+                }
+
+                const displayValue = city ? (state ? `${city}, ${state}` : city) : results[0].formatted_address;
+                onChange(displayValue);
+                
+                if (onPlaceSelect) {
+                  onPlaceSelect({
+                    formatted_address: results[0].formatted_address,
+                    lat: latitude,
+                    lng: longitude,
+                    city,
+                    state,
+                  });
+                }
+
+                toast.success('Location detected');
+              } else {
+                toast.error('Could not determine your location');
+              }
+            }
+          );
+        } else {
+          setIsGeolocating(false);
+          // Fallback without geocoding
+          onChange(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
+        }
+      },
+      (error) => {
+        setIsGeolocating(false);
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            toast.error('Location access denied. Please enable location permissions.');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            toast.error('Location information is unavailable.');
+            break;
+          case error.TIMEOUT:
+            toast.error('Location request timed out.');
+            break;
+          default:
+            toast.error('An error occurred while getting your location.');
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 300000 }
+    );
+  }, [isLoaded, onChange, onPlaceSelect]);
 
   // Fetch suggestions when input changes
   const fetchSuggestions = useCallback((input: string) => {
@@ -81,10 +171,30 @@ export function LocationAutocomplete({
     // Get full place details if callback provided
     if (onPlaceSelect && placesServiceRef.current) {
       placesServiceRef.current.getDetails(
-        { placeId: prediction.place_id, fields: ['geometry', 'formatted_address', 'name'] },
+        { placeId: prediction.place_id, fields: ['geometry', 'formatted_address', 'name', 'address_components'] },
         (place, status) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && place) {
-            onPlaceSelect(place);
+            let city = '';
+            let state = '';
+            
+            if (place.address_components) {
+              for (const component of place.address_components) {
+                if (component.types.includes('locality')) {
+                  city = component.long_name;
+                }
+                if (component.types.includes('administrative_area_level_1')) {
+                  state = component.short_name;
+                }
+              }
+            }
+
+            onPlaceSelect({
+              formatted_address: place.formatted_address || '',
+              lat: place.geometry?.location?.lat() || 0,
+              lng: place.geometry?.location?.lng() || 0,
+              city,
+              state,
+            });
           }
         }
       );
@@ -103,7 +213,7 @@ export function LocationAutocomplete({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // If no API key, show basic input
+  // If no API key, show basic input with geolocation
   if (!googleApiKey) {
     return (
       <div className={cn("flex items-center gap-2", className)}>
@@ -115,6 +225,21 @@ export function LocationAutocomplete({
           onChange={(e) => onChange(e.target.value)}
           className="bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-sm w-full"
         />
+        {showGeolocation && (
+          <button
+            type="button"
+            onClick={handleGeolocation}
+            disabled={isGeolocating}
+            className="p-1 rounded-full hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-primary disabled:opacity-50"
+            title="Use my location"
+          >
+            {isGeolocating ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <LocateFixed className="w-4 h-4" />
+            )}
+          </button>
+        )}
       </div>
     );
   }
@@ -137,6 +262,21 @@ export function LocationAutocomplete({
           }}
           className="bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-sm w-full"
         />
+        {showGeolocation && (
+          <button
+            type="button"
+            onClick={handleGeolocation}
+            disabled={isGeolocating}
+            className="p-1 rounded-full hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-primary disabled:opacity-50"
+            title="Use my location"
+          >
+            {isGeolocating ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <LocateFixed className="w-4 h-4" />
+            )}
+          </button>
+        )}
         {!isLoaded && googleApiKey && (
           <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
         )}
