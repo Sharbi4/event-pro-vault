@@ -1,18 +1,22 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, MessageCircle } from 'lucide-react';
+import { Menu, X, MessageCircle, LayoutDashboard, LogOut } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModeSwitcher } from './ModeSwitcher';
 import { ProfileTypeModal } from './ProfileTypeModal';
 import { setAuthIntent } from '@/lib/authIntent';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/eventpro-logo.png';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
-  const { user } = useAuth();
+  const [userInitial, setUserInitial] = useState<string>('U');
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -23,6 +27,24 @@ export function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Fetch user initial from profile
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from('profiles')
+        .select('first_name, display_name')
+        .eq('user_id', user.id)
+        .single();
+      if (data) {
+        setUserInitial(data.first_name?.[0] || data.display_name?.[0] || user.email?.[0]?.toUpperCase() || 'U');
+      } else {
+        setUserInitial(user.email?.[0]?.toUpperCase() || 'U');
+      }
+    };
+    fetchProfile();
+  }, [user]);
 
   const handleListService = () => {
     setMobileMenuOpen(false);
@@ -70,15 +92,34 @@ export function Header() {
             {/* Right Actions - Both Desktop & Mobile */}
             <div className="flex items-center gap-2 sm:gap-3">
               {user ? (
-                <>
-                  <button
-                    onClick={() => window.open('https://support.zendesk.com', '_blank')}
-                    className="p-2 rounded-full hover:bg-secondary/50 transition-colors"
-                    aria-label="Chat support"
-                  >
-                    <MessageCircle className="w-5 h-5 text-muted-foreground hover:text-foreground" />
-                  </button>
-                </>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-2 p-1 rounded-full hover:bg-secondary/50 transition-colors">
+                      <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                        <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
+                          {userInitial}
+                        </AvatarFallback>
+                      </Avatar>
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-48 bg-background border border-border">
+                    <div className="px-2 py-1.5">
+                      <p className="text-xs text-muted-foreground truncate">
+                        {user.email}
+                      </p>
+                    </div>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                      <LayoutDashboard className="w-4 h-4 mr-2" />
+                      Dashboard
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => signOut()} className="text-destructive">
+                      <LogOut className="w-4 h-4 mr-2" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               ) : (
                 <Button 
                   variant="darkShine" 
