@@ -160,18 +160,43 @@ export default function AuthEventPro() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Event Pro Marketing */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary/5 via-background to-accent/5 relative overflow-hidden">
+      <motion.div 
+        className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary/5 via-background to-accent/5 relative overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
         {/* Background effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/15 rounded-full blur-[120px]" />
-          <div className="absolute bottom-1/4 right-0 w-80 h-80 bg-accent/15 rounded-full blur-[100px]" />
+          <motion.div 
+            className="absolute top-1/4 -left-32 w-96 h-96 bg-primary/15 rounded-full blur-[120px]"
+            animate={{ 
+              scale: [1, 1.1, 1],
+              opacity: [0.15, 0.2, 0.15]
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div 
+            className="absolute bottom-1/4 right-0 w-80 h-80 bg-accent/15 rounded-full blur-[100px]"
+            animate={{ 
+              scale: [1, 1.15, 1],
+              opacity: [0.15, 0.25, 0.15]
+            }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          />
         </div>
 
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
           {/* Logo */}
-          <Link to="/">
-            <img src={logo} alt="EventPro" className="h-12 w-auto" />
-          </Link>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <Link to="/">
+              <img src={logo} alt="EventPro" className="h-12 w-auto" />
+            </Link>
+          </motion.div>
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col justify-center max-w-lg">
@@ -196,43 +221,73 @@ export default function AuthEventPro() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
               className="flex gap-8 mb-10"
             >
-              {stats.map((stat) => (
-                <div key={stat.label} className="text-center">
+              {stats.map((stat, idx) => (
+                <motion.div 
+                  key={stat.label} 
+                  className="text-center"
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ 
+                    duration: 0.4, 
+                    delay: 0.3 + idx * 0.1,
+                    type: "spring",
+                    stiffness: 200
+                  }}
+                >
                   <div className="flex items-center justify-center gap-1 text-2xl font-bold text-foreground">
                     {stat.value}
                     {stat.icon && <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />}
                   </div>
                   <p className="text-sm text-muted-foreground">{stat.label}</p>
-                </div>
+                </motion.div>
               ))}
             </motion.div>
 
             {/* Feature Highlights */}
-            <div className="space-y-3">
+            <motion.div 
+              className="space-y-3"
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: { staggerChildren: 0.1, delayChildren: 0.4 }
+                }
+              }}
+            >
               {features.map((feature, idx) => {
                 const Icon = feature.icon;
                 const isActive = idx === activeFeature;
                 return (
                   <motion.div
                     key={feature.title}
-                    initial={{ opacity: 0.5 }}
+                    variants={{
+                      hidden: { opacity: 0, x: -20 },
+                      visible: { opacity: 1, x: 0 }
+                    }}
                     animate={{ 
                       opacity: isActive ? 1 : 0.6,
                       scale: isActive ? 1 : 0.98,
+                      x: isActive ? 4 : 0,
                     }}
-                    transition={{ duration: 0.3 }}
-                    className={`flex items-start gap-3 p-3 rounded-xl transition-all ${
+                    transition={{ duration: 0.3, type: "spring", stiffness: 300 }}
+                    className={`flex items-start gap-3 p-3 rounded-xl transition-all cursor-pointer ${
                       isActive ? 'bg-primary/10 border border-primary/20' : 'hover:bg-secondary/50'
                     }`}
                   >
-                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-                      isActive ? 'bg-primary text-primary-foreground' : 'bg-secondary'
-                    }`}>
+                    <motion.div 
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                        isActive ? 'bg-primary text-primary-foreground' : 'bg-secondary'
+                      }`}
+                      animate={{ rotate: isActive ? [0, -5, 5, 0] : 0 }}
+                      transition={{ duration: 0.5 }}
+                    >
                       <Icon className="w-5 h-5" />
-                    </div>
+                    </motion.div>
                     <div className="flex-1">
                       <h4 className="text-sm font-semibold text-foreground">
                         {feature.title}
@@ -240,63 +295,115 @@ export default function AuthEventPro() {
                       <p className="text-xs text-muted-foreground">{feature.description}</p>
                     </div>
                     {isActive && (
-                      <CheckCircle className="w-5 h-5 text-primary shrink-0" />
+                      <motion.div
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 15 }}
+                      >
+                        <CheckCircle className="w-5 h-5 text-primary shrink-0" />
+                      </motion.div>
                     )}
                   </motion.div>
                 );
               })}
-            </div>
+            </motion.div>
           </div>
 
           {/* Footer */}
-          <p className="text-xs text-muted-foreground">
+          <motion.p 
+            className="text-xs text-muted-foreground"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+          >
             © 2025 EventPro. All rights reserved.
-          </p>
+          </motion.p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Right Side - Auth Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-background relative">
+      <motion.div 
+        className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-background relative"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+      >
         {/* Mobile background effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none lg:hidden">
-          <div className="absolute top-1/3 -left-32 w-64 h-64 bg-primary/20 rounded-full blur-[100px]" />
-          <div className="absolute bottom-1/3 -right-32 w-64 h-64 bg-accent/20 rounded-full blur-[100px]" />
+          <motion.div 
+            className="absolute top-1/3 -left-32 w-64 h-64 bg-primary/20 rounded-full blur-[100px]"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div 
+            className="absolute bottom-1/3 -right-32 w-64 h-64 bg-accent/20 rounded-full blur-[100px]"
+            animate={{ scale: [1, 1.15, 1] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
         </div>
 
         <div className="w-full max-w-sm relative z-10">
           {/* Mobile Logo & Badge */}
-          <div className="lg:hidden mb-8 text-center">
+          <motion.div 
+            className="lg:hidden mb-8 text-center"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             <Link to="/">
               <img src={logo} alt="EventPro" className="h-10 w-auto mx-auto mb-4" />
             </Link>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium">
+            <motion.div 
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
+            >
               <Sparkles className="w-4 h-4" />
               Become an Event Pro
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           <motion.div 
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
             className="text-center mb-6"
           >
-            <h1 className="font-display text-2xl font-bold text-foreground">
+            <motion.h1 
+              className="font-display text-2xl font-bold text-foreground"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
               {isSignUp ? 'Create your Pro account' : 'Welcome back, Pro'}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            </motion.h1>
+            <motion.p 
+              className="text-sm text-muted-foreground mt-1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
               {isSignUp 
                 ? 'Start accepting bookings in minutes'
                 : 'Access your Event Pro dashboard'
               }
-            </p>
+            </motion.p>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.15, duration: 0.5, type: "spring", stiffness: 100 }}
           >
-            <Card variant="glass" className="border-primary/20">
+            <Card variant="glass" className="border-primary/20 overflow-hidden">
+              {/* Shimmer effect on card */}
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -z-10"
+                initial={{ x: '-100%' }}
+                animate={{ x: '200%' }}
+                transition={{ duration: 2, delay: 0.5, repeat: Infinity, repeatDelay: 4 }}
+              />
               <CardContent className="p-5">
                 <form onSubmit={handleSubmit} className="space-y-3">
                   {isSignUp && (
@@ -419,28 +526,50 @@ export default function AuthEventPro() {
           </motion.div>
 
           {/* Mobile Features */}
-          <div className="lg:hidden mt-6 space-y-2">
+          <motion.div 
+            className="lg:hidden mt-6 space-y-2"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.3 } }
+            }}
+          >
             {features.slice(0, 3).map((feature) => {
               const Icon = feature.icon;
               return (
-                <div key={feature.title} className="flex items-center gap-3 text-sm">
+                <motion.div 
+                  key={feature.title} 
+                  className="flex items-center gap-3 text-sm"
+                  variants={{
+                    hidden: { opacity: 0, x: -10 },
+                    visible: { opacity: 1, x: 0 }
+                  }}
+                  whileHover={{ x: 4 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
                   <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                     <Icon className="w-4 h-4 text-primary" />
                   </div>
                   <span className="text-muted-foreground">{feature.title}</span>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
-          <p className="text-center text-xs text-muted-foreground mt-6">
+          <motion.p 
+            className="text-center text-xs text-muted-foreground mt-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
             By continuing, you agree to our{' '}
             <Link to="/terms" className="underline hover:text-foreground">Terms</Link>
             {' '}and{' '}
             <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>
-          </p>
+          </motion.p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
