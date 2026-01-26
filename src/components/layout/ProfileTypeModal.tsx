@@ -28,8 +28,8 @@ export function ProfileTypeModal({ open, onOpenChange }: ProfileTypeModalProps) 
     onOpenChange(false);
 
     if (!user) {
-      // Not logged in - go to auth first
-      navigate('/auth');
+      // Not logged in - go to dedicated Event Pro auth page
+      navigate('/auth/pro');
     } else {
       // Already logged in - go straight to onboarding
       navigate('/eventpro-onboarding');
