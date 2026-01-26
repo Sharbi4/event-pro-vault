@@ -39,6 +39,12 @@ export interface CreateBookingInput {
   package_id: string;
   event_date: string;
   event_location: string;
+  // Structured address fields
+  address_line1?: string;
+  address_line2?: string;
+  event_city?: string;
+  event_state?: string;
+  event_zip?: string;
   units: number;
   add_ons: string[];
   total_price: number;
@@ -161,6 +167,12 @@ export function useBookings() {
         package_id: bookingData.package_id,
         event_date: bookingData.event_date,
         event_location: bookingData.event_location,
+        // Structured address fields
+        address_line1: bookingData.address_line1 || null,
+        address_line2: bookingData.address_line2 || null,
+        event_city: bookingData.event_city || null,
+        event_state: bookingData.event_state || null,
+        event_zip: bookingData.event_zip || null,
         units: bookingData.units,
         add_ons: bookingData.add_ons,
         total_price: bookingData.total_price,

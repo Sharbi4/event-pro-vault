@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, CreditCard, Banknote, MapPin, Loader2, Clock } from 'lucide-react';
+import { X, Check, CreditCard, Banknote, Loader2, Clock } from 'lucide-react';
 import { format, addMinutes, parse } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Slider } from '@/components/ui/slider';
@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { saveBookingDraft, buildAuthUrl } from '@/lib/authIntent';
 import { TimeSlotPicker } from './TimeSlotPicker';
+import { AddressInput, AddressData, isAddressComplete, formatAddress } from '@/components/shared/AddressInput';
 
 interface SpatialDrawerProps {
   open: boolean;
@@ -53,7 +54,13 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
 
   const [hours, setHours] = useState(4);
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'cash'>('stripe');
-  const [eventLocation, setEventLocation] = useState('');
+  const [eventAddress, setEventAddress] = useState<AddressData>({
+    addressLine1: '',
+    addressLine2: '',
+    city: '',
+    state: '',
+    zip: '',
+  });
   const [customerEmail, setCustomerEmail] = useState('');
   const [bookingState, setBookingState] = useState<BookingState>('idle');
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -68,7 +75,13 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
   useEffect(() => {
     if (open) {
       setBookingState('idle');
-      setEventLocation('');
+      setEventAddress({
+        addressLine1: '',
+        addressLine2: '',
+        city: '',
+        state: '',
+        zip: '',
+      });
       setCustomerEmail('');
       setSelectedTime(null);
     }
@@ -119,10 +132,10 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
       return;
     }
 
-    if (!eventLocation.trim()) {
+    if (!isAddressComplete(eventAddress)) {
       toast({
-        title: "Location required",
-        description: "Please enter your event location",
+        title: "Address required",
+        description: "Please enter your complete event address",
         variant: "destructive"
       });
       return;
@@ -148,7 +161,12 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
         vendor_user_id: pkg.vendor_user_id || null,
         package_id: pkg.id,
         event_date: format(eventDate, 'yyyy-MM-dd'),
-        event_location: eventLocation.trim(),
+        event_location: formatAddress(eventAddress),
+        address_line1: eventAddress.addressLine1,
+        address_line2: eventAddress.addressLine2,
+        event_city: eventAddress.city,
+        event_state: eventAddress.state,
+        event_zip: eventAddress.zip,
         units: isHourly ? hours : 1,
         add_ons: [],
         total_price: totalPrice,
@@ -334,17 +352,14 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
 
                 {/* Event Location */}
                 <div>
-                  <h3 className="font-semibold mb-3">Event Location</h3>
-                  <div className="relative">
-                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-                    <Input
-                      value={eventLocation}
-                      onChange={(e) => setEventLocation(e.target.value)}
-                      placeholder="Enter your event address"
-                      className="pl-10"
-                      disabled={isLoading}
-                    />
-                  </div>
+                  <h3 className="font-semibold mb-3">Event Address</h3>
+                  <AddressInput
+                    value={eventAddress}
+                    onChange={setEventAddress}
+                    disabled={isLoading}
+                    showLabels={true}
+                    required={true}
+                  />
                 </div>
 
                 {/* Guest Email */}
