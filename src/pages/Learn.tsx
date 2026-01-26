@@ -3,8 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { 
   Sparkles, Calendar, Clock, CreditCard, 
-  CheckCircle, ArrowRight, Zap, Shield, Info,
-  DollarSign, Package, MapPin, Users
+  CheckCircle, ArrowRight, Zap, Shield, Info
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -271,49 +270,6 @@ export default function Learn() {
           </div>
         </section>
 
-        {/* Fees Section */}
-        <section className="py-16 lg:py-24">
-          <div className="container mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center">
-              <div className="w-12 h-12 rounded-xl bg-primary/10 mx-auto flex items-center justify-center mb-4">
-                <DollarSign className="w-6 h-6 text-primary" />
-              </div>
-              <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 inline-flex items-center gap-2">
-                Transparent fees, simple totals
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="w-5 h-5 text-muted-foreground cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-xs">
-                    <p className="text-sm">Fees help cover payment processing, support, and marketplace operations.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </h2>
-              
-              <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto mt-8">
-                <Card variant="elevated" className="p-6 text-left">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Users className="w-5 h-5 text-trust" />
-                    <span className="font-semibold text-foreground">Bookers</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    A 12.9% service fee is included in your total at checkout. This covers secure payment processing and platform support.
-                  </p>
-                </Card>
-
-                <Card variant="elevated" className="p-6 text-left">
-                  <div className="flex items-center gap-2 mb-3">
-                    <Package className="w-5 h-5 text-primary" />
-                    <span className="font-semibold text-foreground">Event Pros</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    A 12.9% commission is deducted from your earnings. Your net payout is shown in your dashboard after each booking.
-                  </p>
-                </Card>
-              </div>
-            </div>
-          </div>
-        </section>
 
         {/* FAQ Section */}
         <section className="py-16 lg:py-24 bg-secondary/30">
