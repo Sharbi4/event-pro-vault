@@ -42,6 +42,9 @@ export interface PackageDetailData {
   vendor_location: string | null;
   vendor_categories: string[];
   vendor_stripe_status: string | null;
+  vendor_base_lat: number | null;
+  vendor_base_lng: number | null;
+  vendor_travel_radius: number | null;
   is_verified: boolean;
   // Rating info
   avg_rating: number;
@@ -194,6 +197,9 @@ export function usePackageDetail(packageId: string | undefined) {
             : detailsResult.data.service_area,
           vendor_categories: detailsResult.data.service_categories || [],
           vendor_stripe_status: profileResult.data.stripe_account_status,
+          vendor_base_lat: detailsResult.data.base_location_lat ? Number(detailsResult.data.base_location_lat) : null,
+          vendor_base_lng: detailsResult.data.base_location_lng ? Number(detailsResult.data.base_location_lng) : null,
+          vendor_travel_radius: detailsResult.data.travel_radius_miles,
           is_verified: profileResult.data.stripe_account_status === 'active',
           // Rating info
           avg_rating: avgRating,

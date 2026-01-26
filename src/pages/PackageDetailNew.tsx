@@ -156,6 +156,9 @@ export default function PackageDetail() {
               cancellationPolicy={packageData.cancellation_policy}
               avgRating={packageData.avg_rating}
               reviewCount={packageData.review_count}
+              vendorBaseLat={packageData.vendor_base_lat}
+              vendorBaseLng={packageData.vendor_base_lng}
+              vendorName={packageData.vendor_display_name || packageData.vendor_name}
             />
           </div>
 

@@ -10,6 +10,7 @@ import {
   Check, Plus, AlertCircle, Truck, Clock, 
   FileText, Star, Timer 
 } from 'lucide-react';
+import { ServiceAreaMap } from './ServiceAreaMap';
 
 interface PackageDetailsProps {
   includes: string[];
@@ -25,6 +26,9 @@ interface PackageDetailsProps {
   cancellationPolicy: string | null;
   avgRating: number;
   reviewCount: number;
+  vendorBaseLat: number | null;
+  vendorBaseLng: number | null;
+  vendorName?: string;
 }
 
 export function PackageDetails({
@@ -40,7 +44,10 @@ export function PackageDetails({
   pickupOnly,
   cancellationPolicy,
   avgRating,
-  reviewCount
+  reviewCount,
+  vendorBaseLat,
+  vendorBaseLng,
+  vendorName
 }: PackageDetailsProps) {
   const formatCancellationPolicy = (policy: string | null) => {
     switch (policy) {
@@ -166,21 +173,33 @@ export function PackageDetails({
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-6 pb-4">
-              <div className="space-y-2 text-muted-foreground">
-                {pickupOnly ? (
-                  <p>This is a pickup-only service. Customers must arrange their own transportation.</p>
-                ) : (
-                  <>
-                    {travelRadius && (
-                      <p>Will travel up to {travelRadius} miles from their location</p>
-                    )}
-                    {includedTravelMiles && includedTravelMiles > 0 && (
-                      <p>First {includedTravelMiles} miles included free</p>
-                    )}
-                    {travelFeePerMile && travelFeePerMile > 0 && (
-                      <p>${travelFeePerMile}/mile travel fee after included miles</p>
-                    )}
-                  </>
+              <div className="space-y-4">
+                <div className="space-y-2 text-muted-foreground">
+                  {pickupOnly ? (
+                    <p>This is a pickup-only service. Customers must arrange their own transportation.</p>
+                  ) : (
+                    <>
+                      {travelRadius && (
+                        <p>Will travel up to {travelRadius} miles from their location</p>
+                      )}
+                      {includedTravelMiles && includedTravelMiles > 0 && (
+                        <p>First {includedTravelMiles} miles included free</p>
+                      )}
+                      {travelFeePerMile && travelFeePerMile > 0 && (
+                        <p>${travelFeePerMile}/mile travel fee after included miles</p>
+                      )}
+                    </>
+                  )}
+                </div>
+                
+                {/* Service Area Map */}
+                {!pickupOnly && vendorBaseLat && vendorBaseLng && travelRadius && (
+                  <ServiceAreaMap
+                    lat={vendorBaseLat}
+                    lng={vendorBaseLng}
+                    radiusMiles={travelRadius}
+                    vendorName={vendorName}
+                  />
                 )}
               </div>
             </AccordionContent>
