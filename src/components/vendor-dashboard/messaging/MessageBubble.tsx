@@ -1,7 +1,13 @@
 import { format } from 'date-fns';
-import { Check, CheckCheck } from 'lucide-react';
+import { Check, CheckCheck, ShieldAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { maskContactInfo } from '@/lib/maskContactInfo';
 import type { Message } from '@/hooks/useVendorMessages';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface MessageBubbleProps {
   message: Message;
@@ -11,6 +17,9 @@ interface MessageBubbleProps {
 export function MessageBubble({ message, isVendor }: MessageBubbleProps) {
   const isFromVendor = message.sender_type === 'vendor';
   const isOwnMessage = isVendor ? isFromVendor : !isFromVendor;
+
+  // Mask contact info to keep transactions on platform
+  const { maskedText, hasMaskedContent, maskedTypes } = maskContactInfo(message.content);
 
   return (
     <div
@@ -27,7 +36,30 @@ export function MessageBubble({ message, isVendor }: MessageBubbleProps) {
             : 'bg-muted text-foreground rounded-bl-md'
         )}
       >
-        <p className="text-sm whitespace-pre-wrap break-words">{message.content}</p>
+        <p className="text-sm whitespace-pre-wrap break-words">{maskedText}</p>
+        
+        {hasMaskedContent && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div
+                className={cn(
+                  'flex items-center gap-1 mt-1.5 text-[10px]',
+                  isOwnMessage ? 'text-primary-foreground/70' : 'text-muted-foreground'
+                )}
+              >
+                <ShieldAlert className="w-3 h-3" />
+                <span>Contact info hidden</span>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent side="bottom" className="max-w-[250px]">
+              <p className="text-xs">
+                For your protection, {maskedTypes.join(', ')} information is hidden. 
+                Please keep all transactions within EventPros to ensure secure payments and support.
+              </p>
+            </TooltipContent>
+          </Tooltip>
+        )}
+        
         <div
           className={cn(
             'flex items-center gap-1 mt-1',
