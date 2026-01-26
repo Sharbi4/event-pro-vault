@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Check, CreditCard, Banknote, MapPin, Loader2 } from 'lucide-react';
-import { format } from 'date-fns';
+import { X, Check, CreditCard, Banknote, MapPin, Loader2, Clock } from 'lucide-react';
+import { format, addMinutes, parse } from 'date-fns';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Slider } from '@/components/ui/slider';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import { useBookings } from '@/hooks/useBookings';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { saveBookingDraft, buildAuthUrl } from '@/lib/authIntent';
+import { TimeSlotPicker } from './TimeSlotPicker';
 
 interface SpatialDrawerProps {
   open: boolean;
@@ -26,6 +27,9 @@ interface SpatialDrawerProps {
     includes?: string[];
     booking_mode: string;
     min_hours?: number;
+    duration_minutes?: number;
+    setup_time_minutes?: number;
+    breakdown_time_minutes?: number;
     vendor_user_id?: string;
     payment_options?: string;
     vendor_email?: string | null; // Added for notifications
@@ -52,6 +56,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
   const [eventLocation, setEventLocation] = useState('');
   const [customerEmail, setCustomerEmail] = useState('');
   const [bookingState, setBookingState] = useState<BookingState>('idle');
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
 
   useEffect(() => {
     if (pkg?.min_hours) {
@@ -65,6 +70,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
       setBookingState('idle');
       setEventLocation('');
       setCustomerEmail('');
+      setSelectedTime(null);
     }
   }, [open]);
 
@@ -74,6 +80,28 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
   const isHourly = pkg.pricing_type === 'hourly' || pkg.type === 'hourly' || pkg.type === 'HOURLY';
   const basePrice = isHourly ? pkg.price * hours : pkg.price;
   const totalPrice = basePrice;
+  
+  // Calculate duration and buffer times
+  const durationMinutes = isHourly ? hours * 60 : (pkg.duration_minutes || 60);
+  const setupMinutes = pkg.setup_time_minutes || 0;
+  const breakdownMinutes = pkg.breakdown_time_minutes || 0;
+
+  // Calculate end time from start time
+  const endTime = selectedTime ? (() => {
+    const [hour, minute] = selectedTime.split(':').map(Number);
+    const startDate = new Date();
+    startDate.setHours(hour, minute, 0, 0);
+    const endDate = addMinutes(startDate, durationMinutes);
+    return format(endDate, 'HH:mm');
+  })() : null;
+
+  // Format time for display
+  const formatTimeDisplay = (time: string): string => {
+    const [hour, minute] = time.split(':').map(Number);
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    return `${displayHour}:${minute.toString().padStart(2, '0')} ${ampm}`;
+  };
   
   // Check payment options
   const paymentOptions = pkg.payment_options || 'ONLINE';
@@ -129,10 +157,16 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
         customer_email: isGuest ? customerEmail.trim() : user?.email,
         customer_name: user?.user_metadata?.full_name || customerEmail.split('@')[0],
         vendor_name: pkg.vendor?.display_name || 'Vendor',
-        vendor_email: pkg.vendor_email || undefined, // Pass vendor email for notifications
+        vendor_email: pkg.vendor_email || undefined,
         package_name: pkg.name,
         unit_type: isHourly ? 'hours' : 'booking',
         is_guest: isGuest,
+        // Time slot data for cross-package availability
+        start_time: selectedTime,
+        end_time: endTime,
+        duration_minutes: durationMinutes,
+        setup_minutes: setupMinutes,
+        breakdown_minutes: breakdownMinutes,
       });
 
       if (!booking) {
@@ -341,7 +375,10 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                     </div>
                     <Slider
                       value={[hours]}
-                      onValueChange={(val) => setHours(val[0])}
+                      onValueChange={(val) => {
+                        setHours(val[0]);
+                        setSelectedTime(null); // Reset time when duration changes
+                      }}
                       min={pkg.min_hours || 1}
                       max={12}
                       step={1}
@@ -352,6 +389,29 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                       <span>{pkg.min_hours || 1}hr min</span>
                       <span>${pkg.price}/hr</span>
                     </div>
+                  </div>
+                )}
+
+                {/* Time Slot Picker */}
+                {eventDate && pkg.vendor_user_id && (
+                  <TimeSlotPicker
+                    vendorUserId={pkg.vendor_user_id}
+                    selectedDate={eventDate}
+                    durationMinutes={durationMinutes}
+                    setupMinutes={setupMinutes}
+                    breakdownMinutes={breakdownMinutes}
+                    selectedTime={selectedTime}
+                    onTimeSelect={setSelectedTime}
+                  />
+                )}
+
+                {/* Selected time display */}
+                {selectedTime && endTime && (
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/10 text-sm">
+                    <Clock className="w-4 h-4 text-primary" />
+                    <span>
+                      <strong>Selected:</strong> {formatTimeDisplay(selectedTime)} - {formatTimeDisplay(endTime)}
+                    </span>
                   </div>
                 )}
 

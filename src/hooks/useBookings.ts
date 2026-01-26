@@ -30,6 +30,12 @@ export interface CreateBookingInput {
   notes?: string | null;
   payment_method?: 'stripe' | 'cash';
   booking_mode?: 'INSTANT' | 'REQUEST';
+  // Time slot fields for availability tracking
+  start_time?: string | null; // HH:mm format
+  end_time?: string | null; // HH:mm format
+  duration_minutes?: number;
+  setup_minutes?: number;
+  breakdown_minutes?: number;
   // For email notification
   vendor_email?: string;
   vendor_name?: string;
@@ -106,6 +112,12 @@ export function useBookings() {
           ? 'awaiting_approval'
           : (bookingData.payment_method === 'cash' ? 'cash_due' : 'pending'),
         customer_email: bookingData.customer_email || user?.email || null,
+        // Time slot fields for cross-package availability
+        start_time: bookingData.start_time || null,
+        end_time: bookingData.end_time || null,
+        duration_minutes: bookingData.duration_minutes || 60,
+        setup_minutes: bookingData.setup_minutes || 0,
+        breakdown_minutes: bookingData.breakdown_minutes || 0,
       })
       .select()
       .single();
