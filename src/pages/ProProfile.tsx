@@ -14,6 +14,7 @@ import {
 import { useVendorProfile } from '@/hooks/useVendorProfile';
 import { cn } from '@/lib/utils';
 import { ShareButton } from '@/components/shared/ShareButton';
+import { ContactVendorButton } from '@/components/shared/ContactVendorButton';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function ProProfile() {
@@ -109,7 +110,7 @@ export default function ProProfile() {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8">
-        {/* Back link and Share */}
+        {/* Back link, Contact, and Share */}
         <div className="flex items-center justify-between mb-6">
           <Link 
             to="/"
@@ -118,11 +119,18 @@ export default function ProProfile() {
             <ChevronLeft className="w-4 h-4" />
             Back to browse
           </Link>
-          <ShareButton
-            url={profile.username ? `/eventpro/${profile.username}` : `/pro/${resolvedUserId}`}
-            title={profile.displayName || profile.businessName || 'Event Pro'}
-            text={`Check out ${profile.displayName || profile.businessName} on Event Pro!`}
-          />
+          <div className="flex items-center gap-2">
+            <ContactVendorButton
+              vendorUserId={resolvedUserId!}
+              vendorName={profile.displayName || profile.businessName || 'Event Pro'}
+              variant="gradient"
+            />
+            <ShareButton
+              url={profile.username ? `/eventpro/${profile.username}` : `/pro/${resolvedUserId}`}
+              title={profile.displayName || profile.businessName || 'Event Pro'}
+              text={`Check out ${profile.displayName || profile.businessName} on Event Pro!`}
+            />
+          </div>
         </div>
 
         {/* Hero section */}
