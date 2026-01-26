@@ -276,7 +276,7 @@ export default function SentenceLanding() {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8 }}
       >
-        <span className="text-[16px] text-muted-foreground">
+        <span className="text-sm text-muted-foreground font-medium">
           by Vendibook
         </span>
       </motion.div>

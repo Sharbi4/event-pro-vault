@@ -127,7 +127,7 @@ export function SentenceBuilder({
             <Calendar className="w-5 h-5 md:w-6 md:h-6 text-muted-foreground" />
             <span 
               className={cn(
-                "border-b-2 pb-1 transition-all font-mono text-base md:text-inherit",
+                "border-b-2 pb-1 transition-all",
                 date 
                   ? "text-foreground border-foreground" 
                   : "text-muted-foreground border-muted-foreground/30 hover:border-muted-foreground"
