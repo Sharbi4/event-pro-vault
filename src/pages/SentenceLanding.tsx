@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SentenceBuilder } from '@/components/landing/SentenceBuilder';
 import { RevealButton } from '@/components/landing/RevealButton';
@@ -7,24 +7,30 @@ import { BackgroundSlideshow } from '@/components/landing/BackgroundSlideshow';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, LogOut, LayoutDashboard } from 'lucide-react';
+import { Menu, LogOut, LayoutDashboard, MessageCircle } from 'lucide-react';
+import { ModeSwitcher } from '@/components/layout/ModeSwitcher';
+import { ProfileTypeModal } from '@/components/layout/ProfileTypeModal';
 import logo from '@/assets/eventpro-logo.png';
 
 export default function SentenceLanding() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, signOut } = useAuth();
   const [eventType, setEventType] = useState<string>('');
-  const [location, setLocation] = useState<string>('');
+  const [location_, setLocation] = useState<string>('');
   const [date, setDate] = useState<Date | undefined>();
   const [isComplete, setIsComplete] = useState(false);
   const [userInitial, setUserInitial] = useState<string>('U');
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [profileModalOpen, setProfileModalOpen] = useState(false);
 
   useEffect(() => {
-    const complete = Boolean(eventType && location && date);
+    const complete = Boolean(eventType && location_ && date);
     setIsComplete(complete);
-  }, [eventType, location, date]);
+  }, [eventType, location_, date]);
 
   // Fetch user profile data
   useEffect(() => {
@@ -49,11 +55,18 @@ export default function SentenceLanding() {
   const handleReveal = () => {
     const params = new URLSearchParams();
     if (eventType) params.set('event', eventType);
-    if (location) params.set('location', location);
+    if (location_) params.set('location', location_);
     if (date) params.set('date', date.toISOString().split('T')[0]);
     
     navigate(`/discover?${params.toString()}`);
   };
+
+  const navLinkClass = (path: string) =>
+    `text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+      location.pathname === path
+        ? 'text-foreground bg-secondary'
+        : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+    }`;
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 relative overflow-hidden">
@@ -71,7 +84,7 @@ export default function SentenceLanding() {
         <div className="text-center mb-16">
           <SentenceBuilder
             eventType={eventType}
-            location={location}
+            location={location_}
             date={date}
             onEventTypeChange={setEventType}
             onLocationChange={setLocation}
@@ -115,60 +128,143 @@ export default function SentenceLanding() {
 
           {/* Top Right Actions */}
           <motion.div 
-            className="flex items-center gap-3"
+            className="flex items-center gap-2 sm:gap-3"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.3 }}
           >
-        {user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 p-1 rounded-full hover:bg-secondary/50 transition-colors">
-                <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
-                  <AvatarImage src={userAvatarUrl || undefined} alt="Profile" />
-                  <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
-                    {userInitial}
-                  </AvatarFallback>
-                </Avatar>
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
-              <div className="px-2 py-1.5">
-                <p className="text-xs text-muted-foreground truncate">
-                  {user.email}
-                </p>
-              </div>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => navigate('/dashboard')}>
-                <LayoutDashboard className="w-4 h-4 mr-2" />
-                Dashboard
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={() => signOut()} className="text-destructive">
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : (
-          <>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate('/auth')}
-              className="text-foreground hover:bg-secondary/50"
-            >
-              Sign In
-            </Button>
-            <Button 
-              variant="darkShine" 
-              size="sm"
-              onClick={() => navigate('/auth?signup=true')}
-            >
-              Create Profile
-            </Button>
-          </>
-          )}
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-2 p-1 rounded-full hover:bg-secondary/50 transition-colors">
+                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                      <AvatarImage src={userAvatarUrl || undefined} alt="Profile" />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-sm font-medium">
+                        {userInitial}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-background border border-border">
+                  <div className="px-2 py-1.5">
+                    <p className="text-xs text-muted-foreground truncate">
+                      {user.email}
+                    </p>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                    <LayoutDashboard className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => signOut()} className="text-destructive">
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button 
+                variant="darkShine" 
+                size="sm"
+                className="hidden sm:inline-flex"
+                onClick={() => setProfileModalOpen(true)}
+              >
+                Create free profile
+              </Button>
+            )}
+
+            {/* Hamburger Menu */}
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild>
+                <button
+                  className="p-2 rounded-lg hover:bg-secondary/50 transition-colors"
+                  aria-label="Toggle menu"
+                >
+                  <Menu className="w-6 h-6 text-foreground" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[300px] sm:w-[350px] bg-background">
+                <SheetHeader>
+                  <SheetTitle className="text-left">Menu</SheetTitle>
+                </SheetHeader>
+                <nav className="flex flex-col gap-1 mt-6">
+                  {user ? (
+                    <>
+                      <div className="px-2 pb-3">
+                        <ModeSwitcher compact />
+                      </div>
+                      <div className="h-px bg-border my-2" />
+                      <Link 
+                        to="/" 
+                        className={navLinkClass('/')}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Browse
+                      </Link>
+                      <Link 
+                        to="/faq" 
+                        className={navLinkClass('/faq')}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        FAQ
+                      </Link>
+                      <button 
+                        className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
+                        onClick={() => {
+                          setMenuOpen(false);
+                          window.open('https://support.zendesk.com', '_blank');
+                        }}
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                        Contact Us
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <Link 
+                        to="/auth" 
+                        onClick={() => setMenuOpen(false)}
+                        className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
+                      >
+                        Sign In
+                      </Link>
+                      <button 
+                        className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
+                        onClick={() => {
+                          setMenuOpen(false);
+                          setProfileModalOpen(true);
+                        }}
+                      >
+                        Create a Free Profile
+                      </button>
+                      <div className="h-px bg-border my-2" />
+                      <Link 
+                        to="/" 
+                        className={navLinkClass('/')}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Browse
+                      </Link>
+                      <Link 
+                        to="/learn" 
+                        className={navLinkClass('/learn')}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        Learn More
+                      </Link>
+                      <Link 
+                        to="/faq" 
+                        className={navLinkClass('/faq')}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        FAQ
+                      </Link>
+                    </>
+                  )}
+                </nav>
+              </SheetContent>
+            </Sheet>
           </motion.div>
         </div>
       </div>
@@ -184,6 +280,11 @@ export default function SentenceLanding() {
           by Vendibook
         </span>
       </motion.div>
+
+      <ProfileTypeModal 
+        open={profileModalOpen} 
+        onOpenChange={setProfileModalOpen} 
+      />
     </div>
   );
 }
