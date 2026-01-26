@@ -108,8 +108,9 @@ export function SentenceBuilder({
         <PopoverContent className="w-72 md:w-80 p-3 md:p-4" align="start">
           <LocationAutocomplete
             value={location}
-            onChange={(value) => {
-              onLocationChange(value);
+            onChange={onLocationChange}
+            onPlaceSelect={(place) => {
+              onLocationChange(place.city || place.formatted_address);
               setLocationOpen(false);
             }}
             placeholder="Enter city or zip code"

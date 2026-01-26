@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, forwardRef } from 'react';
 import { MapPin, Loader2, LocateFixed } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGoogleMaps } from '@/contexts/GoogleMapsContext';
@@ -19,14 +19,14 @@ interface LocationAutocompleteProps {
   showGeolocation?: boolean;
 }
 
-export function LocationAutocomplete({
+export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompleteProps>(({
   value,
   onChange,
   onPlaceSelect,
   placeholder = "Where",
   className,
   showGeolocation = true,
-}: LocationAutocompleteProps) {
+}, forwardedRef) => {
   const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isFocused, setIsFocused] = useState(false);
@@ -36,19 +36,28 @@ export function LocationAutocomplete({
   const geocoderRef = useRef<google.maps.Geocoder | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const googleApiKey = localStorage.getItem('google_maps_token') || '';
-  const { isLoaded } = useGoogleMaps();
+  const { isLoaded, apiKey } = useGoogleMaps();
+
+  // Combine refs
+  const setRefs = useCallback((node: HTMLDivElement | null) => {
+    containerRef.current = node;
+    if (typeof forwardedRef === 'function') {
+      forwardedRef(node);
+    } else if (forwardedRef) {
+      forwardedRef.current = node;
+    }
+  }, [forwardedRef]);
 
   // Initialize services when API is loaded
   useEffect(() => {
-    if (isLoaded && googleApiKey) {
+    if (isLoaded && apiKey) {
       autocompleteServiceRef.current = new google.maps.places.AutocompleteService();
       // Create a dummy element for PlacesService
       const dummyDiv = document.createElement('div');
       placesServiceRef.current = new google.maps.places.PlacesService(dummyDiv);
       geocoderRef.current = new google.maps.Geocoder();
     }
-  }, [isLoaded, googleApiKey]);
+  }, [isLoaded, apiKey]);
 
   // Handle geolocation
   const handleGeolocation = useCallback(() => {
@@ -204,7 +213,8 @@ export function LocationAutocomplete({
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      const currentRef = containerRef.current;
+      if (currentRef && !currentRef.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };
@@ -214,9 +224,9 @@ export function LocationAutocomplete({
   }, []);
 
   // If no API key, show basic input with geolocation
-  if (!googleApiKey) {
+  if (!apiKey) {
     return (
-      <div className={cn("flex items-center gap-2", className)}>
+      <div ref={setRefs} className={cn("flex items-center gap-2", className)}>
         <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
         <input
           type="text"
@@ -245,7 +255,7 @@ export function LocationAutocomplete({
   }
 
   return (
-    <div ref={containerRef} className={cn("relative", className)}>
+    <div ref={setRefs} className={cn("relative", className)}>
       <div className="flex items-center gap-2">
         <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
         <input
@@ -277,7 +287,7 @@ export function LocationAutocomplete({
             )}
           </button>
         )}
-        {!isLoaded && googleApiKey && (
+        {!isLoaded && apiKey && (
           <Loader2 className="w-3 h-3 animate-spin text-muted-foreground" />
         )}
       </div>
@@ -308,4 +318,6 @@ export function LocationAutocomplete({
       )}
     </div>
   );
-}
+});
+
+LocationAutocomplete.displayName = 'LocationAutocomplete';
