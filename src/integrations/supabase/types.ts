@@ -522,6 +522,7 @@ export type Database = {
           stripe_account_status: string | null
           updated_at: string
           user_id: string
+          username: string | null
         }
         Insert: {
           approval_notes?: string | null
@@ -551,6 +552,7 @@ export type Database = {
           stripe_account_status?: string | null
           updated_at?: string
           user_id: string
+          username?: string | null
         }
         Update: {
           approval_notes?: string | null
@@ -580,6 +582,7 @@ export type Database = {
           stripe_account_status?: string | null
           updated_at?: string
           user_id?: string
+          username?: string | null
         }
         Relationships: []
       }

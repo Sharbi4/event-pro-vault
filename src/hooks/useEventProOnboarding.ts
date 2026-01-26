@@ -20,6 +20,7 @@ export interface ProfileBasicsData {
   firstName: string;
   lastName: string;
   displayName: string;
+  username: string;
   shortBio: string;
   websiteUrl: string;
   instagramHandle: string;
@@ -86,6 +87,7 @@ const initialState: OnboardingState = {
     firstName: '',
     lastName: '',
     displayName: '',
+    username: '',
     shortBio: '',
     websiteUrl: '',
     instagramHandle: '',
@@ -187,6 +189,7 @@ export function useEventProOnboarding() {
           firstName: profile.first_name || user.user_metadata?.full_name?.split(' ')[0] || '',
           lastName: profile.last_name || user.user_metadata?.full_name?.split(' ').slice(1).join(' ') || '',
           displayName: profile.display_name || '',
+          username: profile.username || '',
           shortBio: profile.short_bio || '',
           websiteUrl: vendorDetails?.website_url || '',
           instagramHandle: profile.instagram_handle || '',
@@ -259,19 +262,31 @@ export function useEventProOnboarding() {
     const mergedState = { ...state, ...data };
 
     try {
-      // Update profile
+      // Update profile - only set username if it's not already set (immutable after first save)
+      const { data: currentProfile } = await supabase
+        .from('profiles')
+        .select('username')
+        .eq('user_id', user.id)
+        .single();
+
+      const profileUpdate = {
+        user_id: user.id,
+        first_name: mergedState.profileBasics.firstName,
+        last_name: mergedState.profileBasics.lastName,
+        display_name: mergedState.profileBasics.displayName,
+        short_bio: mergedState.profileBasics.shortBio,
+        instagram_handle: mergedState.profileBasics.instagramHandle,
+        onboarding_step: currentStep,
+        is_vendor: true,
+        // Only set username if not already set (immutable)
+        ...((!currentProfile?.username && mergedState.profileBasics.username) && {
+          username: mergedState.profileBasics.username
+        }),
+      };
+
       await supabase
         .from('profiles')
-        .upsert({
-          user_id: user.id,
-          first_name: mergedState.profileBasics.firstName,
-          last_name: mergedState.profileBasics.lastName,
-          display_name: mergedState.profileBasics.displayName,
-          short_bio: mergedState.profileBasics.shortBio,
-          instagram_handle: mergedState.profileBasics.instagramHandle,
-          onboarding_step: currentStep,
-          is_vendor: true,
-        }, { onConflict: 'user_id' });
+        .upsert(profileUpdate, { onConflict: 'user_id' });
 
       // Update vendor details - check if exists first
       const { data: existingDetails } = await supabase
@@ -429,6 +444,7 @@ export function useEventProOnboarding() {
     const missing: string[] = [];
     
     if (!state.profileBasics.displayName) missing.push('Display Name');
+    if (!state.profileBasics.username) missing.push('Username (public URL)');
     if (!state.profileBasics.shortBio) missing.push('Short Bio');
     if (state.categories.length === 0) missing.push('At least 1 category');
     if (!state.serviceArea.formattedAddress) missing.push('Service Area');
