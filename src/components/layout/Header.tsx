@@ -162,9 +162,9 @@ export function Header() {
                     <div className="h-px bg-border my-2" />
                     
                     <Link 
-                      to="/" 
+                      to="/browse" 
                       className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
-                        location.pathname === '/' 
+                        location.pathname === '/browse' 
                           ? 'text-foreground bg-secondary' 
                           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                       }`}
@@ -219,9 +219,9 @@ export function Header() {
                     <div className="h-px bg-border my-2" />
                     
                     <Link 
-                      to="/" 
+                      to="/browse" 
                       className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
-                        location.pathname === '/' 
+                        location.pathname === '/browse' 
                           ? 'text-foreground bg-secondary' 
                           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                       }`}
