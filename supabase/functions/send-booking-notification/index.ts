@@ -23,7 +23,35 @@ interface BookingNotificationRequest {
   total_price: number;
   add_ons: string[];
   notes?: string | null;
+  cancellation_policy?: 'flexible' | 'standard' | 'strict';
 }
+
+const CANCELLATION_POLICIES = {
+  flexible: {
+    name: 'Flexible',
+    tiers: [
+      { label: '48+ hours before', refund: '100%' },
+      { label: '24-48 hours before', refund: '50%' },
+      { label: 'Less than 24 hours', refund: 'No refund' },
+    ],
+  },
+  standard: {
+    name: 'Standard',
+    tiers: [
+      { label: '7+ days before', refund: '100%' },
+      { label: '3-7 days before', refund: '50%' },
+      { label: 'Less than 72 hours', refund: 'No refund' },
+    ],
+  },
+  strict: {
+    name: 'Strict',
+    tiers: [
+      { label: '14+ days before', refund: '100%' },
+      { label: '7-14 days before', refund: '50%' },
+      { label: 'Less than 7 days', refund: 'No refund' },
+    ],
+  },
+};
 
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
@@ -46,7 +74,27 @@ const handler = async (req: Request): Promise<Response> => {
       total_price,
       add_ons,
       notes,
+      cancellation_policy,
     }: BookingNotificationRequest = await req.json();
+
+    // Get policy details for email
+    const policy = cancellation_policy ? CANCELLATION_POLICIES[cancellation_policy] : CANCELLATION_POLICIES.standard;
+    const policyHtml = `
+      <div style="background-color: #f0fdf4; border-radius: 8px; padding: 24px; margin-bottom: 24px; border: 1px solid #bbf7d0;">
+        <h3 style="color: #166534; font-size: 16px; margin: 0 0 12px 0;">📋 Cancellation Policy: ${policy.name}</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+          ${policy.tiers.map(tier => `
+            <tr>
+              <td style="padding: 6px 0; color: #166534; font-size: 13px;">${tier.label}</td>
+              <td style="padding: 6px 0; color: #166534; font-size: 13px; font-weight: 500; text-align: right;">${tier.refund}</td>
+            </tr>
+          `).join('')}
+        </table>
+        <p style="color: #15803d; font-size: 11px; margin: 12px 0 0 0; font-style: italic;">
+          Platform fees are non-refundable. Contact support for questions.
+        </p>
+      </div>
+    `;
 
     console.log("Sending booking notification email to vendor:", vendor_email);
     console.log("Booking details:", { booking_id, package_name, event_date });
@@ -136,6 +184,9 @@ const handler = async (req: Request): Promise<Response> => {
                 <p style="color: #92400e; font-size: 14px; margin: 0;">${notes}</p>
               </div>
               ` : ''}
+              
+              <!-- Cancellation Policy -->
+              ${policyHtml}
               
               <!-- Total -->
               <div style="background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); border-radius: 8px; padding: 24px; text-align: center; margin-bottom: 24px;">
