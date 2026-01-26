@@ -5,6 +5,7 @@ import { TrustSection } from '@/components/home/TrustSection';
 import { HowItWorks } from '@/components/home/HowItWorks';
 import { FeaturedVendors } from '@/components/home/FeaturedVendors';
 import { FeaturedPackages } from '@/components/home/FeaturedPackages';
+import { Testimonials } from '@/components/home/Testimonials';
 import { VendorCTA } from '@/components/home/VendorCTA';
 
 const Index = () => {
@@ -16,6 +17,7 @@ const Index = () => {
       <HowItWorks />
       <FeaturedVendors />
       <FeaturedPackages />
+      <Testimonials />
       <VendorCTA />
     </Layout>
   );
