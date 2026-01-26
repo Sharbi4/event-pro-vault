@@ -149,18 +149,43 @@ export default function AuthBooking() {
   return (
     <div className="min-h-screen flex">
       {/* Left Side - Booking Benefits */}
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-trust/5 via-background to-secondary/20 relative overflow-hidden">
+      <motion.div 
+        className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-trust/5 via-background to-secondary/20 relative overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
         {/* Background effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 -left-32 w-96 h-96 bg-trust/10 rounded-full blur-[120px]" />
-          <div className="absolute bottom-1/4 right-0 w-80 h-80 bg-secondary/30 rounded-full blur-[100px]" />
+          <motion.div 
+            className="absolute top-1/4 -left-32 w-96 h-96 bg-trust/10 rounded-full blur-[120px]"
+            animate={{ 
+              scale: [1, 1.1, 1],
+              opacity: [0.1, 0.15, 0.1]
+            }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div 
+            className="absolute bottom-1/4 right-0 w-80 h-80 bg-secondary/30 rounded-full blur-[100px]"
+            animate={{ 
+              scale: [1, 1.15, 1],
+              opacity: [0.3, 0.4, 0.3]
+            }}
+            transition={{ duration: 10, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+          />
         </div>
 
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
           {/* Logo */}
-          <Link to="/">
-            <img src={logo} alt="EventPro" className="h-12 w-auto" />
-          </Link>
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <Link to="/">
+              <img src={logo} alt="EventPro" className="h-12 w-auto" />
+            </Link>
+          </motion.div>
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col justify-center max-w-lg">
@@ -183,39 +208,65 @@ export default function AuthBooking() {
 
             {/* Benefits Grid */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
+              initial="hidden"
+              animate="visible"
+              variants={{
+                hidden: { opacity: 0 },
+                visible: {
+                  opacity: 1,
+                  transition: { staggerChildren: 0.1, delayChildren: 0.3 }
+                }
+              }}
               className="grid grid-cols-2 gap-4"
             >
-              {benefits.map((benefit) => {
+              {benefits.map((benefit, idx) => {
                 const Icon = benefit.icon;
                 return (
-                  <div
+                  <motion.div
                     key={benefit.title}
-                    className="p-4 rounded-xl bg-background/50 border border-border/50 hover:border-trust/30 transition-colors"
+                    variants={{
+                      hidden: { opacity: 0, y: 20, scale: 0.95 },
+                      visible: { opacity: 1, y: 0, scale: 1 }
+                    }}
+                    whileHover={{ 
+                      scale: 1.02, 
+                      borderColor: 'hsl(var(--trust) / 0.4)',
+                      transition: { duration: 0.2 }
+                    }}
+                    className="p-4 rounded-xl bg-background/50 border border-border/50 hover:border-trust/30 transition-colors cursor-pointer"
                   >
-                    <div className="w-10 h-10 rounded-lg bg-trust/10 flex items-center justify-center mb-3">
+                    <motion.div 
+                      className="w-10 h-10 rounded-lg bg-trust/10 flex items-center justify-center mb-3"
+                      whileHover={{ rotate: [0, -5, 5, 0] }}
+                      transition={{ duration: 0.4 }}
+                    >
                       <Icon className="w-5 h-5 text-trust" />
-                    </div>
+                    </motion.div>
                     <h4 className="text-sm font-semibold text-foreground mb-1">
                       {benefit.title}
                     </h4>
                     <p className="text-xs text-muted-foreground">{benefit.description}</p>
-                  </div>
+                  </motion.div>
                 );
               })}
             </motion.div>
 
             {/* Guest Checkout Note */}
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="mt-8 p-4 rounded-xl bg-secondary/30 border border-border/50"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6, duration: 0.4 }}
+              whileHover={{ scale: 1.01 }}
+              className="mt-8 p-4 rounded-xl bg-secondary/30 border border-border/50 cursor-pointer"
             >
               <div className="flex items-start gap-3">
-                <CheckCircle2 className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.8, type: "spring", stiffness: 300 }}
+                >
+                  <CheckCircle2 className="w-5 h-5 text-muted-foreground shrink-0 mt-0.5" />
+                </motion.div>
                 <div>
                   <p className="text-sm text-muted-foreground">
                     <span className="font-medium text-foreground">Prefer not to create an account?</span>
@@ -227,54 +278,100 @@ export default function AuthBooking() {
           </div>
 
           {/* Footer */}
-          <p className="text-xs text-muted-foreground">
+          <motion.p 
+            className="text-xs text-muted-foreground"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+          >
             © 2025 EventPro. All rights reserved.
-          </p>
+          </motion.p>
         </div>
-      </div>
+      </motion.div>
 
       {/* Right Side - Auth Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-background relative">
+      <motion.div 
+        className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-background relative"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4 }}
+      >
         {/* Mobile background effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none lg:hidden">
-          <div className="absolute top-1/3 -left-32 w-64 h-64 bg-trust/20 rounded-full blur-[100px]" />
-          <div className="absolute bottom-1/3 -right-32 w-64 h-64 bg-secondary/30 rounded-full blur-[100px]" />
+          <motion.div 
+            className="absolute top-1/3 -left-32 w-64 h-64 bg-trust/20 rounded-full blur-[100px]"
+            animate={{ scale: [1, 1.1, 1] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+          />
+          <motion.div 
+            className="absolute bottom-1/3 -right-32 w-64 h-64 bg-secondary/30 rounded-full blur-[100px]"
+            animate={{ scale: [1, 1.15, 1] }}
+            transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          />
         </div>
 
         <div className="w-full max-w-sm relative z-10">
           {/* Mobile Logo & Badge */}
-          <div className="lg:hidden mb-8 text-center">
+          <motion.div 
+            className="lg:hidden mb-8 text-center"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
             <Link to="/">
               <img src={logo} alt="EventPro" className="h-10 w-auto mx-auto mb-4" />
             </Link>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-trust/10 text-trust text-sm font-medium">
+            <motion.div 
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-trust/10 text-trust text-sm font-medium"
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
+            >
               <Calendar className="w-4 h-4" />
               Complete Your Booking
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           <motion.div 
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, type: "spring", stiffness: 100 }}
             className="text-center mb-6"
           >
-            <h1 className="font-display text-2xl font-bold text-foreground">
+            <motion.h1 
+              className="font-display text-2xl font-bold text-foreground"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+            >
               {isSignUp ? 'Create account' : 'Sign in to continue'}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
+            </motion.h1>
+            <motion.p 
+              className="text-sm text-muted-foreground mt-1"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+            >
               {isSignUp 
                 ? 'Create an account to manage your bookings'
                 : 'Sign in to complete your booking'
               }
-            </p>
+            </motion.p>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+            initial={{ opacity: 0, y: 20, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.15, duration: 0.5, type: "spring", stiffness: 100 }}
           >
-            <Card variant="glass" className="border-trust/20">
+            <Card variant="glass" className="border-trust/20 overflow-hidden relative">
+              {/* Shimmer effect on card */}
+              <motion.div 
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-trust/5 to-transparent -z-10"
+                initial={{ x: '-100%' }}
+                animate={{ x: '200%' }}
+                transition={{ duration: 2, delay: 0.5, repeat: Infinity, repeatDelay: 4 }}
+              />
               <CardContent className="p-5">
                 <form onSubmit={handleSubmit} className="space-y-3">
                   {isSignUp && (
@@ -396,28 +493,50 @@ export default function AuthBooking() {
           </motion.div>
 
           {/* Mobile Benefits */}
-          <div className="lg:hidden mt-6 space-y-2">
+          <motion.div 
+            className="lg:hidden mt-6 space-y-2"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: { opacity: 0 },
+              visible: { opacity: 1, transition: { staggerChildren: 0.1, delayChildren: 0.3 } }
+            }}
+          >
             {benefits.slice(0, 3).map((benefit) => {
               const Icon = benefit.icon;
               return (
-                <div key={benefit.title} className="flex items-center gap-3 text-sm">
+                <motion.div 
+                  key={benefit.title} 
+                  className="flex items-center gap-3 text-sm"
+                  variants={{
+                    hidden: { opacity: 0, x: -10 },
+                    visible: { opacity: 1, x: 0 }
+                  }}
+                  whileHover={{ x: 4 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                >
                   <div className="w-8 h-8 rounded-lg bg-trust/10 flex items-center justify-center">
                     <Icon className="w-4 h-4 text-trust" />
                   </div>
                   <span className="text-muted-foreground">{benefit.title}</span>
-                </div>
+                </motion.div>
               );
             })}
-          </div>
+          </motion.div>
 
-          <p className="text-center text-xs text-muted-foreground mt-6">
+          <motion.p 
+            className="text-center text-xs text-muted-foreground mt-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
             By continuing, you agree to our{' '}
             <Link to="/terms" className="underline hover:text-foreground">Terms</Link>
             {' '}and{' '}
             <Link to="/privacy" className="underline hover:text-foreground">Privacy Policy</Link>
-          </p>
+          </motion.p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
