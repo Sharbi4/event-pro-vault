@@ -128,6 +128,62 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          booking_id: string | null
+          client_email: string | null
+          client_name: string | null
+          client_unread_count: number | null
+          client_user_id: string | null
+          created_at: string
+          id: string
+          last_message_at: string | null
+          status: string | null
+          subject: string | null
+          updated_at: string
+          vendor_unread_count: number | null
+          vendor_user_id: string
+        }
+        Insert: {
+          booking_id?: string | null
+          client_email?: string | null
+          client_name?: string | null
+          client_unread_count?: number | null
+          client_user_id?: string | null
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          status?: string | null
+          subject?: string | null
+          updated_at?: string
+          vendor_unread_count?: number | null
+          vendor_user_id: string
+        }
+        Update: {
+          booking_id?: string | null
+          client_email?: string | null
+          client_name?: string | null
+          client_unread_count?: number | null
+          client_user_id?: string | null
+          created_at?: string
+          id?: string
+          last_message_at?: string | null
+          status?: string | null
+          subject?: string | null
+          updated_at?: string
+          vendor_unread_count?: number | null
+          vendor_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "conversations_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           created_at: string
@@ -253,6 +309,80 @@ export type Database = {
           weekly_schedule?: Json | null
         }
         Relationships: []
+      }
+      message_templates: {
+        Row: {
+          category: string | null
+          content: string
+          created_at: string
+          id: string
+          name: string
+          sort_order: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          read_at: string | null
+          sender_type: string
+          sender_user_id: string | null
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          read_at?: string | null
+          sender_type: string
+          sender_user_id?: string | null
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          read_at?: string | null
+          sender_type?: string
+          sender_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       package_availability: {
         Row: {

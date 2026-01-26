@@ -3,14 +3,17 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVendorDashboard } from '@/hooks/useVendorDashboard';
+import { useVendorMessages } from '@/hooks/useVendorMessages';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
-import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles, MessageCircle } from 'lucide-react';
 import { VendorOverview } from '@/components/vendor-dashboard/VendorOverview';
 import { VendorBookings } from '@/components/vendor-dashboard/VendorBookings';
 import { VendorListings } from '@/components/vendor-dashboard/VendorListings';
 import { VendorAvailability } from '@/components/vendor-dashboard/VendorAvailability';
 import { VendorEarnings } from '@/components/vendor-dashboard/VendorEarnings';
+import { VendorMessages } from '@/components/vendor-dashboard/VendorMessages';
 
 import { AvatarUpload } from '@/components/vendor-dashboard/AvatarUpload';
 import { CoverPhotoUpload } from '@/components/vendor-dashboard/CoverPhotoUpload';
@@ -41,6 +44,8 @@ const VendorDashboard = () => {
     updateBookingStatus,
     refetch
   } = useVendorDashboard();
+
+  const { totalUnreadCount } = useVendorMessages();
   
   
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -120,7 +125,7 @@ const VendorDashboard = () => {
 
         {/* Main Tabs */}
         <Tabs defaultValue={defaultTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
             <TabsTrigger value="overview" className="gap-2">
               <LayoutDashboard className="w-4 h-4 hidden sm:inline" />
               Overview
@@ -132,6 +137,15 @@ const VendorDashboard = () => {
             <TabsTrigger value="bookings" className="gap-2">
               <Calendar className="w-4 h-4 hidden sm:inline" />
               Bookings
+            </TabsTrigger>
+            <TabsTrigger value="messages" className="gap-2 relative">
+              <MessageCircle className="w-4 h-4 hidden sm:inline" />
+              Messages
+              {totalUnreadCount > 0 && (
+                <Badge className="absolute -top-1.5 -right-1.5 h-4 min-w-4 px-1 text-[10px] bg-destructive">
+                  {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="packages" className="gap-2">
               <Package className="w-4 h-4 hidden sm:inline" />
@@ -184,6 +198,10 @@ const VendorDashboard = () => {
             />
           </TabsContent>
 
+
+          <TabsContent value="messages">
+            <VendorMessages />
+          </TabsContent>
 
           <TabsContent value="packages">
             <VendorListings
