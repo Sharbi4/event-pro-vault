@@ -11,7 +11,7 @@ import {
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
-import logoIcon from '@/assets/logo-icon.png';
+
 
 const emailSchema = z.string().email('Please enter a valid email');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -155,11 +155,6 @@ export default function Auth() {
         </div>
 
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-3">
-            <img src={logoIcon} alt="EventPro" className="h-10 w-10" />
-            <span className="font-display text-xl font-bold text-foreground">EventPro</span>
-          </Link>
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col justify-center max-w-lg">
@@ -314,13 +309,6 @@ export default function Auth() {
         </div>
 
         <div className="w-full max-w-sm relative z-10">
-          {/* Mobile Logo */}
-          <div className="lg:hidden text-center mb-8">
-            <Link to="/" className="inline-flex items-center gap-2">
-              <img src={logoIcon} alt="EventPro" className="h-10 w-10" />
-              <span className="font-display text-xl font-bold text-foreground">EventPro</span>
-            </Link>
-          </div>
 
           {/* Header */}
           <motion.div 
