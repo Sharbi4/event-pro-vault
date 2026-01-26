@@ -1,5 +1,6 @@
 import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { LoadScript, Libraries } from '@react-google-maps/api';
+import { GOOGLE_MAPS_API_KEY } from '@/config/googleMaps';
 
 // Define all libraries needed across the app - must be stable reference
 const libraries: Libraries = ['places'];
@@ -20,8 +21,8 @@ export function GoogleMapsProvider({ children }: { children: ReactNode }) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadError, setLoadError] = useState(false);
 
-  // Use environment variable for API key
-  const googleApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
+  // Use API key from config (handles environment variable fallback)
+  const googleApiKey = GOOGLE_MAPS_API_KEY;
 
   // Debug logging
   useEffect(() => {
