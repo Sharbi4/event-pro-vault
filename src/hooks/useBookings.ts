@@ -58,6 +58,7 @@ export interface CreateBookingInput {
   customer_email?: string;
   package_name?: string;
   unit_type?: string;
+  cancellation_policy?: 'flexible' | 'standard' | 'strict';
   // Guest checkout flag
   is_guest?: boolean;
 }
@@ -218,7 +219,8 @@ export function useBookings() {
           unit_type: bookingData.unit_type || 'unit',
           total_price: bookingData.total_price,
           add_ons: bookingData.add_ons,
-          notes: bookingData.notes
+          notes: bookingData.notes,
+          cancellation_policy: bookingData.cancellation_policy || 'standard'
         }
       }).then(({ error: emailError }) => {
         if (emailError) {
