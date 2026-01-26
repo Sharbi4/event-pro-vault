@@ -1,97 +1,215 @@
 
-# UI Consistency and Auth Flow Improvements
+# Customer Messaging Hub Implementation Plan
 
 ## Overview
-This plan addresses three related improvements to create consistency across the platform:
-1. Auto-switch to sign-up mode when `?signup=true` is in the Auth page URL
-2. Add user avatar and dropdown menu to the main Header for logged-in users
-3. Align the logo vertically with the navigation elements in the SentenceLanding page
+This plan implements a comprehensive in-app messaging system for Event Pros to communicate with their clients directly from the dashboard. The hub includes conversation threads linked to bookings, message templates for quick responses, real-time messaging, and an unread notification system.
 
----
+## Architecture Summary
 
-## Changes
-
-### 1. Auth Page - Handle `?signup=true` Parameter
-
-**File:** `src/pages/Auth.tsx`
-
-Add URL parameter detection to automatically switch to sign-up mode when users arrive from the "Create Profile" button.
-
-**What will be added:**
-- Import `useSearchParams` from `react-router-dom`
-- Read the `signup` parameter on component mount
-- If `signup=true`, set `isSignUp` state to `true`
-
-This ensures a smooth user experience when clicking "Create Profile" from any page.
-
----
-
-### 2. Header - Add User Avatar and Dropdown Menu
-
-**File:** `src/components/layout/Header.tsx`
-
-Replace the simple chat support icon for logged-in users with an avatar dropdown menu matching the SentenceLanding page design.
-
-**What will be added:**
-- Import Avatar, DropdownMenu components, and additional icons (User, LogOut, LayoutDashboard)
-- Import `signOut` from `useAuth` hook
-- Add state for `userInitial` and fetch user profile data
-- Replace the MessageCircle button with:
-  - Avatar showing user initial
-  - Dropdown menu with user email, Dashboard link, and Sign Out option
-- Keep the chat support icon inside the dropdown or hamburger menu
-
----
-
-### 3. SentenceLanding - Align Logo with Top Right Buttons
-
-**File:** `src/pages/SentenceLanding.tsx`
-
-Adjust the vertical positioning of the logo to align evenly with the Sign In and Create Profile buttons.
-
-**What will be changed:**
-- Update the logo container's `top` positioning to use `items-center` alignment
-- Adjust the `top-6 md:top-8` values to match button vertical center
-- Ensure both the logo and buttons share the same vertical baseline
-
----
-
-## Technical Details
-
-### Auth.tsx Changes
 ```text
-- Add: import { useSearchParams } from 'react-router-dom'
-- Add useEffect to check for ?signup=true and set isSignUp(true)
+┌─────────────────────────────────────────────────────────────────┐
+│                    Vendor Dashboard                              │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │  New Tab: Messages (with unread badge indicator)          │   │
+│  │  ┌────────────────────┬──────────────────────────────┐   │   │
+│  │  │  Conversation List │  Active Chat Thread          │   │   │
+│  │  │  - Client name     │  - Message bubbles           │   │   │
+│  │  │  - Last message    │  - Typing input              │   │   │
+│  │  │  - Unread dot      │  - Template quick-insert     │   │   │
+│  │  │  - Booking context │  - Send button               │   │   │
+│  │  └────────────────────┴──────────────────────────────┘   │   │
+│  └──────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-### Header.tsx Changes
-```text
-- Add imports: Avatar, AvatarFallback, DropdownMenu components, User, LogOut, LayoutDashboard icons
-- Add signOut to useAuth destructuring
-- Add userInitial state and profile fetch useEffect
-- Replace logged-in user section with avatar + dropdown matching SentenceLanding
+## Technical Implementation Details
+
+### Phase 1: Database Schema
+
+**New Tables:**
+
+1. **`conversations`** - Tracks message threads between vendors and clients
+   - `id` (uuid, PK)
+   - `vendor_user_id` (uuid, FK to auth.users) - The Event Pro
+   - `client_user_id` (uuid, nullable FK to auth.users) - Customer (if logged in)
+   - `client_email` (text) - For guest customers
+   - `client_name` (text) - Display name
+   - `booking_id` (uuid, nullable FK to bookings) - Link to related booking
+   - `subject` (text) - Conversation subject/title
+   - `last_message_at` (timestamptz)
+   - `vendor_unread_count` (integer, default 0)
+   - `client_unread_count` (integer, default 0)
+   - `status` (text: 'active', 'archived')
+   - `created_at`, `updated_at`
+
+2. **`messages`** - Individual messages within conversations
+   - `id` (uuid, PK)
+   - `conversation_id` (uuid, FK to conversations)
+   - `sender_user_id` (uuid, nullable FK to auth.users)
+   - `sender_type` (text: 'vendor', 'client')
+   - `content` (text)
+   - `is_read` (boolean, default false)
+   - `read_at` (timestamptz)
+   - `created_at`
+
+3. **`message_templates`** - Vendor's saved quick-response templates
+   - `id` (uuid, PK)
+   - `user_id` (uuid, FK to auth.users) - The vendor who owns this template
+   - `name` (text) - Template name/title (e.g., "Booking Confirmation")
+   - `content` (text) - Template body text
+   - `category` (text) - Optional categorization (e.g., "booking", "inquiry", "followup")
+   - `sort_order` (integer)
+   - `created_at`, `updated_at`
+
+**RLS Policies:**
+- Vendors can read/write their own conversations and messages
+- Clients can read/write their own conversations and messages
+- Vendors can fully manage their own message templates
+- Enable real-time for the `messages` table
+
+### Phase 2: Backend Hook & Data Layer
+
+**New Hook: `useVendorMessages`**
+- Fetch all conversations for the logged-in vendor
+- Fetch messages for a specific conversation
+- Send new messages
+- Mark messages as read
+- Create new conversations (optionally linked to bookings)
+- Real-time subscription for new messages
+- Calculate unread count for badge display
+
+**New Hook: `useMessageTemplates`**
+- CRUD operations for message templates
+- Reorder templates
+- Default templates seeding for new vendors
+
+### Phase 3: UI Components
+
+**1. VendorMessages.tsx** (Main tab component)
+- Split-pane layout: conversation list (left) + active chat (right)
+- Mobile-responsive: drawer/sheet for conversation detail
+- Search/filter conversations
+- Empty states for no conversations
+
+**2. ConversationList.tsx**
+- List of conversation cards with:
+  - Client avatar/initials
+  - Client name
+  - Last message preview (truncated)
+  - Timestamp
+  - Unread indicator dot
+  - Booking badge if linked
+
+**3. ChatThread.tsx**
+- Header with client info and booking link
+- Scrollable message area with auto-scroll to bottom
+- Message bubbles (vendor right-aligned, client left-aligned)
+- Timestamps
+- "Seen" indicators for read messages
+
+**4. MessageInput.tsx**
+- Textarea for composing messages
+- Send button
+- Template picker dropdown/popover
+- Character count (optional)
+
+**5. TemplateManager.tsx**
+- List of saved templates
+- Add/edit/delete templates
+- Drag-to-reorder
+- Default templates:
+  - "Booking Confirmation"
+  - "Event Reminder (48h)"
+  - "Thank You Follow-up"
+  - "Quote Response"
+  - "Availability Check"
+
+**6. NewConversationDialog.tsx**
+- Start a new conversation with a client
+- Option to link to an existing booking
+- Client email/name input
+
+### Phase 4: Dashboard Integration
+
+**Updates to VendorDashboard.tsx:**
+- Add new "Messages" tab with `MessageCircle` icon
+- Display unread count badge on tab when messages are unread
+- Tab position: after "Bookings" tab (logical flow)
+
+**Tab order:**
+1. Overview
+2. Earnings  
+3. Bookings
+4. **Messages** (new)
+5. Packages
+6. Availability
+7. Settings
+
+### Phase 5: Real-time & Notifications
+
+**Real-time Subscriptions:**
+- Subscribe to `postgres_changes` on `messages` table filtered by conversation IDs
+- Auto-update conversation list when new messages arrive
+- Play subtle notification sound (optional, user preference)
+
+**Notification Integration:**
+- Unread badge count updates in real-time
+- Toast notification for new messages when on other tabs
+- (Future) Push notifications via edge function
+
+### Phase 6: Booking Integration
+
+**VendorBookings.tsx Enhancement:**
+- Add "Message Client" button on each booking card
+- Opens messaging tab with that conversation pre-selected
+- Creates conversation if one doesn't exist for that booking
+
+## Default Message Templates
+
+The system will include these starter templates for new vendors:
+
+| Template Name | Category | Content |
+|--------------|----------|---------|
+| Booking Confirmation | booking | "Thank you for your booking! I'm excited to be part of your event on [DATE]. I'll reach out again 48 hours before to confirm all the details. Feel free to message me if you have any questions!" |
+| 48-Hour Reminder | reminder | "Hi! Just a friendly reminder that your event is coming up in 48 hours. Please confirm the venue address and any last-minute details. Looking forward to seeing you!" |
+| Thank You Follow-up | followup | "Thank you so much for having me at your event! I hope everything exceeded your expectations. If you have a moment, I'd really appreciate a review. It helps me grow my business!" |
+| Quote Response | inquiry | "Thanks for reaching out! Based on your event details, here's what I can offer: [DETAILS]. Let me know if you have any questions or would like to proceed with booking." |
+| Availability Check | inquiry | "Thanks for your interest! I'm checking my calendar for [DATE]. I'll get back to you within 24 hours to confirm availability and provide pricing details." |
+
+## File Structure
+
+```
+src/
+├── components/vendor-dashboard/
+│   ├── VendorMessages.tsx          (Main messages tab)
+│   ├── messaging/
+│   │   ├── ConversationList.tsx    (Sidebar list)
+│   │   ├── ChatThread.tsx          (Message thread view)
+│   │   ├── MessageInput.tsx        (Compose area)
+│   │   ├── MessageBubble.tsx       (Individual message)
+│   │   ├── TemplateManager.tsx     (Template CRUD)
+│   │   ├── TemplatePicker.tsx      (Quick-insert dropdown)
+│   │   └── NewConversationDialog.tsx
+├── hooks/
+│   ├── useVendorMessages.ts        (Conversations & messages)
+│   └── useMessageTemplates.ts      (Templates CRUD)
 ```
 
-### SentenceLanding.tsx Changes
-```text
-- Adjust logo and button containers to share consistent vertical alignment
-- Use matching top offset values for both elements
-```
+## Implementation Order
 
----
+1. **Database Migration** - Create tables and RLS policies, enable real-time
+2. **useMessageTemplates Hook** - Template management (simpler, can test independently)
+3. **useVendorMessages Hook** - Full messaging logic with real-time
+4. **UI Components** - Build from smallest to largest:
+   - MessageBubble → ChatThread → MessageInput → TemplatePicker
+   - ConversationList → VendorMessages (main component)
+   - TemplateManager, NewConversationDialog
+5. **Dashboard Integration** - Add Messages tab with badge
+6. **Booking Integration** - Add "Message Client" button to booking cards
 
-## Files to Modify
+## Security Considerations
 
-| File | Purpose |
-|------|---------|
-| `src/pages/Auth.tsx` | Add URL parameter handling for signup mode |
-| `src/components/layout/Header.tsx` | Add avatar dropdown for logged-in users |
-| `src/pages/SentenceLanding.tsx` | Align logo with navigation buttons |
-
----
-
-## Expected Outcome
-
-- Clicking "Create Profile" anywhere will land on Auth page in sign-up mode
-- Logged-in users see their avatar in the Header with Dashboard and Sign Out options
-- The SentenceLanding page logo and buttons are vertically aligned for a polished look
+- All RLS policies ensure vendors only access their own conversations
+- Client email is stored but not exposed to other vendors
+- Message content is validated for length limits
+- Template content is sanitized before display
