@@ -12,7 +12,9 @@ import { useBookings, BookingData } from '@/hooks/useBookings';
 import { useUserDashboards } from '@/hooks/useUserDashboards';
 import { useAdminReview } from '@/hooks/useAdminReview';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
+import { useCustomerMessages } from '@/hooks/useCustomerMessages';
 import { AdminReviewTab } from '@/components/dashboard/AdminReviewTab';
+import { CustomerMessages } from '@/components/dashboard/CustomerMessages';
 import { CancellationDialog } from '@/components/shared/CancellationDialog';
 import { DepositRefundIndicator } from '@/components/shared/DepositRefundIndicator';
 import { ReportIssueDialog } from '@/components/shared/ReportIssueDialog';
@@ -49,6 +51,7 @@ export default function Dashboard() {
   const { hasVendorPackages, loading: dashboardsLoading } = useUserDashboards();
   const { isAdmin, pendingEventPros } = useAdminReview();
   const { unreadCount: notificationCount } = useRealtimeNotifications();
+  const { totalUnreadCount: messageUnreadCount } = useCustomerMessages();
   const { toast: toastHook } = useToast();
   const [payingBooking, setPayingBooking] = useState<string | null>(null);
   const [messagingBooking, setMessagingBooking] = useState<string | null>(null);
@@ -180,8 +183,9 @@ export default function Dashboard() {
         .maybeSingle();
 
       if (existingConvo) {
-        // Navigate to existing conversation
-        navigate(`/vendor-dashboard?tab=messages&conversation=${existingConvo.id}`);
+        // Navigate to messages tab - the CustomerMessages component will handle the conversation
+        toast.success('Opening your conversation');
+        navigate(`/dashboard?tab=messages`);
         return;
       }
 
@@ -203,9 +207,8 @@ export default function Dashboard() {
 
       toast.success('Conversation started! The vendor will be notified.');
       
-      // Navigate to messages - for now just show success since customer doesn't have message UI
-      // In the future, we could add a customer messages page
-      navigate(`/dashboard?tab=bookings`);
+      // Navigate to messages tab
+      navigate(`/dashboard?tab=messages`);
     } catch (error) {
       console.error('Error starting conversation:', error);
       toast.error('Failed to start conversation');
@@ -347,13 +350,25 @@ export default function Dashboard() {
         </div>
 
         <Tabs defaultValue="bookings" className="space-y-4">
-          <TabsList className="w-full bg-secondary/50 border border-border/50 p-1 gap-1">
+          <TabsList className="w-full bg-secondary/50 border border-border/50 p-1 gap-1 flex-wrap h-auto">
             <TabsTrigger 
               value="bookings" 
               className="flex-1 text-xs data-[state=active]:gradient-primary data-[state=active]:text-white gap-1.5"
             >
               <Package className="w-3.5 h-3.5" />
               Bookings
+            </TabsTrigger>
+            <TabsTrigger 
+              value="messages" 
+              className="flex-1 text-xs data-[state=active]:gradient-primary data-[state=active]:text-white gap-1.5"
+            >
+              <MessageCircle className="w-3.5 h-3.5" />
+              Messages
+              {messageUnreadCount > 0 && (
+                <Badge variant="destructive" className="ml-1 h-4 min-w-4 p-0 text-[10px] flex items-center justify-center">
+                  {messageUnreadCount}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger 
               value="favorites" 
@@ -631,6 +646,10 @@ export default function Dashboard() {
             )}
           </TabsContent>
 
+          {/* Messages Tab */}
+          <TabsContent value="messages">
+            <CustomerMessages />
+          </TabsContent>
 
           {/* Favorites Tab */}
           <TabsContent value="favorites" className="space-y-3">

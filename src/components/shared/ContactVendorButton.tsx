@@ -70,9 +70,9 @@ export function ContactVendorButton({
         .maybeSingle();
 
       if (existingConvo) {
-        // Navigate to existing conversation
+        // Navigate to messages tab
         toast.success('Opening your existing conversation');
-        navigate(`/dashboard?tab=messages&conversation=${existingConvo.id}`);
+        navigate(`/dashboard?tab=messages`);
         return;
       }
 
@@ -94,7 +94,7 @@ export function ContactVendorButton({
       toast.success('Conversation started! You can now message this Event Pro.');
       
       // Navigate to the customer dashboard messages tab
-      navigate(`/dashboard?tab=messages&conversation=${newConvo.id}`);
+      navigate(`/dashboard?tab=messages`);
     } catch (error) {
       console.error('Error starting conversation:', error);
       toast.error('Failed to start conversation. Please try again.');
