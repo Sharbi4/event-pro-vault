@@ -8,9 +8,13 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
   Check, Plus, AlertCircle, Truck, Clock, 
-  FileText, Star, Timer 
+  FileText, Star, Timer, Shield, ShieldCheck, ShieldAlert 
 } from 'lucide-react';
 import { ServiceAreaMap } from './ServiceAreaMap';
+import { 
+  CancellationPolicyType, 
+  CANCELLATION_POLICIES 
+} from '@/lib/cancellationPolicies';
 
 interface PackageDetailsProps {
   includes: string[];
@@ -49,16 +53,32 @@ export function PackageDetails({
   vendorBaseLng,
   vendorName
 }: PackageDetailsProps) {
-  const formatCancellationPolicy = (policy: string | null) => {
-    switch (policy) {
+  const policyType = (cancellationPolicy as CancellationPolicyType) || 'standard';
+  const policy = CANCELLATION_POLICIES[policyType] || CANCELLATION_POLICIES.standard;
+
+  const getPolicyIcon = () => {
+    switch (policyType) {
       case 'flexible':
-        return 'Free cancellation up to 24 hours before the event';
-      case 'moderate':
-        return 'Free cancellation up to 5 days before the event. 50% refund within 5 days.';
+        return <Shield className="w-5 h-5 text-green-500" />;
+      case 'standard':
+        return <ShieldCheck className="w-5 h-5 text-primary" />;
       case 'strict':
-        return 'Free cancellation up to 14 days before the event. 50% refund within 14 days, no refund within 7 days.';
+        return <ShieldAlert className="w-5 h-5 text-amber-500" />;
       default:
-        return 'Contact the Event Pro for cancellation terms';
+        return <ShieldCheck className="w-5 h-5 text-primary" />;
+    }
+  };
+
+  const getPolicyBadgeClass = () => {
+    switch (policyType) {
+      case 'flexible':
+        return 'bg-green-500/10 text-green-600 border-green-500/20';
+      case 'standard':
+        return 'bg-primary/10 text-primary border-primary/20';
+      case 'strict':
+        return 'bg-amber-500/10 text-amber-600 border-amber-500/20';
+      default:
+        return 'bg-primary/10 text-primary border-primary/20';
     }
   };
 
@@ -210,17 +230,33 @@ export function PackageDetails({
         <AccordionItem value="cancellation" className="border-b">
           <AccordionTrigger className="px-6 py-4 hover:no-underline">
             <div className="flex items-center gap-2">
-              <FileText className="w-5 h-5 text-muted-foreground" />
+              {getPolicyIcon()}
               <span className="font-semibold">Cancellation Policy</span>
-              {cancellationPolicy && (
-                <Badge variant="outline" className="text-xs capitalize">{cancellationPolicy}</Badge>
-              )}
+              <Badge variant="outline" className={`text-xs ${getPolicyBadgeClass()}`}>
+                {policy.name}
+              </Badge>
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-6 pb-4">
-            <p className="text-muted-foreground">
-              {formatCancellationPolicy(cancellationPolicy)}
-            </p>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">{policy.description}</p>
+              <div className="space-y-2">
+                {policy.tiers.map((tier, idx) => (
+                  <div key={idx} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                    <span className="text-muted-foreground">{tier.label}</span>
+                    <span className={
+                      tier.refundPercentage === 100 
+                        ? 'font-medium text-green-600' 
+                        : tier.refundPercentage > 0 
+                          ? 'font-medium text-amber-600' 
+                          : 'font-medium text-destructive'
+                    }>
+                      {tier.refundPercentage}% refund
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </AccordionContent>
         </AccordionItem>
 

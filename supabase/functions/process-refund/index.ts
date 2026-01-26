@@ -16,28 +16,53 @@ const supabaseAdmin = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
 );
 
-// Refund policies
-const POLICIES = {
-  // Full refund periods (days before event)
-  full_refund_days: {
-    flexible: 1,
-    moderate: 5,
-    strict: 14,
-    market_default: 7,
+// Cancellation policy definitions - synced with frontend
+const CANCELLATION_POLICIES = {
+  flexible: {
+    tiers: [
+      { daysBeforeEvent: 2, refundPercentage: 100 },  // 48+ hours
+      { daysBeforeEvent: 1, refundPercentage: 50 },   // 24-48 hours
+      { daysBeforeEvent: 0, refundPercentage: 0 },    // <24 hours
+    ],
   },
-  // Partial refund periods and percentages
-  partial_refund: {
-    flexible: { days: 0, percent: 50 },
-    moderate: { days: 2, percent: 50 },
-    strict: { days: 7, percent: 50 },
-    market_default: { days: 3, percent: 50 },
+  standard: {
+    tiers: [
+      { daysBeforeEvent: 7, refundPercentage: 100 },  // 7+ days
+      { daysBeforeEvent: 3, refundPercentage: 50 },   // 3-7 days
+      { daysBeforeEvent: 0, refundPercentage: 0 },    // <72 hours
+    ],
+  },
+  strict: {
+    tiers: [
+      { daysBeforeEvent: 14, refundPercentage: 100 }, // 14+ days
+      { daysBeforeEvent: 7, refundPercentage: 50 },   // 7-14 days
+      { daysBeforeEvent: 0, refundPercentage: 0 },    // <7 days
+    ],
   },
 };
+
+function getRefundPercentageFromPolicy(policyType: string, eventDate: string): number {
+  const policy = CANCELLATION_POLICIES[policyType as keyof typeof CANCELLATION_POLICIES] 
+    || CANCELLATION_POLICIES.standard;
+  
+  const now = new Date();
+  const event = new Date(eventDate);
+  const hoursUntilEvent = (event.getTime() - now.getTime()) / (1000 * 60 * 60);
+  const daysUntilEvent = hoursUntilEvent / 24;
+
+  for (const tier of policy.tiers) {
+    if (daysUntilEvent >= tier.daysBeforeEvent) {
+      return tier.refundPercentage;
+    }
+  }
+
+  return 0;
+}
 
 interface RefundRequest {
   booking_id: string;
   booking_type: "slot_booking" | "booking";
-  refund_type: "full" | "partial" | "none";
+  refund_type: "policy" | "full" | "partial" | "none";
   refund_amount?: number; // Optional override amount in cents
   reason?: string;
 }
@@ -81,6 +106,7 @@ serve(async (req) => {
     let totalPaidCents: number = 0;
     let eventDate: string | null = null;
     let isOwner = false;
+    let cancellationPolicyType: string | null = null;
 
     // Fetch booking based on type
     if (booking_type === "slot_booking") {
@@ -122,7 +148,7 @@ serve(async (req) => {
       // Regular booking (vendor packages)
       const { data: booking, error } = await supabaseAdmin
         .from("bookings")
-        .select("*")
+        .select("*, vendor_packages:package_id(cancellation_policy)")
         .eq("id", booking_id)
         .single();
 
@@ -165,6 +191,9 @@ serve(async (req) => {
       }
       
       eventDate = booking.event_date;
+      
+      // Get cancellation policy for policy-based refunds
+      cancellationPolicyType = booking.vendor_packages?.cancellation_policy || 'standard';
     }
 
     if (!paymentIntentId) {
@@ -174,18 +203,22 @@ serve(async (req) => {
       });
     }
 
-    // Calculate refund amount based on policy
+    // Calculate refund amount based on type
     let refundAmountCents = 0;
     let refundPercentage = 0;
 
-    if (refund_type === "full") {
+    if (refund_type === "policy" && eventDate && cancellationPolicyType) {
+      // Policy-based refund
+      const policyPercentage = getRefundPercentageFromPolicy(cancellationPolicyType, eventDate);
+      refundAmountCents = Math.round(totalPaidCents * (policyPercentage / 100));
+      refundPercentage = policyPercentage;
+    } else if (refund_type === "full") {
       refundAmountCents = refund_amount ?? totalPaidCents;
       refundPercentage = 100;
     } else if (refund_type === "partial") {
       refundAmountCents = refund_amount ?? Math.round(totalPaidCents * 0.5);
       refundPercentage = Math.round((refundAmountCents / totalPaidCents) * 100);
-    } else {
-      // No refund, just cancel
+    } else if (refund_type === "none") {
       refundAmountCents = 0;
       refundPercentage = 0;
     }

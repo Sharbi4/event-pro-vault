@@ -10,9 +10,13 @@ import {
   Banknote, 
   AlertCircle,
   CheckCircle2,
-  ExternalLink
+  ExternalLink,
+  Shield,
+  ShieldCheck,
+  ShieldAlert
 } from 'lucide-react';
 import { PackageFormData } from './PackageFormWizard';
+import { CANCELLATION_POLICIES, CancellationPolicyType } from '@/lib/cancellationPolicies';
 
 export type BookingMode = 'INSTANT' | 'REQUEST';
 export type PaymentOptions = 'ONLINE' | 'CASH' | 'BOTH';
@@ -32,9 +36,18 @@ export function StepBookingPayment({
 }: StepBookingPaymentProps) {
   const bookingMode = formData.booking_mode || 'INSTANT';
   const paymentOptions = formData.payment_options || 'ONLINE';
+  const cancellationPolicy = (formData.cancellation_policy || 'standard') as CancellationPolicyType;
   
   const needsStripe = paymentOptions === 'ONLINE' || paymentOptions === 'BOTH';
   const stripeBlocked = needsStripe && !stripeConnected;
+
+  const getPolicyIcon = (policyId: CancellationPolicyType) => {
+    switch (policyId) {
+      case 'flexible': return <Shield className="w-4 h-4 text-green-500" />;
+      case 'standard': return <ShieldCheck className="w-4 h-4 text-primary" />;
+      case 'strict': return <ShieldAlert className="w-4 h-4 text-amber-500" />;
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -243,6 +256,61 @@ export function StepBookingPayment({
         </Card>
       )}
 
+      {/* Cancellation Policy */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <Label className="text-base font-semibold">Cancellation Policy</Label>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Choose a cancellation policy that works for your business
+        </p>
+        
+        <RadioGroup
+          value={cancellationPolicy}
+          onValueChange={(value) => updateFormData({ cancellation_policy: value })}
+          className="grid gap-3"
+        >
+          {(Object.keys(CANCELLATION_POLICIES) as CancellationPolicyType[]).map((policyId) => {
+            const policy = CANCELLATION_POLICIES[policyId];
+            return (
+              <label
+                key={policyId}
+                htmlFor={`policy-${policyId}`}
+                className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
+                  cancellationPolicy === policyId
+                    ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                    : 'border-border hover:border-primary/50'
+                }`}
+              >
+                <RadioGroupItem value={policyId} id={`policy-${policyId}`} className="mt-1" />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    {getPolicyIcon(policyId)}
+                    <span className="font-medium">{policy.name}</span>
+                    {policyId === 'standard' && (
+                      <Badge variant="secondary" className="text-xs">Default</Badge>
+                    )}
+                  </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {policy.description}
+                  </p>
+                  <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                    {policy.tiers.map((tier, idx) => (
+                      <li key={idx} className="flex items-center gap-1">
+                        <span className={tier.refundPercentage === 100 ? 'text-green-600' : tier.refundPercentage > 0 ? 'text-amber-600' : 'text-destructive'}>
+                          {tier.refundPercentage}% refund
+                        </span>
+                        <span>— {tier.label}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </label>
+            );
+          })}
+        </RadioGroup>
+      </div>
+
       {/* Summary */}
       <Card className="bg-muted/50">
         <CardContent className="p-4">
@@ -282,6 +350,10 @@ export function StepBookingPayment({
                 Customer chooses online or cash payment
               </li>
             )}
+            <li className="flex items-center gap-2">
+              {getPolicyIcon(cancellationPolicy)}
+              {CANCELLATION_POLICIES[cancellationPolicy].name} cancellation policy applies
+            </li>
           </ul>
         </CardContent>
       </Card>

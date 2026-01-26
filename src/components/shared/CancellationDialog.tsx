@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -12,9 +12,15 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, DollarSign, Loader2, XCircle, Percent } from 'lucide-react';
+import { AlertTriangle, DollarSign, Loader2, XCircle, Percent, Info } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { 
+  CancellationPolicyType, 
+  CANCELLATION_POLICIES, 
+  getRefundPercentage,
+  getApplicableTier 
+} from '@/lib/cancellationPolicies';
 
 interface CancellationDialogProps {
   open: boolean;
@@ -25,6 +31,8 @@ interface CancellationDialogProps {
   eventDate?: string;
   isPaid: boolean;
   onSuccess?: () => void;
+  cancellationPolicy?: CancellationPolicyType;
+  isVendorInitiated?: boolean; // If vendor is cancelling, they can override policy
 }
 
 export function CancellationDialog({
@@ -36,11 +44,26 @@ export function CancellationDialog({
   eventDate,
   isPaid,
   onSuccess,
+  cancellationPolicy = 'standard',
+  isVendorInitiated = false,
 }: CancellationDialogProps) {
-  const [refundType, setRefundType] = useState<'full' | 'partial' | 'none'>('full');
+  const [refundType, setRefundType] = useState<'policy' | 'full' | 'partial' | 'none'>('policy');
   const [reason, setReason] = useState('');
   const [processing, setProcessing] = useState(false);
   const { toast } = useToast();
+
+  const policy = CANCELLATION_POLICIES[cancellationPolicy] || CANCELLATION_POLICIES.standard;
+
+  // Calculate policy-based refund
+  const policyRefundPercentage = useMemo(() => {
+    if (!eventDate) return 0;
+    return getRefundPercentage(cancellationPolicy, eventDate);
+  }, [eventDate, cancellationPolicy]);
+
+  const applicableTier = useMemo(() => {
+    if (!eventDate) return null;
+    return getApplicableTier(cancellationPolicy, eventDate);
+  }, [eventDate, cancellationPolicy]);
 
   // Calculate days until event
   const daysUntilEvent = eventDate 
@@ -48,8 +71,20 @@ export function CancellationDialog({
     : null;
 
   // Calculate refund amounts
+  const policyRefund = totalPaid * (policyRefundPercentage / 100);
   const fullRefund = totalPaid;
   const partialRefund = totalPaid * 0.5;
+
+  // Get the actual refund amount based on selection
+  const getRefundAmount = () => {
+    switch (refundType) {
+      case 'policy': return policyRefund;
+      case 'full': return fullRefund;
+      case 'partial': return partialRefund;
+      case 'none': return 0;
+      default: return policyRefund;
+    }
+  };
 
   const handleCancel = async () => {
     setProcessing(true);
@@ -122,6 +157,24 @@ export function CancellationDialog({
         </DialogHeader>
 
         <div className="space-y-4 py-4">
+          {/* Policy Info Banner */}
+          {isPaid && eventDate && (
+            <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+              <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div className="text-sm">
+                <p className="font-medium text-foreground">
+                  {policy.name} Cancellation Policy
+                </p>
+                <p className="text-muted-foreground mt-1">
+                  {applicableTier 
+                    ? `${applicableTier.label}: ${applicableTier.refundPercentage}% refund`
+                    : 'No refund available'
+                  }
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Event date warning */}
           {daysUntilEvent !== null && daysUntilEvent <= 7 && (
             <div className="flex items-start gap-2 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
@@ -134,7 +187,7 @@ export function CancellationDialog({
                   }
                 </p>
                 <p className="text-muted-foreground">
-                  Consider the cancellation policy when issuing refunds.
+                  Refund amount is based on the cancellation policy.
                 </p>
               </div>
             </div>
@@ -144,57 +197,82 @@ export function CancellationDialog({
           {isPaid && (
             <RadioGroup 
               value={refundType} 
-              onValueChange={(v) => setRefundType(v as 'full' | 'partial' | 'none')}
+              onValueChange={(v) => setRefundType(v as 'policy' | 'full' | 'partial' | 'none')}
               className="space-y-3"
             >
-              <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">
-                <RadioGroupItem value="full" id="full" />
-                <Label htmlFor="full" className="flex-1 cursor-pointer">
+              {/* Policy-based refund (default) */}
+              <div className="flex items-center space-x-3 p-3 rounded-lg border-2 border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors cursor-pointer">
+                <RadioGroupItem value="policy" id="policy" />
+                <Label htmlFor="policy" className="flex-1 cursor-pointer">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <DollarSign className="w-4 h-4 text-green-500" />
-                      <span className="font-medium">Full Refund</span>
+                      <Info className="w-4 h-4 text-primary" />
+                      <span className="font-medium">Per Policy</span>
+                      <Badge variant="outline" className="text-xs">Recommended</Badge>
                     </div>
-                    <Badge variant="secondary" className="bg-green-500/10 text-green-600">
-                      ${fullRefund.toFixed(2)}
+                    <Badge variant="secondary" className={policyRefundPercentage === 100 ? 'bg-green-500/10 text-green-600' : policyRefundPercentage > 0 ? 'bg-amber-500/10 text-amber-600' : 'bg-destructive/10 text-destructive'}>
+                      ${policyRefund.toFixed(2)} ({policyRefundPercentage}%)
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Return the entire payment to the customer
+                    Automatic refund based on {policy.name.toLowerCase()} policy
                   </p>
                 </Label>
               </div>
 
-              <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">
-                <RadioGroupItem value="partial" id="partial" />
-                <Label htmlFor="partial" className="flex-1 cursor-pointer">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Percent className="w-4 h-4 text-amber-500" />
-                      <span className="font-medium">50% Refund</span>
-                    </div>
-                    <Badge variant="secondary" className="bg-amber-500/10 text-amber-600">
-                      ${partialRefund.toFixed(2)}
-                    </Badge>
+              {/* Vendor can override policy */}
+              {isVendorInitiated && (
+                <>
+                  <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">
+                    <RadioGroupItem value="full" id="full" />
+                    <Label htmlFor="full" className="flex-1 cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="w-4 h-4 text-green-500" />
+                          <span className="font-medium">Full Refund</span>
+                        </div>
+                        <Badge variant="secondary" className="bg-green-500/10 text-green-600">
+                          ${fullRefund.toFixed(2)}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Return the entire payment to the customer
+                      </p>
+                    </Label>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Return half of the payment amount
-                  </p>
-                </Label>
-              </div>
 
-              <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">
-                <RadioGroupItem value="none" id="none" />
-                <Label htmlFor="none" className="flex-1 cursor-pointer">
-                  <div className="flex items-center gap-2">
-                    <XCircle className="w-4 h-4 text-destructive" />
-                    <span className="font-medium">No Refund</span>
+                  <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">
+                    <RadioGroupItem value="partial" id="partial" />
+                    <Label htmlFor="partial" className="flex-1 cursor-pointer">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Percent className="w-4 h-4 text-amber-500" />
+                          <span className="font-medium">50% Refund</span>
+                        </div>
+                        <Badge variant="secondary" className="bg-amber-500/10 text-amber-600">
+                          ${partialRefund.toFixed(2)}
+                        </Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Return half of the payment amount
+                      </p>
+                    </Label>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Cancel without issuing any refund
-                  </p>
-                </Label>
-              </div>
+
+                  <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">
+                    <RadioGroupItem value="none" id="none" />
+                    <Label htmlFor="none" className="flex-1 cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <XCircle className="w-4 h-4 text-destructive" />
+                        <span className="font-medium">No Refund</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Cancel without issuing any refund
+                      </p>
+                    </Label>
+                  </div>
+                </>
+              )}
             </RadioGroup>
           )}
 
@@ -227,7 +305,7 @@ export function CancellationDialog({
                 Processing...
               </>
             ) : (
-              'Cancel Booking'
+              `Cancel${isPaid && getRefundAmount() > 0 ? ` & Refund $${getRefundAmount().toFixed(2)}` : ''}`
             )}
           </Button>
         </DialogFooter>
