@@ -119,6 +119,17 @@
     border: 1px solid hsl(0 0% 0% / 0.04);
   }
 
+  /* Primary gradient - Bold black for maximum impact */
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(0 0% 0%) 0%, hsl(0 0% 15%) 100%);
+    color: hsl(0 0% 100%);
+  }
+
+  /* Hover glow effect for gradient buttons */
+  .hover-glow:hover {
+    box-shadow: 0 8px 30px hsl(0 0% 0% / 0.25);
+  }
+
   /* Dark button with subtle elegance */
   .dark-shine {
     background: hsl(0 0% 0%);
