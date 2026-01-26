@@ -11,6 +11,7 @@ import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
 import { motion } from 'framer-motion';
 import AnimatedDashboardPreview from '@/components/auth/AnimatedDashboardPreview';
+import MobileDashboardPreview from '@/components/auth/MobileDashboardPreview';
 
 const emailSchema = z.string().email('Please enter a valid email');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -245,8 +246,11 @@ export default function Auth() {
         </div>
 
         <div className="w-full max-w-sm relative z-10">
+          {/* Mobile Dashboard Preview */}
+          <div className="lg:hidden">
+            <MobileDashboardPreview />
+          </div>
 
-          {/* Header */}
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
