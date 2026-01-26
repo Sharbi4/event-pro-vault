@@ -1,99 +1,97 @@
 
-# Remove Market Spots and Market Bookings from Dashboard
+# UI Consistency and Auth Flow Improvements
 
 ## Overview
-Clean up the Dashboard page by removing all market-related UI elements and logic, aligning with the scope narrowing decision to focus exclusively on Event Services.
+This plan addresses three related improvements to create consistency across the platform:
+1. Auto-switch to sign-up mode when `?signup=true` is in the Auth page URL
+2. Add user avatar and dropdown menu to the main Header for logged-in users
+3. Align the logo vertically with the navigation elements in the SentenceLanding page
 
 ---
 
-## Changes Required
+## Changes
 
-### File: `src/pages/Dashboard.tsx`
+### 1. Auth Page - Handle `?signup=true` Parameter
 
-| Section | What to Remove |
-|---------|----------------|
-| **Imports** | `useSlotBookings` hook, `SlotBookingsSection` component, `Store` icon |
-| **Hook calls** | `const { bookings: slotBookings, loading: slotBookingsLoading, cancelBooking } = useSlotBookings();` |
-| **Stats grid** | Remove "Market Spots" card showing `slotBookings.length` |
-| **Tabs** | Remove "Markets" `TabsTrigger` with Store icon |
-| **Tab content** | Remove `TabsContent value="markets"` with `SlotBookingsSection` |
-| **Admin badge** | Update badge count to only show `pendingEventPros.length` (remove `pendingMarkets`) |
+**File:** `src/pages/Auth.tsx`
 
----
+Add URL parameter detection to automatically switch to sign-up mode when users arrive from the "Create Profile" button.
 
-## Before/After Stats Row
+**What will be added:**
+- Import `useSearchParams` from `react-router-dom`
+- Read the `signup` parameter on component mount
+- If `signup=true`, set `isSignUp` state to `true`
 
-**Before (4 columns):**
-```text
-[ Bookings ] [ Market Spots ] [ Favorites ] [ Confirmed ]
-```
-
-**After (3 columns):**
-```text
-[ Bookings ] [ Favorites ] [ Confirmed ]
-```
+This ensures a smooth user experience when clicking "Create Profile" from any page.
 
 ---
 
-## Before/After Tabs
+### 2. Header - Add User Avatar and Dropdown Menu
 
-**Before:**
-```text
-[ Bookings ] [ Markets ] [ Favorites ] [ Profile ] [ Admin? ]
-```
+**File:** `src/components/layout/Header.tsx`
 
-**After:**
-```text
-[ Bookings ] [ Favorites ] [ Profile ] [ Admin? ]
-```
+Replace the simple chat support icon for logged-in users with an avatar dropdown menu matching the SentenceLanding page design.
+
+**What will be added:**
+- Import Avatar, DropdownMenu components, and additional icons (User, LogOut, LayoutDashboard)
+- Import `signOut` from `useAuth` hook
+- Add state for `userInitial` and fetch user profile data
+- Replace the MessageCircle button with:
+  - Avatar showing user initial
+  - Dropdown menu with user email, Dashboard link, and Sign Out option
+- Keep the chat support icon inside the dropdown or hamburger menu
+
+---
+
+### 3. SentenceLanding - Align Logo with Top Right Buttons
+
+**File:** `src/pages/SentenceLanding.tsx`
+
+Adjust the vertical positioning of the logo to align evenly with the Sign In and Create Profile buttons.
+
+**What will be changed:**
+- Update the logo container's `top` positioning to use `items-center` alignment
+- Adjust the `top-6 md:top-8` values to match button vertical center
+- Ensure both the logo and buttons share the same vertical baseline
 
 ---
 
 ## Technical Details
 
-### Removed Imports
-```tsx
-// DELETE these:
-import { useSlotBookings } from '@/hooks/useSlotBookings';
-import { SlotBookingsSection } from '@/components/dashboard/SlotBookingsSection';
-// Remove Store from icon imports
+### Auth.tsx Changes
+```text
+- Add: import { useSearchParams } from 'react-router-dom'
+- Add useEffect to check for ?signup=true and set isSignUp(true)
 ```
 
-### Removed Hook Call
-```tsx
-// DELETE this line:
-const { bookings: slotBookings, loading: slotBookingsLoading, cancelBooking } = useSlotBookings();
+### Header.tsx Changes
+```text
+- Add imports: Avatar, AvatarFallback, DropdownMenu components, User, LogOut, LayoutDashboard icons
+- Add signOut to useAuth destructuring
+- Add userInitial state and profile fetch useEffect
+- Replace logged-in user section with avatar + dropdown matching SentenceLanding
 ```
 
-### Updated Stats Grid
-Change from `grid-cols-4` to `grid-cols-3` and remove the Market Spots card.
-
-### Admin Badge Fix
-Change from:
-```tsx
-{(pendingEventPros.length + pendingMarkets.length) > 0 && (
-  <Badge>
-    {pendingEventPros.length + pendingMarkets.length}
-  </Badge>
-)}
-```
-To:
-```tsx
-{pendingEventPros.length > 0 && (
-  <Badge>
-    {pendingEventPros.length}
-  </Badge>
-)}
+### SentenceLanding.tsx Changes
+```text
+- Adjust logo and button containers to share consistent vertical alignment
+- Use matching top offset values for both elements
 ```
 
 ---
 
-## Summary
-- Remove 1 import (SlotBookingsSection component)
-- Remove 1 hook (useSlotBookings) 
-- Remove 1 icon import (Store)
-- Remove 1 stats card (Market Spots)
-- Remove 1 tab (Markets)
-- Remove 1 tab content section
-- Update admin badge to only count Event Pro submissions
-- Change stats grid from 4 to 3 columns
+## Files to Modify
+
+| File | Purpose |
+|------|---------|
+| `src/pages/Auth.tsx` | Add URL parameter handling for signup mode |
+| `src/components/layout/Header.tsx` | Add avatar dropdown for logged-in users |
+| `src/pages/SentenceLanding.tsx` | Align logo with navigation buttons |
+
+---
+
+## Expected Outcome
+
+- Clicking "Create Profile" anywhere will land on Auth page in sign-up mode
+- Logged-in users see their avatar in the Header with Dashboard and Sign Out options
+- The SentenceLanding page logo and buttons are vertically aligned for a polished look
