@@ -50,3 +50,9 @@ verify_jwt = false
 
 [functions.create-slot-booking-checkout]
 verify_jwt = false
+
+[functions.check-pro-subscription]
+verify_jwt = false
+
+[functions.create-pro-premium-checkout]
+verify_jwt = false
