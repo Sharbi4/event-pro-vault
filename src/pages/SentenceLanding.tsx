@@ -170,7 +170,7 @@ export default function SentenceLanding() {
                 className="hidden sm:inline-flex"
                 onClick={() => setProfileModalOpen(true)}
               >
-                Create free profile
+                Become an Event Pro
               </Button>
             )}
 

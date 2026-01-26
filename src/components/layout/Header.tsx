@@ -131,7 +131,7 @@ export function Header() {
                   className="hidden sm:inline-flex"
                   onClick={() => setProfileModalOpen(true)}
                 >
-                  Create free profile
+                  Become an Event Pro
                 </Button>
               )}
               <button
