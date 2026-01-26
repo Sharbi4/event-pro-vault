@@ -75,12 +75,12 @@ export function useVendorMessages() {
   // Calculate total unread count
   const totalUnreadCount = conversations.reduce((acc, conv) => acc + conv.vendor_unread_count, 0);
 
-  // Real-time subscription for new messages
+  // Real-time subscription for messages and conversations
   useEffect(() => {
     if (!user?.id) return;
 
-    const channel = supabase
-      .channel('vendor-messages')
+    const messagesChannel = supabase
+      .channel('vendor-messages-realtime')
       .on(
         'postgres_changes',
         {
@@ -99,16 +99,66 @@ export function useVendorMessages() {
             refetchMessages();
           }
           
-          // Show toast for messages from clients
-          if (newMessage.sender_type === 'client') {
-            toast.info('New message received');
+          // Show toast for messages from clients (not our own messages)
+          if (newMessage.sender_type === 'client' && newMessage.sender_user_id !== user.id) {
+            toast.info('New message received', {
+              description: 'You have a new message from a client',
+              duration: 4000,
+            });
+          }
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'messages',
+        },
+        (payload) => {
+          // Refetch when messages are updated (e.g., marked as read)
+          if ((payload.new as Message).conversation_id === activeConversationId) {
+            refetchMessages();
           }
         }
       )
       .subscribe();
 
+    // Separate channel for conversation updates (unread counts, status changes)
+    const conversationsChannel = supabase
+      .channel('vendor-conversations-realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'conversations',
+          filter: `vendor_user_id=eq.${user.id}`,
+        },
+        () => {
+          // Refetch conversations when any conversation is updated
+          refetchConversations();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'conversations',
+          filter: `vendor_user_id=eq.${user.id}`,
+        },
+        () => {
+          // Refetch when a new conversation is created
+          refetchConversations();
+          toast.info('New conversation started');
+        }
+      )
+      .subscribe();
+
     return () => {
-      supabase.removeChannel(channel);
+      supabase.removeChannel(messagesChannel);
+      supabase.removeChannel(conversationsChannel);
     };
   }, [user?.id, activeConversationId, refetchConversations, refetchMessages]);
 

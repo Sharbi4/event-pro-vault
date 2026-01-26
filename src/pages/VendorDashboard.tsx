@@ -4,10 +4,11 @@ import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVendorDashboard } from '@/hooks/useVendorDashboard';
 import { useVendorMessages } from '@/hooks/useVendorMessages';
+import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles, MessageCircle } from 'lucide-react';
+import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles, MessageCircle, Bell } from 'lucide-react';
 import { VendorOverview } from '@/components/vendor-dashboard/VendorOverview';
 import { VendorBookings } from '@/components/vendor-dashboard/VendorBookings';
 import { VendorListings } from '@/components/vendor-dashboard/VendorListings';
@@ -46,6 +47,7 @@ const VendorDashboard = () => {
   } = useVendorDashboard();
 
   const { totalUnreadCount, getOrCreateConversationForBooking, setActiveConversationId } = useVendorMessages();
+  const { unreadCount: notificationUnreadCount } = useRealtimeNotifications();
   
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
