@@ -12,6 +12,7 @@ import { PackageDetails } from '@/components/package-detail/PackageDetails';
 import { StickyBookingCard } from '@/components/package-detail/StickyBookingCard';
 import { MobileBookingBar } from '@/components/package-detail/MobileBookingBar';
 import { BookingModal } from '@/components/package-detail/BookingModal';
+import { ShareButton } from '@/components/shared/ShareButton';
 
 export default function PackageDetail() {
   const { id } = useParams();
@@ -79,7 +80,7 @@ export default function PackageDetail() {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-8 pb-24 lg:pb-8">
-        {/* Back link */}
+        {/* Back link and Share */}
         <div className="flex items-center justify-between mb-6">
           <Link 
             to={searchParams.toString() ? `/?${searchParams.toString()}` : '/'}
@@ -88,6 +89,11 @@ export default function PackageDetail() {
             <ChevronLeft className="w-4 h-4" />
             Back to results
           </Link>
+          <ShareButton
+            url={`/package/${id}`}
+            title={packageData.name}
+            text={`Check out ${packageData.name} by ${packageData.vendor_display_name || packageData.vendor_name} on Event Pro!`}
+          />
         </div>
 
         {/* Gallery */}
