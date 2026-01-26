@@ -1,11 +1,11 @@
-import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { User, Building2, FileText, Globe, Instagram, Info } from 'lucide-react';
+import { Building2, FileText, Globe, Instagram, Info } from 'lucide-react';
 import { ProfileBasicsData } from '@/hooks/useEventProOnboarding';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { AvatarUpload } from '@/components/vendor-dashboard/AvatarUpload';
 
 interface StepProfileBasicsProps {
   data: ProfileBasicsData;
@@ -36,14 +36,20 @@ export function StepProfileBasics({ data, onChange }: StepProfileBasicsProps) {
         </p>
       </div>
 
+      {/* Profile Photo */}
+      <Card variant="glass">
+        <CardContent className="p-4 lg:p-6">
+          <AvatarUpload
+            currentAvatarUrl={data.avatarUrl || null}
+            displayName={data.displayName || data.firstName || null}
+            onUploadComplete={(url) => updateField('avatarUrl', url)}
+          />
+        </CardContent>
+      </Card>
+
       {/* Name Fields */}
       <Card variant="glass">
         <CardContent className="p-4 lg:p-6 space-y-4">
-          <div className="flex items-center gap-2 mb-2">
-            <User className="w-5 h-5 text-primary" />
-            <span className="font-medium">Your Name</span>
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="firstName" className="text-sm">
