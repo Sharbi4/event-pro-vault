@@ -150,8 +150,42 @@ const faqData: FAQItem[] = [
   },
   {
     category: 'cancellations',
+    question: 'What happens to the rest of my payment if I cancel?',
+    answer: 'If you cancel, the refund for the remaining balance follows the package\'s policy (Flexible/Standard/Strict). Refund amounts are shown at checkout and in your booking details.',
+  },
+  {
+    category: 'cancellations',
+    question: 'Are platform fees refundable?',
+    answer: 'A platform fee (12.9%) is included in your total at checkout. If you cancel, the platform fee is not refunded. If the Event Pro cancels, the platform fee is refunded.',
+    hasTooltip: 'platform-fee-refund',
+  },
+  {
+    category: 'cancellations',
+    question: 'When does the Event Pro get paid?',
+    answer: 'For online payments, funds are held and payouts are initiated 24 hours after the booking/event ends. This helps reduce disputes and confirms service completion.',
+    hasTooltip: 'payout-timing',
+  },
+  {
+    category: 'cancellations',
+    question: 'What if there\'s an issue with the service?',
+    answer: 'If something goes wrong, you can report an issue from your booking details. For online-paid bookings, issues must be reported within 24 hours after the booking/event ends so we can review before payout is released.',
+    hasTooltip: 'issue-reporting',
+  },
+  {
+    category: 'cancellations',
     question: 'What if the Event Pro cancels?',
-    answer: 'If an Event Pro cancels your booking, you\'ll receive a full refund including any deposit paid. We\'ll notify you immediately and process the refund to your original payment method.',
+    answer: 'If the Event Pro cancels, you\'ll receive a full refund for any online payment made (including deposit). The platform fee is refunded. You\'ll be notified immediately and can book another option.',
+  },
+  {
+    category: 'cancellations',
+    question: 'Can Event Pros set custom cancellation policies?',
+    answer: 'Not at launch. To keep things clear and consistent, EventPros uses standardized policy templates (Flexible, Standard, Strict). This helps customers compare options and reduces confusion.',
+  },
+  {
+    category: 'cancellations',
+    question: 'How do cash payments work with refunds?',
+    answer: 'If a package is marked Pay in cash, you pay the Event Pro directly at the event. Refunds or deposits for cash bookings (if applicable) follow the same cancellation policy terms shown at booking time, but payment handling occurs directly between you and the Event Pro.',
+    hasTooltip: 'cash-refunds',
   },
   {
     category: 'cancellations',
@@ -291,6 +325,10 @@ const popularQuestions = [
 const tooltipContent: Record<string, string> = {
   'availability-first': 'Results match your selected date/time—only what\'s actually available shows up.',
   'platform-fee': 'This fee supports payment processing, support, and marketplace operations.',
+  'platform-fee-refund': 'You keep the platform fee if you cancel. Event Pro cancels = fee refunded.',
+  'payout-timing': 'Payouts are held until 24 hours after the event to allow for issue reporting.',
+  'issue-reporting': 'Report issues promptly so we can review before funds are released.',
+  'cash-refunds': 'Cash bookings are handled directly between you and the Event Pro.',
   'instant-book': 'Booking is confirmed immediately when it matches availability.',
   'request-to-book': 'Booking confirms after the Event Pro approves.',
   'weekly-series': 'Pay once to reserve your spot for every week in the series.',
