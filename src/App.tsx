@@ -38,6 +38,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import VendorTerms from "./pages/VendorTerms";
 import CancellationPolicy from "./pages/CancellationPolicy";
+import { CookieConsentBanner } from "./components/shared/CookieConsentBanner";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,7 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
+          <CookieConsentBanner />
           <BrowserRouter>
             <Routes>
               {/* New "Art Gallery" Flow */}
