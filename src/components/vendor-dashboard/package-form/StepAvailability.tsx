@@ -6,15 +6,15 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { CalendarDays, Clock, Info, X, AlertCircle } from 'lucide-react';
-import { format, addMonths, isSameDay } from 'date-fns';
+import { format } from 'date-fns';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { AvailabilityPreview } from './AvailabilityPreview';
 
 const DAYS_OF_WEEK = [
   { value: 0, label: 'Sunday', short: 'Sun' },
@@ -359,6 +359,12 @@ export function StepAvailability({
           )}
         </CardContent>
       </Card>
+
+      {/* Availability Preview */}
+      <AvailabilityPreview
+        weeklyAvailability={weeklyAvailability}
+        blockedDates={blockedDates}
+      />
 
       {/* Block Date Dialog */}
       <Dialog open={showBlockDialog} onOpenChange={setShowBlockDialog}>

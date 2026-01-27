@@ -41,6 +41,8 @@ export interface VendorPackage {
   fee_per_mile: number | null;
   pickup_only: boolean | null;
   cancellation_policy: string;
+  booking_mode: 'INSTANT' | 'REQUEST';
+  payment_options: 'ONLINE' | 'CASH' | 'BOTH';
   created_at: string;
   updated_at: string;
 }
