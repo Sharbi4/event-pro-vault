@@ -70,11 +70,6 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/trust-safety" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Trust & Safety
-                </Link>
-              </li>
-              <li>
                 <Link to="/cancellation" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Cancellation Policy
                 </Link>
@@ -82,6 +77,18 @@ export function Footer() {
               <li>
                 <Link to="/support" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Help Center
+                </Link>
+              </li>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div>
+            <h4 className="font-semibold text-foreground mb-4">Legal</h4>
+            <ul className="space-y-3">
+              <li>
+                <Link to="/terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Terms of Service
                 </Link>
               </li>
               <li>
