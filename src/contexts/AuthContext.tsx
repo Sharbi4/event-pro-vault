@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { trackSignupCompleted, clearReferral } from '@/lib/trackingAnalytics';
 
 interface AuthContextType {
   user: User | null;
@@ -25,6 +26,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Track signup completion
+        if (event === 'SIGNED_IN' && session?.user) {
+          // Check if this is a new user (created within last 60 seconds)
+          const createdAt = new Date(session.user.created_at).getTime();
+          const now = Date.now();
+          const isNewUser = now - createdAt < 60000;
+          
+          if (isNewUser) {
+            trackSignupCompleted(session.user.id);
+            clearReferral(); // Clear after attribution
+          }
+        }
       }
     );
 

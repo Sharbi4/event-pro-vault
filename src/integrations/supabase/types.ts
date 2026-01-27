@@ -14,6 +14,75 @@ export type Database = {
   }
   public: {
     Tables: {
+      analytics_events: {
+        Row: {
+          category: string | null
+          city: string | null
+          created_at: string
+          event_name: string
+          id: string
+          lead_id: string | null
+          metadata: Json | null
+          package_id: string | null
+          page_path: string | null
+          pro_id: string | null
+          referral_code: string | null
+          referrer: string | null
+          session_id: string
+          state: string | null
+          user_id: string | null
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          category?: string | null
+          city?: string | null
+          created_at?: string
+          event_name: string
+          id?: string
+          lead_id?: string | null
+          metadata?: Json | null
+          package_id?: string | null
+          page_path?: string | null
+          pro_id?: string | null
+          referral_code?: string | null
+          referrer?: string | null
+          session_id: string
+          state?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          category?: string | null
+          city?: string | null
+          created_at?: string
+          event_name?: string
+          id?: string
+          lead_id?: string | null
+          metadata?: Json | null
+          package_id?: string | null
+          page_path?: string | null
+          pro_id?: string | null
+          referral_code?: string | null
+          referrer?: string | null
+          session_id?: string
+          state?: string | null
+          user_id?: string | null
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           author_avatar: string | null
