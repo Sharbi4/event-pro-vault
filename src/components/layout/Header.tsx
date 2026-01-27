@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, MessageCircle, LayoutDashboard, LogOut, Mail } from 'lucide-react';
+import { Menu, X, MessageCircle, LayoutDashboard, LogOut, Mail, PlusCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModeSwitcher } from './ModeSwitcher';
@@ -31,6 +31,7 @@ export function Header() {
 
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+  const [isEventPro, setIsEventPro] = useState(false);
 
   // Fetch unread message count for logged-in users
   useEffect(() => {
@@ -77,17 +78,22 @@ export function Header() {
   // Fetch user profile data
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!user) return;
+      if (!user) {
+        setIsEventPro(false);
+        return;
+      }
       const { data } = await supabase
         .from('profiles')
-        .select('first_name, display_name, avatar_url')
+        .select('first_name, display_name, avatar_url, is_vendor')
         .eq('user_id', user.id)
         .single();
       if (data) {
         setUserInitial(data.first_name?.[0] || data.display_name?.[0] || user.email?.[0]?.toUpperCase() || 'U');
         setUserAvatarUrl(data.avatar_url);
+        setIsEventPro(data.is_vendor === true);
       } else {
         setUserInitial(user.email?.[0]?.toUpperCase() || 'U');
+        setIsEventPro(false);
       }
     };
     fetchProfile();
@@ -233,7 +239,18 @@ export function Header() {
                       )}
                     </Link>
                     
-                    <Link 
+                    {isEventPro && (
+                      <Link 
+                        to="/vendor-dashboard?tab=listings&action=create" 
+                        className={`flex items-center gap-2 text-sm font-medium py-3 px-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary/50`}
+                        onClick={() => setMobileMenuOpen(false)}
+                      >
+                        <PlusCircle className="w-4 h-4" />
+                        Create Package
+                      </Link>
+                    )}
+                    
+                    <Link
                       to="/faq" 
                       className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
                         location.pathname === '/faq' 
