@@ -343,7 +343,7 @@ export function Header() {
                       }}
                     >
                       <PlusCircle className="w-4 h-4" />
-                      Create a Free Profile
+                      Become an Event Pro
                     </button>
                     
                     <div className="h-px bg-border my-2" />

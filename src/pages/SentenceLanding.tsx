@@ -499,7 +499,7 @@ export default function SentenceLanding() {
                           }}
                         >
                           <PlusCircle className="w-4 h-4" />
-                          Create a Free Profile
+                          Become an Event Pro
                         </button>
                       </motion.div>
                       
