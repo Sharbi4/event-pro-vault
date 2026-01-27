@@ -32,6 +32,7 @@ export function Header() {
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
   const [unreadMessageCount, setUnreadMessageCount] = useState(0);
   const [isEventPro, setIsEventPro] = useState(false);
+  const [displayName, setDisplayName] = useState<string | null>(null);
 
   // Fetch unread message count for logged-in users
   useEffect(() => {
@@ -91,9 +92,11 @@ export function Header() {
         setUserInitial(data.first_name?.[0] || data.display_name?.[0] || user.email?.[0]?.toUpperCase() || 'U');
         setUserAvatarUrl(data.avatar_url);
         setIsEventPro(data.is_vendor === true);
+        setDisplayName(data.display_name || data.first_name || null);
       } else {
         setUserInitial(user.email?.[0]?.toUpperCase() || 'U');
         setIsEventPro(false);
+        setDisplayName(null);
       }
     };
     fetchProfile();
@@ -200,7 +203,24 @@ export function Header() {
               <nav className="flex flex-col gap-1">
                 {user ? (
                   <>
-                    {/* Logged in: Dashboard, FAQ, Contact */}
+                    {/* User greeting header */}
+                    <div className="px-2 pb-3 flex items-center gap-3">
+                      <Avatar className="h-10 w-10 border-2 border-primary/20">
+                        <AvatarImage src={userAvatarUrl || undefined} alt={displayName || 'User'} />
+                        <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                          {userInitial}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold text-foreground truncate">
+                          {displayName || user.email?.split('@')[0] || 'Welcome'}
+                        </p>
+                        {isEventPro && (
+                          <p className="text-xs text-primary font-medium">Event Pro</p>
+                        )}
+                      </div>
+                    </div>
+                    
                     <div className="px-2 pb-3">
                       <ModeSwitcher compact />
                     </div>
