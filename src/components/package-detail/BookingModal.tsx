@@ -30,6 +30,7 @@ import { CANCELLATION_POLICIES, CancellationPolicyType } from '@/lib/cancellatio
 import { CancellationPolicyBadge } from '@/components/shared/CancellationPolicyBadge';
 import { AddressInput } from '@/components/shared/AddressInput';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { trackBookingStarted, trackBookingCompleted, trackBookingFailed } from '@/lib/trackingAnalytics';
 
 interface BookingModalProps {
   open: boolean;
@@ -220,7 +221,7 @@ export function BookingModal({
   const disabledDaysOfWeek = useMemo(() => getDisabledDaysOfWeek(), [getDisabledDaysOfWeek]);
   const unavailableDates = useMemo(() => getUnavailableDates(), [getUnavailableDates]);
 
-  // Reset on open
+  // Reset on open and track booking started
   useEffect(() => {
     if (open) {
       setCurrentStep(0);
@@ -229,8 +230,11 @@ export function BookingModal({
       setPaymentMethod(paymentOptions === 'CASH' ? 'cash' : initialPaymentMethod);
       setAcceptTerms(false);
       setAcceptCancellation(false);
+      
+      // Track booking started
+      trackBookingStarted({ packageId, proId: vendorUserId });
     }
-  }, [open, initialDate, paymentOptions, initialPaymentMethod]);
+  }, [open, initialDate, paymentOptions, initialPaymentMethod, packageId, vendorUserId]);
 
   // Auto-adjust times when date changes
   useEffect(() => {
@@ -367,6 +371,7 @@ export function BookingModal({
     });
 
     if (!result) {
+      trackBookingFailed({ packageId, errorCode: 'create_failed', reason: 'Failed to create booking' });
       setSubmitting(false);
       return;
     }
@@ -384,18 +389,32 @@ export function BookingModal({
         if (error) throw error;
 
         if (data?.url) {
+          // Track booking completion before redirect (Stripe will confirm)
+          trackBookingCompleted({
+            bookingId: result.id,
+            packageId,
+            isRequest: bookingMode !== 'INSTANT',
+          });
           // Redirect to Stripe checkout
           window.location.href = data.url;
           return;
         }
       } catch (err) {
         console.error('Checkout error:', err);
+        trackBookingFailed({ packageId, errorCode: 'checkout_error', reason: 'Payment setup failed' });
         toast({
           title: "Payment setup failed",
           description: "Your booking was created but payment could not be processed. Please try again from your dashboard.",
           variant: "destructive"
         });
       }
+    } else {
+      // Cash payment or request - track completion
+      trackBookingCompleted({
+        bookingId: result.id,
+        packageId,
+        isRequest: bookingMode !== 'INSTANT',
+      });
     }
 
     setSubmitting(false);

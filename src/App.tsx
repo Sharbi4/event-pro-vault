@@ -42,6 +42,7 @@ import CancellationPolicy from "./pages/CancellationPolicy";
 import { CookieConsentBanner } from "./components/shared/CookieConsentBanner";
 import NotFound from "./pages/NotFound";
 import CityCategory from "./pages/CityCategory";
+import AdminAnalytics from "./pages/AdminAnalytics";
 
 const queryClient = new QueryClient();
 
@@ -93,6 +94,8 @@ const App = () => (
               <Route path="/terms" element={<TermsOfService />} />
               <Route path="/vendor-terms" element={<VendorTerms />} />
               <Route path="/cancellation" element={<CancellationPolicy />} />
+              {/* Admin routes */}
+              <Route path="/admin/analytics" element={<AdminAnalytics />} />
               {/* SEO City/Category landing pages */}
               <Route path="/:citySlug/:categorySlug" element={<CityCategory />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

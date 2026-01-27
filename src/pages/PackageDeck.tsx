@@ -7,6 +7,14 @@ import { DeckNavigation } from '@/components/deck/DeckNavigation';
 import { SpatialDrawer } from '@/components/booking/SpatialDrawer';
 import ResultsOverlay from '@/components/deck/ResultsOverlay';
 import { useBrowsePackages } from '@/hooks/useBrowsePackages';
+import { 
+  initAnalytics, 
+  trackSearchPerformed, 
+  trackResultsViewed, 
+  trackNoMatchShown,
+  trackPackageViewed,
+  trackBookingStarted 
+} from '@/lib/trackingAnalytics';
 
 // Map event types to categories for filtering
 const EVENT_TO_CATEGORY: Record<string, string> = {
@@ -38,6 +46,11 @@ export default function PackageDeck() {
 
   const { packages, loading: isLoading, updateFilter } = useBrowsePackages();
 
+  // Initialize analytics on mount
+  useEffect(() => {
+    initAnalytics();
+  }, []);
+
   // Apply URL filters on mount
   useEffect(() => {
     if (filtersApplied) return;
@@ -60,8 +73,34 @@ export default function PackageDeck() {
       updateFilter('search', eventType);
     }
     
+    // Track search performed
+    trackSearchPerformed({
+      category: eventType || undefined,
+      city: location || undefined,
+      date: dateStr || undefined,
+    });
+    
     setFiltersApplied(true);
   }, [eventType, location, dateStr, updateFilter, filtersApplied]);
+
+  // Track results when packages change
+  useEffect(() => {
+    if (!isLoading && filtersApplied) {
+      if (packages.length > 0) {
+        trackResultsViewed({
+          resultsCount: packages.length,
+          category: eventType || undefined,
+          city: location || undefined,
+        });
+      } else {
+        trackNoMatchShown({
+          category: eventType || undefined,
+          city: location || undefined,
+          date: dateStr || undefined,
+        });
+      }
+    }
+  }, [packages.length, isLoading, filtersApplied, eventType, location, dateStr]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -113,6 +152,12 @@ export default function PackageDeck() {
   };
 
   const handleSecure = (pkg: any) => {
+    // Track booking started
+    trackBookingStarted({
+      packageId: pkg.id,
+      proId: pkg.vendor_user_id,
+    });
+    
     // Transform package data to match drawer expectations
     setSelectedPackage({
       ...pkg,
@@ -130,6 +175,19 @@ export default function PackageDeck() {
     });
     setDrawerOpen(true);
   };
+
+  // Track package view when active index changes
+  useEffect(() => {
+    if (packages.length > 0 && packages[activeIndex]) {
+      const pkg = packages[activeIndex];
+      trackPackageViewed({
+        packageId: pkg.id,
+        proId: pkg.vendor_user_id,
+        category: pkg.category || undefined,
+        city: pkg.vendor_city || undefined,
+      });
+    }
+  }, [activeIndex, packages]);
 
   const handleBack = () => {
     navigate('/');

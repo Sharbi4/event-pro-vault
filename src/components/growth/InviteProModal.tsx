@@ -7,6 +7,7 @@ import { Copy, Check, Share2, MessageSquare, Mail, Twitter } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { trackInviteCreated, trackInviteShared } from '@/lib/trackingAnalytics';
 
 interface InviteProModalProps {
   open: boolean;
@@ -48,10 +49,13 @@ export function InviteProModal({ open, onOpenChange, category, city }: InvitePro
 
       if (error) throw error;
       setRefCode(code);
+      trackInviteCreated(code);
     } catch (err) {
       console.error('Error creating referral:', err);
       // Use a fallback code
-      setRefCode(Math.random().toString(36).substring(2, 10).toUpperCase());
+      const fallbackCode = Math.random().toString(36).substring(2, 10).toUpperCase();
+      setRefCode(fallbackCode);
+      trackInviteCreated(fallbackCode);
     } finally {
       setLoading(false);
     }
@@ -70,7 +74,11 @@ export function InviteProModal({ open, onOpenChange, category, city }: InvitePro
 
   const handleShare = async (platform: 'sms' | 'email' | 'twitter' | 'native') => {
     const encodedMessage = encodeURIComponent(shareMessage);
-    const encodedUrl = encodeURIComponent(inviteUrl);
+
+    // Track the share
+    if (refCode) {
+      trackInviteShared(platform, refCode);
+    }
 
     switch (platform) {
       case 'sms':
@@ -97,7 +105,7 @@ export function InviteProModal({ open, onOpenChange, category, city }: InvitePro
         break;
     }
 
-    // Track click - fire and forget
+    // Track click in database - fire and forget
     if (refCode) {
       supabase
         .from('referral_invites')
@@ -109,6 +117,20 @@ export function InviteProModal({ open, onOpenChange, category, city }: InvitePro
             supabase.from('referral_invites').update({ clicks: (data.clicks || 0) + 1 }).eq('ref_code', refCode);
           }
         });
+    }
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(inviteUrl);
+      setCopied(true);
+      if (refCode) {
+        trackInviteShared('copy', refCode);
+      }
+      toast({ title: 'Link copied!' });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({ title: 'Failed to copy', variant: 'destructive' });
     }
   };
 
@@ -138,7 +160,7 @@ export function InviteProModal({ open, onOpenChange, category, city }: InvitePro
               <Button
                 variant="outline"
                 size="icon"
-                onClick={handleCopy}
+                onClick={handleCopyLink}
                 disabled={loading}
               >
                 {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}

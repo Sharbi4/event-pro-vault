@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { serviceCategories } from '@/data/service-categories';
 import { InviteProModal } from './InviteProModal';
+import { trackNoMatchShown, trackLeadFormOpened, trackLeadSubmitted, trackInviteModalOpened } from '@/lib/trackingAnalytics';
 
 interface NoMatchesEmptyStateProps {
   searchCategory?: string;
@@ -38,6 +39,16 @@ export function NoMatchesEmptyState({
   const [showInviteModal, setShowInviteModal] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+
+  // Track no-match shown on mount
+  useEffect(() => {
+    trackNoMatchShown({
+      category: searchCategory,
+      city: searchCity,
+      state: searchState,
+      date: searchDate?.toISOString(),
+    });
+  }, [searchCategory, searchCity, searchState, searchDate]);
 
   // Form state
   const [category, setCategory] = useState(searchCategory || '');
@@ -65,7 +76,7 @@ export function NoMatchesEmptyState({
 
     setSubmitting(true);
     try {
-      const { error } = await supabase.from('leads').insert({
+      const { data, error } = await supabase.from('leads').insert({
         category,
         event_start: eventDate?.toISOString().split('T')[0],
         city,
@@ -80,9 +91,14 @@ export function NoMatchesEmptyState({
         source: 'no_matches',
         user_id: user?.id || null,
         search_query: { category: searchCategory, date: searchDate?.toISOString(), city: searchCity }
-      });
+      }).select('id').single();
 
       if (error) throw error;
+
+      // Track lead submission
+      if (data?.id) {
+        trackLeadSubmitted({ leadId: data.id, category, city, state });
+      }
 
       setShowLeadForm(false);
       setShowSuccess(true);
@@ -132,11 +148,17 @@ export function NoMatchesEmptyState({
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <Button size="lg" onClick={() => setShowLeadForm(true)} className="gap-2">
+          <Button size="lg" onClick={() => {
+            trackLeadFormOpened({ category: searchCategory, city: searchCity, state: searchState });
+            setShowLeadForm(true);
+          }} className="gap-2">
             <Send className="w-4 h-4" />
             Request a quote
           </Button>
-          <Button size="lg" variant="outline" onClick={() => setShowInviteModal(true)} className="gap-2">
+          <Button size="lg" variant="outline" onClick={() => {
+            trackInviteModalOpened({ category: searchCategory, city: searchCity });
+            setShowInviteModal(true);
+          }} className="gap-2">
             <UserPlus className="w-4 h-4" />
             Invite a pro
           </Button>
