@@ -241,6 +241,20 @@ export function useVendorMessages() {
         .eq('id', data.conversationId);
 
       if (updateError) throw updateError;
+
+      // Send email notification to client (fire and forget)
+      try {
+        await supabase.functions.invoke('send-message-notification', {
+          body: {
+            conversationId: data.conversationId,
+            messageContent: data.content,
+            senderType: 'vendor',
+          },
+        });
+      } catch (notifError) {
+        console.warn('Failed to send email notification:', notifError);
+        // Don't fail the message send if notification fails
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['conversation-messages'] });

@@ -194,6 +194,20 @@ export function useCustomerMessages() {
         })
         .eq('id', conversationId);
 
+      // Send email notification to vendor (fire and forget)
+      try {
+        await supabase.functions.invoke('send-message-notification', {
+          body: {
+            conversationId,
+            messageContent: content,
+            senderType: 'client',
+          },
+        });
+      } catch (notifError) {
+        console.warn('Failed to send email notification:', notifError);
+        // Don't fail the message send if notification fails
+      }
+
       return data;
     },
     onSuccess: () => {
