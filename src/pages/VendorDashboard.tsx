@@ -5,16 +5,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useVendorDashboard } from '@/hooks/useVendorDashboard';
 import { useVendorMessages } from '@/hooks/useVendorMessages';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
+import { useDisputes } from '@/hooks/useDisputes';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles, MessageCircle, Bell } from 'lucide-react';
+import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles, MessageCircle, Bell, AlertTriangle } from 'lucide-react';
 import { VendorOverview } from '@/components/vendor-dashboard/VendorOverview';
 import { VendorBookings } from '@/components/vendor-dashboard/VendorBookings';
 import { VendorListings } from '@/components/vendor-dashboard/VendorListings';
 import { VendorAvailability } from '@/components/vendor-dashboard/VendorAvailability';
 import { VendorEarnings } from '@/components/vendor-dashboard/VendorEarnings';
 import { VendorMessages } from '@/components/vendor-dashboard/VendorMessages';
+import { VendorDisputes } from '@/components/vendor-dashboard/VendorDisputes';
 
 import { AvatarUpload } from '@/components/vendor-dashboard/AvatarUpload';
 import { CoverPhotoUpload } from '@/components/vendor-dashboard/CoverPhotoUpload';
@@ -48,6 +50,8 @@ const VendorDashboard = () => {
 
   const { totalUnreadCount, getOrCreateConversationForBooking, setActiveConversationId } = useVendorMessages();
   const { unreadCount: notificationUnreadCount } = useRealtimeNotifications();
+  const { disputes } = useDisputes('vendor');
+  const pendingDisputeCount = disputes.filter(d => d.status === 'pending' && !d.vendor_responded_at).length;
   
   const [activeTab, setActiveTab] = useState(defaultTab);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -157,32 +161,46 @@ const VendorDashboard = () => {
         {/* Main Tabs - Mobile: Horizontal scroll with icons only */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
           {/* Mobile Tab Bar - Fixed icons, scrollable */}
-          <div className="sm:hidden -mx-3 px-3">
-            <TabsList className="w-full flex justify-between bg-muted/50 p-1 rounded-lg h-auto">
+          <div className="sm:hidden -mx-3 px-3 overflow-x-auto">
+            <TabsList className="w-max flex bg-muted/50 p-1 rounded-lg h-auto gap-0.5">
               <TabsTrigger 
                 value="overview" 
-                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 data-[state=active]:bg-background"
+                className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] data-[state=active]:bg-background"
               >
                 <LayoutDashboard className="w-5 h-5" />
-                <span className="text-[10px] font-medium truncate">Overview</span>
+                <span className="text-[10px] font-medium">Overview</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="earnings" 
-                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 data-[state=active]:bg-background"
+                className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] data-[state=active]:bg-background"
               >
                 <Wallet className="w-5 h-5" />
-                <span className="text-[10px] font-medium truncate">Earnings</span>
+                <span className="text-[10px] font-medium">Earnings</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="bookings" 
-                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 data-[state=active]:bg-background"
+                className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] data-[state=active]:bg-background"
               >
                 <Calendar className="w-5 h-5" />
-                <span className="text-[10px] font-medium truncate">Bookings</span>
+                <span className="text-[10px] font-medium">Bookings</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="disputes" 
+                className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] relative data-[state=active]:bg-background"
+              >
+                <div className="relative">
+                  <AlertTriangle className="w-5 h-5" />
+                  {pendingDisputeCount > 0 && (
+                    <span className="absolute -top-1 -right-1.5 h-4 min-w-4 px-1 text-[9px] font-bold bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+                      {pendingDisputeCount > 9 ? '9+' : pendingDisputeCount}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] font-medium">Disputes</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="messages" 
-                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 relative data-[state=active]:bg-background"
+                className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] relative data-[state=active]:bg-background"
               >
                 <div className="relative">
                   <MessageCircle className="w-5 h-5" />
@@ -192,34 +210,34 @@ const VendorDashboard = () => {
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] font-medium truncate">Messages</span>
+                <span className="text-[10px] font-medium">Messages</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="packages" 
-                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 data-[state=active]:bg-background"
+                className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] data-[state=active]:bg-background"
               >
                 <Package className="w-5 h-5" />
-                <span className="text-[10px] font-medium truncate">Packages</span>
+                <span className="text-[10px] font-medium">Packages</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="availability" 
-                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 data-[state=active]:bg-background"
+                className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] data-[state=active]:bg-background"
               >
                 <CalendarX className="w-5 h-5" />
-                <span className="text-[10px] font-medium truncate">Availability</span>
+                <span className="text-[10px] font-medium">Availability</span>
               </TabsTrigger>
               <TabsTrigger 
                 value="settings" 
-                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 data-[state=active]:bg-background"
+                className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] data-[state=active]:bg-background"
               >
                 <Settings className="w-5 h-5" />
-                <span className="text-[10px] font-medium truncate">Settings</span>
+                <span className="text-[10px] font-medium">Settings</span>
               </TabsTrigger>
             </TabsList>
           </div>
 
           {/* Desktop Tab Bar */}
-          <TabsList className="hidden sm:inline-grid w-auto grid-cols-7">
+          <TabsList className="hidden sm:inline-grid w-auto grid-cols-8">
             <TabsTrigger value="overview" className="gap-2">
               <LayoutDashboard className="w-4 h-4" />
               Overview
@@ -231,6 +249,15 @@ const VendorDashboard = () => {
             <TabsTrigger value="bookings" className="gap-2">
               <Calendar className="w-4 h-4" />
               Bookings
+            </TabsTrigger>
+            <TabsTrigger value="disputes" className="gap-2 relative">
+              <AlertTriangle className="w-4 h-4" />
+              Disputes
+              {pendingDisputeCount > 0 && (
+                <Badge className="absolute -top-1.5 -right-1.5 h-4 min-w-4 px-1 text-[10px] bg-destructive">
+                  {pendingDisputeCount > 9 ? '9+' : pendingDisputeCount}
+                </Badge>
+              )}
             </TabsTrigger>
             <TabsTrigger value="messages" className="gap-2 relative">
               <MessageCircle className="w-4 h-4" />
@@ -293,6 +320,10 @@ const VendorDashboard = () => {
             />
           </TabsContent>
 
+
+          <TabsContent value="disputes">
+            <VendorDisputes />
+          </TabsContent>
 
           <TabsContent value="messages">
             <VendorMessages />
