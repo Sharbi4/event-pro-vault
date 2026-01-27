@@ -40,6 +40,7 @@ export interface BrowseFilters {
   location: string;
   instantBook: boolean;
   verified: boolean;
+  onlinePaymentsOnly: boolean;
   minRating: number | null;
   maxPrice: number | null;
   minPrice: number | null;
@@ -79,6 +80,7 @@ export function useBrowsePackages() {
     location: '',
     instantBook: false,
     verified: false,
+    onlinePaymentsOnly: false,
     minRating: null,
     maxPrice: null,
     minPrice: null,
@@ -118,6 +120,11 @@ export function useBrowsePackages() {
       // Apply instant book filter
       if (filters.instantBook) {
         packagesQuery = packagesQuery.eq('instant_book', true);
+      }
+
+      // Apply online payments filter
+      if (filters.onlinePaymentsOnly) {
+        packagesQuery = packagesQuery.in('payment_options', ['ONLINE', 'BOTH']);
       }
 
       // Apply price filters
@@ -455,6 +462,7 @@ export function useBrowsePackages() {
       location: '',
       instantBook: false,
       verified: false,
+      onlinePaymentsOnly: false,
       minRating: null,
       maxPrice: null,
       minPrice: null,

@@ -12,7 +12,7 @@ import {
   SlidersHorizontal, X, Star, Zap, 
   ShieldCheck, LayoutGrid, Search, MapPin,
   CalendarDays, Package, Map, Sparkles,
-  Clock, MapPinOff, ChevronDown
+  Clock, MapPinOff, ChevronDown, CreditCard
 } from 'lucide-react';
 import { serviceCategories } from '@/data/service-categories';
 import { useBrowsePackages } from '@/hooks/useBrowsePackages';
@@ -41,7 +41,7 @@ export default function Browse() {
   const startTime = filters.startTime;
   const endTime = filters.endTime;
 
-  const activeFiltersCount = [filters.category, filters.date, filters.instantBook, filters.verified, filters.minRating, filters.startTime, filters.minPrice, filters.maxPrice].filter(Boolean).length;
+  const activeFiltersCount = [filters.category, filters.date, filters.instantBook, filters.verified, filters.onlinePaymentsOnly, filters.minRating, filters.startTime, filters.minPrice, filters.maxPrice].filter(Boolean).length;
 
   const hasSearched = !!(filters.search || filters.location || filters.date || filters.startTime);
 
@@ -339,6 +339,15 @@ export default function Browse() {
               >
                 <Star className={`w-3.5 h-3.5 ${filters.minRating === 4.5 ? 'fill-current' : 'text-amber-400 fill-amber-400'}`} />
                 4.5+ Rating
+              </Button>
+              <Button 
+                variant={filters.onlinePaymentsOnly ? 'default' : 'outline'} 
+                size="sm" 
+                className="gap-1.5 rounded-full"
+                onClick={() => updateFilter('onlinePaymentsOnly', !filters.onlinePaymentsOnly)}
+              >
+                <CreditCard className={`w-3.5 h-3.5 ${filters.onlinePaymentsOnly ? '' : 'text-blue-500'}`} />
+                Pay Online
               </Button>
               
               {activeFiltersCount > 0 && (
