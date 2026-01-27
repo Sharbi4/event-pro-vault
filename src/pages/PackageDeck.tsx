@@ -42,8 +42,10 @@ export default function PackageDeck() {
   useEffect(() => {
     if (filtersApplied) return;
     
-    // Apply location filter
-    if (location) {
+    // Apply location filter - only if it's not just a zip code
+    // Zip codes don't match well with city names, so we skip them to show all results
+    const isZipCode = /^\d{5}(-\d{4})?$/.test(location.trim());
+    if (location && !isZipCode) {
       updateFilter('location', location);
     }
     
@@ -52,9 +54,10 @@ export default function PackageDeck() {
       updateFilter('date', dateStr);
     }
     
-    // Map event type to category
-    if (eventType && EVENT_TO_CATEGORY[eventType]) {
-      updateFilter('category', EVENT_TO_CATEGORY[eventType]);
+    // For event types, use search term instead of strict category match
+    // This allows "Wedding" to find "Wedding Photography", "Wedding DJ", etc.
+    if (eventType && eventType !== 'Other') {
+      updateFilter('search', eventType);
     }
     
     setFiltersApplied(true);
