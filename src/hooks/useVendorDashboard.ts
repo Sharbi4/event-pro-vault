@@ -55,10 +55,18 @@ export interface VendorBooking {
   package_id: string;
   event_date: string;
   event_location: string;
+  event_city: string | null;
+  event_state: string | null;
+  event_zip: string | null;
+  start_time: string | null;
+  end_time: string | null;
+  duration_minutes: number | null;
   units: number;
   add_ons: string[];
   total_price: number;
   status: string;
+  payment_status: string | null;
+  customer_email: string | null;
   notes: string | null;
   created_at: string;
 }

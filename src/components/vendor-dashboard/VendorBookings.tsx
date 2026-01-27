@@ -15,7 +15,6 @@ interface VendorBookingsProps {
 }
 
 interface ExtendedBooking extends VendorBooking {
-  payment_status?: string;
   payment_method?: string;
   booking_mode?: string;
   stripe_checkout_session_id?: string;
@@ -24,7 +23,6 @@ interface ExtendedBooking extends VendorBooking {
   deposit_paid_at?: string;
   final_paid_at?: string;
   deposit_percentage?: number;
-  customer_email?: string;
 }
 
 export function VendorBookings({ bookings, onUpdateStatus, onMessageClient }: VendorBookingsProps) {
