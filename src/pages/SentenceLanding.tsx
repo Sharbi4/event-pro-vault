@@ -118,43 +118,73 @@ export default function SentenceLanding() {
       <BackgroundSlideshow isComplete={isComplete} interval={7000} />
 
       {/* Search Loading Overlay */}
+      {/* Rainbow Gradient Border - ChatGPT Style */}
       <AnimatePresence>
         {isSearching && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/90 backdrop-blur-md flex flex-col items-center justify-center"
-          >
+          <>
+            {/* Rainbow gradient border around the entire viewport */}
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="flex flex-col items-center gap-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-40 pointer-events-none"
             >
-              <div className="relative">
-                <motion.div
-                  className="w-20 h-20 border-2 border-primary/30 rounded-full"
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                />
-                <motion.div
-                  className="absolute inset-0 w-20 h-20 border-2 border-t-primary border-r-transparent border-b-transparent border-l-transparent rounded-full"
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                />
-              </div>
-              <div className="text-center">
-                <h3 className="text-xl font-semibold text-foreground mb-2">
-                  Finding perfect matches...
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  Searching {eventType ? eventType.toLowerCase() + ' services' : 'all services'}
-                  {location_ && ` in ${location_}`}
-                </p>
-              </div>
+              {/* Top border */}
+              <div className="absolute top-0 left-0 right-0 h-1 rainbow-gradient-animate" />
+              {/* Bottom border */}
+              <div className="absolute bottom-0 left-0 right-0 h-1 rainbow-gradient-animate" />
+              {/* Left border */}
+              <div className="absolute top-0 left-0 bottom-0 w-1 rainbow-gradient-animate-vertical" />
+              {/* Right border */}
+              <div className="absolute top-0 right-0 bottom-0 w-1 rainbow-gradient-animate-vertical" />
+              
+              {/* Corner glow effects */}
+              <div className="absolute top-0 left-0 w-32 h-32 bg-gradient-to-br from-purple-500/20 via-transparent to-transparent blur-xl" />
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-blue-500/20 via-transparent to-transparent blur-xl" />
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-pink-500/20 via-transparent to-transparent blur-xl" />
+              <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl from-cyan-500/20 via-transparent to-transparent blur-xl" />
             </motion.div>
-          </motion.div>
+            
+            {/* Center loading content */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-background/90 backdrop-blur-md flex flex-col items-center justify-center"
+            >
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="flex flex-col items-center gap-6"
+              >
+                {/* Rainbow gradient spinner */}
+                <div className="relative">
+                  <motion.div
+                    className="w-20 h-20 rounded-full rainbow-gradient-border"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                  />
+                  <div className="absolute inset-1 bg-background rounded-full flex items-center justify-center">
+                    <motion.div
+                      className="w-3 h-3 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-500"
+                      animate={{ scale: [1, 1.3, 1] }}
+                      transition={{ duration: 1, repeat: Infinity }}
+                    />
+                  </div>
+                </div>
+                <div className="text-center">
+                  <h3 className="text-xl font-semibold text-foreground mb-2">
+                    Finding perfect matches...
+                  </h3>
+                  <p className="text-muted-foreground text-sm">
+                    Searching {eventType ? eventType.toLowerCase() + ' services' : 'all services'}
+                    {location_ && ` in ${location_}`}
+                  </p>
+                </div>
+              </motion.div>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
 
