@@ -7,20 +7,64 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { LocationAutocomplete } from '@/components/browse/LocationAutocomplete';
 
+// Create typewriter click sound using Web Audio API
+const createTypewriterSound = () => {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    
+    // Create a short click sound
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    // Short percussive sound like a typewriter key
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+    oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.02);
+    
+    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.03);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.03);
+  } catch (e) {
+    // Audio not supported or blocked
+  }
+};
+
 // Typewriter animation component
 function TypewriterText({ text, className }: { text: string; className?: string }) {
   const [displayedText, setDisplayedText] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [hasInteracted, setHasInteracted] = useState(false);
+
+  // Enable sound after user interaction (browser autoplay policy)
+  useEffect(() => {
+    const enableSound = () => setHasInteracted(true);
+    window.addEventListener('click', enableSound, { once: true });
+    window.addEventListener('touchstart', enableSound, { once: true });
+    window.addEventListener('keydown', enableSound, { once: true });
+    return () => {
+      window.removeEventListener('click', enableSound);
+      window.removeEventListener('touchstart', enableSound);
+      window.removeEventListener('keydown', enableSound);
+    };
+  }, []);
 
   useEffect(() => {
     if (currentIndex < text.length) {
       const timeout = setTimeout(() => {
+        // Play sound for non-space characters
+        if (hasInteracted && text[currentIndex] !== ' ') {
+          createTypewriterSound();
+        }
         setDisplayedText(prev => prev + text[currentIndex]);
         setCurrentIndex(prev => prev + 1);
       }, 80); // Speed of typing
       return () => clearTimeout(timeout);
     }
-  }, [currentIndex, text]);
+  }, [currentIndex, text, hasInteracted]);
 
   return (
     <span className={className}>
