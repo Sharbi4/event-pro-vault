@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { geocodeLocation, isWithinServiceRadius, getDistanceToVendor, GeocodedLocation } from '@/lib/geocoding';
+import { sortPackages as sortPackagesArray, SortOption as RankingSortOption } from '@/lib/packageRanking';
 
 export interface BrowsePackage {
   id: string;
@@ -75,9 +76,12 @@ const timeRangesOverlap = (
   return reqStartMins >= availStartMins && reqEndMins <= availEndMins;
 };
 
+export type SortOption = 'recommended' | 'price_low' | 'price_high' | 'top_rated' | 'nearest';
+
 export function useBrowsePackages() {
   const [packages, setPackages] = useState<BrowsePackage[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sortBy, setSortBy] = useState<SortOption>('recommended');
   const [filters, setFilters] = useState<BrowseFilters>({
     search: '',
     category: null,
@@ -427,25 +431,8 @@ export function useBrowsePackages() {
         filteredPackages = filteredPackages.filter(pkg => pkg.avg_rating >= filters.minRating!);
       }
 
-      // Sort by distance first (if location search), then by rating, then by review count
-      filteredPackages.sort((a, b) => {
-        // If we have geocoded location, sort by distance first (nearest first)
-        if (filters.locationCoords) {
-          const aDist = a.distance_miles ?? Infinity;
-          const bDist = b.distance_miles ?? Infinity;
-          if (aDist !== bDist) {
-            return aDist - bDist;
-          }
-        }
-        
-        // Then by rating (highest first)
-        if (b.avg_rating !== a.avg_rating) {
-          return b.avg_rating - a.avg_rating;
-        }
-        
-        // Then by review count
-        return b.review_count - a.review_count;
-      });
+      // Apply sorting based on sortBy state
+      filteredPackages = sortPackagesArray(filteredPackages, sortBy, !!filters.locationCoords);
 
       setPackages(filteredPackages);
     } catch (error) {
@@ -552,6 +539,8 @@ export function useBrowsePackages() {
     packages,
     loading,
     filters,
+    sortBy,
+    setSortBy,
     updateFilter,
     clearFilters,
     refetch: fetchPackages,

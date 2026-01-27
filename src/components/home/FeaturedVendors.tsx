@@ -1,11 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Star, MapPin, ChevronRight, User } from 'lucide-react';
 import { useFeaturedVendors } from '@/hooks/useFeaturedContent';
 import { vendors as mockVendors } from '@/data/vendors';
+import { TrustBadges, TopRatedBadge } from '@/components/badges/TrustBadges';
 
 export function FeaturedVendors() {
   const { data: dbVendors, isLoading } = useFeaturedVendors(4);
@@ -97,16 +97,20 @@ export function FeaturedVendors() {
                     </div>
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-                  <div className="absolute top-3 left-3 flex gap-2">
-                    {vendor.is_verified && (
-                      <Badge variant="verified">Verified</Badge>
-                    )}
-                    {vendor.categories?.[0] && (
-                      <Badge variant="glass">
-                        {vendor.categories[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                      </Badge>
-                    )}
+                  <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
+                    <TopRatedBadge rating={vendor.avg_rating} reviews={vendor.review_count} />
+                    <TrustBadges 
+                      isVerified={vendor.is_verified}
+                      size="sm"
+                    />
                   </div>
+                  {vendor.categories?.[0] && (
+                    <div className="absolute bottom-3 left-3">
+                      <span className="bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
+                        {vendor.categories[0].replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </span>
+                    </div>
+                  )}
                 </div>
                 <CardContent className="p-4">
                   <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">

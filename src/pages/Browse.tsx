@@ -8,14 +8,16 @@ import { InlineNewsletterCard } from '@/components/browse/InlineNewsletterCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   SlidersHorizontal, X, Star, Zap, 
   ShieldCheck, LayoutGrid, Search, MapPin,
   CalendarDays, Package, Map, Sparkles,
-  Clock, MapPinOff, ChevronDown, CreditCard
+  Clock, MapPinOff, ChevronDown, CreditCard, ArrowUpDown
 } from 'lucide-react';
 import { serviceCategories } from '@/data/service-categories';
-import { useBrowsePackages } from '@/hooks/useBrowsePackages';
+import { useBrowsePackages, SortOption } from '@/hooks/useBrowsePackages';
+import { getSortOptions } from '@/lib/packageRanking';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useSEO } from '@/hooks/useSEO';
@@ -23,7 +25,7 @@ import { generatePageSEO, SEO_CONFIG } from '@/lib/seoConfig';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 export default function Browse() {
-  const { packages, loading, filters, updateFilter, clearFilters } = useBrowsePackages();
+  const { packages, loading, filters, sortBy, setSortBy, updateFilter, clearFilters } = useBrowsePackages();
   
   // Dynamic SEO based on search filters
   const dynamicSeo = generatePageSEO('browse', {
@@ -303,6 +305,21 @@ export default function Browse() {
 
             {/* View Controls */}
             <div className="flex items-center gap-2">
+              {/* Sort Dropdown */}
+              <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+                <SelectTrigger className="w-[160px] h-9 gap-2">
+                  <ArrowUpDown className="w-3.5 h-3.5" />
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  {getSortOptions(!!filters.locationCoords).map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
               {/* View Toggle */}
               <div className="flex items-center border border-border rounded-lg overflow-hidden">
                 <Button 

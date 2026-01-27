@@ -6,6 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Clock, Calendar, ChevronRight, Check, Package } from 'lucide-react';
 import { useFeaturedPackages } from '@/hooks/useFeaturedContent';
 import { packages as mockPackages, vendors as mockVendors } from '@/data/vendors';
+import { TopRatedBadge } from '@/components/badges/TrustBadges';
 
 export function FeaturedPackages() {
   const { data: dbPackages, isLoading } = useFeaturedPackages(6);
