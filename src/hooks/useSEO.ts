@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { SEO_CONFIG, shouldNoIndex } from '@/lib/seoConfig';
 
 export interface SEOData {
   title: string;
@@ -14,9 +15,7 @@ export interface SEOData {
   noIndex?: boolean;
 }
 
-const BASE_URL = 'https://event-pro-vault.lovable.app';
-const DEFAULT_IMAGE = `${BASE_URL}/favicon.png`;
-const SITE_NAME = 'EventPro by Vendibook';
+const { baseUrl: BASE_URL, defaultImage: DEFAULT_IMAGE, siteName: SITE_NAME } = SEO_CONFIG;
 
 /**
  * Dynamic SEO hook for setting page-specific meta tags
@@ -38,10 +37,16 @@ export function useSEO(data: SEOData) {
       noIndex = false,
     } = data;
 
-    // Format title with site name
-    const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`;
+    // Check if route should be noIndex based on pathname
+    const pathNoIndex = shouldNoIndex(window.location.pathname);
+    const finalNoIndex = noIndex || pathNoIndex;
+
+    // Format title - don't double-add site name
+    const fullTitle = title.includes(SITE_NAME) || title.includes('EventPro') 
+      ? title 
+      : `${title} | ${SITE_NAME}`;
     
-    // Truncate description for SEO (max 160 chars)
+    // Truncate description for SEO (max 160 chars, min 140 chars ideal)
     const truncatedDesc = description.length > 160 
       ? description.substring(0, 157) + '...' 
       : description;
@@ -65,27 +70,35 @@ export function useSEO(data: SEOData) {
     setMeta('description', truncatedDesc);
     setMeta('author', author || SITE_NAME);
     
-    if (keywords.length > 0) {
-      setMeta('keywords', keywords.join(', '));
+    // Merge default keywords with page-specific
+    const allKeywords = [...new Set([...SEO_CONFIG.keywords, ...keywords])];
+    if (allKeywords.length > 0) {
+      setMeta('keywords', allKeywords.slice(0, 10).join(', '));
     }
 
-    // Robots
-    setMeta('robots', noIndex ? 'noindex, nofollow' : 'index, follow');
+    // Robots - respect noIndex setting
+    setMeta('robots', finalNoIndex 
+      ? 'noindex, nofollow' 
+      : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'
+    );
 
     // Open Graph
     setMeta('og:title', fullTitle, true);
     setMeta('og:description', truncatedDesc, true);
-    setMeta('og:type', type === 'product' ? 'product' : type, true);
-    setMeta('og:url', canonical || window.location.href, true);
-    setMeta('og:image', image, true);
+    setMeta('og:type', type === 'product' ? 'product' : (type === 'profile' ? 'profile' : 'website'), true);
+    setMeta('og:url', canonical || window.location.href.split('?')[0], true);
+    setMeta('og:image', image.startsWith('http') ? image : `${BASE_URL}${image}`, true);
     setMeta('og:image:alt', imageAlt, true);
     setMeta('og:site_name', SITE_NAME, true);
+    setMeta('og:locale', 'en_US', true);
 
     // Twitter Card
     setMeta('twitter:card', 'summary_large_image');
+    setMeta('twitter:site', SEO_CONFIG.twitterHandle);
     setMeta('twitter:title', fullTitle);
     setMeta('twitter:description', truncatedDesc);
-    setMeta('twitter:image', image);
+    setMeta('twitter:image', image.startsWith('http') ? image : `${BASE_URL}${image}`);
+    setMeta('twitter:image:alt', imageAlt);
 
     // Article-specific meta
     if (type === 'article') {
@@ -100,14 +113,21 @@ export function useSEO(data: SEOData) {
       }
     }
 
-    // Canonical URL
+    // Product-specific meta
+    if (type === 'product') {
+      setMeta('product:availability', 'in stock', true);
+      setMeta('product:condition', 'new', true);
+    }
+
+    // Canonical URL - always strip query params for clean URLs
     let canonicalEl = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
     if (!canonicalEl) {
       canonicalEl = document.createElement('link');
       canonicalEl.rel = 'canonical';
       document.head.appendChild(canonicalEl);
     }
-    canonicalEl.href = canonical || window.location.href;
+    // Use provided canonical or current URL without query params
+    canonicalEl.href = canonical || window.location.href.split('?')[0];
 
     // Cleanup function - restore defaults on unmount
     return () => {

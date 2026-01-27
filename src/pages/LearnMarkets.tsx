@@ -25,6 +25,9 @@ import {
 } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { useSEO } from '@/hooks/useSEO';
+import { generatePageSEO } from '@/lib/seoConfig';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 const slotTypeExamples = [
   { name: '10×10 Booth', description: 'Power available, high foot-traffic' },
@@ -57,6 +60,16 @@ export default function LearnMarkets() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  const seo = generatePageSEO('learnMarkets');
+  
+  useSEO({
+    title: seo.title,
+    description: seo.description,
+    canonical: seo.canonical,
+    type: 'website',
+    keywords: ['market manager', 'vendor spots', 'farmers market booking', 'event space rental'],
+  });
+
   const handleListMarket = () => {
     if (user) {
       navigate('/marketspace/create');
@@ -76,6 +89,15 @@ export default function LearnMarkets() {
         <section className="relative py-20 lg:py-28 overflow-hidden">
           <div className="hero-gradient-bg" />
           <div className="container mx-auto px-4 relative z-10">
+            {/* Breadcrumbs */}
+            <Breadcrumbs 
+              items={[
+                { label: 'Learn', href: '/learn' },
+                { label: 'For Markets' }
+              ]} 
+              className="mb-6"
+            />
+            
             <div className="max-w-3xl mx-auto text-center">
               <div className="inline-flex items-center gap-2 bg-accent/10 px-4 py-2 rounded-full mb-6">
                 <Store className="w-4 h-4 text-accent" />

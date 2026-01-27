@@ -19,23 +19,30 @@ import { useBrowsePackages } from '@/hooks/useBrowsePackages';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useSEO } from '@/hooks/useSEO';
+import { generatePageSEO, SEO_CONFIG } from '@/lib/seoConfig';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 export default function Browse() {
   const { packages, loading, filters, updateFilter, clearFilters } = useBrowsePackages();
   
   // Dynamic SEO based on search filters
+  const dynamicSeo = generatePageSEO('browse', {
+    category: filters.category || '',
+    city: filters.location || '',
+  });
+  
   const seoTitle = filters.category 
-    ? `${filters.category} Services Near ${filters.location || 'You'} - EventPro`
-    : 'Browse Event Vendors & Packages - EventPro';
+    ? `Book ${filters.category} Near ${filters.location || 'You'} | EventPro by Vendibook`
+    : dynamicSeo.title;
   
   const seoDescription = filters.category
-    ? `Find and book ${filters.category.toLowerCase()} services for your next event. Compare packages, check availability, and book instantly.`
-    : 'Discover event vendors near you. Browse photographers, DJs, caterers, food trucks and more. Instant booking available.';
+    ? `Find available ${filters.category.toLowerCase()} packages for your date and time. Compare pricing, travel range, and book online or pay in cash.`
+    : dynamicSeo.description;
 
   useSEO({
     title: seoTitle,
     description: seoDescription,
-    canonical: 'https://event-pro-vault.lovable.app/browse',
+    canonical: SEO_CONFIG.baseUrl + '/browse',
     type: 'website',
     keywords: [
       'event vendors near me',
@@ -46,6 +53,7 @@ export default function Browse() {
       'wedding vendors',
       'party services',
       filters.category || 'event services',
+      'book by availability',
     ].filter(Boolean),
   });
   

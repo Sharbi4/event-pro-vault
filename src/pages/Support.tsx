@@ -18,6 +18,9 @@ import {
   X
 } from 'lucide-react';
 import { ZendeskWidget, openZendeskChat } from '@/components/shared/ZendeskWidget';
+import { useSEO } from '@/hooks/useSEO';
+import { generatePageSEO } from '@/lib/seoConfig';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 const helpTopics = [
   { icon: Calendar, label: 'Booking a package', anchor: 'booking-packages' },
@@ -30,10 +33,19 @@ const helpTopics = [
 ];
 
 export default function Support() {
+  const seo = generatePageSEO('support');
+  
+  useSEO({
+    title: seo.title,
+    description: seo.description,
+    canonical: seo.canonical,
+    type: 'website',
+  });
   return (
     <Layout>
       {/* Zendesk Chat Widget */}
       <ZendeskWidget />
+      
       {/* Hero Section */}
       <section className="relative py-16 lg:py-24 overflow-hidden">
         {/* Background effects */}
@@ -43,6 +55,12 @@ export default function Support() {
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
+          {/* Breadcrumbs */}
+          <Breadcrumbs 
+            items={[{ label: 'Support' }]} 
+            className="mb-6"
+          />
+          
           <div className="max-w-3xl mx-auto text-center">
             <h1 className="font-display text-4xl lg:text-5xl font-bold text-foreground mb-4">
               Support

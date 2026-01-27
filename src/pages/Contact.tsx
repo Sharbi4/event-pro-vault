@@ -19,6 +19,9 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { supabase } from '@/integrations/supabase/client';
+import { useSEO } from '@/hooks/useSEO';
+import { generatePageSEO } from '@/lib/seoConfig';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(100, 'Name must be less than 100 characters'),
@@ -41,6 +44,14 @@ const itemVariants = {
 };
 
 export default function Contact() {
+  const seo = generatePageSEO('contact');
+  
+  useSEO({
+    title: seo.title,
+    description: seo.description,
+    canonical: seo.canonical,
+    type: 'website',
+  });
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -151,6 +162,12 @@ export default function Contact() {
         </div>
 
         <div className="container mx-auto px-4 relative z-10">
+          {/* Breadcrumbs */}
+          <Breadcrumbs 
+            items={[{ label: 'Contact' }]} 
+            className="mb-6"
+          />
+          
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

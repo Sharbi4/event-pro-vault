@@ -23,6 +23,8 @@ import {
 import { AvailabilityDemoWidget } from '@/components/learn/AvailabilityDemoWidget';
 import { useSEO } from '@/hooks/useSEO';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { generatePageSEO } from '@/lib/seoConfig';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 // Import service category images
 import cateringImage from '@/assets/learn/catering-hero.jpg';
@@ -81,10 +83,12 @@ export default function Learn() {
   };
 
   // SEO for Learn hub
+  const seo = generatePageSEO('learn');
+  
   useSEO({
-    title: 'How EventPro Works - Book Event Vendors or List Your Services',
-    description: 'Learn how to book event vendors with real-time availability or become an Event Pro and grow your business. Photographers, DJs, caterers and more.',
-    canonical: 'https://event-pro-vault.lovable.app/learn',
+    title: seo.title,
+    description: seo.description,
+    canonical: seo.canonical,
     type: 'website',
     keywords: [
       'how to book event vendors',
@@ -92,6 +96,7 @@ export default function Learn() {
       'list event services',
       'event marketplace',
       'vendor booking platform',
+      'event services marketplace',
     ],
   });
 
@@ -108,6 +113,12 @@ export default function Learn() {
         <section className="relative py-20 lg:py-28 overflow-hidden">
           <div className="hero-gradient-bg" />
           <div className="container mx-auto px-4 relative z-10">
+            {/* Breadcrumbs */}
+            <Breadcrumbs 
+              items={[{ label: 'Learn' }]} 
+              className="mb-6"
+            />
+            
             <div className="max-w-3xl mx-auto text-center mb-12">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
                 Book what's available.

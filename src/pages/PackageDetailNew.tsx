@@ -15,6 +15,8 @@ import { BookingModal } from '@/components/package-detail/BookingModal';
 import { ShareButton } from '@/components/shared/ShareButton';
 import { useSEO } from '@/hooks/useSEO';
 import { ProductJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { generatePackageSEO, SEO_CONFIG } from '@/lib/seoConfig';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 export default function PackageDetail() {
   const { id } = useParams();
@@ -26,17 +28,28 @@ export default function PackageDetail() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'stripe' | 'cash'>('stripe');
 
   // Dynamic SEO for package pages (product schema)
+  const packageSeo = packageData ? generatePackageSEO({
+    name: packageData.name,
+    description: packageData.description,
+    price: packageData.price,
+    city: undefined, // City info not available in current hook
+    vendorName: packageData.vendor_display_name || packageData.vendor_name,
+    image: packageData.cover_image_url || packageData.images?.[0],
+    duration: packageData.duration_minutes ? `${packageData.duration_minutes} min` : undefined,
+  }) : null;
+
   useSEO({
-    title: packageData ? `${packageData.name} by ${packageData.vendor_display_name || packageData.vendor_name || 'Event Pro'}` : 'Package Details',
-    description: packageData?.description?.slice(0, 160) || 'View package details, pricing, and book your event vendor.',
-    canonical: packageData ? `https://event-pro-vault.lovable.app/package/${packageData.id}` : undefined,
+    title: packageSeo?.title || 'Package Details | EventPro by Vendibook',
+    description: packageSeo?.description || 'View package details, pricing, and book your event vendor.',
+    canonical: packageData ? `${SEO_CONFIG.baseUrl}/package/${packageData.id}` : undefined,
     type: 'product',
-    image: packageData?.cover_image_url || packageData?.images?.[0] || undefined,
+    image: packageSeo?.image,
     keywords: [
       packageData?.category || 'event service',
       'book vendor',
       'event package',
       packageData?.vendor_display_name || packageData?.vendor_name || '',
+      'book by availability',
     ].filter(Boolean),
   });
 

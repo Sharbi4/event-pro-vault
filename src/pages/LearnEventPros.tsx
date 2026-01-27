@@ -31,6 +31,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { useSEO } from '@/hooks/useSEO';
+import { generatePageSEO } from '@/lib/seoConfig';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 const examplePackages = [
   {
@@ -164,6 +167,16 @@ export default function LearnEventPros() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  const seo = generatePageSEO('learnEventPros');
+  
+  useSEO({
+    title: seo.title,
+    description: seo.description,
+    canonical: seo.canonical,
+    type: 'website',
+    keywords: ['become event vendor', 'list event services', 'event pro signup', 'vendor registration'],
+  });
+
   const handleListService = () => {
     if (user) {
       navigate('/eventpro-onboarding');
@@ -209,6 +222,15 @@ export default function LearnEventPros() {
         <section className="relative py-20 lg:py-28 overflow-hidden">
           <div className="hero-gradient-bg" />
           <div className="container mx-auto px-4 relative z-10">
+            {/* Breadcrumbs */}
+            <Breadcrumbs 
+              items={[
+                { label: 'Learn', href: '/learn' },
+                { label: 'For Event Pros' }
+              ]} 
+              className="mb-6"
+            />
+            
             <div className="max-w-3xl mx-auto text-center">
               <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-6">
                 <Sparkles className="w-4 h-4 text-primary" />
