@@ -18,7 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Search, HelpCircle, MessageCircle, ArrowRight, 
   Sparkles, ShoppingBag, CreditCard, RotateCcw,
-  User, Store, Shield, Settings, Headphones, Info
+  User, Shield, Settings, Headphones, Info
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ZendeskWidget } from '@/components/shared/ZendeskWidget';
@@ -29,7 +29,6 @@ type FAQCategory =
   | 'paying-fees'
   | 'cancellations'
   | 'event-pros'
-  | 'markets'
   | 'trust-safety'
   | 'account'
   | 'support';
@@ -47,7 +46,6 @@ const categories: { id: FAQCategory; name: string; icon: React.ReactNode }[] = [
   { id: 'paying-fees', name: 'Paying & Fees', icon: <CreditCard className="w-4 h-4" /> },
   { id: 'cancellations', name: 'Cancellations & Refunds', icon: <RotateCcw className="w-4 h-4" /> },
   { id: 'event-pros', name: 'Event Pros', icon: <User className="w-4 h-4" /> },
-  { id: 'markets', name: 'Markets', icon: <Store className="w-4 h-4" /> },
   { id: 'trust-safety', name: 'Trust & Safety', icon: <Shield className="w-4 h-4" /> },
   { id: 'account', name: 'Account & Profile', icon: <Settings className="w-4 h-4" /> },
   { id: 'support', name: 'Support', icon: <Headphones className="w-4 h-4" /> },
@@ -58,23 +56,13 @@ const faqData: FAQItem[] = [
   {
     category: 'getting-started',
     question: 'Do I need an account to browse?',
-    answer: 'No. You can browse packages and markets without an account. You\'ll only need to sign in when you\'re ready to book, reserve a spot, message, or create a profile.',
-  },
-  {
-    category: 'getting-started',
-    question: 'What\'s the difference between Event Services and Market Spaces?',
-    answer: 'Event Services are bookable packages (food trucks, photographers, DJs, bartenders, rentals, performers). Market Spaces are markets that sell vendor spots using slot inventory.',
+    answer: 'No. You can browse packages without an account. You\'ll only need to sign in when you\'re ready to book, message, or create a profile.',
   },
   {
     category: 'getting-started',
     question: 'How does search work on EventPro?',
-    answer: 'Search is availability-first. You search by date/time and location, and we show packages (or market spots) that are available for that window.',
+    answer: 'Search is availability-first. You search by date/time and location, and we show packages that are available for that window.',
     hasTooltip: 'availability-first',
-  },
-  {
-    category: 'getting-started',
-    question: 'Can I be both an Event Pro and a Market Manager?',
-    answer: 'Yes. You can create both profiles and switch between modes from your dashboard menu.',
   },
   // Booking Packages
   {
@@ -230,44 +218,6 @@ const faqData: FAQItem[] = [
     question: 'When do I get paid for package bookings?',
     answer: 'For package bookings, payouts are initiated 24 hours after the booking/event ends (for online payments).',
   },
-  // Markets
-  {
-    category: 'markets',
-    question: 'How do markets work on EventPro?',
-    answer: 'Markets list slot types (sizes/amenities) and post inventory days (weekly/biweekly/custom). Vendors reserve available spots instantly.',
-  },
-  {
-    category: 'markets',
-    question: 'What is a slot type?',
-    answer: 'A slot type is a spot option you sell—like "10×10 Booth," "Food Truck Spot," or "Premium Corner"—with size, amenities, and pricing.',
-  },
-  {
-    category: 'markets',
-    question: 'How do I post inventory for my market?',
-    answer: 'In your Market Dashboard, add dates/times and set how many spots are available per slot type. Your listing shows "spots left" based on remaining inventory.',
-  },
-  {
-    category: 'markets',
-    question: 'Can vendors book recurring weekly spots?',
-    answer: 'Yes. Vendors can reserve weekly series like 4 / 8 / 12 weeks in one checkout.',
-    hasTooltip: 'weekly-series',
-  },
-  {
-    category: 'markets',
-    question: 'What does "weekly series paid upfront" mean?',
-    answer: 'It means the vendor pays once for the full series and their spot is reserved each week included.',
-    hasTooltip: 'weekly-series',
-  },
-  {
-    category: 'markets',
-    question: 'What fees do market managers pay?',
-    answer: 'A 12.9% platform commission is deducted from your slot price, plus Stripe processing fees (~2.9% + $0.30). This covers platform services, support, and secure payments.',
-  },
-  {
-    category: 'markets',
-    question: 'When do market managers get paid?',
-    answer: 'For market slot reservations, payouts are initiated 24 hours after the event date (for online payments), once Stripe is connected.',
-  },
   // Trust & Safety
   {
     category: 'trust-safety',
@@ -289,12 +239,7 @@ const faqData: FAQItem[] = [
   {
     category: 'account',
     question: 'I signed up—what happens next?',
-    answer: 'You\'ll be directed to the dashboard that matches your selection (Event Pro or Market Manager) to complete onboarding.',
-  },
-  {
-    category: 'account',
-    question: 'Can I switch between vendor and market manager?',
-    answer: 'Yes. Use the mode switcher in your dashboard menu.',
+    answer: 'You\'ll be directed to your dashboard to complete onboarding and set up your profile.',
   },
   {
     category: 'account',
@@ -316,7 +261,6 @@ const faqData: FAQItem[] = [
 
 const popularQuestions = [
   { question: 'How do I book a package?', category: 'booking-packages' as FAQCategory },
-  { question: 'How do market spot reservations work?', category: 'markets' as FAQCategory },
   { question: 'How do payouts work?', category: 'event-pros' as FAQCategory },
   { question: 'What fees are charged?', category: 'paying-fees' as FAQCategory },
   { question: 'What\'s the cancellation policy?', category: 'cancellations' as FAQCategory },
@@ -331,7 +275,6 @@ const tooltipContent: Record<string, string> = {
   'cash-refunds': 'Cash bookings are handled directly between you and the Event Pro.',
   'instant-book': 'Booking is confirmed immediately when it matches availability.',
   'request-to-book': 'Booking confirms after the Event Pro approves.',
-  'weekly-series': 'Pay once to reserve your spot for every week in the series.',
   'stripe': 'Stripe securely handles payouts and verification. We never store bank details.',
   'deposit-refund': 'Cancel within 1 hour of booking + event 7+ days away = deposit refunded. Event Pro cancels = always refunded.',
 };
@@ -369,7 +312,6 @@ export default function FAQ() {
       'paying-fees': [],
       'cancellations': [],
       'event-pros': [],
-      'markets': [],
       'trust-safety': [],
       'account': [],
       'support': [],
@@ -422,7 +364,7 @@ export default function FAQ() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
                 <Input
                   type="text"
-                  placeholder="Search questions, payouts, fees, booking, markets…"
+                  placeholder="Search questions, payouts, fees, booking…"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-12 h-12 text-base bg-card border-border"
@@ -440,10 +382,10 @@ export default function FAQ() {
                 </button>
                 <span className="text-muted-foreground">·</span>
                 <button
-                  onClick={() => handleQuickLink('markets')}
+                  onClick={() => handleQuickLink('cancellations')}
                   className="text-primary hover:underline"
                 >
-                  How do market spots work?
+                  Cancellation policy
                 </button>
                 <span className="text-muted-foreground">·</span>
                 <button
