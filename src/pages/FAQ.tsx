@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,7 +19,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { 
   Search, HelpCircle, MessageCircle, ArrowRight, 
   Sparkles, ShoppingBag, CreditCard, RotateCcw,
-  User, Shield, Settings, Headphones, Info
+  User, Shield, Settings, Headphones, Info,
+  CalendarCheck, MapPin, CheckCircle2, CreditCard as CardIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ZendeskWidget } from '@/components/shared/ZendeskWidget';
@@ -395,6 +397,89 @@ export default function FAQ() {
                   What fees are charged?
                 </button>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* How It Works Section */}
+        <section className="border-b border-border bg-card/50">
+          <div className="container mx-auto px-4 py-10 md:py-14">
+            <div className="text-center mb-8">
+              <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-2">
+                How Booking Works
+              </h2>
+              <p className="text-muted-foreground">
+                Four simple steps to book your perfect event vendor
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
+              {[
+                {
+                  step: 1,
+                  icon: <Search className="w-6 h-6" />,
+                  title: 'Search & Browse',
+                  description: 'Enter your event date, location, and browse available packages.',
+                },
+                {
+                  step: 2,
+                  icon: <MapPin className="w-6 h-6" />,
+                  title: 'Choose a Package',
+                  description: 'Review details, pricing, and check availability for your event.',
+                },
+                {
+                  step: 3,
+                  icon: <CardIcon className="w-6 h-6" />,
+                  title: 'Book & Pay',
+                  description: 'Confirm your booking with secure online payment or pay in cash.',
+                },
+                {
+                  step: 4,
+                  icon: <CheckCircle2 className="w-6 h-6" />,
+                  title: 'You\'re All Set',
+                  description: 'Receive confirmation and connect with your Event Pro.',
+                },
+              ].map((item, index) => (
+                <motion.div
+                  key={item.step}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: index * 0.1, duration: 0.4 }}
+                  className="relative group"
+                >
+                  {/* Connector line (hidden on mobile, last item) */}
+                  {index < 3 && (
+                    <div className="hidden lg:block absolute top-8 left-[60%] w-[80%] h-px bg-border group-hover:bg-primary/30 transition-colors" />
+                  )}
+                  
+                  <div className="relative bg-background rounded-xl border border-border p-6 h-full hover:border-primary/30 hover:shadow-md transition-all">
+                    {/* Step number badge */}
+                    <div className="absolute -top-3 left-4 px-2 py-0.5 bg-primary text-primary-foreground text-xs font-bold rounded-full">
+                      Step {item.step}
+                    </div>
+                    
+                    {/* Icon */}
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary mb-4 group-hover:bg-primary/20 transition-colors">
+                      {item.icon}
+                    </div>
+                    
+                    {/* Content */}
+                    <h3 className="font-semibold text-foreground mb-2">{item.title}</h3>
+                    <p className="text-sm text-muted-foreground">{item.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <div className="text-center mt-8">
+              <Link to="/browse">
+                <Button variant="outline" className="gap-2">
+                  Start Browsing
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
             </div>
           </div>
         </section>
