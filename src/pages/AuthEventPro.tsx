@@ -206,7 +206,7 @@ export default function AuthEventPro() {
           />
         </div>
 
-        <div className="relative z-10 flex flex-col justify-between p-12 w-full">
+        <div className="relative z-10 flex flex-col justify-between px-12 pt-6 pb-12 w-full">
           {/* Logo */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -343,7 +343,7 @@ export default function AuthEventPro() {
 
       {/* Right Side - Auth Form */}
       <motion.div 
-        className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-background relative"
+        className="w-full lg:w-1/2 flex items-center justify-center px-6 pt-4 pb-6 bg-background relative"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4 }}
