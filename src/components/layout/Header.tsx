@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, MessageCircle, LayoutDashboard, LogOut, Mail, PlusCircle } from 'lucide-react';
+import { Menu, X, MessageCircle, LayoutDashboard, LogOut, Mail, PlusCircle, Search, BookOpen, HelpCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModeSwitcher } from './ModeSwitcher';
@@ -316,24 +316,33 @@ export function Header() {
                       Contact Us
                     </button>
                   </>
-                ) : (
+              ) : (
                 <>
-                    {/* Guest: Sign In, Create Profile, Browse, Learn More, FAQ */}
+                    {/* Welcome header for guests */}
+                    <div className="px-2 pb-3">
+                      <p className="text-lg font-semibold text-foreground">Welcome!</p>
+                      <p className="text-sm text-muted-foreground">Find the perfect pros for your event</p>
+                    </div>
+                    
+                    <div className="h-px bg-border my-2" />
+                    
                     <Link 
                       to="/auth" 
                       onClick={() => setMobileMenuOpen(false)}
-                      className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
+                      className="flex items-center gap-2 text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
                     >
+                      <LogOut className="w-4 h-4 rotate-180" />
                       Sign In
                     </Link>
                     
                     <button 
-                      className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
+                      className="flex items-center gap-2 text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
                       onClick={() => {
                         setMobileMenuOpen(false);
                         setProfileModalOpen(true);
                       }}
                     >
+                      <PlusCircle className="w-4 h-4" />
                       Create a Free Profile
                     </button>
                     
@@ -341,49 +350,63 @@ export function Header() {
                     
                     <Link 
                       to="/browse" 
-                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                      className={`flex items-center gap-2 text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
                         location.pathname === '/browse' 
                           ? 'text-foreground bg-secondary' 
                           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                       }`}
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Browse
+                      <Search className="w-4 h-4" />
+                      Browse Services
                     </Link>
                     
                     <Link 
                       to="/learn" 
-                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                      className={`flex items-center gap-2 text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
                         location.pathname === '/learn' 
                           ? 'text-foreground bg-secondary' 
                           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                       }`}
                       onClick={() => setMobileMenuOpen(false)}
                     >
-                      Learn More
+                      <BookOpen className="w-4 h-4" />
+                      How It Works
                     </Link>
                     <Link 
                       to="/faq" 
-                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                      className={`flex items-center gap-2 text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
                         location.pathname === '/faq' 
                           ? 'text-foreground bg-secondary' 
                           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                       }`}
                       onClick={() => setMobileMenuOpen(false)}
                     >
+                      <HelpCircle className="w-4 h-4" />
                       FAQ
                     </Link>
                     <Link 
                       to="/blog" 
-                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                      className={`flex items-center gap-2 text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
                         location.pathname.startsWith('/blog') 
                           ? 'text-foreground bg-secondary' 
                           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                       }`}
                       onClick={() => setMobileMenuOpen(false)}
                     >
+                      <BookOpen className="w-4 h-4" />
                       Blog
                     </Link>
+                    <button 
+                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
+                      onClick={() => {
+                        setMobileMenuOpen(false);
+                        window.open('https://support.zendesk.com', '_blank');
+                      }}
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Contact Us
+                    </button>
                   </>
                 )}
               </nav>

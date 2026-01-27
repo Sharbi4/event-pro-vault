@@ -429,24 +429,46 @@ export default function SentenceLanding() {
                     </>
                   ) : (
                     <>
+                      {/* Welcome header for guests */}
+                      <motion.div 
+                        className="px-2 pb-3"
+                        variants={{
+                          hidden: { opacity: 0, x: 20 },
+                          visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } }
+                        }}
+                      >
+                        <p className="text-lg font-semibold text-foreground">Welcome!</p>
+                        <p className="text-sm text-muted-foreground">Find the perfect pros for your event</p>
+                      </motion.div>
+                      
+                      <motion.div 
+                        className="h-px bg-border my-2"
+                        variants={{
+                          hidden: { opacity: 0, scaleX: 0 },
+                          visible: { opacity: 1, scaleX: 1, transition: { duration: 0.3 } }
+                        }}
+                      />
+                      
                       <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
                         <Link 
                           to="/auth" 
                           onClick={() => setMenuOpen(false)}
-                          className="block text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
+                          className="flex items-center gap-2 text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
                         >
+                          <LogOut className="w-4 h-4 rotate-180" />
                           Sign In
                         </Link>
                       </motion.div>
                       
                       <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
                         <button 
-                          className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left w-full"
+                          className="flex items-center gap-2 text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left w-full"
                           onClick={() => {
                             setMenuOpen(false);
                             setProfileModalOpen(true);
                           }}
                         >
+                          <PlusCircle className="w-4 h-4" />
                           Create a Free Profile
                         </button>
                       </motion.div>
@@ -466,7 +488,7 @@ export default function SentenceLanding() {
                           onClick={() => setMenuOpen(false)}
                         >
                           <Search className="w-4 h-4 mr-2 inline" />
-                          Browse
+                          Browse Services
                         </Link>
                       </motion.div>
                       
@@ -477,7 +499,7 @@ export default function SentenceLanding() {
                           onClick={() => setMenuOpen(false)}
                         >
                           <BookOpen className="w-4 h-4 mr-2 inline" />
-                          Learn More
+                          How It Works
                         </Link>
                       </motion.div>
                       
@@ -501,6 +523,19 @@ export default function SentenceLanding() {
                           <BookOpen className="w-4 h-4 mr-2 inline" />
                           Blog
                         </Link>
+                      </motion.div>
+                      
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                        <button 
+                          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left w-full"
+                          onClick={() => {
+                            setMenuOpen(false);
+                            window.open('https://support.zendesk.com', '_blank');
+                          }}
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          Contact Us
+                        </button>
                       </motion.div>
                     </>
                   )}
