@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, MapPin, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
@@ -7,6 +7,34 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { LocationAutocomplete } from '@/components/browse/LocationAutocomplete';
 
+// Typewriter animation component
+function TypewriterText({ text, className }: { text: string; className?: string }) {
+  const [displayedText, setDisplayedText] = useState('');
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    if (currentIndex < text.length) {
+      const timeout = setTimeout(() => {
+        setDisplayedText(prev => prev + text[currentIndex]);
+        setCurrentIndex(prev => prev + 1);
+      }, 80); // Speed of typing
+      return () => clearTimeout(timeout);
+    }
+  }, [currentIndex, text]);
+
+  return (
+    <span className={className}>
+      {displayedText}
+      {currentIndex < text.length && (
+        <motion.span
+          animate={{ opacity: [1, 0] }}
+          transition={{ duration: 0.5, repeat: Infinity, repeatType: "reverse" }}
+          className="inline-block w-[2px] h-[1em] bg-foreground ml-[2px] align-middle"
+        />
+      )}
+    </span>
+  );
+}
 const EVENT_TYPES = [
   'Wedding',
   'Corporate Event', 
@@ -41,7 +69,7 @@ export function SentenceBuilder({
 
   return (
     <div className="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-3 md:gap-x-4 md:gap-y-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight px-2">
-      <span className="text-foreground">I am planning a</span>
+      <TypewriterText text="I am planning a" className="text-foreground" />
       
       {/* Event Type Selector */}
       <Popover open={eventOpen} onOpenChange={setEventOpen}>
