@@ -32,6 +32,8 @@ import VendorOnboarding from "./pages/VendorOnboarding";
 import EventProOnboarding from "./pages/EventProOnboarding";
 import EventProBestPractices from "./pages/EventProBestPractices";
 import Onboarding from "./pages/Onboarding";
+import Blog from "./pages/Blog";
+import BlogPost from "./pages/BlogPost";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -76,6 +78,8 @@ const App = () => (
               <Route path="/eventpro-onboarding" element={<EventProOnboarding />} />
               <Route path="/eventpro-best-practices" element={<EventProBestPractices />} />
               <Route path="/onboarding" element={<Onboarding />} />
+              <Route path="/blog" element={<Blog />} />
+              <Route path="/blog/:slug" element={<BlogPost />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
