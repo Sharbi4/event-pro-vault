@@ -24,6 +24,7 @@ import { ReviewDialog } from '@/components/reviews/ReviewDialog';
 import { EventCountdown } from '@/components/booking/EventCountdown';
 import { BookingChecklist, generateBookingChecklist } from '@/components/booking/BookingChecklist';
 import { AddToCalendarButton } from '@/components/booking/AddToCalendarButton';
+import { BookingReceipt } from '@/components/booking/BookingReceipt';
 import { vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -33,7 +34,7 @@ import {
   Calendar, MapPin, Clock, Heart, Package, 
   User, LogOut, ChevronRight, Loader2, Star, Search,
   CreditCard, CheckCircle, AlertCircle, Banknote, Users, ExternalLink, ShieldCheck, XCircle,
-  MessageCircle, AlertTriangle, Bell, CalendarPlus
+  MessageCircle, AlertTriangle, Bell, CalendarPlus, FileText
 } from 'lucide-react';
 
 interface ExtendedBooking extends BookingData {
@@ -696,6 +697,25 @@ export default function Dashboard() {
                                 <span className="hidden sm:inline">Cancel</span>
                               </Button>
                             )}
+
+                            {/* View Receipt */}
+                            <BookingReceipt
+                              booking={{
+                                ...booking,
+                                deposit_amount: extBooking.deposit_amount,
+                                final_amount: extBooking.final_amount,
+                                deposit_paid_at: extBooking.deposit_paid_at,
+                                final_paid_at: extBooking.final_paid_at,
+                                payment_method: paymentMethod,
+                                payment_status: extBooking.payment_status,
+                              }}
+                              trigger={
+                                <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2">
+                                  <FileText className="w-3 h-3" />
+                                  <span className="hidden sm:inline">Receipt</span>
+                                </Button>
+                              }
+                            />
 
                             {/* View vendor profile */}
                             {booking.vendor_user_id && (
