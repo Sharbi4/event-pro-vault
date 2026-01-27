@@ -134,8 +134,7 @@ export default function VendorTerms() {
               If you have questions about these Vendor Terms, please contact us at:
             </p>
             <p className="text-muted-foreground mt-2">
-              <strong>Email:</strong> vendors@vendibook.com<br />
-              <strong>Address:</strong> [Your Business Address]
+              <strong>Email:</strong> <a href="mailto:support@vendibook.com" className="text-primary hover:underline">support@vendibook.com</a>
             </p>
           </section>
         </div>
