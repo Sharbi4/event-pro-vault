@@ -101,18 +101,41 @@ const VendorDashboard = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold font-display">
-              {vendorDetails?.business_name || 'Vendor Dashboard'}
-            </h1>
-            <p className="text-muted-foreground">
-              Manage your packages, bookings, and earnings
-            </p>
+      <div className="container mx-auto px-3 sm:px-4 py-4 sm:py-8">
+        {/* Header - Mobile Optimized */}
+        <div className="flex flex-col gap-3 mb-6 sm:mb-8">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0 flex-1">
+              <h1 className="text-xl sm:text-3xl font-bold font-display truncate">
+                {vendorDetails?.business_name || 'Dashboard'}
+              </h1>
+              <p className="text-sm text-muted-foreground hidden sm:block">
+                Manage your packages, bookings, and earnings
+              </p>
+            </div>
+            {/* Mobile: Compact actions */}
+            <div className="flex items-center gap-2 sm:hidden">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => navigate(`/vendor/${user.id}`)}
+                className="h-9 w-9"
+              >
+                <ExternalLink className="w-4 h-4" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={handleSignOut}
+                className="h-9 w-9"
+              >
+                <Settings className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
-          <div className="flex flex-wrap gap-3">
+          
+          {/* Desktop: Full action bar */}
+          <div className="hidden sm:flex flex-wrap gap-3">
             <Button 
               variant="outline" 
               onClick={() => navigate('/eventpro-best-practices')} 
@@ -131,23 +154,86 @@ const VendorDashboard = () => {
           </div>
         </div>
 
-        {/* Main Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7 lg:w-auto lg:inline-grid">
+        {/* Main Tabs - Mobile: Horizontal scroll with icons only */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
+          {/* Mobile Tab Bar - Fixed icons, scrollable */}
+          <div className="sm:hidden -mx-3 px-3">
+            <TabsList className="w-full flex justify-between bg-muted/50 p-1 rounded-lg h-auto">
+              <TabsTrigger 
+                value="overview" 
+                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 data-[state=active]:bg-background"
+              >
+                <LayoutDashboard className="w-5 h-5" />
+                <span className="text-[10px] font-medium truncate">Overview</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="earnings" 
+                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 data-[state=active]:bg-background"
+              >
+                <Wallet className="w-5 h-5" />
+                <span className="text-[10px] font-medium truncate">Earnings</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="bookings" 
+                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 data-[state=active]:bg-background"
+              >
+                <Calendar className="w-5 h-5" />
+                <span className="text-[10px] font-medium truncate">Bookings</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="messages" 
+                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 relative data-[state=active]:bg-background"
+              >
+                <div className="relative">
+                  <MessageCircle className="w-5 h-5" />
+                  {totalUnreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1.5 h-4 min-w-4 px-1 text-[9px] font-bold bg-destructive text-destructive-foreground rounded-full flex items-center justify-center">
+                      {totalUnreadCount > 9 ? '9+' : totalUnreadCount}
+                    </span>
+                  )}
+                </div>
+                <span className="text-[10px] font-medium truncate">Messages</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="packages" 
+                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 data-[state=active]:bg-background"
+              >
+                <Package className="w-5 h-5" />
+                <span className="text-[10px] font-medium truncate">Packages</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="availability" 
+                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 data-[state=active]:bg-background"
+              >
+                <CalendarX className="w-5 h-5" />
+                <span className="text-[10px] font-medium truncate">Availability</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="settings" 
+                className="flex-1 flex flex-col items-center gap-1 py-2 px-1 min-w-0 data-[state=active]:bg-background"
+              >
+                <Settings className="w-5 h-5" />
+                <span className="text-[10px] font-medium truncate">Settings</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+
+          {/* Desktop Tab Bar */}
+          <TabsList className="hidden sm:inline-grid w-auto grid-cols-7">
             <TabsTrigger value="overview" className="gap-2">
-              <LayoutDashboard className="w-4 h-4 hidden sm:inline" />
+              <LayoutDashboard className="w-4 h-4" />
               Overview
             </TabsTrigger>
             <TabsTrigger value="earnings" className="gap-2">
-              <Wallet className="w-4 h-4 hidden sm:inline" />
+              <Wallet className="w-4 h-4" />
               Earnings
             </TabsTrigger>
             <TabsTrigger value="bookings" className="gap-2">
-              <Calendar className="w-4 h-4 hidden sm:inline" />
+              <Calendar className="w-4 h-4" />
               Bookings
             </TabsTrigger>
             <TabsTrigger value="messages" className="gap-2 relative">
-              <MessageCircle className="w-4 h-4 hidden sm:inline" />
+              <MessageCircle className="w-4 h-4" />
               Messages
               {totalUnreadCount > 0 && (
                 <Badge className="absolute -top-1.5 -right-1.5 h-4 min-w-4 px-1 text-[10px] bg-destructive">
@@ -156,15 +242,15 @@ const VendorDashboard = () => {
               )}
             </TabsTrigger>
             <TabsTrigger value="packages" className="gap-2">
-              <Package className="w-4 h-4 hidden sm:inline" />
+              <Package className="w-4 h-4" />
               Packages
             </TabsTrigger>
             <TabsTrigger value="availability" className="gap-2">
-              <CalendarX className="w-4 h-4 hidden sm:inline" />
+              <CalendarX className="w-4 h-4" />
               Availability
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
-              <Settings className="w-4 h-4 hidden sm:inline" />
+              <Settings className="w-4 h-4" />
               Settings
             </TabsTrigger>
           </TabsList>
