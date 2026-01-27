@@ -26,6 +26,8 @@ import { cn } from '@/lib/utils';
 import { ZendeskWidget } from '@/components/shared/ZendeskWidget';
 import { useSEO } from '@/hooks/useSEO';
 import { FAQJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { generatePageSEO } from '@/lib/seoConfig';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 type FAQCategory = 
   | 'getting-started'
@@ -288,10 +290,12 @@ export default function FAQ() {
   const [selectedCategory, setSelectedCategory] = useState<FAQCategory | 'all'>('all');
 
   // SEO for FAQ page
+  const seo = generatePageSEO('faq');
+  
   useSEO({
-    title: 'Frequently Asked Questions - EventPro Help Center',
-    description: 'Find answers to common questions about booking event vendors, payments, cancellations, and becoming an Event Pro on our platform.',
-    canonical: 'https://event-pro-vault.lovable.app/faq',
+    title: seo.title,
+    description: seo.description,
+    canonical: seo.canonical,
     type: 'website',
     keywords: [
       'event booking FAQ',
@@ -300,6 +304,7 @@ export default function FAQ() {
       'payment questions',
       'event pro help',
       'booking support',
+      'EventPro help',
     ],
   });
 
@@ -384,6 +389,12 @@ export default function FAQ() {
         {/* Hero Section */}
         <section className="bg-gradient-to-b from-secondary/50 to-background border-b border-border">
           <div className="container mx-auto px-4 py-12 md:py-16">
+            {/* Breadcrumbs */}
+            <Breadcrumbs 
+              items={[{ label: 'FAQ' }]} 
+              className="mb-6"
+            />
+            
             <div className="max-w-2xl mx-auto text-center">
               <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-foreground mb-4">
                 Frequently Asked Questions

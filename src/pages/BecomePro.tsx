@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import { useSEO } from '@/hooks/useSEO';
 import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { generatePageSEO } from '@/lib/seoConfig';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 const benefits = [
   {
@@ -66,11 +68,12 @@ const steps = [
 ];
 
 export default function BecomePro() {
-  // SEO for high-conversion vendor signup page
+  const seo = generatePageSEO('becomePro');
+  
   useSEO({
-    title: 'Become an Event Pro — List Your Services Free',
-    description: 'Join thousands of event professionals growing their business. Create your profile, set your rates, and start getting booked for events today.',
-    canonical: 'https://event-pro-vault.lovable.app/become-a-pro',
+    title: seo.title,
+    description: seo.description,
+    canonical: seo.canonical,
     type: 'website',
     keywords: [
       'become event vendor',
@@ -81,6 +84,7 @@ export default function BecomePro() {
       'catering business',
       'DJ booking platform',
       'photographer marketplace',
+      'event services marketplace',
     ],
   });
 
@@ -91,8 +95,17 @@ export default function BecomePro() {
         { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
         { name: 'Become a Pro', url: 'https://event-pro-vault.lovable.app/become-a-pro' },
       ]} />
+      
       {/* Hero */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
+        {/* Breadcrumbs */}
+        <div className="container mx-auto px-4 relative z-10">
+          <Breadcrumbs 
+            items={[{ label: 'Become an Event Pro' }]} 
+            className="mb-6"
+          />
+        </div>
+        
         <div className="absolute inset-0">
           <div className="absolute top-1/4 left-0 w-1/2 h-1/2 bg-primary/20 rounded-full blur-[120px]" />
           <div className="absolute bottom-0 right-0 w-1/2 h-1/2 bg-accent/20 rounded-full blur-[120px]" />

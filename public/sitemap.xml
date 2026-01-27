@@ -37,6 +37,18 @@
     <priority>0.8</priority>
   </url>
   
+  <url>
+    <loc>https://event-pro-vault.lovable.app/learn/event-pros</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://event-pro-vault.lovable.app/learn/markets</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  
   <!-- Blog -->
   <url>
     <loc>https://event-pro-vault.lovable.app/blog</loc>
@@ -63,6 +75,55 @@
     <loc>https://event-pro-vault.lovable.app/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
+  </url>
+  
+  <!-- Category Browse Pages -->
+  <url>
+    <loc>https://event-pro-vault.lovable.app/browse?category=Photography</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://event-pro-vault.lovable.app/browse?category=DJ</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://event-pro-vault.lovable.app/browse?category=Catering</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://event-pro-vault.lovable.app/browse?category=Food+Truck</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://event-pro-vault.lovable.app/browse?category=Bartending</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://event-pro-vault.lovable.app/browse?category=Decorations</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://event-pro-vault.lovable.app/browse?category=Entertainment</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <url>
+    <loc>https://event-pro-vault.lovable.app/browse?category=Rentals</loc>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
   </url>
   
   <!-- Legal Pages -->

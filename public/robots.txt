@@ -1,7 +1,7 @@
 # EventPro by Vendibook - Robots.txt
 # https://event-pro-vault.lovable.app
 
-# Allow all search engine crawlers
+# Primary search engines
 User-agent: Googlebot
 Allow: /
 Crawl-delay: 1
@@ -16,6 +16,7 @@ Allow: /
 User-agent: DuckDuckBot
 Allow: /
 
+# Social media crawlers
 User-agent: Twitterbot
 Allow: /
 
@@ -25,18 +26,45 @@ Allow: /
 User-agent: LinkedInBot
 Allow: /
 
+User-agent: Pinterest
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+# Default for all other bots
 User-agent: *
 Allow: /
 Crawl-delay: 2
 
-# Disallow admin and auth paths
+# Disallow private/auth routes
 Disallow: /auth
+Disallow: /auth/*
 Disallow: /dashboard
+Disallow: /dashboard/*
 Disallow: /vendor-dashboard
+Disallow: /vendor-dashboard/*
 Disallow: /vendor-onboarding
+Disallow: /vendor-onboarding/*
+Disallow: /eventpro-onboarding
+Disallow: /eventpro-onboarding/*
 Disallow: /marketspace-onboarding
+Disallow: /marketspace-onboarding/*
 Disallow: /marketspace-dashboard
+Disallow: /marketspace-dashboard/*
 Disallow: /post-auth
+Disallow: /post-auth/*
+Disallow: /booking-success
+Disallow: /booking-success/*
+Disallow: /checkout
+Disallow: /checkout/*
+Disallow: /onboarding
+Disallow: /onboarding/*
+
+# Disallow query string variations that don't change content
+Disallow: /*?*sort=
+Disallow: /*?*page=
+Disallow: /*?*filter=
 
 # Sitemap location
 Sitemap: https://event-pro-vault.lovable.app/sitemap.xml

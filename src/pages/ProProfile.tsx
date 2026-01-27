@@ -18,6 +18,8 @@ import { ContactVendorButton } from '@/components/shared/ContactVendorButton';
 import { supabase } from '@/integrations/supabase/client';
 import { useSEO } from '@/hooks/useSEO';
 import { LocalBusinessJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import { generateProSEO, SEO_CONFIG } from '@/lib/seoConfig';
+import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
 
 export default function ProProfile() {
   const { id, username } = useParams();
@@ -57,18 +59,27 @@ export default function ProProfile() {
   const loading = profileLoading || resolvingUsername;
 
   // Dynamic SEO for vendor profile pages
+  const proSeo = profile ? generateProSEO({
+    displayName: profile.displayName,
+    businessName: profile.businessName,
+    city: profile.serviceArea?.split(',')[0], // Extract city from service area
+    bio: profile.shortBio || profile.businessDescription,
+    image: profile.avatarUrl || profile.coverImageUrl,
+  }) : null;
+
   useSEO({
-    title: profile ? `${profile.displayName || profile.businessName || 'Event Pro'} - Event Services` : 'Event Pro Profile',
-    description: profile?.shortBio || profile?.businessDescription?.slice(0, 160) || 'View packages, reviews, and book this Event Pro for your next event.',
-    canonical: resolvedUserId ? `https://event-pro-vault.lovable.app/pro/${resolvedUserId}` : undefined,
+    title: proSeo?.title || 'Event Pro Profile | EventPro by Vendibook',
+    description: proSeo?.description || 'View packages, reviews, and book this Event Pro for your next event.',
+    canonical: resolvedUserId ? `${SEO_CONFIG.baseUrl}/pro/${resolvedUserId}` : undefined,
     type: 'profile',
-    image: profile?.avatarUrl || profile?.coverImageUrl || undefined,
+    image: proSeo?.image,
     keywords: [
       profile?.displayName || '',
       ...(profile?.serviceCategories || []),
       'event pro',
       'book vendor',
       profile?.serviceArea || '',
+      'event services marketplace',
     ].filter(Boolean),
   });
 
