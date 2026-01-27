@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star, Zap, Clock, Package, Check, ShieldCheck, MapPin } from 'lucide-react';
+import { Star, Clock, Package, Check, MapPin } from 'lucide-react';
 import { BrowsePackage } from '@/hooks/useBrowsePackages';
+import { TrustBadges, FeaturedBadge, TopRatedBadge } from '@/components/badges/TrustBadges';
 
 interface BrowsePackageCardProps {
-  pkg: BrowsePackage;
+  pkg: BrowsePackage & { is_featured?: boolean };
 }
 
 const categoryGradients: Record<string, string> = {
@@ -51,23 +51,18 @@ export function BrowsePackageCard({ pkg }: BrowsePackageCardProps) {
           {/* Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-          {/* Badges */}
+          {/* Badges - Top Left */}
           <div className="absolute top-3 left-3 flex flex-wrap gap-1.5">
-            {pkg.is_verified && (
-              <Badge className="bg-emerald-500/90 text-white border-0 gap-1 text-xs">
-                <ShieldCheck className="w-3 h-3" />
-                Verified
-              </Badge>
-            )}
-            {pkg.instant_book && (
-              <Badge variant="gradient" className="gap-1 text-xs">
-                <Zap className="w-3 h-3" />
-                Instant
-              </Badge>
-            )}
+            {pkg.is_featured && <FeaturedBadge />}
+            <TopRatedBadge rating={pkg.avg_rating} reviews={pkg.review_count} />
+            <TrustBadges
+              isVerified={pkg.is_verified}
+              instantBook={pkg.instant_book}
+              size="sm"
+            />
           </div>
 
-          {/* Rating */}
+          {/* Rating - Top Right */}
           {pkg.review_count > 0 && (
             <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-full px-2 py-1">
               <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
@@ -122,6 +117,11 @@ export function BrowsePackageCard({ pkg }: BrowsePackageCardProps) {
             <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
               <MapPin className="w-3 h-3" />
               <span className="line-clamp-1">{pkg.vendor_location}</span>
+              {pkg.distance_miles !== null && (
+                <span className="text-primary ml-1">
+                  ({pkg.distance_miles.toFixed(1)} mi)
+                </span>
+              )}
             </div>
           )}
 
