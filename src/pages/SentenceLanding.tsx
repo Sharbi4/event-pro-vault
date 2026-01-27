@@ -445,16 +445,14 @@ export default function SentenceLanding() {
                       </motion.div>
                       
                       <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
-                        <button 
-                          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left w-full"
-                          onClick={() => {
-                            setMenuOpen(false);
-                            window.open('https://support.zendesk.com', '_blank');
-                          }}
+                        <Link 
+                          to="/contact"
+                          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors w-full"
+                          onClick={() => setMenuOpen(false)}
                         >
                           <MessageCircle className="w-4 h-4" />
                           Contact Us
-                        </button>
+                        </Link>
                       </motion.div>
                     </>
                   ) : (
@@ -556,16 +554,14 @@ export default function SentenceLanding() {
                       </motion.div>
                       
                       <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
-                        <button 
-                          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left w-full"
-                          onClick={() => {
-                            setMenuOpen(false);
-                            window.open('https://support.zendesk.com', '_blank');
-                          }}
+                        <Link 
+                          to="/contact"
+                          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors w-full"
+                          onClick={() => setMenuOpen(false)}
                         >
                           <MessageCircle className="w-4 h-4" />
                           Contact Us
-                        </button>
+                        </Link>
                       </motion.div>
                     </>
                   )}
