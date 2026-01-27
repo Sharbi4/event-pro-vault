@@ -316,17 +316,6 @@ export default function SentenceLanding() {
         </div>
       </div>
 
-      {/* Footer - Bottom Center */}
-      <motion.div 
-        className="absolute bottom-4 md:bottom-6 left-0 right-0 flex justify-center z-20"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-      >
-        <span className="text-sm text-muted-foreground font-medium">
-          by Vendibook
-        </span>
-      </motion.div>
 
       <ProfileTypeModal 
         open={profileModalOpen} 
