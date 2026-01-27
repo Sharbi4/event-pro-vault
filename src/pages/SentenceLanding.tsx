@@ -156,7 +156,7 @@ export default function SentenceLanding() {
       </motion.div>
 
       {/* Top Navigation Bar - Logo aligned with Actions */}
-      <div className="absolute top-0 left-0 right-0 z-20 px-6 md:px-8 py-6 md:py-8">
+      <div className="absolute top-0 left-0 right-0 z-20 px-6 md:px-8 py-3 md:py-5">
         <div className="flex items-center justify-between">
           {/* Logo - Left */}
           <motion.div
