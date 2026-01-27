@@ -154,8 +154,7 @@ export function useBrowsePackages() {
           .from('profiles')
           .select('user_id, full_name, avatar_url, stripe_account_status, identity_verification_status, email')
           .in('user_id', vendorIds)
-          .eq('is_vendor', true)
-          .eq('stripe_account_status', 'active'),
+          .eq('is_vendor', true),
         supabase
           .from('reviews')
           .select('vendor_user_id, package_id, rating')

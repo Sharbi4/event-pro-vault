@@ -326,8 +326,7 @@ export function useCategoryPackages(categoryIds: string[], limit = 6) {
       const { data: profiles } = await supabase
         .from('profiles')
         .select('user_id, display_name, primary_city, stripe_account_status, identity_verification_status')
-        .in('user_id', vendorIds)
-        .eq('stripe_account_status', 'active');
+        .in('user_id', vendorIds);
 
       const { data: vendorDetails } = await supabase
         .from('vendor_details')
