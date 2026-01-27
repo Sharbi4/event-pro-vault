@@ -679,16 +679,15 @@ export default function FAQ() {
         </section>
 
         {/* Mobile Contact Support (shown at bottom on mobile) */}
-        <div className="lg:hidden fixed bottom-4 right-4 z-40">
+        <Link to="/contact" className="lg:hidden fixed bottom-4 right-4 z-40">
           <Button
             size="lg"
             className="rounded-full shadow-lg gap-2"
-            onClick={() => window.open('https://support.zendesk.com', '_blank')}
           >
             <MessageCircle className="w-5 h-5" />
             Support
           </Button>
-        </div>
+        </Link>
       </div>
     </Layout>
   );

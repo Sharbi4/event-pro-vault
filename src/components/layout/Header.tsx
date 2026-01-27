@@ -305,16 +305,14 @@ export function Header() {
                     >
                       Blog
                     </Link>
-                    <button 
-                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        window.open('https://support.zendesk.com', '_blank');
-                      }}
+                    <Link 
+                      to="/contact"
+                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       <MessageCircle className="w-4 h-4" />
                       Contact Us
-                    </button>
+                    </Link>
                   </>
               ) : (
                 <>
@@ -397,16 +395,14 @@ export function Header() {
                       <BookOpen className="w-4 h-4" />
                       Blog
                     </Link>
-                    <button 
-                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
-                      onClick={() => {
-                        setMobileMenuOpen(false);
-                        window.open('https://support.zendesk.com', '_blank');
-                      }}
+                    <Link 
+                      to="/contact"
+                      className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
+                      onClick={() => setMobileMenuOpen(false)}
                     >
                       <MessageCircle className="w-4 h-4" />
                       Contact Us
-                    </button>
+                    </Link>
                   </>
                 )}
               </nav>
