@@ -31,8 +31,8 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/categories" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Categories
+                <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Blog
                 </Link>
               </li>
             </ul>
