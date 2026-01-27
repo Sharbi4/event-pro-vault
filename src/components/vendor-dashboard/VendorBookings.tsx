@@ -382,42 +382,31 @@ export function VendorBookings({ bookings, onUpdateStatus, onMessageClient }: Ve
                       </Button>
                     </div>
                   ) : (
-                    // Online payment actions
-                    <>
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          variant="gradient"
-                          onClick={() => handleRequestPayment(booking, 50)}
-                          disabled={requestingPayment === booking.id || updating === booking.id}
-                        >
-                          {requestingPayment === booking.id ? (
-                            <Loader2 className="w-4 h-4 mr-1 animate-spin" />
-                          ) : (
-                            <CreditCard className="w-4 h-4 mr-1" />
-                          )}
-                          Accept (50% Deposit)
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openDeclineDialog(booking)}
-                          disabled={updating === booking.id || requestingPayment === booking.id}
-                        >
-                          <X className="w-4 h-4 mr-1" />
-                          Decline
-                        </Button>
-                      </div>
+                    // Online payment actions - deposit % is automatic (50% standard)
+                    <div className="flex gap-2">
                       <Button
                         size="sm"
-                        variant="secondary"
-                        onClick={() => handleRequestPayment(booking, 100)}
+                        variant="gradient"
+                        onClick={() => handleRequestPayment(booking)}
                         disabled={requestingPayment === booking.id || updating === booking.id}
-                        className="w-full"
                       >
-                        Accept (Full Payment)
+                        {requestingPayment === booking.id ? (
+                          <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                        ) : (
+                          <CreditCard className="w-4 h-4 mr-1" />
+                        )}
+                        Accept & Request Payment
                       </Button>
-                    </>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => openDeclineDialog(booking)}
+                        disabled={updating === booking.id || requestingPayment === booking.id}
+                      >
+                        <X className="w-4 h-4 mr-1" />
+                        Decline
+                      </Button>
+                    </div>
                   )}
                 </div>
               )}
