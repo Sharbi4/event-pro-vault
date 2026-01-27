@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { geocodeLocation, isWithinServiceRadius, getDistanceToVendor, GeocodedLocation } from '@/lib/geocoding';
 
 export interface BrowsePackage {
   id: string;
@@ -24,11 +25,16 @@ export interface BrowsePackage {
   vendor_city: string | null;
   vendor_state: string | null;
   vendor_formatted_address: string | null;
-  vendor_email: string | null; // Added for notifications
+  vendor_email: string | null;
+  vendor_base_lat: number | null;
+  vendor_base_lng: number | null;
+  vendor_travel_radius: number | null;
   is_verified: boolean;
   // Rating info
   avg_rating: number;
   review_count: number;
+  // Distance from search location (if geocoded)
+  distance_miles: number | null;
 }
 
 export interface BrowseFilters {
@@ -38,6 +44,7 @@ export interface BrowseFilters {
   startTime: string | null;
   endTime: string | null;
   location: string;
+  locationCoords: GeocodedLocation | null; // Geocoded coordinates
   instantBook: boolean;
   verified: boolean;
   onlinePaymentsOnly: boolean;
@@ -78,6 +85,7 @@ export function useBrowsePackages() {
     startTime: null,
     endTime: null,
     location: '',
+    locationCoords: null,
     instantBook: false,
     verified: false,
     onlinePaymentsOnly: false,
@@ -155,7 +163,7 @@ export function useBrowsePackages() {
       const [vendorDetailsResult, profilesResult, reviewsResult, packageAvailabilityResult, packageWeeklyResult] = await Promise.all([
         supabase
           .from('vendor_details')
-          .select('user_id, business_name, service_area, city, state, formatted_address')
+          .select('user_id, business_name, service_area, city, state, formatted_address, base_location_lat, base_location_lng, travel_radius_miles')
           .in('user_id', vendorIds),
         supabase
           .from('profiles')
@@ -311,6 +319,23 @@ export function useBrowsePackages() {
             ? locationParts.join(', ')
             : vendorDetails?.service_area || vendorDetails?.formatted_address || null;
 
+          // Get vendor coordinates and travel radius
+          const vendorBaseLat = vendorDetails?.base_location_lat ? Number(vendorDetails.base_location_lat) : null;
+          const vendorBaseLng = vendorDetails?.base_location_lng ? Number(vendorDetails.base_location_lng) : null;
+          // Use package travel_radius if set, otherwise fall back to vendor's travel_radius_miles
+          const vendorTravelRadius = pkg.travel_radius || vendorDetails?.travel_radius_miles || 50;
+
+          // Calculate distance if we have geocoded search location and vendor coordinates
+          let distanceMiles: number | null = null;
+          if (filters.locationCoords && vendorBaseLat !== null && vendorBaseLng !== null) {
+            distanceMiles = getDistanceToVendor(
+              vendorBaseLat,
+              vendorBaseLng,
+              filters.locationCoords.lat,
+              filters.locationCoords.lng
+            );
+          }
+
           return {
             id: pkg.id,
             name: pkg.name,
@@ -332,11 +357,15 @@ export function useBrowsePackages() {
             vendor_city: vendorDetails?.city || null,
             vendor_state: vendorDetails?.state || null,
             vendor_formatted_address: vendorDetails?.formatted_address || null,
-            vendor_email: profile?.email || null, // Include vendor email for notifications
+            vendor_email: profile?.email || null,
+            vendor_base_lat: vendorBaseLat,
+            vendor_base_lng: vendorBaseLng,
+            vendor_travel_radius: vendorTravelRadius,
             is_verified: profile?.stripe_account_status === 'active' && 
                         profile?.identity_verification_status === 'verified',
             avg_rating: avgRating,
-            review_count: reviewCount
+            review_count: reviewCount,
+            distance_miles: distanceMiles
           };
         })
         .filter((pkg): pkg is BrowsePackage => pkg !== null);
@@ -353,15 +382,39 @@ export function useBrowsePackages() {
         );
       }
 
-      // Apply location filter - check against city, state, formatted address, and service area
+      // Apply location filter using geocoding + service radius when available
       if (filters.location) {
-        const locationLower = filters.location.toLowerCase();
-        filteredPackages = filteredPackages.filter(pkg => 
-          pkg.vendor_location?.toLowerCase().includes(locationLower) ||
-          pkg.vendor_city?.toLowerCase().includes(locationLower) ||
-          pkg.vendor_state?.toLowerCase().includes(locationLower) ||
-          pkg.vendor_formatted_address?.toLowerCase().includes(locationLower)
-        );
+        if (filters.locationCoords) {
+          // Geocoded search: filter by service radius
+          filteredPackages = filteredPackages.filter(pkg => {
+            // If vendor doesn't have coordinates, fall back to text matching
+            if (pkg.vendor_base_lat === null || pkg.vendor_base_lng === null) {
+              const locationLower = filters.location.toLowerCase();
+              return pkg.vendor_location?.toLowerCase().includes(locationLower) ||
+                     pkg.vendor_city?.toLowerCase().includes(locationLower) ||
+                     pkg.vendor_state?.toLowerCase().includes(locationLower) ||
+                     pkg.vendor_formatted_address?.toLowerCase().includes(locationLower);
+            }
+            
+            // Check if search location is within vendor's service radius
+            return isWithinServiceRadius(
+              pkg.vendor_base_lat,
+              pkg.vendor_base_lng,
+              pkg.vendor_travel_radius || 50, // Default 50 mile radius
+              filters.locationCoords!.lat,
+              filters.locationCoords!.lng
+            );
+          });
+        } else {
+          // No geocoding available, fall back to text matching
+          const locationLower = filters.location.toLowerCase();
+          filteredPackages = filteredPackages.filter(pkg => 
+            pkg.vendor_location?.toLowerCase().includes(locationLower) ||
+            pkg.vendor_city?.toLowerCase().includes(locationLower) ||
+            pkg.vendor_state?.toLowerCase().includes(locationLower) ||
+            pkg.vendor_formatted_address?.toLowerCase().includes(locationLower)
+          );
+        }
       }
 
       // Apply verified filter
@@ -374,11 +427,23 @@ export function useBrowsePackages() {
         filteredPackages = filteredPackages.filter(pkg => pkg.avg_rating >= filters.minRating!);
       }
 
-      // Sort by rating (top rated first), then by review count
+      // Sort by distance first (if location search), then by rating, then by review count
       filteredPackages.sort((a, b) => {
+        // If we have geocoded location, sort by distance first (nearest first)
+        if (filters.locationCoords) {
+          const aDist = a.distance_miles ?? Infinity;
+          const bDist = b.distance_miles ?? Infinity;
+          if (aDist !== bDist) {
+            return aDist - bDist;
+          }
+        }
+        
+        // Then by rating (highest first)
         if (b.avg_rating !== a.avg_rating) {
           return b.avg_rating - a.avg_rating;
         }
+        
+        // Then by review count
         return b.review_count - a.review_count;
       });
 
@@ -460,6 +525,7 @@ export function useBrowsePackages() {
       startTime: null,
       endTime: null,
       location: '',
+      locationCoords: null,
       instantBook: false,
       verified: false,
       onlinePaymentsOnly: false,
@@ -469,12 +535,26 @@ export function useBrowsePackages() {
     });
   };
 
+  // Geocode location when it changes
+  const geocodeSearchLocation = useCallback(async (locationString: string) => {
+    if (!locationString.trim()) {
+      setFilters(prev => ({ ...prev, locationCoords: null }));
+      return;
+    }
+
+    const coords = await geocodeLocation(locationString);
+    if (coords) {
+      setFilters(prev => ({ ...prev, locationCoords: coords }));
+    }
+  }, []);
+
   return {
     packages,
     loading,
     filters,
     updateFilter,
     clearFilters,
-    refetch: fetchPackages
+    refetch: fetchPackages,
+    geocodeSearchLocation
   };
 }
