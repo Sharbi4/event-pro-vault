@@ -2,6 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Rainbow Gradient Animation - ChatGPT Style */
+@keyframes rainbow-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes rainbow-shift-vertical {
+  0% { background-position: 50% 0%; }
+  50% { background-position: 50% 100%; }
+  100% { background-position: 50% 0%; }
+}
+
+.rainbow-gradient-animate {
+  background: linear-gradient(
+    90deg,
+    #ff0080,
+    #ff8c00,
+    #40e0d0,
+    #7b68ee,
+    #ff0080
+  );
+  background-size: 300% 100%;
+  animation: rainbow-shift 2s ease infinite;
+}
+
+.rainbow-gradient-animate-vertical {
+  background: linear-gradient(
+    180deg,
+    #ff0080,
+    #ff8c00,
+    #40e0d0,
+    #7b68ee,
+    #ff0080
+  );
+  background-size: 100% 300%;
+  animation: rainbow-shift-vertical 2s ease infinite;
+}
+
+.rainbow-gradient-border {
+  background: linear-gradient(
+    135deg,
+    #ff0080,
+    #ff8c00,
+    #40e0d0,
+    #7b68ee,
+    #ff0080,
+    #ff8c00
+  );
+  background-size: 400% 400%;
+  animation: rainbow-shift 2s ease infinite;
+}
 /* Swiss Design System - "The Art Gallery" */
 
 @layer base {
