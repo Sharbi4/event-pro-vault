@@ -12,6 +12,8 @@ import {
 } from 'lucide-react';
 import { useBlogPosts, BlogCategory } from '@/hooks/useBlogPosts';
 import { format } from 'date-fns';
+import { useSEO } from '@/hooks/useSEO';
+import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 const categories: { id: BlogCategory | 'all'; label: string; icon: React.ElementType }[] = [
   { id: 'all', label: 'All Posts', icon: BookOpen },
@@ -30,8 +32,30 @@ export default function Blog() {
     search: searchQuery,
   });
 
+  // SEO for Blog index
+  useSEO({
+    title: 'Event Pro Blog - Tips for Hosts & Vendors',
+    description: 'Expert tips for event planning, vendor success strategies, and industry insights. Learn how to create unforgettable events.',
+    canonical: 'https://event-pro-vault.lovable.app/blog',
+    type: 'website',
+    keywords: [
+      'event planning tips',
+      'vendor success',
+      'event industry news',
+      'catering tips',
+      'wedding planning',
+      'party planning guide',
+    ],
+  });
+
   return (
     <Layout>
+      {/* Breadcrumb Schema */}
+      <BreadcrumbJsonLd items={[
+        { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
+        { name: 'Blog', url: 'https://event-pro-vault.lovable.app/blog' },
+      ]} />
+      
       <div className="min-h-screen bg-background">
         {/* Hero Section */}
         <section className="relative bg-gradient-to-b from-primary/5 to-background py-16 lg:py-24">

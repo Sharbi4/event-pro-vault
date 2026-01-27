@@ -16,6 +16,8 @@ import { cn } from '@/lib/utils';
 import { ShareButton } from '@/components/shared/ShareButton';
 import { ContactVendorButton } from '@/components/shared/ContactVendorButton';
 import { supabase } from '@/integrations/supabase/client';
+import { useSEO } from '@/hooks/useSEO';
+import { LocalBusinessJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 export default function ProProfile() {
   const { id, username } = useParams();
@@ -53,6 +55,22 @@ export default function ProProfile() {
   } = useVendorProfile(resolvedUserId);
 
   const loading = profileLoading || resolvingUsername;
+
+  // Dynamic SEO for vendor profile pages
+  useSEO({
+    title: profile ? `${profile.displayName || profile.businessName || 'Event Pro'} - Event Services` : 'Event Pro Profile',
+    description: profile?.shortBio || profile?.businessDescription?.slice(0, 160) || 'View packages, reviews, and book this Event Pro for your next event.',
+    canonical: resolvedUserId ? `https://event-pro-vault.lovable.app/pro/${resolvedUserId}` : undefined,
+    type: 'profile',
+    image: profile?.avatarUrl || profile?.coverImageUrl || undefined,
+    keywords: [
+      profile?.displayName || '',
+      ...(profile?.serviceCategories || []),
+      'event pro',
+      'book vendor',
+      profile?.serviceArea || '',
+    ].filter(Boolean),
+  });
 
   if (loading) {
     return (
@@ -109,6 +127,27 @@ export default function ProProfile() {
 
   return (
     <Layout>
+      {/* Vendor Structured Data */}
+      <LocalBusinessJsonLd
+        data={{
+          id: resolvedUserId || '',
+          name: profile.displayName || profile.businessName || 'Event Pro',
+          description: profile.shortBio || profile.businessDescription || '',
+          image: profile.avatarUrl || profile.coverImageUrl,
+          city: profile.serviceArea || undefined,
+          rating: avgRating > 0 ? avgRating : undefined,
+          reviewCount: totalReviews > 0 ? totalReviews : undefined,
+          priceRange: '$$',
+        }}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
+          { name: 'Browse', url: 'https://event-pro-vault.lovable.app/browse' },
+          { name: profile.displayName || profile.businessName || 'Event Pro', url: `https://event-pro-vault.lovable.app/pro/${resolvedUserId}` },
+        ]}
+      />
+      
       <div className="container mx-auto px-4 py-8">
         {/* Back link, Contact, and Share */}
         <div className="flex items-center justify-between mb-6">

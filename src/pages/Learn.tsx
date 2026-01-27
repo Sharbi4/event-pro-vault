@@ -21,6 +21,8 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import { AvailabilityDemoWidget } from '@/components/learn/AvailabilityDemoWidget';
+import { useSEO } from '@/hooks/useSEO';
+import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 // Import service category images
 import cateringImage from '@/assets/learn/catering-hero.jpg';
@@ -78,8 +80,29 @@ export default function Learn() {
     }
   };
 
+  // SEO for Learn hub
+  useSEO({
+    title: 'How EventPro Works - Book Event Vendors or List Your Services',
+    description: 'Learn how to book event vendors with real-time availability or become an Event Pro and grow your business. Photographers, DJs, caterers and more.',
+    canonical: 'https://event-pro-vault.lovable.app/learn',
+    type: 'website',
+    keywords: [
+      'how to book event vendors',
+      'become event vendor',
+      'list event services',
+      'event marketplace',
+      'vendor booking platform',
+    ],
+  });
+
   return (
     <Layout>
+      {/* Breadcrumb Schema */}
+      <BreadcrumbJsonLd items={[
+        { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
+        { name: 'Learn', url: 'https://event-pro-vault.lovable.app/learn' },
+      ]} />
+      
       <TooltipProvider>
         {/* Hero Section with Service Images */}
         <section className="relative py-20 lg:py-28 overflow-hidden">

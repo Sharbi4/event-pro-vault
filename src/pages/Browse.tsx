@@ -18,9 +18,36 @@ import { serviceCategories } from '@/data/service-categories';
 import { useBrowsePackages } from '@/hooks/useBrowsePackages';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function Browse() {
   const { packages, loading, filters, updateFilter, clearFilters } = useBrowsePackages();
+  
+  // Dynamic SEO based on search filters
+  const seoTitle = filters.category 
+    ? `${filters.category} Services Near ${filters.location || 'You'} - EventPro`
+    : 'Browse Event Vendors & Packages - EventPro';
+  
+  const seoDescription = filters.category
+    ? `Find and book ${filters.category.toLowerCase()} services for your next event. Compare packages, check availability, and book instantly.`
+    : 'Discover event vendors near you. Browse photographers, DJs, caterers, food trucks and more. Instant booking available.';
+
+  useSEO({
+    title: seoTitle,
+    description: seoDescription,
+    canonical: 'https://event-pro-vault.lovable.app/browse',
+    type: 'website',
+    keywords: [
+      'event vendors near me',
+      'book catering',
+      'hire DJ',
+      'event photographer',
+      'food truck booking',
+      'wedding vendors',
+      'party services',
+      filters.category || 'event services',
+    ].filter(Boolean),
+  });
   
   const [showFilters, setShowFilters] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);

@@ -12,8 +12,10 @@ import {
 } from 'lucide-react';
 import { useBlogPost, useBlogPosts } from '@/hooks/useBlogPosts';
 import { format } from 'date-fns';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
+import { useSEO } from '@/hooks/useSEO';
+import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -24,6 +26,18 @@ export default function BlogPost() {
     limit: 3 
   });
   const [copied, setCopied] = useState(false);
+
+  // Dynamic SEO for blog post
+  useSEO({
+    title: post?.title || 'Blog - EventPro',
+    description: post?.excerpt || 'Read the latest articles about event planning, vendor tips, and industry insights.',
+    canonical: post ? `https://event-pro-vault.lovable.app/blog/${post.slug}` : undefined,
+    type: 'article',
+    image: post?.cover_image_url || undefined,
+    author: post?.author_name,
+    publishedTime: post?.published_at || undefined,
+    keywords: post?.tags || ['event planning', 'vendor tips', 'industry news'],
+  });
 
   const handleCopyLink = async () => {
     await navigator.clipboard.writeText(window.location.href);
@@ -84,6 +98,31 @@ export default function BlogPost() {
 
   return (
     <Layout>
+      {/* Article Structured Data */}
+      {post && (
+        <>
+          <ArticleJsonLd
+            data={{
+              title: post.title,
+              excerpt: post.excerpt || '',
+              slug: post.slug,
+              image: post.cover_image_url || undefined,
+              publishedAt: post.published_at || '',
+              modifiedAt: post.updated_at,
+              authorName: post.author_name,
+              authorAvatar: post.author_avatar || undefined,
+            }}
+          />
+          <BreadcrumbJsonLd
+            items={[
+              { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
+              { name: 'Blog', url: 'https://event-pro-vault.lovable.app/blog' },
+              { name: post.title, url: `https://event-pro-vault.lovable.app/blog/${post.slug}` },
+            ]}
+          />
+        </>
+      )}
+      
       <article className="min-h-screen bg-background">
         {/* Header */}
         <div className="container mx-auto px-4 py-8 max-w-4xl">
