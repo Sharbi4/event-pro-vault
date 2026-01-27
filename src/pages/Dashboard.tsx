@@ -14,6 +14,7 @@ import { useAdminReview } from '@/hooks/useAdminReview';
 import { useRealtimeNotifications } from '@/hooks/useRealtimeNotifications';
 import { useCustomerMessages } from '@/hooks/useCustomerMessages';
 import { AdminReviewTab } from '@/components/dashboard/AdminReviewTab';
+import { AdminDisputesTab } from '@/components/dashboard/AdminDisputesTab';
 import { CustomerMessages } from '@/components/dashboard/CustomerMessages';
 import { CancellationDialog } from '@/components/shared/CancellationDialog';
 import { DepositRefundIndicator } from '@/components/shared/DepositRefundIndicator';
@@ -406,18 +407,27 @@ export default function Dashboard() {
               Profile
             </TabsTrigger>
             {isAdmin && (
-              <TabsTrigger 
-                value="admin" 
-                className="flex-1 text-xs data-[state=active]:gradient-primary data-[state=active]:text-white gap-1.5"
-              >
-                <ShieldCheck className="w-3.5 h-3.5" />
-                Admin
-                {pendingEventPros.length > 0 && (
-                  <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-[10px] flex items-center justify-center">
-                    {pendingEventPros.length}
-                  </Badge>
-                )}
-              </TabsTrigger>
+              <>
+                <TabsTrigger 
+                  value="admin" 
+                  className="flex-1 text-xs data-[state=active]:gradient-primary data-[state=active]:text-white gap-1.5"
+                >
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Review
+                  {pendingEventPros.length > 0 && (
+                    <Badge variant="destructive" className="ml-1 h-4 w-4 p-0 text-[10px] flex items-center justify-center">
+                      {pendingEventPros.length}
+                    </Badge>
+                  )}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="disputes" 
+                  className="flex-1 text-xs data-[state=active]:gradient-primary data-[state=active]:text-white gap-1.5"
+                >
+                  <AlertTriangle className="w-3.5 h-3.5" />
+                  Disputes
+                </TabsTrigger>
+              </>
             )}
           </TabsList>
 
@@ -807,9 +817,14 @@ export default function Dashboard() {
 
           {/* Admin Review Tab */}
           {isAdmin && (
-            <TabsContent value="admin">
-              <AdminReviewTab />
-            </TabsContent>
+            <>
+              <TabsContent value="admin">
+                <AdminReviewTab />
+              </TabsContent>
+              <TabsContent value="disputes">
+                <AdminDisputesTab />
+              </TabsContent>
+            </>
           )}
         </Tabs>
 

@@ -263,43 +263,85 @@ export type Database = {
         Row: {
           booking_id: string
           created_at: string
+          deposit_refund_ordered: boolean | null
           description: string | null
+          evidence_urls: string[] | null
+          filed_by_type: string
           id: string
+          mediation_started_at: string | null
+          payout_held: boolean | null
           reason: string
           reported_by_user_id: string
+          requested_remedy: string | null
+          requested_remedy_details: string | null
           resolution: string | null
+          resolution_deadline: string | null
+          resolution_notes: string | null
+          resolution_outcome: string | null
           resolved_at: string | null
           resolved_by: string | null
           status: string
           updated_at: string
+          vendor_proposed_remedy: string | null
+          vendor_responded_at: string | null
+          vendor_response: string | null
+          vendor_response_deadline: string | null
           vendor_user_id: string
         }
         Insert: {
           booking_id: string
           created_at?: string
+          deposit_refund_ordered?: boolean | null
           description?: string | null
+          evidence_urls?: string[] | null
+          filed_by_type?: string
           id?: string
+          mediation_started_at?: string | null
+          payout_held?: boolean | null
           reason: string
           reported_by_user_id: string
+          requested_remedy?: string | null
+          requested_remedy_details?: string | null
           resolution?: string | null
+          resolution_deadline?: string | null
+          resolution_notes?: string | null
+          resolution_outcome?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
           status?: string
           updated_at?: string
+          vendor_proposed_remedy?: string | null
+          vendor_responded_at?: string | null
+          vendor_response?: string | null
+          vendor_response_deadline?: string | null
           vendor_user_id: string
         }
         Update: {
           booking_id?: string
           created_at?: string
+          deposit_refund_ordered?: boolean | null
           description?: string | null
+          evidence_urls?: string[] | null
+          filed_by_type?: string
           id?: string
+          mediation_started_at?: string | null
+          payout_held?: boolean | null
           reason?: string
           reported_by_user_id?: string
+          requested_remedy?: string | null
+          requested_remedy_details?: string | null
           resolution?: string | null
+          resolution_deadline?: string | null
+          resolution_notes?: string | null
+          resolution_outcome?: string | null
           resolved_at?: string | null
           resolved_by?: string | null
           status?: string
           updated_at?: string
+          vendor_proposed_remedy?: string | null
+          vendor_responded_at?: string | null
+          vendor_response?: string | null
+          vendor_response_deadline?: string | null
           vendor_user_id?: string
         }
         Relationships: [
