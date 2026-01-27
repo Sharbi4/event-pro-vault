@@ -303,6 +303,8 @@ export default function EventProOnboarding() {
             onPublish={handlePublish}
             canPublish={canPublish()}
             saving={saving}
+            stripeStatus={stripeStatus}
+            onConnectStripe={connectStripe}
           />
         );
       default:

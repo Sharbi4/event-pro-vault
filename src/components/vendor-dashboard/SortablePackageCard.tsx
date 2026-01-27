@@ -24,7 +24,10 @@ import {
   Image as ImageIcon,
   ChevronUp,
   ChevronDown,
-  Share2
+  Share2,
+  CreditCard,
+  Banknote,
+  MessageSquare,
 } from 'lucide-react';
 import { VendorPackage } from '@/hooks/useVendorDashboard';
 import { categories } from '@/data/categories';
@@ -190,10 +193,33 @@ export function SortablePackageCard({
                   <><Calendar className="w-3 h-3 mr-1" /> Daily</>
                 )}
               </Badge>
-              {pkg.instant_book && (
+              {(pkg as any).booking_mode === 'REQUEST' ? (
+                <Badge variant="secondary">
+                  <MessageSquare className="w-3 h-3 mr-1" />
+                  Request
+                </Badge>
+              ) : (
                 <Badge variant="trust">
                   <Zap className="w-3 h-3 mr-1" />
                   Instant
+                </Badge>
+              )}
+              {(pkg as any).payment_options === 'ONLINE' && (
+                <Badge variant="outline">
+                  <CreditCard className="w-3 h-3 mr-1" />
+                  Online
+                </Badge>
+              )}
+              {(pkg as any).payment_options === 'CASH' && (
+                <Badge variant="outline">
+                  <Banknote className="w-3 h-3 mr-1" />
+                  Cash
+                </Badge>
+              )}
+              {(pkg as any).payment_options === 'BOTH' && (
+                <Badge variant="outline">
+                  <CreditCard className="w-3 h-3 mr-1" />
+                  Both
                 </Badge>
               )}
               {category && (

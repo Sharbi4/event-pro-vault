@@ -1,8 +1,6 @@
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
 import {
   CheckCircle2,
   AlertCircle,
@@ -13,10 +11,14 @@ import {
   Package,
   Sparkles,
   Star,
+  CreditCard,
+  Banknote,
+  Zap,
 } from 'lucide-react';
 import { OnboardingState, MediaItem, WeeklyAvailability } from '@/hooks/useEventProOnboarding';
 import { eventProCategories } from '@/data/eventpro-categories';
 import { VendorPackage } from '@/hooks/useVendorDashboard';
+import { PublishChecklist } from './PublishChecklist';
 
 interface StepReviewProps {
   state: OnboardingState;
@@ -24,6 +26,8 @@ interface StepReviewProps {
   onPublish: () => Promise<boolean>;
   canPublish: { canPublish: boolean; missing: string[] };
   saving: boolean;
+  stripeStatus?: string;
+  onConnectStripe?: () => void;
 }
 
 export function StepReview({
@@ -32,6 +36,8 @@ export function StepReview({
   onPublish,
   canPublish,
   saving,
+  stripeStatus = 'not_started',
+  onConnectStripe,
 }: StepReviewProps) {
   const coverPhoto = state.mediaItems.find((m) => m.isCover && m.type === 'image') || 
                      state.mediaItems.find((m) => m.type === 'image');
@@ -61,27 +67,13 @@ export function StepReview({
         </p>
       </div>
 
-      {/* Publish Requirements */}
-      {!canPublish.canPublish && (
-        <Card variant="glass" className="border-destructive/30 bg-destructive/5">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
-              <div>
-                <p className="font-medium text-foreground text-sm">Missing requirements</p>
-                <ul className="text-xs text-muted-foreground mt-1 space-y-1">
-                  {canPublish.missing.map((item) => (
-                    <li key={item} className="flex items-center gap-2">
-                      <span className="w-1 h-1 rounded-full bg-destructive" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Publish Checklist */}
+      <PublishChecklist
+        state={state}
+        packages={packages}
+        stripeStatus={stripeStatus}
+        onConnectStripe={onConnectStripe}
+      />
 
       {/* Profile Preview Card */}
       <Card variant="glass" className="overflow-hidden">
