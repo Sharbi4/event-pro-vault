@@ -80,7 +80,17 @@ export function ProfileQRCard({ username, userId, displayName }: ProfileQRCardPr
                 src={qrCodePreviewUrl} 
                 alt="Your profile QR code"
                 className="w-40 h-40 sm:w-48 sm:h-48"
-                loading="lazy"
+                crossOrigin="anonymous"
+                referrerPolicy="no-referrer"
+                onError={(e) => {
+                  console.error('QR code failed to load:', qrCodePreviewUrl);
+                  // Fallback: try without CORS
+                  const img = e.target as HTMLImageElement;
+                  if (!img.dataset.retried) {
+                    img.dataset.retried = 'true';
+                    img.src = qrCodePreviewUrl;
+                  }
+                }}
               />
             </div>
             {/* Decorative gradient ring */}
