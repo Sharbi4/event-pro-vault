@@ -180,6 +180,17 @@ export function Header() {
                     >
                       FAQ
                     </Link>
+                    <Link 
+                      to="/blog" 
+                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                        location.pathname.startsWith('/blog') 
+                          ? 'text-foreground bg-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Blog
+                    </Link>
                     <button 
                       className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
                       onClick={() => {
@@ -247,6 +258,17 @@ export function Header() {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       FAQ
+                    </Link>
+                    <Link 
+                      to="/blog" 
+                      className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                        location.pathname.startsWith('/blog') 
+                          ? 'text-foreground bg-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      Blog
                     </Link>
                   </>
                 )}
