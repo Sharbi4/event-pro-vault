@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, MessageCircle, LayoutDashboard, LogOut } from 'lucide-react';
+import { Menu, X, MessageCircle, LayoutDashboard, LogOut, Mail } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModeSwitcher } from './ModeSwitcher';
@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/eventpro-logo.png';
+import { Badge } from '@/components/ui/badge';
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -29,6 +30,49 @@ export function Header() {
   }, []);
 
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+
+  // Fetch unread message count for logged-in users
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      if (!user) {
+        setUnreadMessageCount(0);
+        return;
+      }
+      
+      // Check if user is a vendor or customer and get unread counts accordingly
+      const { data: vendorConversations } = await supabase
+        .from('conversations')
+        .select('vendor_unread_count')
+        .eq('vendor_user_id', user.id);
+      
+      const { data: clientConversations } = await supabase
+        .from('conversations')
+        .select('client_unread_count')
+        .eq('client_user_id', user.id);
+      
+      const vendorUnread = vendorConversations?.reduce((sum, c) => sum + (c.vendor_unread_count || 0), 0) || 0;
+      const clientUnread = clientConversations?.reduce((sum, c) => sum + (c.client_unread_count || 0), 0) || 0;
+      
+      setUnreadMessageCount(vendorUnread + clientUnread);
+    };
+    
+    fetchUnreadCount();
+    
+    // Subscribe to conversation updates
+    if (user) {
+      const channel = supabase
+        .channel('header-unread-count')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'conversations' }, () => {
+          fetchUnreadCount();
+        })
+        .subscribe();
+      
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
+  }, [user]);
 
   // Fetch user profile data
   useEffect(() => {
@@ -167,6 +211,26 @@ export function Header() {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       Browse
+                    </Link>
+                    
+                    <Link 
+                      to="/dashboard?tab=messages" 
+                      className={`flex items-center justify-between text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                        location.pathname === '/dashboard' && location.search.includes('messages')
+                          ? 'text-foreground bg-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span className="flex items-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        Messages
+                      </span>
+                      {unreadMessageCount > 0 && (
+                        <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs">
+                          {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
+                        </Badge>
+                      )}
                     </Link>
                     
                     <Link 
