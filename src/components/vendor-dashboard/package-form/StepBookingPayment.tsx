@@ -36,7 +36,9 @@ export function StepBookingPayment({
 }: StepBookingPaymentProps) {
   const bookingMode = formData.booking_mode || 'INSTANT';
   const paymentOptions = formData.payment_options || 'ONLINE';
-  const cancellationPolicy = (formData.cancellation_policy || 'standard') as CancellationPolicyType;
+  const rawPolicy = formData.cancellation_policy || 'standard';
+  const cancellationPolicy: CancellationPolicyType = 
+    (rawPolicy in CANCELLATION_POLICIES) ? rawPolicy as CancellationPolicyType : 'standard';
   
   const needsStripe = paymentOptions === 'ONLINE' || paymentOptions === 'BOTH';
   const stripeBlocked = needsStripe && !stripeConnected;
