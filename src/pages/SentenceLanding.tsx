@@ -8,10 +8,12 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/contexts/AuthContext';
-import { Menu, LogOut, LayoutDashboard, MessageCircle, Loader2 } from 'lucide-react';
+import { Menu, LogOut, LayoutDashboard, MessageCircle, Loader2, Mail, PlusCircle, HelpCircle, BookOpen, Search } from 'lucide-react';
 import { ModeSwitcher } from '@/components/layout/ModeSwitcher';
 import { ProfileTypeModal } from '@/components/layout/ProfileTypeModal';
+import { supabase } from '@/integrations/supabase/client';
 import logo from '@/assets/eventpro-logo.png';
 
 export default function SentenceLanding() {
@@ -27,27 +29,63 @@ export default function SentenceLanding() {
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
+  const [unreadMessageCount, setUnreadMessageCount] = useState(0);
+  const [isEventPro, setIsEventPro] = useState(false);
+  const [displayName, setDisplayName] = useState<string | null>(null);
 
   useEffect(() => {
     const complete = Boolean(eventType && location_ && date);
     setIsComplete(complete);
   }, [eventType, location_, date]);
 
+  // Fetch unread message count for logged-in users
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      if (!user) {
+        setUnreadMessageCount(0);
+        return;
+      }
+      
+      const { data: vendorConversations } = await supabase
+        .from('conversations')
+        .select('vendor_unread_count')
+        .eq('vendor_user_id', user.id);
+      
+      const { data: clientConversations } = await supabase
+        .from('conversations')
+        .select('client_unread_count')
+        .eq('client_user_id', user.id);
+      
+      const vendorUnread = vendorConversations?.reduce((sum, c) => sum + (c.vendor_unread_count || 0), 0) || 0;
+      const clientUnread = clientConversations?.reduce((sum, c) => sum + (c.client_unread_count || 0), 0) || 0;
+      
+      setUnreadMessageCount(vendorUnread + clientUnread);
+    };
+    
+    fetchUnreadCount();
+  }, [user]);
+
   // Fetch user profile data
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!user) return;
-      const { supabase } = await import('@/integrations/supabase/client');
+      if (!user) {
+        setIsEventPro(false);
+        return;
+      }
       const { data } = await supabase
         .from('profiles')
-        .select('first_name, display_name, avatar_url')
+        .select('first_name, display_name, avatar_url, is_vendor')
         .eq('user_id', user.id)
         .single();
       if (data) {
         setUserInitial(data.first_name?.[0] || data.display_name?.[0] || user.email?.[0]?.toUpperCase() || 'U');
         setUserAvatarUrl(data.avatar_url);
+        setIsEventPro(data.is_vendor === true);
+        setDisplayName(data.display_name || data.first_name || null);
       } else {
         setUserInitial(user.email?.[0]?.toUpperCase() || 'U');
+        setIsEventPro(false);
+        setDisplayName(null);
       }
     };
     fetchProfile();
@@ -238,24 +276,95 @@ export default function SentenceLanding() {
                 <nav className="flex flex-col gap-1 mt-6">
                   {user ? (
                     <>
+                      {/* User greeting header */}
+                      <div className="px-2 pb-3 flex items-center gap-3">
+                        <Avatar className="h-10 w-10 border-2 border-primary/20">
+                          <AvatarImage src={userAvatarUrl || undefined} alt={displayName || 'User'} />
+                          <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                            {userInitial}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-foreground truncate">
+                            {displayName || user.email?.split('@')[0] || 'Welcome'}
+                          </p>
+                          {isEventPro && (
+                            <p className="text-xs text-primary font-medium">Event Pro</p>
+                          )}
+                        </div>
+                      </div>
+                      
                       <div className="px-2 pb-3">
                         <ModeSwitcher compact />
                       </div>
+                      
                       <div className="h-px bg-border my-2" />
+                      
                       <Link 
-                        to="/" 
-                        className={navLinkClass('/')}
+                        to="/browse" 
+                        className={navLinkClass('/browse')}
                         onClick={() => setMenuOpen(false)}
                       >
+                        <Search className="w-4 h-4 mr-2 inline" />
                         Browse
                       </Link>
+                      
                       <Link 
+                        to="/dashboard" 
+                        className={navLinkClass('/dashboard')}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <LayoutDashboard className="w-4 h-4 mr-2 inline" />
+                        Dashboard
+                      </Link>
+                      
+                      <Link
+                        to="/dashboard?tab=messages" 
+                        className="flex items-center justify-between text-sm font-medium py-3 px-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <span className="flex items-center gap-2">
+                          <Mail className="w-4 h-4" />
+                          Messages
+                        </span>
+                        {unreadMessageCount > 0 && (
+                          <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs">
+                            {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
+                          </Badge>
+                        )}
+                      </Link>
+                      
+                      {isEventPro && (
+                        <Link 
+                          to="/vendor-dashboard?tab=listings&action=create" 
+                          className="flex items-center gap-2 text-sm font-medium py-3 px-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <PlusCircle className="w-4 h-4" />
+                          Create Package
+                        </Link>
+                      )}
+                      
+                      <div className="h-px bg-border my-2" />
+                      
+                      <Link
                         to="/faq" 
                         className={navLinkClass('/faq')}
                         onClick={() => setMenuOpen(false)}
                       >
+                        <HelpCircle className="w-4 h-4 mr-2 inline" />
                         FAQ
                       </Link>
+                      
+                      <Link 
+                        to="/blog" 
+                        className={navLinkClass('/blog')}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <BookOpen className="w-4 h-4 mr-2 inline" />
+                        Blog
+                      </Link>
+                      
                       <button 
                         className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
                         onClick={() => {
@@ -276,6 +385,7 @@ export default function SentenceLanding() {
                       >
                         Sign In
                       </Link>
+                      
                       <button 
                         className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
                         onClick={() => {
@@ -285,27 +395,43 @@ export default function SentenceLanding() {
                       >
                         Create a Free Profile
                       </button>
+                      
                       <div className="h-px bg-border my-2" />
+                      
                       <Link 
-                        to="/" 
-                        className={navLinkClass('/')}
+                        to="/browse" 
+                        className={navLinkClass('/browse')}
                         onClick={() => setMenuOpen(false)}
                       >
+                        <Search className="w-4 h-4 mr-2 inline" />
                         Browse
                       </Link>
+                      
                       <Link 
                         to="/learn" 
                         className={navLinkClass('/learn')}
                         onClick={() => setMenuOpen(false)}
                       >
+                        <BookOpen className="w-4 h-4 mr-2 inline" />
                         Learn More
                       </Link>
+                      
                       <Link 
                         to="/faq" 
                         className={navLinkClass('/faq')}
                         onClick={() => setMenuOpen(false)}
                       >
+                        <HelpCircle className="w-4 h-4 mr-2 inline" />
                         FAQ
+                      </Link>
+                      
+                      <Link 
+                        to="/blog" 
+                        className={navLinkClass('/blog')}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <BookOpen className="w-4 h-4 mr-2 inline" />
+                        Blog
                       </Link>
                     </>
                   )}
