@@ -94,9 +94,37 @@ export function ReportIssueDialog({
     setSubmitting(true);
 
     try {
-      // For now, we'll create a support ticket by sending a notification
-      // In a full implementation, this would create a disputes/issues table entry
-      const { error } = await supabase.functions.invoke('send-booking-notification', {
+      // Get user and booking info
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Must be logged in to report an issue');
+
+      // Get vendor_user_id from the booking
+      const { data: booking, error: bookingError } = await supabase
+        .from('bookings')
+        .select('vendor_user_id')
+        .eq('id', bookingId)
+        .single();
+
+      if (bookingError || !booking?.vendor_user_id) {
+        throw new Error('Could not find booking information');
+      }
+
+      // Insert into disputes table
+      const { error: disputeError } = await supabase
+        .from('disputes')
+        .insert({
+          booking_id: bookingId,
+          reported_by_user_id: user.id,
+          vendor_user_id: booking.vendor_user_id,
+          reason: issueType,
+          description: description,
+          status: 'pending',
+        });
+
+      if (disputeError) throw disputeError;
+
+      // Also send notification email
+      await supabase.functions.invoke('send-booking-notification', {
         body: {
           booking_id: bookingId,
           notification_type: 'issue_reported',
@@ -104,8 +132,6 @@ export function ReportIssueDialog({
           issue_description: description,
         },
       });
-
-      if (error) throw error;
 
       toast({
         title: 'Issue Reported',

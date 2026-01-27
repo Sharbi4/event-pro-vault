@@ -43,11 +43,13 @@ export function MarketCard({ market, isSelected, onSelect }: MarketCardProps) {
           {market.type === 'farmers' ? '🥬 Farmers Market' : '🛍️ Flea Market'}
         </Badge>
 
-        {/* Rating */}
-        <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-2 py-1">
-          <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-          <span className="text-xs font-medium text-white">{market.rating}</span>
-        </div>
+        {/* Rating - only show if real rating exists */}
+        {market.rating > 0 && (
+          <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/50 backdrop-blur-sm rounded-full px-2 py-1">
+            <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
+            <span className="text-xs font-medium text-white">{market.rating}</span>
+          </div>
+        )}
 
         {/* Location overlay */}
         <div className="absolute bottom-3 left-3 flex items-center gap-1 text-white">

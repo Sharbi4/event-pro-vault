@@ -142,9 +142,9 @@ export function useBrowseMarkets() {
           nextTime,
           totalSlotsRemaining,
           minPrice,
-          // Placeholder ratings
-          rating: 4.5 + Math.random() * 0.5,
-          reviewCount: Math.floor(Math.random() * 100) + 10,
+          // No ratings yet - will be populated when market reviews are implemented
+          rating: 0,
+          reviewCount: 0,
         };
       });
 
