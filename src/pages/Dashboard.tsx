@@ -20,15 +20,19 @@ import { DepositRefundIndicator } from '@/components/shared/DepositRefundIndicat
 import { ReportIssueDialog } from '@/components/shared/ReportIssueDialog';
 import { ReportIssueButton } from '@/components/shared/ReportIssueButton';
 import { ReviewDialog } from '@/components/reviews/ReviewDialog';
+import { EventCountdown } from '@/components/booking/EventCountdown';
+import { BookingChecklist, generateBookingChecklist } from '@/components/booking/BookingChecklist';
+import { AddToCalendarButton } from '@/components/booking/AddToCalendarButton';
 import { vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { toast } from 'sonner';
+import { parseISO, isFuture } from 'date-fns';
 import { 
   Calendar, MapPin, Clock, Heart, Package, 
   User, LogOut, ChevronRight, Loader2, Star, Search,
   CreditCard, CheckCircle, AlertCircle, Banknote, Users, ExternalLink, ShieldCheck, XCircle,
-  MessageCircle, AlertTriangle, Bell
+  MessageCircle, AlertTriangle, Bell, CalendarPlus
 } from 'lucide-react';
 
 interface ExtendedBooking extends BookingData {
@@ -63,8 +67,25 @@ export default function Dashboard() {
   const [reviewDialogOpen, setReviewDialogOpen] = useState(false);
   const [bookingToReview, setBookingToReview] = useState<ExtendedBooking | null>(null);
   const [reviewedBookings, setReviewedBookings] = useState<Set<string>>(new Set());
+  const [bookingConversations, setBookingConversations] = useState<Set<string>>(new Set());
 
-  // Check which bookings already have reviews
+  // Check which bookings have conversations
+  useEffect(() => {
+    if (user && bookings.length > 0) {
+      const bookingIds = bookings.map(b => b.id);
+      supabase
+        .from('conversations')
+        .select('booking_id')
+        .eq('client_user_id', user.id)
+        .in('booking_id', bookingIds)
+        .then(({ data }) => {
+          if (data) {
+            setBookingConversations(new Set(data.map(c => c.booking_id).filter(Boolean) as string[]));
+          }
+        });
+    }
+  }, [user, bookings]);
+
   useEffect(() => {
     if (user && bookings.length > 0) {
       const bookingIds = bookings.map(b => b.id);
@@ -434,6 +455,10 @@ export default function Dashboard() {
                 const paymentMethod = extBooking.payment_method || 'stripe';
                 const isCashPayment = paymentMethod === 'cash';
                 const isCancelled = booking.status === 'cancelled';
+                const eventDate = parseISO(booking.event_date);
+                const isUpcoming = isFuture(eventDate);
+                const hasConversation = bookingConversations.has(booking.id);
+                const hasReview = reviewedBookings.has(booking.id);
                 
                 return (
                   <Card 
@@ -473,7 +498,13 @@ export default function Dashboard() {
                               {booking.vendor_display_name || 'Event Pro'}
                             </p>
                           </div>
-                          {getStatusBadge(extBooking)}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {/* Countdown for upcoming events */}
+                            {isUpcoming && !isCancelled && (
+                              <EventCountdown eventDate={eventDate} compact />
+                            )}
+                            {getStatusBadge(extBooking)}
+                          </div>
                         </div>
 
                         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
@@ -491,6 +522,19 @@ export default function Dashboard() {
                             <MapPin className="w-3 h-3" />
                             {booking.event_location}
                           </span>
+                          {/* Compact checklist indicator */}
+                          {isUpcoming && !isCancelled && (
+                            <BookingChecklist
+                              items={generateBookingChecklist({
+                                deposit_paid_at: depositPaid,
+                                final_paid_at: finalPaid,
+                                hasConversation,
+                                hasReview,
+                                payment_method: paymentMethod,
+                              })}
+                              compact
+                            />
+                          )}
                         </div>
 
                         {/* Payment method indicator */}
@@ -534,7 +578,23 @@ export default function Dashboard() {
 
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
                           <span className="font-bold text-sm gradient-text">${booking.total_price}</span>
-                          <div className="flex items-center gap-1.5">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {/* Add to Calendar - for upcoming events */}
+                            {isUpcoming && !isCancelled && (
+                              <AddToCalendarButton
+                                event={{
+                                  title: `${booking.package_name} - ${booking.vendor_display_name}`,
+                                  description: `Event booking with ${booking.vendor_display_name}`,
+                                  location: booking.event_location,
+                                  startDate: eventDate,
+                                  durationHours: 4,
+                                }}
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 text-xs px-2"
+                              />
+                            )}
+
                             {/* Message button */}
                             {booking.vendor_user_id && !isCancelled && (
                               <Button

@@ -1,10 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, Calendar, MapPin, CreditCard, ArrowRight, Loader2 } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { Check, Calendar, MapPin, CreditCard, ArrowRight, Loader2, MessageCircle, CheckCircle } from 'lucide-react';
+import { format, parseISO, addHours } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { AddToCalendarButton } from '@/components/booking/AddToCalendarButton';
+import { EventCountdown } from '@/components/booking/EventCountdown';
+import { BookingChecklist, generateBookingChecklist } from '@/components/booking/BookingChecklist';
+import { useConfettiOnMount } from '@/hooks/useConfetti';
 import logo from '@/assets/eventpro-logo.png';
 
 interface BookingDetails {
@@ -29,6 +33,9 @@ export default function BookingSuccess() {
   const [booking, setBooking] = useState<BookingDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [verified, setVerified] = useState(false);
+  
+  // Fire confetti when booking is verified
+  useConfettiOnMount(verified && !loading);
 
   useEffect(() => {
     async function verifyAndFetch() {
@@ -159,7 +166,7 @@ export default function BookingSuccess() {
 
           {/* Booking Details Card */}
           <motion.div 
-            className="bg-secondary/50 rounded-2xl p-4 md:p-6 mb-8 space-y-4"
+            className="bg-secondary/50 rounded-2xl p-4 md:p-6 mb-6 space-y-4"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -169,6 +176,8 @@ export default function BookingSuccess() {
                 <p className="text-sm text-muted-foreground">Package</p>
                 <p className="font-semibold">{booking.package_name}</p>
               </div>
+              {/* Countdown */}
+              <EventCountdown eventDate={eventDate} compact />
             </div>
             
             <div>
@@ -208,26 +217,64 @@ export default function BookingSuccess() {
             )}
           </motion.div>
 
-          {/* What Happens Next */}
+          {/* Add to Calendar */}
           <motion.div 
-            className="mb-8"
+            className="mb-6 flex justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35 }}
+          >
+            <AddToCalendarButton
+              event={{
+                title: `${booking.package_name} - ${booking.vendor_name}`,
+                description: `Your event booking with ${booking.vendor_name}. Total: $${booking.total_price}. Balance due: $${booking.final_amount}`,
+                location: booking.event_location,
+                startDate: eventDate,
+                durationHours: 4,
+              }}
+              variant="outline"
+              size="default"
+            />
+          </motion.div>
+
+          {/* Pre-event Checklist */}
+          <motion.div 
+            className="bg-muted/50 rounded-xl p-4 mb-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
+            <BookingChecklist 
+              items={generateBookingChecklist({
+                deposit_paid_at: booking.status === 'confirmed' ? new Date().toISOString() : null,
+                final_paid_at: null,
+                hasConversation: false,
+                hasReview: false,
+                payment_method: 'stripe',
+              })}
+            />
+          </motion.div>
+
+          {/* What Happens Next */}
+          <motion.div 
+            className="mb-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.45 }}
+          >
             <h3 className="font-semibold mb-4 text-center">What happens next?</h3>
             <ol className="space-y-3 text-sm text-muted-foreground">
               <li className="flex items-start gap-3">
-                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">1</span>
+                <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
                 <span>Confirmation email sent to you and the vendor</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">2</span>
+                <MessageCircle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                 <span>Vendor will reach out to finalize event details</span>
               </li>
               <li className="flex items-start gap-3">
-                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary flex items-center justify-center text-xs font-semibold flex-shrink-0">3</span>
-                <span>Final payment collected on your event day</span>
+                <CreditCard className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                <span>Pay remaining balance before your event</span>
               </li>
             </ol>
           </motion.div>
