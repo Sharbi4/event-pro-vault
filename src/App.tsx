@@ -50,8 +50,8 @@ const App = () => (
         <TooltipProvider>
           <Toaster />
           <Sonner />
-          <CookieConsentBanner />
           <BrowserRouter>
+            <CookieConsentBanner />
             <Routes>
               {/* New "Art Gallery" Flow */}
               <Route path="/" element={<SentenceLanding />} />
