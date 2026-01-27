@@ -13,6 +13,8 @@ import { StickyBookingCard } from '@/components/package-detail/StickyBookingCard
 import { MobileBookingBar } from '@/components/package-detail/MobileBookingBar';
 import { BookingModal } from '@/components/package-detail/BookingModal';
 import { ShareButton } from '@/components/shared/ShareButton';
+import { useSEO } from '@/hooks/useSEO';
+import { ProductJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 export default function PackageDetail() {
   const { id } = useParams();
@@ -22,6 +24,21 @@ export default function PackageDetail() {
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<'stripe' | 'cash'>('stripe');
+
+  // Dynamic SEO for package pages (product schema)
+  useSEO({
+    title: packageData ? `${packageData.name} by ${packageData.vendor_display_name || packageData.vendor_name || 'Event Pro'}` : 'Package Details',
+    description: packageData?.description?.slice(0, 160) || 'View package details, pricing, and book your event vendor.',
+    canonical: packageData ? `https://event-pro-vault.lovable.app/package/${packageData.id}` : undefined,
+    type: 'product',
+    image: packageData?.cover_image_url || packageData?.images?.[0] || undefined,
+    keywords: [
+      packageData?.category || 'event service',
+      'book vendor',
+      'event package',
+      packageData?.vendor_display_name || packageData?.vendor_name || '',
+    ].filter(Boolean),
+  });
 
   // Parse date from search params if available
   const dateParam = searchParams.get('date');
@@ -79,6 +96,27 @@ export default function PackageDetail() {
 
   return (
     <Layout>
+      {/* Product Structured Data for Rich Snippets */}
+      <ProductJsonLd
+        data={{
+          id: packageData.id,
+          name: packageData.name,
+          description: packageData.description || '',
+          price: packageData.price,
+          image: packageData.cover_image_url || packageData.images?.[0],
+          vendorName: packageData.vendor_display_name || packageData.vendor_name,
+          rating: packageData.avg_rating > 0 ? packageData.avg_rating : undefined,
+          reviewCount: packageData.review_count > 0 ? packageData.review_count : undefined,
+        }}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
+          { name: 'Browse', url: 'https://event-pro-vault.lovable.app/browse' },
+          { name: packageData.name, url: `https://event-pro-vault.lovable.app/package/${packageData.id}` },
+        ]}
+      />
+      
       <div className="container mx-auto px-4 py-8 pb-24 lg:pb-8">
         {/* Back link and Share */}
         <div className="flex items-center justify-between mb-6">

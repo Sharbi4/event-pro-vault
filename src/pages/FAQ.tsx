@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { ZendeskWidget } from '@/components/shared/ZendeskWidget';
+import { useSEO } from '@/hooks/useSEO';
+import { FAQJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 type FAQCategory = 
   | 'getting-started'
@@ -285,6 +287,28 @@ export default function FAQ() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<FAQCategory | 'all'>('all');
 
+  // SEO for FAQ page
+  useSEO({
+    title: 'Frequently Asked Questions - EventPro Help Center',
+    description: 'Find answers to common questions about booking event vendors, payments, cancellations, and becoming an Event Pro on our platform.',
+    canonical: 'https://event-pro-vault.lovable.app/faq',
+    type: 'website',
+    keywords: [
+      'event booking FAQ',
+      'vendor booking help',
+      'cancellation policy',
+      'payment questions',
+      'event pro help',
+      'booking support',
+    ],
+  });
+
+  // Prepare FAQ data for JSON-LD (top 10 most important questions)
+  const faqJsonLdData = faqData.slice(0, 10).map(faq => ({
+    question: faq.question,
+    answer: faq.answer,
+  }));
+
   const filteredFAQs = useMemo(() => {
     let filtered = faqData;
 
@@ -346,6 +370,13 @@ export default function FAQ() {
 
   return (
     <Layout>
+      {/* Structured Data for FAQ Rich Snippets */}
+      <FAQJsonLd faqs={faqJsonLdData} />
+      <BreadcrumbJsonLd items={[
+        { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
+        { name: 'FAQ', url: 'https://event-pro-vault.lovable.app/faq' },
+      ]} />
+      
       {/* Zendesk Chat Widget */}
       <ZendeskWidget />
       

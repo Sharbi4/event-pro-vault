@@ -6,6 +6,8 @@ import {
   ArrowRight, DollarSign, Calendar, Users, 
   Shield, TrendingUp, CheckCircle, Star
 } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
+import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 
 const benefits = [
   {
@@ -64,8 +66,31 @@ const steps = [
 ];
 
 export default function BecomePro() {
+  // SEO for high-conversion vendor signup page
+  useSEO({
+    title: 'Become an Event Pro — List Your Services Free',
+    description: 'Join thousands of event professionals growing their business. Create your profile, set your rates, and start getting booked for events today.',
+    canonical: 'https://event-pro-vault.lovable.app/become-a-pro',
+    type: 'website',
+    keywords: [
+      'become event vendor',
+      'list event services',
+      'event pro signup',
+      'vendor registration',
+      'sell event services',
+      'catering business',
+      'DJ booking platform',
+      'photographer marketplace',
+    ],
+  });
+
   return (
     <Layout>
+      {/* Breadcrumb Schema */}
+      <BreadcrumbJsonLd items={[
+        { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
+        { name: 'Become a Pro', url: 'https://event-pro-vault.lovable.app/become-a-pro' },
+      ]} />
       {/* Hero */}
       <section className="relative py-20 lg:py-32 overflow-hidden">
         <div className="absolute inset-0">
