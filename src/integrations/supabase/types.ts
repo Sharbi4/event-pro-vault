@@ -259,6 +259,59 @@ export type Database = {
           },
         ]
       }
+      disputes: {
+        Row: {
+          booking_id: string
+          created_at: string
+          description: string | null
+          id: string
+          reason: string
+          reported_by_user_id: string
+          resolution: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          updated_at: string
+          vendor_user_id: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason: string
+          reported_by_user_id: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string
+          vendor_user_id: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          reason?: string
+          reported_by_user_id?: string
+          resolution?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string
+          vendor_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "disputes_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           created_at: string

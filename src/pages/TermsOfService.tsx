@@ -112,8 +112,7 @@ export default function TermsOfService() {
               If you have questions about these Terms of Service, please contact us at:
             </p>
             <p className="text-muted-foreground mt-2">
-              <strong>Email:</strong> legal@vendibook.com<br />
-              <strong>Address:</strong> [Your Business Address]
+              <strong>Email:</strong> <a href="mailto:support@vendibook.com" className="text-primary hover:underline">support@vendibook.com</a>
             </p>
           </section>
         </div>

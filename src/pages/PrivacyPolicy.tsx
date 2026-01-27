@@ -108,8 +108,7 @@ export default function PrivacyPolicy() {
               If you have questions about this Privacy Policy or our data practices, please contact us at:
             </p>
             <p className="text-muted-foreground mt-2">
-              <strong>Email:</strong> privacy@vendibook.com<br />
-              <strong>Address:</strong> [Your Business Address]
+              <strong>Email:</strong> <a href="mailto:support@vendibook.com" className="text-primary hover:underline">support@vendibook.com</a>
             </p>
           </section>
         </div>
