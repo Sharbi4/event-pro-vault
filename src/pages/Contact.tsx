@@ -13,12 +13,12 @@ import {
   Send,
   CheckCircle,
   HelpCircle,
-  Clock,
-  MapPin
+  Clock
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { z } from 'zod';
+import { supabase } from '@/integrations/supabase/client';
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, 'Name is required').max(100, 'Name must be less than 100 characters'),
@@ -79,12 +79,31 @@ export default function Contact() {
 
     setIsSubmitting(true);
 
-    // Simulate form submission (in production, this would send to an API)
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: {
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          subject: formData.subject.trim(),
+          message: formData.message.trim(),
+        },
+      });
 
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    toast.success('Message sent! We\'ll get back to you soon.');
+      if (error) {
+        console.error('Error sending contact form:', error);
+        toast.error('Failed to send message. Please try again.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+      toast.success('Message sent! We\'ll get back to you soon.');
+    } catch (err) {
+      console.error('Error sending contact form:', err);
+      toast.error('Failed to send message. Please try again.');
+      setIsSubmitting(false);
+    }
   };
 
   if (isSubmitted) {
