@@ -13,6 +13,7 @@ import { motion } from 'framer-motion';
 import AnimatedDashboardPreview from '@/components/auth/AnimatedDashboardPreview';
 import MobileDashboardPreview from '@/components/auth/MobileDashboardPreview';
 import { toast } from 'sonner';
+import logo from '@/assets/eventpro-logo.png';
 
 const emailSchema = z.string().email('Please enter a valid email');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -167,6 +168,16 @@ export default function Auth() {
         </div>
 
         <div className="relative z-10 flex flex-col justify-between p-12 w-full">
+          {/* Logo */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+          >
+            <Link to="/">
+              <img src={logo} alt="EventPro" className="h-60 w-auto" />
+            </Link>
+          </motion.div>
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col justify-center max-w-lg">

@@ -203,7 +203,7 @@ export default function AuthBooking() {
             transition={{ duration: 0.5, delay: 0.2 }}
           >
             <Link to="/">
-              <img src={logo} alt="EventPro" className="h-20 w-auto" />
+              <img src={logo} alt="EventPro" className="h-60 w-auto" />
             </Link>
           </motion.div>
 
