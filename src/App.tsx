@@ -34,6 +34,10 @@ import EventProBestPractices from "./pages/EventProBestPractices";
 import Onboarding from "./pages/Onboarding";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
+import VendorTerms from "./pages/VendorTerms";
+import CancellationPolicy from "./pages/CancellationPolicy";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -80,6 +84,10 @@ const App = () => (
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
+              <Route path="/privacy" element={<PrivacyPolicy />} />
+              <Route path="/terms" element={<TermsOfService />} />
+              <Route path="/vendor-terms" element={<VendorTerms />} />
+              <Route path="/cancellation" element={<CancellationPolicy />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
