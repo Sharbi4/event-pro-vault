@@ -269,15 +269,34 @@ export default function SentenceLanding() {
                   <Menu className="w-6 h-6 text-foreground" />
                 </button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[300px] sm:w-[350px] bg-background">
+              <SheetContent side="right" className="w-[300px] sm:w-[350px] bg-background overflow-hidden">
                 <SheetHeader>
                   <SheetTitle className="text-left">Menu</SheetTitle>
                 </SheetHeader>
-                <nav className="flex flex-col gap-1 mt-6">
+                <motion.nav 
+                  className="flex flex-col gap-1 mt-6"
+                  initial="hidden"
+                  animate="visible"
+                  variants={{
+                    hidden: {},
+                    visible: {
+                      transition: {
+                        staggerChildren: 0.05,
+                        delayChildren: 0.1,
+                      }
+                    }
+                  }}
+                >
                   {user ? (
                     <>
                       {/* User greeting header */}
-                      <div className="px-2 pb-3 flex items-center gap-3">
+                      <motion.div 
+                        className="px-2 pb-3 flex items-center gap-3"
+                        variants={{
+                          hidden: { opacity: 0, x: 20 },
+                          visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } }
+                        }}
+                      >
                         <Avatar className="h-10 w-10 border-2 border-primary/20">
                           <AvatarImage src={userAvatarUrl || undefined} alt={displayName || 'User'} />
                           <AvatarFallback className="bg-primary/10 text-primary font-semibold">
@@ -292,150 +311,200 @@ export default function SentenceLanding() {
                             <p className="text-xs text-primary font-medium">Event Pro</p>
                           )}
                         </div>
-                      </div>
+                      </motion.div>
                       
-                      <div className="px-2 pb-3">
-                        <ModeSwitcher compact />
-                      </div>
-                      
-                      <div className="h-px bg-border my-2" />
-                      
-                      <Link 
-                        to="/browse" 
-                        className={navLinkClass('/browse')}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <Search className="w-4 h-4 mr-2 inline" />
-                        Browse
-                      </Link>
-                      
-                      <Link 
-                        to="/dashboard" 
-                        className={navLinkClass('/dashboard')}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <LayoutDashboard className="w-4 h-4 mr-2 inline" />
-                        Dashboard
-                      </Link>
-                      
-                      <Link
-                        to="/dashboard?tab=messages" 
-                        className="flex items-center justify-between text-sm font-medium py-3 px-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <span className="flex items-center gap-2">
-                          <Mail className="w-4 h-4" />
-                          Messages
-                        </span>
-                        {unreadMessageCount > 0 && (
-                          <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs">
-                            {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
-                          </Badge>
-                        )}
-                      </Link>
-                      
-                      {isEventPro && (
-                        <Link 
-                          to="/vendor-dashboard?tab=listings&action=create" 
-                          className="flex items-center gap-2 text-sm font-medium py-3 px-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary/50"
-                          onClick={() => setMenuOpen(false)}
-                        >
-                          <PlusCircle className="w-4 h-4" />
-                          Create Package
-                        </Link>
-                      )}
-                      
-                      <div className="h-px bg-border my-2" />
-                      
-                      <Link
-                        to="/faq" 
-                        className={navLinkClass('/faq')}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <HelpCircle className="w-4 h-4 mr-2 inline" />
-                        FAQ
-                      </Link>
-                      
-                      <Link 
-                        to="/blog" 
-                        className={navLinkClass('/blog')}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <BookOpen className="w-4 h-4 mr-2 inline" />
-                        Blog
-                      </Link>
-                      
-                      <button 
-                        className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
-                        onClick={() => {
-                          setMenuOpen(false);
-                          window.open('https://support.zendesk.com', '_blank');
+                      <motion.div 
+                        className="px-2 pb-3"
+                        variants={{
+                          hidden: { opacity: 0, x: 20 },
+                          visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } }
                         }}
                       >
-                        <MessageCircle className="w-4 h-4" />
-                        Contact Us
-                      </button>
+                        <ModeSwitcher compact />
+                      </motion.div>
+                      
+                      <motion.div 
+                        className="h-px bg-border my-2"
+                        variants={{
+                          hidden: { opacity: 0, scaleX: 0 },
+                          visible: { opacity: 1, scaleX: 1, transition: { duration: 0.3 } }
+                        }}
+                      />
+                      
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                        <Link 
+                          to="/browse" 
+                          className={navLinkClass('/browse')}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <Search className="w-4 h-4 mr-2 inline" />
+                          Browse
+                        </Link>
+                      </motion.div>
+                      
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                        <Link 
+                          to="/dashboard" 
+                          className={navLinkClass('/dashboard')}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <LayoutDashboard className="w-4 h-4 mr-2 inline" />
+                          Dashboard
+                        </Link>
+                      </motion.div>
+                      
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                        <Link
+                          to="/dashboard?tab=messages" 
+                          className="flex items-center justify-between text-sm font-medium py-3 px-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <span className="flex items-center gap-2">
+                            <Mail className="w-4 h-4" />
+                            Messages
+                          </span>
+                          {unreadMessageCount > 0 && (
+                            <Badge variant="destructive" className="h-5 min-w-5 px-1.5 text-xs">
+                              {unreadMessageCount > 99 ? '99+' : unreadMessageCount}
+                            </Badge>
+                          )}
+                        </Link>
+                      </motion.div>
+                      
+                      {isEventPro && (
+                        <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                          <Link 
+                            to="/vendor-dashboard?tab=listings&action=create" 
+                            className="flex items-center gap-2 text-sm font-medium py-3 px-2 rounded-lg transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+                            onClick={() => setMenuOpen(false)}
+                          >
+                            <PlusCircle className="w-4 h-4" />
+                            Create Package
+                          </Link>
+                        </motion.div>
+                      )}
+                      
+                      <motion.div 
+                        className="h-px bg-border my-2"
+                        variants={{
+                          hidden: { opacity: 0, scaleX: 0 },
+                          visible: { opacity: 1, scaleX: 1, transition: { duration: 0.3 } }
+                        }}
+                      />
+                      
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                        <Link
+                          to="/faq" 
+                          className={navLinkClass('/faq')}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <HelpCircle className="w-4 h-4 mr-2 inline" />
+                          FAQ
+                        </Link>
+                      </motion.div>
+                      
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                        <Link 
+                          to="/blog" 
+                          className={navLinkClass('/blog')}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <BookOpen className="w-4 h-4 mr-2 inline" />
+                          Blog
+                        </Link>
+                      </motion.div>
+                      
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                        <button 
+                          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left w-full"
+                          onClick={() => {
+                            setMenuOpen(false);
+                            window.open('https://support.zendesk.com', '_blank');
+                          }}
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          Contact Us
+                        </button>
+                      </motion.div>
                     </>
                   ) : (
                     <>
-                      <Link 
-                        to="/auth" 
-                        onClick={() => setMenuOpen(false)}
-                        className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
-                      >
-                        Sign In
-                      </Link>
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                        <Link 
+                          to="/auth" 
+                          onClick={() => setMenuOpen(false)}
+                          className="block text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors"
+                        >
+                          Sign In
+                        </Link>
+                      </motion.div>
                       
-                      <button 
-                        className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left"
-                        onClick={() => {
-                          setMenuOpen(false);
-                          setProfileModalOpen(true);
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                        <button 
+                          className="text-sm font-medium text-foreground py-3 px-2 rounded-lg hover:bg-secondary/50 transition-colors text-left w-full"
+                          onClick={() => {
+                            setMenuOpen(false);
+                            setProfileModalOpen(true);
+                          }}
+                        >
+                          Create a Free Profile
+                        </button>
+                      </motion.div>
+                      
+                      <motion.div 
+                        className="h-px bg-border my-2"
+                        variants={{
+                          hidden: { opacity: 0, scaleX: 0 },
+                          visible: { opacity: 1, scaleX: 1, transition: { duration: 0.3 } }
                         }}
-                      >
-                        Create a Free Profile
-                      </button>
+                      />
                       
-                      <div className="h-px bg-border my-2" />
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                        <Link 
+                          to="/browse" 
+                          className={navLinkClass('/browse')}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <Search className="w-4 h-4 mr-2 inline" />
+                          Browse
+                        </Link>
+                      </motion.div>
                       
-                      <Link 
-                        to="/browse" 
-                        className={navLinkClass('/browse')}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <Search className="w-4 h-4 mr-2 inline" />
-                        Browse
-                      </Link>
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                        <Link 
+                          to="/learn" 
+                          className={navLinkClass('/learn')}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <BookOpen className="w-4 h-4 mr-2 inline" />
+                          Learn More
+                        </Link>
+                      </motion.div>
                       
-                      <Link 
-                        to="/learn" 
-                        className={navLinkClass('/learn')}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <BookOpen className="w-4 h-4 mr-2 inline" />
-                        Learn More
-                      </Link>
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                        <Link 
+                          to="/faq" 
+                          className={navLinkClass('/faq')}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <HelpCircle className="w-4 h-4 mr-2 inline" />
+                          FAQ
+                        </Link>
+                      </motion.div>
                       
-                      <Link 
-                        to="/faq" 
-                        className={navLinkClass('/faq')}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <HelpCircle className="w-4 h-4 mr-2 inline" />
-                        FAQ
-                      </Link>
-                      
-                      <Link 
-                        to="/blog" 
-                        className={navLinkClass('/blog')}
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        <BookOpen className="w-4 h-4 mr-2 inline" />
-                        Blog
-                      </Link>
+                      <motion.div variants={{ hidden: { opacity: 0, x: 20 }, visible: { opacity: 1, x: 0, transition: { duration: 0.3, ease: [0.16, 1, 0.3, 1] } } }}>
+                        <Link 
+                          to="/blog" 
+                          className={navLinkClass('/blog')}
+                          onClick={() => setMenuOpen(false)}
+                        >
+                          <BookOpen className="w-4 h-4 mr-2 inline" />
+                          Blog
+                        </Link>
+                      </motion.div>
                     </>
                   )}
-                </nav>
+                </motion.nav>
               </SheetContent>
             </Sheet>
           </motion.div>
