@@ -220,6 +220,19 @@ export function Header() {
                     </Link>
                     
                     <Link 
+                      to="/dashboard" 
+                      className={`flex items-center gap-2 text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                        location.pathname === '/dashboard' && !location.search.includes('messages')
+                          ? 'text-foreground bg-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      Dashboard
+                    </Link>
+                    
+                    <Link
                       to="/dashboard?tab=messages" 
                       className={`flex items-center justify-between text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
                         location.pathname === '/dashboard' && location.search.includes('messages')
