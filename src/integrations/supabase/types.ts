@@ -375,6 +375,90 @@ export type Database = {
         }
         Relationships: []
       }
+      leads: {
+        Row: {
+          address: string | null
+          budget_max: number | null
+          budget_min: number | null
+          category: string | null
+          city: string | null
+          created_at: string
+          customer_name: string | null
+          email: string
+          event_end: string | null
+          event_start: string | null
+          event_time_end: string | null
+          event_time_start: string | null
+          event_type: string | null
+          id: string
+          matched_at: string | null
+          matched_package_id: string | null
+          notes: string | null
+          phone: string | null
+          search_query: Json | null
+          source: string
+          state: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+          zip: string | null
+        }
+        Insert: {
+          address?: string | null
+          budget_max?: number | null
+          budget_min?: number | null
+          category?: string | null
+          city?: string | null
+          created_at?: string
+          customer_name?: string | null
+          email: string
+          event_end?: string | null
+          event_start?: string | null
+          event_time_end?: string | null
+          event_time_start?: string | null
+          event_type?: string | null
+          id?: string
+          matched_at?: string | null
+          matched_package_id?: string | null
+          notes?: string | null
+          phone?: string | null
+          search_query?: Json | null
+          source?: string
+          state?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          zip?: string | null
+        }
+        Update: {
+          address?: string | null
+          budget_max?: number | null
+          budget_min?: number | null
+          category?: string | null
+          city?: string | null
+          created_at?: string
+          customer_name?: string | null
+          email?: string
+          event_end?: string | null
+          event_start?: string | null
+          event_time_end?: string | null
+          event_time_start?: string | null
+          event_type?: string | null
+          id?: string
+          matched_at?: string | null
+          matched_package_id?: string | null
+          notes?: string | null
+          phone?: string | null
+          search_query?: Json | null
+          source?: string
+          state?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          zip?: string | null
+        }
+        Relationships: []
+      }
       markets: {
         Row: {
           approval_notes: string | null
@@ -753,6 +837,42 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string | null
+        }
+        Relationships: []
+      }
+      referral_invites: {
+        Row: {
+          category: string | null
+          city: string | null
+          clicks: number
+          created_at: string
+          created_by_user_id: string | null
+          id: string
+          is_active: boolean
+          ref_code: string
+          signups: number
+        }
+        Insert: {
+          category?: string | null
+          city?: string | null
+          clicks?: number
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          is_active?: boolean
+          ref_code: string
+          signups?: number
+        }
+        Update: {
+          category?: string | null
+          city?: string | null
+          clicks?: number
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          is_active?: boolean
+          ref_code?: string
+          signups?: number
         }
         Relationships: []
       }

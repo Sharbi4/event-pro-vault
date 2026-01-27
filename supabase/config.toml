@@ -18,6 +18,9 @@ verify_jwt = false
 [functions.send-booking-notification]
 verify_jwt = false
 
+[functions.notify-pros-lead]
+verify_jwt = false
+
 [functions.create-booking-checkout]
 verify_jwt = false
 
