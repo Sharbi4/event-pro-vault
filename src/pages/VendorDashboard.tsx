@@ -20,10 +20,10 @@ import { VendorDisputes } from '@/components/vendor-dashboard/VendorDisputes';
 
 import { AvatarUpload } from '@/components/vendor-dashboard/AvatarUpload';
 import { CoverPhotoUpload } from '@/components/vendor-dashboard/CoverPhotoUpload';
+import { ProfileQRCard } from '@/components/vendor-dashboard/ProfileQRCard';
 import { StripeConnectBanner } from '@/components/vendor-dashboard/StripeConnectBanner';
 import { ApprovalStatusBanner } from '@/components/shared/ApprovalStatusBanner';
 import { StripeSetupCard } from '@/components/shared/StripeSetupCard';
-
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -347,6 +347,13 @@ const VendorDashboard = () => {
 
           <TabsContent value="settings">
             <div className="grid gap-6">
+              {/* QR Code Section - Prominent at top */}
+              <ProfileQRCard 
+                username={profile?.username}
+                userId={user.id}
+                displayName={profile?.display_name || profile?.full_name}
+              />
+
               {/* Profile Photo Section */}
               <div className="p-6 rounded-lg border bg-card">
                 <div className="flex items-center gap-2 mb-6">
