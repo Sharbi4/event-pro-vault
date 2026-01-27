@@ -304,6 +304,7 @@ const VendorDashboard = () => {
                 totalEarnings={totalEarnings}
                 pendingEarnings={pendingEarnings}
                 upcomingBookings={upcomingBookings}
+                onMessageClient={handleMessageClient}
               />
             </div>
           </TabsContent>
