@@ -59,3 +59,9 @@ verify_jwt = false
 
 [functions.send-message-notification]
 verify_jwt = false
+
+[functions.send-booking-status-notification]
+verify_jwt = false
+
+[functions.send-event-reminders]
+verify_jwt = false
