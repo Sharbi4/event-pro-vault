@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
+import foodTruckScene from '@/assets/slideshow/food-truck-scene.jpg';
 
 interface BackgroundSlideshowProps {
   isComplete: boolean;
@@ -9,6 +10,7 @@ interface BackgroundSlideshowProps {
 
 // Fallback images if no packages found
 const FALLBACK_IMAGES = [
+  foodTruckScene, // Food truck scene
   'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=80', // Wedding ceremony
   'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1920&q=80', // DJ concert
   'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1920&q=80', // Party balloons
