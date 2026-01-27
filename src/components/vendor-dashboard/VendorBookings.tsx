@@ -65,9 +65,26 @@ export function VendorBookings({ bookings, onUpdateStatus, onMessageClient }: Ve
       }
     } catch (error) {
       console.error('Error requesting payment:', error);
+      
+      // Parse the error message for better UX
+      let errorMessage = "Please try again";
+      let errorTitle = "Failed to request payment";
+      
+      if (error instanceof Error) {
+        if (error.message.includes("payment account is not fully activated")) {
+          errorTitle = "Stripe Setup Incomplete";
+          errorMessage = "Complete your Stripe onboarding in Settings → Payout Setup to accept payments.";
+        } else if (error.message.includes("not set up payment")) {
+          errorTitle = "Stripe Setup Required";
+          errorMessage = "Set up Stripe in Settings → Payout Setup to request payments.";
+        } else {
+          errorMessage = error.message;
+        }
+      }
+      
       toast({
-        title: "Failed to request payment",
-        description: error instanceof Error ? error.message : "Please try again",
+        title: errorTitle,
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
