@@ -167,7 +167,7 @@ export default function Auth() {
           <div className="absolute bottom-1/4 right-0 w-80 h-80 bg-accent/10 rounded-full blur-[100px]" />
         </div>
 
-        <div className="relative z-10 flex flex-col justify-between px-12 pt-6 pb-12 w-full">
+        <div className="relative z-10 flex flex-col justify-between p-12 w-full">
           {/* Logo */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -267,7 +267,7 @@ export default function Auth() {
       </div>
 
       {/* Right Side - Auth Form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center px-6 pt-4 pb-6 bg-background relative">
+      <div className="w-full lg:w-1/2 flex items-center justify-center p-6 bg-background relative">
         {/* Mobile background effects */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none lg:hidden">
           <div className="absolute top-1/3 -left-32 w-64 h-64 bg-primary/20 rounded-full blur-[100px]" />
