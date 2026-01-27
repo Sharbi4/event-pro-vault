@@ -8,6 +8,16 @@ import { VendorBooking } from '@/hooks/useVendorDashboard';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { CancellationDialog } from '@/components/shared/CancellationDialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 interface VendorBookingsProps {
   bookings: VendorBooking[];
   onUpdateStatus: (id: string, status: string) => Promise<unknown>;
@@ -30,6 +40,8 @@ export function VendorBookings({ bookings, onUpdateStatus, onMessageClient }: Ve
   const [requestingPayment, setRequestingPayment] = useState<string | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [bookingToCancel, setBookingToCancel] = useState<ExtendedBooking | null>(null);
+  const [declineDialogOpen, setDeclineDialogOpen] = useState(false);
+  const [bookingToDecline, setBookingToDecline] = useState<ExtendedBooking | null>(null);
   const { toast } = useToast();
   const handleStatusUpdate = async (id: string, status: string) => {
     setUpdating(id);
@@ -224,6 +236,13 @@ export function VendorBookings({ bookings, onUpdateStatus, onMessageClient }: Ve
       .update({ payment_status: 'declined' })
       .eq('id', bookingId);
     setUpdating(null);
+    setDeclineDialogOpen(false);
+    setBookingToDecline(null);
+  };
+
+  const openDeclineDialog = (booking: ExtendedBooking) => {
+    setBookingToDecline(booking);
+    setDeclineDialogOpen(true);
   };
 
   const BookingCard = ({ booking }: { booking: ExtendedBooking }) => {
@@ -355,7 +374,7 @@ export function VendorBookings({ bookings, onUpdateStatus, onMessageClient }: Ve
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => handleDeclineBooking(booking.id)}
+                        onClick={() => openDeclineDialog(booking)}
                         disabled={updating === booking.id}
                       >
                         <X className="w-4 h-4 mr-1" />
@@ -382,7 +401,7 @@ export function VendorBookings({ bookings, onUpdateStatus, onMessageClient }: Ve
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleDeclineBooking(booking.id)}
+                          onClick={() => openDeclineDialog(booking)}
                           disabled={updating === booking.id || requestingPayment === booking.id}
                         >
                           <X className="w-4 h-4 mr-1" />
@@ -596,6 +615,40 @@ export function VendorBookings({ bookings, onUpdateStatus, onMessageClient }: Ve
           }}
         />
       )}
+
+      {/* Decline Confirmation Dialog */}
+      <AlertDialog open={declineDialogOpen} onOpenChange={setDeclineDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <X className="w-5 h-5 text-destructive" />
+              Decline Booking Request?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to decline this booking request? 
+              The customer will be notified that their request was not accepted.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setBookingToDecline(null)}>
+              Keep Request
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => bookingToDecline && handleDeclineBooking(bookingToDecline.id)}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {updating === bookingToDecline?.id ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Declining...
+                </>
+              ) : (
+                'Decline Booking'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }
