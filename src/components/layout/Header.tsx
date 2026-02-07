@@ -1,6 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Menu, X, MessageCircle, LayoutDashboard, LogOut, Mail, PlusCircle, Search, BookOpen, HelpCircle } from 'lucide-react';
+import { Menu, X, MessageCircle, LayoutDashboard, LogOut, Mail, PlusCircle, Search, BookOpen, HelpCircle, ClipboardList } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ModeSwitcher } from './ModeSwitcher';
@@ -166,6 +166,10 @@ export function Header() {
                       <LayoutDashboard className="w-4 h-4 mr-2" />
                       Dashboard
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/booking-status')}>
+                      <ClipboardList className="w-4 h-4 mr-2" />
+                      Booking Status
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => signOut()} className="text-destructive">
                       <LogOut className="w-4 h-4 mr-2" />
@@ -250,6 +254,19 @@ export function Header() {
                     >
                       <LayoutDashboard className="w-4 h-4" />
                       Dashboard
+                    </Link>
+                    
+                    <Link 
+                      to="/booking-status" 
+                      className={`flex items-center gap-2 text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                        location.pathname === '/booking-status'
+                          ? 'text-foreground bg-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <ClipboardList className="w-4 h-4" />
+                      Booking Status
                     </Link>
                     
                     <Link
