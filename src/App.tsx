@@ -43,6 +43,7 @@ import { CookieConsentBanner } from "./components/shared/CookieConsentBanner";
 import NotFound from "./pages/NotFound";
 import CityCategory from "./pages/CityCategory";
 import AdminAnalytics from "./pages/AdminAnalytics";
+import BookingStatus from "./pages/BookingStatus";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,8 @@ const App = () => (
               <Route path="/cancellation" element={<CancellationPolicy />} />
               {/* Admin routes */}
               <Route path="/admin/analytics" element={<AdminAnalytics />} />
+              {/* Booking Status Lookup */}
+              <Route path="/booking-status" element={<BookingStatus />} />
               {/* SEO City/Category landing pages */}
               <Route path="/:citySlug/:categorySlug" element={<CityCategory />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
