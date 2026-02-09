@@ -75,7 +75,7 @@ serve(async (req) => {
     // Create new Connect account if doesn't exist or was invalid
     if (needsNewAccount) {
       const account = await stripe.accounts.create({
-        type: "custom",
+        type: "express",
         country: "US",
         email: user.email,
         capabilities: {
@@ -85,10 +85,11 @@ serve(async (req) => {
         business_type: "individual",
         business_profile: {
           name: vendorDetails?.business_name || profile?.full_name || undefined,
-          url: vendorDetails?.website_url || undefined,
+          product_description: "Event services and packages",
         },
         metadata: {
           user_id: user.id,
+          type: "vendor",
         },
       });
 
