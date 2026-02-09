@@ -47,7 +47,10 @@ interface BookingModalProps {
   minUnits: number;
   minHours?: number;
   minGuests?: number;
+  maxGuests?: number;
   minDays?: number;
+  minItems?: number;
+  maxItems?: number;
   bookingMode: 'INSTANT' | 'REQUEST';
   paymentOptions: 'ONLINE' | 'CASH' | 'BOTH';
   vendorUserId: string;
@@ -126,7 +129,10 @@ export function BookingModal({
   minUnits,
   minHours,
   minGuests,
+  maxGuests,
   minDays,
+  minItems,
+  maxItems,
   bookingMode,
   paymentOptions,
   vendorUserId,
@@ -405,12 +411,14 @@ export function BookingModal({
     if (effectivePricingType === 'per_guest') {
       const guests = parseInt(guestCount);
       if (!guests || guests < (minGuests || 1)) return false;
+      if (maxGuests && guests > maxGuests) return false;
     }
     
     // Require item quantity for per_item pricing
     if (effectivePricingType === 'per_item') {
       const qty = parseInt(itemQuantity);
-      if (!qty || qty < (minUnits || 1)) return false;
+      if (!qty || qty < (minItems || minUnits || 1)) return false;
+      if (maxItems && qty > maxItems) return false;
     }
     
     return true;
@@ -957,7 +965,8 @@ export function BookingModal({
                 <Input
                   type="number"
                   min={minGuests || 1}
-                  placeholder={`Minimum ${minGuests || 1} guests`}
+                  max={maxGuests || undefined}
+                  placeholder={maxGuests ? `${minGuests || 1} - ${maxGuests} guests` : `Minimum ${minGuests || 1} guests`}
                   value={guestCount}
                   onChange={(e) => setGuestCount(e.target.value)}
                 />
@@ -966,8 +975,14 @@ export function BookingModal({
                     Minimum {minGuests || 1} guests required
                   </p>
                 )}
+                {maxGuests && parseInt(guestCount) > maxGuests && (
+                  <p className="text-xs text-destructive mt-1">
+                    Maximum {maxGuests} guests allowed
+                  </p>
+                )}
                 <p className="text-xs text-muted-foreground mt-1">
                   Price: ${price}/guest × {guestCount || minGuests || 1} = ${(price * (parseInt(guestCount) || minGuests || 1)).toFixed(2)}
+                  {maxGuests && <span className="ml-2">(max {maxGuests})</span>}
                 </p>
               </div>
             )}
@@ -981,18 +996,25 @@ export function BookingModal({
                 </label>
                 <Input
                   type="number"
-                  min={minUnits || 1}
-                  placeholder={`Minimum ${minUnits || 1} items`}
+                  min={minItems || minUnits || 1}
+                  max={maxItems || undefined}
+                  placeholder={maxItems ? `${minItems || minUnits || 1} - ${maxItems} items` : `Minimum ${minItems || minUnits || 1} items`}
                   value={itemQuantity}
                   onChange={(e) => setItemQuantity(e.target.value)}
                 />
-                {parseInt(itemQuantity) < (minUnits || 1) && itemQuantity && (
+                {parseInt(itemQuantity) < (minItems || minUnits || 1) && itemQuantity && (
                   <p className="text-xs text-destructive mt-1">
-                    Minimum {minUnits || 1} items required
+                    Minimum {minItems || minUnits || 1} items required
+                  </p>
+                )}
+                {maxItems && parseInt(itemQuantity) > maxItems && (
+                  <p className="text-xs text-destructive mt-1">
+                    Maximum {maxItems} items allowed
                   </p>
                 )}
                 <p className="text-xs text-muted-foreground mt-1">
-                  Price: ${price}/item × {itemQuantity || minUnits || 1} = ${(price * (parseInt(itemQuantity) || minUnits || 1)).toFixed(2)}
+                  Price: ${price}/item × {itemQuantity || minItems || minUnits || 1} = ${(price * (parseInt(itemQuantity) || minItems || minUnits || 1)).toFixed(2)}
+                  {maxItems && <span className="ml-2">(max {maxItems})</span>}
                 </p>
               </div>
             )}

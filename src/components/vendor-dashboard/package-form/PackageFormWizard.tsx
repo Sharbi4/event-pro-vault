@@ -46,7 +46,9 @@ export interface PackageFormData {
   min_hours: number;
   min_days?: number;
   min_guests?: number;
+  max_guests?: number;
   min_quantity?: number;
+  max_quantity?: number;
   min_spend?: number;
   overtime_rate?: number;
   deposit?: number;
@@ -103,6 +105,11 @@ const defaultFormData: PackageFormData = {
   min_units: 1,
   min_hours: 1,
   min_days: 1,
+  min_guests: undefined,
+  max_guests: undefined,
+  min_quantity: undefined,
+  max_quantity: undefined,
+  min_spend: undefined,
   additional_fees: [],
   travel_radius: 25,
   travel_fee_per_mile: 0,
@@ -113,7 +120,7 @@ const defaultFormData: PackageFormData = {
   includes: [],
   add_ons: [],
   requirements: [],
-  instant_book: true, // Default to instant book
+  instant_book: true,
   is_active: true,
   sort_order: 0,
   images: [],
@@ -234,7 +241,9 @@ export function PackageFormWizard({
       min_hours: formData.min_hours ?? null,
       min_days: formData.min_days ?? null,
       min_guests: formData.min_guests ?? null,
+      max_guests: formData.max_guests ?? null,
       min_quantity: formData.min_quantity ?? null,
+      max_quantity: formData.max_quantity ?? null,
       min_spend: formData.min_spend ?? null,
       overtime_rate: formData.overtime_rate ?? null,
       deposit: formData.deposit ?? null,

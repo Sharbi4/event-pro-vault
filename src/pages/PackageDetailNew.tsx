@@ -253,7 +253,10 @@ export default function PackageDetail() {
         minUnits={packageData.min_units}
         minHours={packageData.min_hours || undefined}
         minGuests={packageData.min_guests || undefined}
+        maxGuests={(packageData as any).max_guests || undefined}
         minDays={packageData.min_days || undefined}
+        minItems={(packageData as any).min_quantity || undefined}
+        maxItems={(packageData as any).max_quantity || undefined}
         bookingMode={packageData.booking_mode}
         paymentOptions={packageData.payment_options}
         vendorUserId={packageData.vendor_user_id}

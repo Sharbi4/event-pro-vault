@@ -22,7 +22,9 @@ export interface VendorPackage {
   min_hours: number | null;
   min_days: number | null;
   min_guests: number | null;
+  max_guests: number | null;
   min_quantity: number | null;
+  max_quantity: number | null;
   min_spend: number | null;
   overtime_rate: number | null;
   deposit: number | null;
