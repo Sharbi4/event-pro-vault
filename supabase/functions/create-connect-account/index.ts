@@ -58,9 +58,22 @@ serve(async (req) => {
     const origin = req.headers.get("origin") || "https://lovable.dev";
 
     let accountId = profile?.stripe_account_id;
+    let needsNewAccount = !accountId;
 
-    // Create new Connect account if doesn't exist
-    if (!accountId) {
+    // Verify existing account still exists on this Stripe platform
+    if (accountId) {
+      try {
+        await stripe.accounts.retrieve(accountId);
+        logStep("Existing account verified", { accountId });
+      } catch (verifyError) {
+        logStep("Existing account invalid, will create new", { accountId });
+        needsNewAccount = true;
+        accountId = null;
+      }
+    }
+
+    // Create new Connect account if doesn't exist or was invalid
+    if (needsNewAccount) {
       const account = await stripe.accounts.create({
         type: "custom",
         country: "US",
