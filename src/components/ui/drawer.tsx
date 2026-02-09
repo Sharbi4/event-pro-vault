@@ -14,18 +14,18 @@ const Drawer = ({
 );
 Drawer.displayName = "Drawer";
 
-// Wrapper that prevents drag when interacting with form elements
-const DrawerHandleOnly = ({ 
+// Drawer that prevents accidental swipe-to-close when scrolling content
+const DrawerNoSwipe = ({ 
   shouldScaleBackground = true, 
   ...props 
 }: React.ComponentProps<typeof DrawerPrimitive.Root>) => (
   <DrawerPrimitive.Root 
     shouldScaleBackground={shouldScaleBackground}
-    handleOnly={true}
+    modal={true}
     {...props} 
   />
 );
-DrawerHandleOnly.displayName = "DrawerHandleOnly";
+DrawerNoSwipe.displayName = "DrawerNoSwipe";
 
 const DrawerTrigger = DrawerPrimitive.Trigger;
 
@@ -55,7 +55,7 @@ const DrawerContent = React.forwardRef<
       )}
       {...props}
     >
-      <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
+      <DrawerPrimitive.Handle className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
       {children}
     </DrawerPrimitive.Content>
   </DrawerPortal>
@@ -94,7 +94,7 @@ DrawerDescription.displayName = DrawerPrimitive.Description.displayName;
 
 export {
   Drawer,
-  DrawerHandleOnly,
+  DrawerNoSwipe,
   DrawerPortal,
   DrawerOverlay,
   DrawerTrigger,

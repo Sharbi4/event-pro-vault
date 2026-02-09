@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import {
-  DrawerHandleOnly,
+  Drawer,
   DrawerContent,
   DrawerHeader,
   DrawerTitle,
@@ -405,7 +405,7 @@ export function PackageFormWizard({
   // Mobile: Use Drawer, Desktop: Use Dialog
   if (isMobile) {
     return (
-      <DrawerHandleOnly open={open} onOpenChange={onClose}>
+      <Drawer open={open} onOpenChange={onClose}>
         <DrawerContent className="max-h-[95vh]">
           <DrawerHeader className="pb-2">
             <DrawerTitle className="text-lg">
@@ -419,7 +419,7 @@ export function PackageFormWizard({
             <Navigation />
           </div>
         </DrawerContent>
-      </DrawerHandleOnly>
+      </Drawer>
     );
   }
 
