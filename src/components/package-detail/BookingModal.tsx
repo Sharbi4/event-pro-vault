@@ -16,7 +16,7 @@ import {
   Clock, MapPin, CreditCard, Banknote, 
   Zap, ShieldCheck, Check, ChevronLeft, ChevronRight,
   Loader2, Users, FileText, AlertCircle, Calendar as CalendarAlt,
-  Mail, User, Car, Info, ExternalLink
+  Mail, User, Car, Info, ExternalLink, Package as PackageIcon
 } from 'lucide-react';
 import { format, getDay, isSameDay } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -33,6 +33,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { trackBookingStarted, trackBookingCompleted, trackBookingFailed } from '@/lib/trackingAnalytics';
 import { geocodeLocation } from '@/lib/geocoding';
 
+type PricingType = 'hourly' | 'daily' | 'flat' | 'per_guest' | 'per_item' | 'custom_quote';
+
 interface BookingModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -43,6 +45,9 @@ interface BookingModalProps {
   type: string;
   pricingType: string | null;
   minUnits: number;
+  minHours?: number;
+  minGuests?: number;
+  minDays?: number;
   bookingMode: 'INSTANT' | 'REQUEST';
   paymentOptions: 'ONLINE' | 'CASH' | 'BOTH';
   vendorUserId: string;
@@ -70,6 +75,8 @@ interface BookingModalProps {
   setupTimeMinutes?: number;
   // Daily booking defaults
   defaultStartTime?: string;
+  // Pickup only (no travel)
+  pickupOnly?: boolean;
 }
 
 const STEPS = [
@@ -117,6 +124,9 @@ export function BookingModal({
   type,
   pricingType,
   minUnits,
+  minHours,
+  minGuests,
+  minDays,
   bookingMode,
   paymentOptions,
   vendorUserId,
@@ -138,9 +148,13 @@ export function BookingModal({
   durationMinutes,
   setupTimeMinutes,
   defaultStartTime,
+  pickupOnly = false,
 }: BookingModalProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
+  
+  // Normalize pricing type
+  const effectivePricingType = (pricingType || (type === 'HOURLY' ? 'hourly' : 'daily')) as PricingType;
   const { createBooking } = useBookings();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -166,7 +180,8 @@ export function BookingModal({
   const [endTime, setEndTime] = useState('14:00');
   const [dailyDuration, setDailyDuration] = useState(durationMinutes || 240); // Default 4 hours for daily
   const [eventType, setEventType] = useState('');
-  const [guestCount, setGuestCount] = useState('');
+  const [guestCount, setGuestCount] = useState(minGuests?.toString() || '');
+  const [itemQuantity, setItemQuantity] = useState(minUnits?.toString() || '1');
   const [notes, setNotes] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
   const [guestName, setGuestName] = useState('');
@@ -320,24 +335,58 @@ export function BookingModal({
   const showPaymentStep = paymentOptions === 'BOTH';
   const stripeAvailable = vendorStripeStatus === 'active';
   
-  // Calculate steps to show
+  // Calculate steps to show - skip address step for pickup_only
   const activeSteps = STEPS.filter(step => {
     if (step.id === 'payment') return showPaymentStep;
+    if (step.id === 'address') return !pickupOnly;
     return true;
   });
 
-  // Calculate duration in hours
-  const calculateHours = () => {
-    const [startH, startM] = startTime.split(':').map(Number);
-    const [endH, endM] = endTime.split(':').map(Number);
-    const startMins = startH * 60 + startM;
-    const endMins = endH * 60 + endM;
-    return Math.max(minUnits, (endMins - startMins) / 60);
+  // Calculate units based on pricing type
+  const calculateUnits = () => {
+    switch (effectivePricingType) {
+      case 'hourly':
+        const [startH, startM] = startTime.split(':').map(Number);
+        const [endH, endM] = endTime.split(':').map(Number);
+        const startMins = startH * 60 + startM;
+        const endMins = endH * 60 + endM;
+        return Math.max(minHours || minUnits || 1, (endMins - startMins) / 60);
+      case 'daily':
+        return Math.max(minDays || 1, 1);
+      case 'per_guest':
+        return Math.max(minGuests || 1, parseInt(guestCount) || 1);
+      case 'per_item':
+        return Math.max(minUnits || 1, parseInt(itemQuantity) || 1);
+      case 'flat':
+      case 'custom_quote':
+      default:
+        return 1;
+    }
   };
 
-  const hours = calculateHours();
-  const baseTotal = type === 'HOURLY' ? price * hours : price;
-  const subtotalWithTravel = baseTotal + travelFee;
+  const units = calculateUnits();
+  
+  // Calculate base total based on pricing type
+  const baseTotal = useMemo(() => {
+    switch (effectivePricingType) {
+      case 'hourly':
+        return price * units;
+      case 'daily':
+        return price * units;
+      case 'per_guest':
+        return price * units;
+      case 'per_item':
+        return price * units;
+      case 'flat':
+      case 'custom_quote':
+      default:
+        return price;
+    }
+  }, [effectivePricingType, price, units]);
+  
+  // Only apply travel fee if not pickup_only
+  const effectiveTravelFee = pickupOnly ? 0 : travelFee;
+  const subtotalWithTravel = baseTotal + effectiveTravelFee;
   const platformFee = paymentMethod === 'stripe' ? subtotalWithTravel * PLATFORM_FEE_RATE : 0;
   const grandTotal = subtotalWithTravel + platformFee;
   
@@ -345,18 +394,38 @@ export function BookingModal({
   const depositAmount = depositEnabled ? (subtotalWithTravel * (depositPercentage / 100)) + platformFee : 0;
   const remainingAmount = grandTotal - depositAmount;
 
+  // Validation for different pricing types
+  const validateDetailsStep = () => {
+    const emailRequired = !user;
+    const hasEmail = emailRequired ? !!guestEmail.trim() : true;
+    
+    if (!eventType || !hasEmail) return false;
+    
+    // Require guest count for per_guest pricing
+    if (effectivePricingType === 'per_guest') {
+      const guests = parseInt(guestCount);
+      if (!guests || guests < (minGuests || 1)) return false;
+    }
+    
+    // Require item quantity for per_item pricing
+    if (effectivePricingType === 'per_item') {
+      const qty = parseInt(itemQuantity);
+      if (!qty || qty < (minUnits || 1)) return false;
+    }
+    
+    return true;
+  };
+
   const canProceed = () => {
     const step = activeSteps[currentStep];
     switch (step.id) {
       case 'date':
         if (!eventDate) return false;
         if (!dateAvailability?.available) return false;
-        if (type === 'HOURLY' && !timeAvailability?.available) return false;
+        if (effectivePricingType === 'hourly' && !timeAvailability?.available) return false;
         return true;
       case 'details':
-        const emailRequired = !user;
-        const hasEmail = emailRequired ? !!guestEmail.trim() : true;
-        return !!eventType && hasEmail;
+        return validateDetailsStep();
       case 'address':
         // Must have basic address fields
         if (!addressLine1.trim() || !city.trim() || !state.trim()) return false;
@@ -413,19 +482,41 @@ export function BookingModal({
     const customerEmail = user?.email || guestEmail.trim();
     const customerName = user?.email?.split('@')[0] || guestName.trim() || 'Guest';
 
+    // Build unit type label based on pricing
+    const getUnitTypeLabel = () => {
+      switch (effectivePricingType) {
+        case 'hourly': return 'hour';
+        case 'daily': return 'day';
+        case 'per_guest': return 'guest';
+        case 'per_item': return 'item';
+        default: return 'event';
+      }
+    };
+
+    // Calculate duration for booking
+    const getDurationMinutes = () => {
+      if (effectivePricingType === 'hourly') {
+        return units * 60;
+      }
+      if (effectivePricingType === 'daily' || effectivePricingType === 'flat') {
+        return dailyDuration;
+      }
+      return durationMinutes || 240;
+    };
+
     // Create the booking first
     const result = await createBooking({
       vendor_id: vendorUserId,
       vendor_user_id: vendorUserId,
       package_id: packageId,
       event_date: format(eventDate, 'yyyy-MM-dd'),
-      event_location: fullAddress,
-      address_line1: addressLine1,
-      address_line2: addressLine2 || undefined,
-      event_city: city,
-      event_state: state,
-      event_zip: zipCode,
-      units: type === 'HOURLY' ? hours : 1,
+      event_location: pickupOnly ? 'Pickup' : fullAddress,
+      address_line1: pickupOnly ? '' : addressLine1,
+      address_line2: pickupOnly ? '' : addressLine2 || undefined,
+      event_city: pickupOnly ? '' : city,
+      event_state: pickupOnly ? '' : state,
+      event_zip: pickupOnly ? '' : zipCode,
+      units: units,
       add_ons: [],
       total_price: subtotalWithTravel, // Base + travel, platform fee added at checkout
       notes: notes || null,
@@ -435,10 +526,10 @@ export function BookingModal({
       customer_name: customerName,
       customer_email: customerEmail,
       package_name: packageName,
-      unit_type: type === 'HOURLY' ? 'hour' : 'day',
-      start_time: type === 'HOURLY' ? startTime : null,
-      end_time: type === 'HOURLY' ? endTime : null,
-      duration_minutes: type === 'HOURLY' ? hours * 60 : 480,
+      unit_type: getUnitTypeLabel(),
+      start_time: effectivePricingType === 'hourly' ? startTime : (startTime || null),
+      end_time: effectivePricingType === 'hourly' ? endTime : null,
+      duration_minutes: getDurationMinutes(),
       cancellation_policy: cancellationPolicy,
       is_guest: !user,
     });
@@ -613,12 +704,12 @@ export function BookingModal({
                   </div>
                 )}
 
-                {type === 'HOURLY' && eventDate && dateAvailability?.available && (
+                {effectivePricingType === 'hourly' && eventDate && dateAvailability?.available && (
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
-                          Start Time
+                          Start Time <span className="text-destructive">*</span>
                         </label>
                         <Input
                           type="time"
@@ -628,7 +719,7 @@ export function BookingModal({
                       </div>
                       <div>
                         <label className="block text-sm font-medium text-foreground mb-2">
-                          End Time
+                          End Time <span className="text-destructive">*</span>
                         </label>
                         <Input
                           type="time"
@@ -645,6 +736,14 @@ export function BookingModal({
                       </p>
                     )}
 
+                    {/* Minimum hours validation */}
+                    {units < (minHours || 1) && (
+                      <p className="text-xs text-destructive flex items-center gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        Minimum {minHours || 1} hour{(minHours || 1) > 1 ? 's' : ''} required
+                      </p>
+                    )}
+
                     {!timeAvailability?.available && (
                       <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
                         <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-2">
@@ -653,10 +752,17 @@ export function BookingModal({
                         </p>
                       </div>
                     )}
+
+                    {/* Real-time price preview */}
+                    <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                      <p className="text-sm font-medium text-foreground">
+                        ${price}/hr × {units} hrs = <span className="text-primary">${(price * units).toFixed(2)}</span>
+                      </p>
+                    </div>
                   </div>
                 )}
 
-                {type !== 'HOURLY' && eventDate && dateAvailability?.available && (
+                {effectivePricingType !== 'hourly' && eventDate && dateAvailability?.available && (
                   <div className="space-y-4">
                     <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
                       <div className="flex items-center gap-2 text-primary">
@@ -665,83 +771,103 @@ export function BookingModal({
                       </div>
                     </div>
 
-                    {/* Start time and duration for daily bookings */}
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Start Time
-                        </label>
-                        <Select 
-                          value={startTime} 
-                          onValueChange={setStartTime}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select time" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', 
-                              '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', 
-                              '20:00', '21:00', '22:00'].map(time => {
-                              const [h] = time.split(':');
-                              const hour = parseInt(h);
-                              const label = hour >= 12 
-                                ? `${hour === 12 ? 12 : hour - 12}:00 PM` 
-                                : `${hour}:00 AM`;
-                              return (
-                                <SelectItem key={time} value={time}>
-                                  {label}
-                                </SelectItem>
-                              );
-                            })}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Duration
-                        </label>
-                        <Select 
-                          value={dailyDuration.toString()} 
-                          onValueChange={(v) => setDailyDuration(parseInt(v))}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select duration" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="60">1 hour</SelectItem>
-                            <SelectItem value="120">2 hours</SelectItem>
-                            <SelectItem value="180">3 hours</SelectItem>
-                            <SelectItem value="240">4 hours</SelectItem>
-                            <SelectItem value="300">5 hours</SelectItem>
-                            <SelectItem value="360">6 hours</SelectItem>
-                            <SelectItem value="420">7 hours</SelectItem>
-                            <SelectItem value="480">8 hours</SelectItem>
-                            <SelectItem value="600">10 hours</SelectItem>
-                            <SelectItem value="720">12 hours</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
+                    {/* Start time and duration for daily/flat bookings */}
+                    {(effectivePricingType === 'daily' || effectivePricingType === 'flat') && (
+                      <>
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">
+                              Start Time
+                            </label>
+                            <Select 
+                              value={startTime} 
+                              onValueChange={setStartTime}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select time" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', 
+                                  '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', 
+                                  '20:00', '21:00', '22:00'].map(time => {
+                                  const [h] = time.split(':');
+                                  const hour = parseInt(h);
+                                  const label = hour >= 12 
+                                    ? `${hour === 12 ? 12 : hour - 12}:00 PM` 
+                                    : `${hour}:00 AM`;
+                                  return (
+                                    <SelectItem key={time} value={time}>
+                                      {label}
+                                    </SelectItem>
+                                  );
+                                })}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-foreground mb-2">
+                              Duration
+                            </label>
+                            <Select 
+                              value={dailyDuration.toString()} 
+                              onValueChange={(v) => setDailyDuration(parseInt(v))}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select duration" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="60">1 hour</SelectItem>
+                                <SelectItem value="120">2 hours</SelectItem>
+                                <SelectItem value="180">3 hours</SelectItem>
+                                <SelectItem value="240">4 hours</SelectItem>
+                                <SelectItem value="300">5 hours</SelectItem>
+                                <SelectItem value="360">6 hours</SelectItem>
+                                <SelectItem value="420">7 hours</SelectItem>
+                                <SelectItem value="480">8 hours</SelectItem>
+                                <SelectItem value="600">10 hours</SelectItem>
+                                <SelectItem value="720">12 hours</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
 
-                    <p className="text-xs text-muted-foreground flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
-                      Event: {(() => {
-                        const [h] = startTime.split(':');
-                        const startHour = parseInt(h);
-                        const startLabel = startHour >= 12 
-                          ? `${startHour === 12 ? 12 : startHour - 12}:00 PM` 
-                          : `${startHour}:00 AM`;
-                        const endHour = startHour + Math.floor(dailyDuration / 60);
-                        const endLabel = endHour >= 12 
-                          ? `${endHour === 12 ? 12 : endHour > 12 ? endHour - 12 : endHour}:00 ${endHour >= 12 && endHour < 24 ? 'PM' : 'AM'}` 
-                          : `${endHour}:00 AM`;
-                        return `${startLabel} – ${endLabel}`;
-                      })()}
-                    </p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          Event: {(() => {
+                            const [h] = startTime.split(':');
+                            const startHour = parseInt(h);
+                            const startLabel = startHour >= 12 
+                              ? `${startHour === 12 ? 12 : startHour - 12}:00 PM` 
+                              : `${startHour}:00 AM`;
+                            const endHour = startHour + Math.floor(dailyDuration / 60);
+                            const endLabel = endHour >= 12 
+                              ? `${endHour === 12 ? 12 : endHour > 12 ? endHour - 12 : endHour}:00 ${endHour >= 12 && endHour < 24 ? 'PM' : 'AM'}` 
+                              : `${endHour}:00 AM`;
+                            return `${startLabel} – ${endLabel}`;
+                          })()}
+                        </p>
+                      </>
+                    )}
+
+                    {/* Per guest and per item don't need time selection typically */}
+                    {(effectivePricingType === 'per_guest' || effectivePricingType === 'per_item') && (
+                      <p className="text-sm text-muted-foreground">
+                        You'll specify guest count / quantity in the next step.
+                      </p>
+                    )}
+
+                    {/* Custom quote notice */}
+                    {effectivePricingType === 'custom_quote' && (
+                      <div className="p-3 rounded-lg bg-muted/50 border">
+                        <p className="text-sm text-muted-foreground">
+                          This package requires a custom quote. The Event Pro will provide pricing after reviewing your request.
+                        </p>
+                      </div>
+                    )}
                   </div>
                 )}
 
-                {eventDate && dateAvailability?.available && (!type || type !== 'HOURLY' || timeAvailability?.available) && (
+                {eventDate && dateAvailability?.available && (effectivePricingType !== 'hourly' || timeAvailability?.available) && (
                   <div className="p-4 rounded-xl bg-muted/50 border">
                     <div className="flex items-center gap-2 mb-2">
                       {isInstant ? (
@@ -807,7 +933,7 @@ export function BookingModal({
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
-                Event Type
+                Event Type <span className="text-destructive">*</span>
               </label>
               <Select value={eventType} onValueChange={setEventType}>
                 <SelectTrigger>
@@ -821,18 +947,74 @@ export function BookingModal({
               </Select>
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-foreground mb-2">
-                <Users className="w-4 h-4 inline mr-1" />
-                Guest Count (optional)
-              </label>
-              <Input
-                type="number"
-                placeholder="Estimated number of guests"
-                value={guestCount}
-                onChange={(e) => setGuestCount(e.target.value)}
-              />
-            </div>
+            {/* Per-guest pricing - required guest count */}
+            {effectivePricingType === 'per_guest' && (
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  <Users className="w-4 h-4 inline mr-1" />
+                  Number of Guests <span className="text-destructive">*</span>
+                </label>
+                <Input
+                  type="number"
+                  min={minGuests || 1}
+                  placeholder={`Minimum ${minGuests || 1} guests`}
+                  value={guestCount}
+                  onChange={(e) => setGuestCount(e.target.value)}
+                />
+                {parseInt(guestCount) < (minGuests || 1) && guestCount && (
+                  <p className="text-xs text-destructive mt-1">
+                    Minimum {minGuests || 1} guests required
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  Price: ${price}/guest × {guestCount || minGuests || 1} = ${(price * (parseInt(guestCount) || minGuests || 1)).toFixed(2)}
+                </p>
+              </div>
+            )}
+
+            {/* Per-item pricing - required quantity */}
+            {effectivePricingType === 'per_item' && (
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  <PackageIcon className="w-4 h-4 inline mr-1" />
+                  Quantity <span className="text-destructive">*</span>
+                </label>
+                <Input
+                  type="number"
+                  min={minUnits || 1}
+                  placeholder={`Minimum ${minUnits || 1} items`}
+                  value={itemQuantity}
+                  onChange={(e) => setItemQuantity(e.target.value)}
+                />
+                {parseInt(itemQuantity) < (minUnits || 1) && itemQuantity && (
+                  <p className="text-xs text-destructive mt-1">
+                    Minimum {minUnits || 1} items required
+                  </p>
+                )}
+                <p className="text-xs text-muted-foreground mt-1">
+                  Price: ${price}/item × {itemQuantity || minUnits || 1} = ${(price * (parseInt(itemQuantity) || minUnits || 1)).toFixed(2)}
+                </p>
+              </div>
+            )}
+
+            {/* Optional guest count for other pricing types */}
+            {effectivePricingType !== 'per_guest' && effectivePricingType !== 'per_item' && (
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  <Users className="w-4 h-4 inline mr-1" />
+                  Guest Count (optional)
+                </label>
+                <Input
+                  type="number"
+                  placeholder="Estimated number of guests"
+                  value={guestCount}
+                  onChange={(e) => setGuestCount(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Helps the Event Pro prepare for your event
+                </p>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
@@ -1022,24 +1204,44 @@ export function BookingModal({
                   {eventDate ? format(eventDate, 'EEEE, MMMM d, yyyy') : '-'}
                 </span>
               </div>
-              {type === 'HOURLY' && (
+              {effectivePricingType === 'hourly' && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Time</span>
-                  <span className="font-medium text-foreground">{startTime} - {endTime} ({hours} hrs)</span>
+                  <span className="font-medium text-foreground">{startTime} - {endTime} ({units} hrs)</span>
                 </div>
               )}
-              {durationMinutes && type !== 'HOURLY' && (
+              {effectivePricingType === 'per_guest' && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Guest Count</span>
+                  <span className="font-medium text-foreground">{guestCount} guests</span>
+                </div>
+              )}
+              {effectivePricingType === 'per_item' && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Quantity</span>
+                  <span className="font-medium text-foreground">{itemQuantity} items</span>
+                </div>
+              )}
+              {(effectivePricingType === 'daily' || effectivePricingType === 'flat') && dailyDuration && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Duration</span>
-                  <span className="font-medium text-foreground">{Math.floor(durationMinutes / 60)}h {durationMinutes % 60}m</span>
+                  <span className="font-medium text-foreground">{Math.floor(dailyDuration / 60)}h {dailyDuration % 60 > 0 ? `${dailyDuration % 60}m` : ''}</span>
                 </div>
               )}
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Location</span>
-                <span className="font-medium text-foreground text-right max-w-[200px]">
-                  {addressLine1}, {city}, {state} {zipCode}
-                </span>
-              </div>
+              {!pickupOnly && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Location</span>
+                  <span className="font-medium text-foreground text-right max-w-[200px]">
+                    {addressLine1}, {city}, {state} {zipCode}
+                  </span>
+                </div>
+              )}
+              {pickupOnly && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Location</span>
+                  <span className="font-medium text-foreground">Pickup from vendor</span>
+                </div>
+              )}
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Payment</span>
                 <span className="font-medium text-foreground flex items-center gap-1">
@@ -1100,17 +1302,27 @@ export function BookingModal({
               <h4 className="font-semibold text-foreground">Price Breakdown</h4>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">
-                  ${price} × {type === 'HOURLY' ? `${hours} hrs` : '1 day'}
+                  ${price} × {(() => {
+                    switch (effectivePricingType) {
+                      case 'hourly': return `${units} hrs`;
+                      case 'daily': return `${units} day${units > 1 ? 's' : ''}`;
+                      case 'per_guest': return `${units} guest${units > 1 ? 's' : ''}`;
+                      case 'per_item': return `${units} item${units > 1 ? 's' : ''}`;
+                      case 'flat':
+                      case 'custom_quote':
+                      default: return '1 event';
+                    }
+                  })()}
                 </span>
                 <span>${baseTotal.toFixed(2)}</span>
               </div>
-              {travelFee > 0 && (
+              {effectiveTravelFee > 0 && (
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground flex items-center gap-1">
                     <Car className="w-3 h-3" />
                     Travel fee ({Math.round(distanceMiles! - includedTravelMiles)} mi)
                   </span>
-                  <span>${travelFee.toFixed(2)}</span>
+                  <span>${effectiveTravelFee.toFixed(2)}</span>
                 </div>
               )}
               {paymentMethod === 'stripe' && (
