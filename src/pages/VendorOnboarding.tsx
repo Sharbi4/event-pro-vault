@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { buildAuthUrl } from '@/lib/authIntent';
 import { getValidAccessToken } from '@/lib/getAccessToken';
+import { prepareExternalNavigation } from '@/lib/externalNavigation';
 import { 
   CheckCircle2, 
   ArrowRight, 
@@ -297,11 +298,14 @@ export default function VendorOnboarding() {
   };
 
   const startConnectOnboarding = async () => {
+    const nav = prepareExternalNavigation();
+
     setLoading(true);
     try {
       const accessToken = await getValidAccessToken();
       if (!accessToken) {
         toast.error('Please sign in again to continue payment setup');
+        nav.cancel();
         window.location.href = buildAuthUrl({
           intent: 'EVENT_PRO_ONBOARDING',
           profileType: 'EVENT_PRO',
@@ -316,9 +320,18 @@ export default function VendorOnboarding() {
       if (error) throw error;
 
       if (data.url) {
-        window.location.href = data.url;
+        if (nav.popupBlocked) {
+          await navigator.clipboard.writeText(data.url).catch(() => undefined);
+          toast.error('Pop-up blocked — link copied to clipboard. Paste it in a new tab.');
+        }
+
+        nav.open(data.url);
+        return;
       }
+
+      nav.cancel();
     } catch (error) {
+      nav.cancel();
       console.error('Error starting Connect onboarding:', error);
       toast.error('Failed to start payment setup');
       setLoading(false);
