@@ -405,7 +405,14 @@ export function PackageFormWizard({
   // Mobile: Use Drawer, Desktop: Use Dialog
   if (isMobile) {
     return (
-      <Drawer open={open} onOpenChange={onClose}>
+      <Drawer
+        open={open}
+        onOpenChange={(nextOpen) => {
+          // Prevent Vaul/Radix from toggling state during internal interactions (inputs, selects).
+          // Only close when the drawer is explicitly dismissed.
+          if (!nextOpen) onClose();
+        }}
+      >
         <DrawerContent className="max-h-[95vh]">
           <DrawerHeader className="pb-2">
             <DrawerTitle className="text-lg">
