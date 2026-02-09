@@ -246,6 +246,7 @@ export default function PackageDetail() {
         onOpenChange={setBookingModalOpen}
         packageId={packageData.id}
         packageName={packageData.name}
+        packageDescription={packageData.description || undefined}
         price={packageData.price}
         type={packageData.type}
         pricingType={packageData.pricing_type}
@@ -253,10 +254,27 @@ export default function PackageDetail() {
         bookingMode={packageData.booking_mode}
         paymentOptions={packageData.payment_options}
         vendorUserId={packageData.vendor_user_id}
-        vendorName={packageData.vendor_name}
+        vendorName={packageData.vendor_display_name || packageData.vendor_name}
         vendorStripeStatus={packageData.vendor_stripe_status}
         initialDate={selectedDate || initialDate}
         initialPaymentMethod={selectedPaymentMethod}
+        // Travel settings
+        maxTravelMiles={packageData.vendor_travel_radius || packageData.travel_radius || 100}
+        includedTravelMiles={packageData.included_travel_miles || 0}
+        travelFeePerMile={packageData.travel_fee_per_mile || packageData.price_per_mile || 0}
+        vendorBaseLat={packageData.vendor_base_lat || undefined}
+        vendorBaseLng={packageData.vendor_base_lng || undefined}
+        // Cancellation
+        cancellationPolicy={(packageData.cancellation_policy as 'flexible' | 'standard' | 'strict') || 'standard'}
+        // Deposit
+        depositEnabled={!!packageData.deposit}
+        depositPercentage={packageData.deposit || 50}
+        // Package details for review step
+        includes={packageData.includes}
+        requirements={packageData.requirements}
+        customerRequirements={packageData.customer_requirements || undefined}
+        durationMinutes={packageData.duration_minutes || undefined}
+        setupTimeMinutes={packageData.setup_time_minutes || undefined}
       />
     </Layout>
   );
