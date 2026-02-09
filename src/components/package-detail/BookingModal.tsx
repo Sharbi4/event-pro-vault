@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
@@ -31,6 +31,7 @@ import { CancellationPolicyBadge } from '@/components/shared/CancellationPolicyB
 import { AddressInput } from '@/components/shared/AddressInput';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { trackBookingStarted, trackBookingCompleted, trackBookingFailed } from '@/lib/trackingAnalytics';
+import { geocodeLocation } from '@/lib/geocoding';
 
 interface BookingModalProps {
   open: boolean;
@@ -177,10 +178,56 @@ export function BookingModal({
   const [zipCode, setZipCode] = useState('');
   const [eventLat, setEventLat] = useState<number | null>(null);
   const [eventLng, setEventLng] = useState<number | null>(null);
+  const [geocodingAddress, setGeocodingAddress] = useState(false);
+  const geocodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptCancellation, setAcceptCancellation] = useState(false);
+
+  // Geocode address when it changes (debounced)
+  useEffect(() => {
+    // Clear previous timeout
+    if (geocodeTimeoutRef.current) {
+      clearTimeout(geocodeTimeoutRef.current);
+    }
+
+    // Only geocode if we have enough address info
+    if (!addressLine1.trim() || !city.trim() || !state) {
+      setEventLat(null);
+      setEventLng(null);
+      return;
+    }
+
+    // Debounce geocoding by 800ms
+    geocodeTimeoutRef.current = setTimeout(async () => {
+      const fullAddr = `${addressLine1}, ${city}, ${state} ${zipCode}`.trim();
+      setGeocodingAddress(true);
+      
+      try {
+        const result = await geocodeLocation(fullAddr);
+        if (result) {
+          setEventLat(result.lat);
+          setEventLng(result.lng);
+        } else {
+          setEventLat(null);
+          setEventLng(null);
+        }
+      } catch (err) {
+        console.error('Geocoding failed:', err);
+        setEventLat(null);
+        setEventLng(null);
+      } finally {
+        setGeocodingAddress(false);
+      }
+    }, 800);
+
+    return () => {
+      if (geocodeTimeoutRef.current) {
+        clearTimeout(geocodeTimeoutRef.current);
+      }
+    };
+  }, [addressLine1, city, state, zipCode]);
 
   // Computed values
   const fullAddress = useMemo(() => {
@@ -307,7 +354,16 @@ export function BookingModal({
         const hasEmail = emailRequired ? !!guestEmail.trim() : true;
         return !!eventType && hasEmail;
       case 'address':
-        return !!addressLine1.trim() && !!city.trim() && !!state.trim() && isWithinServiceArea;
+        // Must have basic address fields
+        if (!addressLine1.trim() || !city.trim() || !state.trim()) return false;
+        // Block while geocoding
+        if (geocodingAddress) return false;
+        // If we have vendor coordinates and event coordinates, check service area
+        if (vendorBaseLat && vendorBaseLng && eventLat && eventLng) {
+          return isWithinServiceArea;
+        }
+        // If vendor has no base coordinates, allow proceeding
+        return true;
       case 'payment':
         return true;
       case 'review':
@@ -738,8 +794,16 @@ export function BookingModal({
               required
             />
 
+            {/* Geocoding status */}
+            {geocodingAddress && addressLine1.trim() && city.trim() && state && (
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border">
+                <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                <span className="text-sm text-muted-foreground">Calculating distance to event location...</span>
+              </div>
+            )}
+
             {/* Distance & travel info */}
-            {distanceMiles !== null && (
+            {!geocodingAddress && distanceMiles !== null && (
               <div className={cn(
                 "p-4 rounded-xl border",
                 isWithinServiceArea 
@@ -777,12 +841,27 @@ export function BookingModal({
                         )}
                       </>
                     ) : (
-                      <p className="text-sm text-destructive">
-                        This location is outside the Event Pro's service area ({maxTravelMiles} mi max)
-                      </p>
+                      <div className="space-y-2">
+                        <p className="text-sm text-destructive">
+                          This location is outside the Event Pro's service area ({maxTravelMiles} mi max)
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          Please choose a different location or contact the Event Pro directly to discuss travel options.
+                        </p>
+                      </div>
                     )}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Vendor has no base location warning */}
+            {!geocodingAddress && addressLine1.trim() && city.trim() && state && !vendorBaseLat && (
+              <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border">
+                <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                <p className="text-sm text-muted-foreground">
+                  Travel distance cannot be calculated. Contact the Event Pro for travel fees if applicable.
+                </p>
               </div>
             )}
           </div>
