@@ -12,6 +12,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { buildAuthUrl } from '@/lib/authIntent';
+import { prepareExternalNavigation } from '@/lib/externalNavigation';
 
 interface StripeConnectBannerProps {
   stripeStatus: string | null;
@@ -25,6 +26,8 @@ export function StripeConnectBanner({ stripeStatus, onStatusChange }: StripeConn
   const isConnected = stripeStatus === 'active';
 
   const handleConnectStripe = async () => {
+    const nav = prepareExternalNavigation();
+
     setConnecting(true);
     try {
       const { data: sessionData } = await supabase.auth.getSession();
@@ -35,6 +38,7 @@ export function StripeConnectBanner({ stripeStatus, onStatusChange }: StripeConn
           title: 'Sign in required',
           description: 'Please sign in to connect Stripe.',
         });
+        nav.cancel();
         window.location.href = buildAuthUrl({
           intent: 'EVENT_PRO_ONBOARDING',
           profileType: 'EVENT_PRO',
@@ -51,9 +55,22 @@ export function StripeConnectBanner({ stripeStatus, onStatusChange }: StripeConn
       if (error) throw error;
 
       if (data?.url) {
-        window.location.href = data.url;
+        if (nav.popupBlocked) {
+          // Pop-ups were blocked — copy link so user can paste it into a new tab.
+          await navigator.clipboard.writeText(data.url).catch(() => undefined);
+          toast({
+            title: 'Pop-up blocked',
+            description: 'Allow pop-ups, then click again. Link copied to clipboard.',
+          });
+        }
+
+        nav.open(data.url);
+        return;
       }
+
+      nav.cancel();
     } catch (error) {
+      nav.cancel();
       console.error('Error starting Stripe Connect:', error);
       toast({
         title: 'Failed to start Stripe setup',

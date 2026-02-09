@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { prepareExternalNavigation } from '@/lib/externalNavigation';
 
 export type StripeStatus = 'not_started' | 'pending' | 'pending_verification' | 'active';
 
@@ -127,6 +128,8 @@ export function StripeSetupCard({ variant, currentStatus, onStatusChange }: Stri
   };
 
   const handleSetupStripe = async () => {
+    const nav = prepareExternalNavigation();
+
     try {
       setConnecting(true);
 
@@ -139,6 +142,7 @@ export function StripeSetupCard({ variant, currentStatus, onStatusChange }: Stri
           description: 'Please sign in to connect Stripe.',
           variant: 'destructive',
         });
+        nav.cancel();
         return;
       }
 
@@ -151,9 +155,21 @@ export function StripeSetupCard({ variant, currentStatus, onStatusChange }: Stri
       if (error) throw error;
 
       if (data?.url) {
-        window.location.href = data.url;
+        if (nav.popupBlocked) {
+          await navigator.clipboard.writeText(data.url).catch(() => undefined);
+          toast({
+            title: 'Pop-up blocked',
+            description: 'Allow pop-ups, then click again. Link copied to clipboard.',
+          });
+        }
+
+        nav.open(data.url);
+        return;
       }
+
+      nav.cancel();
     } catch (error: any) {
+      nav.cancel();
       console.error('Error setting up Stripe:', error);
       toast({
         title: 'Setup failed',

@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { buildAuthUrl } from '@/lib/authIntent';
 import { getValidAccessToken } from '@/lib/getAccessToken';
+import { prepareExternalNavigation } from '@/lib/externalNavigation';
 
 export type OnboardingStep = 
   | 'profile-basics'
@@ -477,11 +478,14 @@ export function useEventProOnboarding() {
   };
 
   const connectStripe = async () => {
+    const nav = prepareExternalNavigation();
+
     setConnectLoading(true);
     try {
       const accessToken = await getValidAccessToken();
       if (!accessToken) {
         toast.error('Please sign in again to continue payment setup');
+        nav.cancel();
         window.location.href = buildAuthUrl({
           intent: 'EVENT_PRO_ONBOARDING',
           profileType: 'EVENT_PRO',
@@ -495,9 +499,18 @@ export function useEventProOnboarding() {
       });
       if (error) throw error;
       if (data.url) {
-        window.location.href = data.url;
+        if (nav.popupBlocked) {
+          await navigator.clipboard.writeText(data.url).catch(() => undefined);
+          toast.error('Pop-up blocked — link copied to clipboard. Paste it in a new tab.');
+        }
+
+        nav.open(data.url);
+        return;
       }
+
+      nav.cancel();
     } catch (error) {
+      nav.cancel();
       console.error('Error connecting Stripe:', error);
       toast.error('Failed to start payment setup');
     } finally {
