@@ -29,6 +29,8 @@ export function StepBasicInfo({ formData, updateFormData }: StepBasicInfoProps) 
         <Input
           value={formData.name}
           onChange={(e) => updateFormData({ name: e.target.value })}
+          onPointerDownCapture={(e) => e.stopPropagation()}
+          onTouchStartCapture={(e) => e.stopPropagation()}
           placeholder="e.g., BBQ Essentials, Wedding DJ Package"
           className="text-base"
         />
