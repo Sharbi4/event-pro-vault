@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { buildAuthUrl } from '@/lib/authIntent';
+import { getValidAccessToken } from '@/lib/getAccessToken';
 
 export type OnboardingStep = 
   | 'profile-basics'
@@ -459,7 +461,12 @@ export function useEventProOnboarding() {
 
   const checkStripeStatus = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('check-connect-status');
+      const accessToken = await getValidAccessToken();
+      if (!accessToken) return 'not_started';
+
+      const { data, error } = await supabase.functions.invoke('check-connect-status', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       if (error) throw error;
       setStripeStatus(data.status || 'not_started');
       return data.status;
@@ -472,7 +479,20 @@ export function useEventProOnboarding() {
   const connectStripe = async () => {
     setConnectLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-connect-account');
+      const accessToken = await getValidAccessToken();
+      if (!accessToken) {
+        toast.error('Please sign in again to continue payment setup');
+        window.location.href = buildAuthUrl({
+          intent: 'EVENT_PRO_ONBOARDING',
+          profileType: 'EVENT_PRO',
+          returnTo: `${window.location.pathname}${window.location.search}`,
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-connect-account', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       if (error) throw error;
       if (data.url) {
         window.location.href = data.url;

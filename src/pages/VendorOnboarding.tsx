@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { buildAuthUrl } from '@/lib/authIntent';
+import { getValidAccessToken } from '@/lib/getAccessToken';
 import { 
   CheckCircle2, 
   ArrowRight, 
@@ -131,13 +133,25 @@ export default function VendorOnboarding() {
     }
   };
 
-
   const checkConnectStatus = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('check-connect-status');
+      const accessToken = await getValidAccessToken();
+      if (!accessToken) {
+        toast.error('Please sign in again to continue payment setup');
+        window.location.href = buildAuthUrl({
+          intent: 'EVENT_PRO_ONBOARDING',
+          profileType: 'EVENT_PRO',
+          returnTo: `${window.location.pathname}${window.location.search}`,
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('check-connect-status', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       if (error) throw error;
-      
+
       setConnectStatus(data.status);
       if (data.status === 'active') {
         setCurrentStep('complete');
@@ -285,7 +299,20 @@ export default function VendorOnboarding() {
   const startConnectOnboarding = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-connect-account');
+      const accessToken = await getValidAccessToken();
+      if (!accessToken) {
+        toast.error('Please sign in again to continue payment setup');
+        window.location.href = buildAuthUrl({
+          intent: 'EVENT_PRO_ONBOARDING',
+          profileType: 'EVENT_PRO',
+          returnTo: `${window.location.pathname}${window.location.search}`,
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-connect-account', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
       if (error) throw error;
 
       if (data.url) {
