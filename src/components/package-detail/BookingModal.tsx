@@ -37,6 +37,7 @@ interface BookingModalProps {
   onOpenChange: (open: boolean) => void;
   packageId: string;
   packageName: string;
+  packageDescription?: string;
   price: number;
   type: string;
   pricingType: string | null;
@@ -60,6 +61,12 @@ interface BookingModalProps {
   // Deposit settings
   depositEnabled?: boolean;
   depositPercentage?: number;
+  // Package details for review
+  includes?: string[];
+  requirements?: string[];
+  customerRequirements?: string;
+  durationMinutes?: number;
+  setupTimeMinutes?: number;
 }
 
 const STEPS = [
@@ -102,6 +109,7 @@ export function BookingModal({
   onOpenChange,
   packageId,
   packageName,
+  packageDescription,
   price,
   type,
   pricingType,
@@ -121,6 +129,11 @@ export function BookingModal({
   cancellationPolicy = 'standard',
   depositEnabled = true,
   depositPercentage = DEFAULT_DEPOSIT_PERCENTAGE,
+  includes = [],
+  requirements = [],
+  customerRequirements,
+  durationMinutes,
+  setupTimeMinutes,
 }: BookingModalProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -830,28 +843,42 @@ export function BookingModal({
       case 'review':
         return (
           <div className="space-y-6">
-            {/* Summary card */}
+            {/* Booking Summary */}
             <div className="p-4 rounded-xl bg-muted/50 border space-y-3">
+              <h4 className="font-semibold text-foreground flex items-center gap-2">
+                <CalendarAlt className="w-4 h-4 text-primary" />
+                Booking Details
+              </h4>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Package</span>
                 <span className="font-medium text-foreground">{packageName}</span>
               </div>
               <div className="flex justify-between">
+                <span className="text-muted-foreground">Provider</span>
+                <span className="font-medium text-foreground">{vendorName}</span>
+              </div>
+              <div className="flex justify-between">
                 <span className="text-muted-foreground">Date</span>
                 <span className="font-medium text-foreground">
-                  {eventDate ? format(eventDate, 'PPP') : '-'}
+                  {eventDate ? format(eventDate, 'EEEE, MMMM d, yyyy') : '-'}
                 </span>
               </div>
               {type === 'HOURLY' && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Time</span>
-                  <span className="font-medium text-foreground">{startTime} - {endTime}</span>
+                  <span className="font-medium text-foreground">{startTime} - {endTime} ({hours} hrs)</span>
+                </div>
+              )}
+              {durationMinutes && type !== 'HOURLY' && (
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Duration</span>
+                  <span className="font-medium text-foreground">{Math.floor(durationMinutes / 60)}h {durationMinutes % 60}m</span>
                 </div>
               )}
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Location</span>
-                <span className="font-medium text-foreground text-right max-w-[200px] truncate">
-                  {city}, {state}
+                <span className="font-medium text-foreground text-right max-w-[200px]">
+                  {addressLine1}, {city}, {state} {zipCode}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -860,14 +887,58 @@ export function BookingModal({
                   {paymentMethod === 'stripe' ? (
                     <><CreditCard className="w-4 h-4" /> Card</>
                   ) : (
-                    <><Banknote className="w-4 h-4" /> Cash</>
+                    <><Banknote className="w-4 h-4" /> Cash at event</>
                   )}
                 </span>
               </div>
             </div>
 
+            {/* What's Included */}
+            {includes && includes.length > 0 && (
+              <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 space-y-2">
+                <h4 className="font-semibold text-foreground flex items-center gap-2">
+                  <Check className="w-4 h-4 text-primary" />
+                  What's Included
+                </h4>
+                <ul className="space-y-1">
+                  {includes.map((item, i) => (
+                    <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                      <Check className="w-3 h-3 text-primary mt-1 shrink-0" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Requirements from vendor */}
+            {((requirements && requirements.length > 0) || customerRequirements) && (
+              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-2">
+                <h4 className="font-semibold text-foreground flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 text-amber-600" />
+                  Requirements & Notes
+                </h4>
+                {requirements && requirements.length > 0 && (
+                  <ul className="space-y-1">
+                    {requirements.map((req, i) => (
+                      <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                        <span className="text-amber-600 shrink-0">•</span>
+                        {req}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {customerRequirements && (
+                  <p className="text-sm text-muted-foreground mt-2">
+                    {customerRequirements}
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Price breakdown */}
             <div className="space-y-2">
+              <h4 className="font-semibold text-foreground">Price Breakdown</h4>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">
                   ${price} × {type === 'HOURLY' ? `${hours} hrs` : '1 day'}
@@ -909,22 +980,27 @@ export function BookingModal({
               )}
             </div>
 
-            {/* Cancellation policy */}
+            {/* Cancellation & Refund Policy */}
             <div className="p-4 rounded-xl bg-muted/30 border space-y-3">
               <div className="flex items-center justify-between">
-                <span className="font-medium text-foreground">Cancellation Policy</span>
+                <span className="font-medium text-foreground">Cancellation & Refund Policy</span>
                 <CancellationPolicyBadge policyType={cancellationPolicy} />
               </div>
               <div className="space-y-1">
                 {policyDetails.tiers.map((tier, i) => (
-                  <p key={i} className="text-sm text-muted-foreground">
-                    {tier.label}: {tier.refundPercentage}% refund
-                  </p>
+                  <div key={i} className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{tier.label}</span>
+                    <span className={tier.refundPercentage === 100 ? 'text-trust font-medium' : tier.refundPercentage === 0 ? 'text-destructive' : 'text-foreground'}>
+                      {tier.refundPercentage}% refund
+                    </span>
+                  </div>
                 ))}
               </div>
-              <p className="text-xs text-muted-foreground">
-                Deposits are non-refundable except within 1 hour of booking (if event is 7+ days away) or if the Event Pro cancels.
-              </p>
+              <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t border-border/50">
+                <p>• Deposits are non-refundable except within 1 hour of booking (if event is 7+ days away)</p>
+                <p>• Full refund including deposit if the Event Pro cancels</p>
+                <p>• Platform fee (12.9%) is non-refundable unless the Event Pro cancels</p>
+              </div>
             </div>
 
             {/* Terms checkboxes */}
