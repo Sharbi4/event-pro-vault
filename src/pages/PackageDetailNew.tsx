@@ -275,6 +275,7 @@ export default function PackageDetail() {
         customerRequirements={packageData.customer_requirements || undefined}
         durationMinutes={packageData.duration_minutes || undefined}
         setupTimeMinutes={packageData.setup_time_minutes || undefined}
+        defaultStartTime={packageData.default_start_time || undefined}
       />
     </Layout>
   );

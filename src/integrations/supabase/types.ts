@@ -1500,6 +1500,7 @@ export type Database = {
           cover_image_url: string | null
           created_at: string
           customer_requirements: string | null
+          default_start_time: string | null
           deposit: number | null
           description: string | null
           duration_minutes: number | null
@@ -1514,6 +1515,7 @@ export type Database = {
           is_featured: boolean | null
           is_published: boolean | null
           max_travel_miles: number | null
+          min_days: number | null
           min_guests: number | null
           min_hours: number | null
           min_quantity: number | null
@@ -1546,6 +1548,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string
           customer_requirements?: string | null
+          default_start_time?: string | null
           deposit?: number | null
           description?: string | null
           duration_minutes?: number | null
@@ -1560,6 +1563,7 @@ export type Database = {
           is_featured?: boolean | null
           is_published?: boolean | null
           max_travel_miles?: number | null
+          min_days?: number | null
           min_guests?: number | null
           min_hours?: number | null
           min_quantity?: number | null
@@ -1592,6 +1596,7 @@ export type Database = {
           cover_image_url?: string | null
           created_at?: string
           customer_requirements?: string | null
+          default_start_time?: string | null
           deposit?: number | null
           description?: string | null
           duration_minutes?: number | null
@@ -1606,6 +1611,7 @@ export type Database = {
           is_featured?: boolean | null
           is_published?: boolean | null
           max_travel_miles?: number | null
+          min_days?: number | null
           min_guests?: number | null
           min_hours?: number | null
           min_quantity?: number | null
