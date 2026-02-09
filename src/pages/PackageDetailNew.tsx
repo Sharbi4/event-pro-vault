@@ -251,6 +251,9 @@ export default function PackageDetail() {
         type={packageData.type}
         pricingType={packageData.pricing_type}
         minUnits={packageData.min_units}
+        minHours={packageData.min_hours || undefined}
+        minGuests={packageData.min_guests || undefined}
+        minDays={packageData.min_days || undefined}
         bookingMode={packageData.booking_mode}
         paymentOptions={packageData.payment_options}
         vendorUserId={packageData.vendor_user_id}
@@ -276,6 +279,7 @@ export default function PackageDetail() {
         durationMinutes={packageData.duration_minutes || undefined}
         setupTimeMinutes={packageData.setup_time_minutes || undefined}
         defaultStartTime={packageData.default_start_time || undefined}
+        pickupOnly={packageData.pickup_only || false}
       />
     </Layout>
   );

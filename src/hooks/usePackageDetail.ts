@@ -13,6 +13,7 @@ export interface PackageDetailData {
   min_units: number;
   min_hours: number | null;
   min_guests: number | null;
+  min_days: number | null;
   duration_minutes: number | null;
   setup_time_minutes: number | null;
   breakdown_time_minutes: number | null;
@@ -168,6 +169,7 @@ export function usePackageDetail(packageId: string | undefined) {
           min_units: pkg.min_units,
           min_hours: pkg.min_hours,
           min_guests: pkg.min_guests,
+          min_days: (pkg as any).min_days || null,
           duration_minutes: pkg.duration_minutes,
           setup_time_minutes: pkg.setup_time_minutes,
           breakdown_time_minutes: pkg.breakdown_time_minutes,
