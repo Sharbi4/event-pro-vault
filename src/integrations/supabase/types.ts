@@ -1514,6 +1514,8 @@ export type Database = {
           is_active: boolean | null
           is_featured: boolean | null
           is_published: boolean | null
+          max_guests: number | null
+          max_items: number | null
           max_travel_miles: number | null
           min_days: number | null
           min_guests: number | null
@@ -1562,6 +1564,8 @@ export type Database = {
           is_active?: boolean | null
           is_featured?: boolean | null
           is_published?: boolean | null
+          max_guests?: number | null
+          max_items?: number | null
           max_travel_miles?: number | null
           min_days?: number | null
           min_guests?: number | null
@@ -1610,6 +1614,8 @@ export type Database = {
           is_active?: boolean | null
           is_featured?: boolean | null
           is_published?: boolean | null
+          max_guests?: number | null
+          max_items?: number | null
           max_travel_miles?: number | null
           min_days?: number | null
           min_guests?: number | null

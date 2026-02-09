@@ -96,25 +96,40 @@ export function StepPricingTravel({ formData, updateFormData }: StepPricingTrave
     }
   };
 
-  // Get minimum booking config
-  const getMinimumConfig = () => {
+  // Get minimum/maximum booking config
+  const getMinMaxConfig = () => {
     switch (pricingType) {
       case 'hourly':
-        return { label: 'Min Hours', field: 'min_hours' as const, suffix: 'hours' };
+        return { 
+          minLabel: 'Min Hours', minField: 'min_hours' as const, suffix: 'hours',
+          maxLabel: 'Max Hours', maxField: null, // No max for hourly
+        };
       case 'daily':
-        return { label: 'Min Days', field: 'min_days' as const, suffix: 'days' };
+        return { 
+          minLabel: 'Min Days', minField: 'min_days' as const, suffix: 'days',
+          maxLabel: 'Max Days', maxField: null, // No max for daily
+        };
       case 'per_guest':
-        return { label: 'Min Guests', field: 'min_guests' as const, suffix: 'guests' };
+        return { 
+          minLabel: 'Min Guests', minField: 'min_guests' as const, suffix: 'guests',
+          maxLabel: 'Max Guests', maxField: 'max_guests' as const,
+        };
       case 'per_item':
-        return { label: 'Min Quantity', field: 'min_quantity' as const, suffix: 'items' };
+        return { 
+          minLabel: 'Min Quantity', minField: 'min_quantity' as const, suffix: 'items',
+          maxLabel: 'Max Quantity', maxField: 'max_quantity' as const,
+        };
       case 'flat':
-        return { label: 'Min Spend', field: 'min_spend' as const, suffix: '', isCurrency: true };
+        return { 
+          minLabel: 'Min Spend', minField: 'min_spend' as const, suffix: '', isCurrency: true,
+          maxLabel: null, maxField: null,
+        };
       default:
         return null;
     }
   };
 
-  const minConfig = getMinimumConfig();
+  const minMaxConfig = getMinMaxConfig();
   const isDaily = pricingType === 'daily';
 
   const handlePricingTypeChange = (type: PricingType) => {
@@ -143,53 +158,80 @@ export function StepPricingTravel({ formData, updateFormData }: StepPricingTrave
 
       {/* Price & Minimum */}
       {!isCustomQuote ? (
-        <div className="grid grid-cols-2 gap-3">
-          <FormSection title={getPriceLabel()} compact>
-            <div className="relative">
-              <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={formData.price || ''}
-                onChange={(e) => {
-                  const value = parseFloat(e.target.value);
-                  updateFormData({ price: value >= 0 ? value : 0 });
-                }}
-                className="pl-8"
-                placeholder="0.00"
-              />
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">{getPriceSuffix()}</p>
-          </FormSection>
-
-          {minConfig && (
-            <FormSection title={minConfig.label} compact>
+        <div className="space-y-3">
+          {/* Price */}
+          <div className="grid grid-cols-2 gap-3">
+            <FormSection title={getPriceLabel()} compact>
               <div className="relative">
-                {minConfig.isCurrency && (
-                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                )}
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   type="number"
-                  min={minConfig.isCurrency ? 0 : 1}
-                  step={minConfig.isCurrency ? '0.01' : '1'}
-                  value={formData[minConfig.field] || (minConfig.isCurrency ? '' : 1)}
+                  min="0"
+                  step="0.01"
+                  value={formData.price || ''}
                   onChange={(e) => {
-                    const value = minConfig.isCurrency
-                      ? parseFloat(e.target.value) || 0
-                      : parseInt(e.target.value) || 1;
-                    updateFormData({ [minConfig.field]: value >= 0 ? value : 0 });
+                    const value = parseFloat(e.target.value);
+                    updateFormData({ price: value >= 0 ? value : 0 });
                   }}
-                  className={minConfig.isCurrency ? 'pl-8' : ''}
-                  placeholder={minConfig.isCurrency ? '0.00' : '1'}
+                  className="pl-8"
+                  placeholder="0.00"
                 />
               </div>
-              {minConfig.suffix && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Minimum booking
-                </p>
-              )}
+              <p className="text-xs text-muted-foreground mt-1">{getPriceSuffix()}</p>
             </FormSection>
+
+            {/* Min field */}
+            {minMaxConfig && (
+              <FormSection title={minMaxConfig.minLabel} compact>
+                <div className="relative">
+                  {minMaxConfig.isCurrency && (
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  )}
+                  <Input
+                    type="number"
+                    min={minMaxConfig.isCurrency ? 0 : 1}
+                    step={minMaxConfig.isCurrency ? '0.01' : '1'}
+                    value={formData[minMaxConfig.minField] || (minMaxConfig.isCurrency ? '' : 1)}
+                    onChange={(e) => {
+                      const value = minMaxConfig.isCurrency
+                        ? parseFloat(e.target.value) || 0
+                        : parseInt(e.target.value) || 1;
+                      updateFormData({ [minMaxConfig.minField]: value >= 0 ? value : 0 });
+                    }}
+                    className={minMaxConfig.isCurrency ? 'pl-8' : ''}
+                    placeholder={minMaxConfig.isCurrency ? '0.00' : '1'}
+                  />
+                </div>
+                {minMaxConfig.suffix && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Minimum booking
+                  </p>
+                )}
+              </FormSection>
+            )}
+          </div>
+
+          {/* Max field - only for per_guest and per_item */}
+          {minMaxConfig?.maxField && (
+            <div className="grid grid-cols-2 gap-3">
+              <div /> {/* Empty spacer */}
+              <FormSection title={minMaxConfig.maxLabel!} compact>
+                <Input
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={formData[minMaxConfig.maxField] || ''}
+                  onChange={(e) => {
+                    const value = parseInt(e.target.value);
+                    updateFormData({ [minMaxConfig.maxField!]: value > 0 ? value : undefined });
+                  }}
+                  placeholder="No limit"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Maximum allowed (optional)
+                </p>
+              </FormSection>
+            </div>
           )}
         </div>
       ) : (
