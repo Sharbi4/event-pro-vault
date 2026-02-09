@@ -47,11 +47,24 @@ serve(async (req) => {
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     
     if (customers.data.length === 0) {
-      logStep("No customer found, returning free tier");
+      logStep("No customer found, updating to free tier");
+      // Update profile to free tier
+      await supabaseClient
+        .from('profiles')
+        .update({ subscription_tier: 'free', subscription_ends_at: null })
+        .eq('user_id', user.id);
+      
+      // Remove featured status from all packages
+      await supabaseClient
+        .from('vendor_packages')
+        .update({ is_featured: false })
+        .eq('user_id', user.id);
+
       return new Response(JSON.stringify({ 
         subscribed: false,
         tier: "free",
-        package_limit: 5
+        package_limit: 5,
+        is_featured: false
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -76,22 +89,54 @@ serve(async (req) => {
       const subscriptionEnd = new Date(proPremiumSub.current_period_end * 1000).toISOString();
       logStep("Pro Premium subscription found", { subscriptionId: proPremiumSub.id, endDate: subscriptionEnd });
       
+      // Update profile with premium status
+      await supabaseClient
+        .from('profiles')
+        .update({ 
+          subscription_tier: 'premium', 
+          subscription_ends_at: subscriptionEnd 
+        })
+        .eq('user_id', user.id);
+      
+      // Mark all user's packages as featured
+      await supabaseClient
+        .from('vendor_packages')
+        .update({ is_featured: true })
+        .eq('user_id', user.id);
+
+      logStep("Updated profile and packages to premium/featured");
+      
       return new Response(JSON.stringify({
         subscribed: true,
         tier: "premium",
         package_limit: 20,
-        subscription_end: subscriptionEnd
+        subscription_end: subscriptionEnd,
+        is_featured: true
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
       });
     }
 
-    logStep("No Pro Premium subscription found, returning free tier");
+    logStep("No Pro Premium subscription found, updating to free tier");
+    
+    // Update profile to free tier
+    await supabaseClient
+      .from('profiles')
+      .update({ subscription_tier: 'free', subscription_ends_at: null })
+      .eq('user_id', user.id);
+    
+    // Remove featured status
+    await supabaseClient
+      .from('vendor_packages')
+      .update({ is_featured: false })
+      .eq('user_id', user.id);
+
     return new Response(JSON.stringify({
       subscribed: false,
       tier: "free",
-      package_limit: 5
+      package_limit: 5,
+      is_featured: false
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,

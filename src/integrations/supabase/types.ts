@@ -843,6 +843,8 @@ export type Database = {
           short_bio: string | null
           stripe_account_id: string | null
           stripe_account_status: string | null
+          subscription_ends_at: string | null
+          subscription_tier: string | null
           updated_at: string
           user_id: string
           username: string | null
@@ -873,6 +875,8 @@ export type Database = {
           short_bio?: string | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
+          subscription_ends_at?: string | null
+          subscription_tier?: string | null
           updated_at?: string
           user_id: string
           username?: string | null
@@ -903,6 +907,8 @@ export type Database = {
           short_bio?: string | null
           stripe_account_id?: string | null
           stripe_account_status?: string | null
+          subscription_ends_at?: string | null
+          subscription_tier?: string | null
           updated_at?: string
           user_id?: string
           username?: string | null
@@ -1505,6 +1511,7 @@ export type Database = {
           includes: string[] | null
           instant_book: boolean | null
           is_active: boolean | null
+          is_featured: boolean | null
           is_published: boolean | null
           max_travel_miles: number | null
           min_guests: number | null
@@ -1550,6 +1557,7 @@ export type Database = {
           includes?: string[] | null
           instant_book?: boolean | null
           is_active?: boolean | null
+          is_featured?: boolean | null
           is_published?: boolean | null
           max_travel_miles?: number | null
           min_guests?: number | null
@@ -1595,6 +1603,7 @@ export type Database = {
           includes?: string[] | null
           instant_book?: boolean | null
           is_active?: boolean | null
+          is_featured?: boolean | null
           is_published?: boolean | null
           max_travel_miles?: number | null
           min_guests?: number | null

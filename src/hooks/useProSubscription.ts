@@ -7,6 +7,7 @@ interface SubscriptionStatus {
   tier: 'free' | 'premium';
   packageLimit: number;
   subscriptionEnd?: string;
+  isFeatured: boolean;
 }
 
 export function useProSubscription() {
@@ -15,13 +16,14 @@ export function useProSubscription() {
     subscribed: false,
     tier: 'free',
     packageLimit: 5,
+    isFeatured: false,
   });
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
 
   const checkSubscription = useCallback(async () => {
     if (!user) {
-      setStatus({ subscribed: false, tier: 'free', packageLimit: 5 });
+      setStatus({ subscribed: false, tier: 'free', packageLimit: 5, isFeatured: false });
       setLoading(false);
       return;
     }
@@ -36,11 +38,12 @@ export function useProSubscription() {
         tier: data.tier,
         packageLimit: data.package_limit,
         subscriptionEnd: data.subscription_end,
+        isFeatured: data.is_featured || false,
       });
     } catch (err) {
       console.error('Error checking subscription:', err);
       // Default to free tier on error
-      setStatus({ subscribed: false, tier: 'free', packageLimit: 5 });
+      setStatus({ subscribed: false, tier: 'free', packageLimit: 5, isFeatured: false });
     } finally {
       setLoading(false);
     }
