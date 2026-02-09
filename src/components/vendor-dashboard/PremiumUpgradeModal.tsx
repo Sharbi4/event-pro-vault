@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, Package, BarChart3, Zap, Check, Loader2 } from 'lucide-react';
+import { X, Sparkles, Package, BarChart3, Zap, Check, Loader2, Star, Mail, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface PremiumUpgradeModalProps {
@@ -17,14 +17,24 @@ const benefits = [
     description: 'Create more packages to showcase your full range of services',
   },
   {
-    icon: BarChart3,
-    title: 'AI Analytics',
-    description: 'Get intelligent insights on your business performance and trends',
+    icon: Star,
+    title: 'Featured Partner',
+    description: 'Your listings appear at the top of search results',
   },
   {
-    icon: Zap,
-    title: 'Priority Support',
-    description: 'Get faster responses and dedicated assistance',
+    icon: Mail,
+    title: 'Email Newsletter Feature',
+    description: 'Get featured in our customer email newsletters',
+  },
+  {
+    icon: Share2,
+    title: 'Social Media Spotlight',
+    description: 'Featured promotions on our social media channels',
+  },
+  {
+    icon: BarChart3,
+    title: 'AI Analytics',
+    description: 'Get intelligent insights on your business performance',
   },
 ];
 
