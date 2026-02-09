@@ -89,8 +89,25 @@ export function StripeSetupCard({ variant, currentStatus, onStatusChange }: Stri
   const checkStatus = async () => {
     try {
       setLoading(true);
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+
+      if (!accessToken) {
+        // Not signed in (yet) — keep UI stable and avoid calling protected endpoints with an anon token.
+        setStatus((currentStatus as StripeStatus) || 'not_started');
+        setRequirements([]);
+        setDetailsSubmitted(false);
+        return;
+      }
+
       const { data, error } = await supabase.functions.invoke<ConnectStatusResponse>(
-        checkStatusEndpoint
+        checkStatusEndpoint,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
       );
 
       if (error) throw error;
@@ -112,7 +129,24 @@ export function StripeSetupCard({ variant, currentStatus, onStatusChange }: Stri
   const handleSetupStripe = async () => {
     try {
       setConnecting(true);
-      const { data, error } = await supabase.functions.invoke(createAccountEndpoint);
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+
+      if (!accessToken) {
+        toast({
+          title: 'Sign in required',
+          description: 'Please sign in to connect Stripe.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke(createAccountEndpoint, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
 
       if (error) throw error;
 

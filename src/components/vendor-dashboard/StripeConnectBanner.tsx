@@ -2,15 +2,16 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  CreditCard, 
-  CheckCircle2, 
-  ExternalLink, 
+import {
+  CreditCard,
+  CheckCircle2,
+  ExternalLink,
   Loader2,
   Sparkles
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { buildAuthUrl } from '@/lib/authIntent';
 
 interface StripeConnectBannerProps {
   stripeStatus: string | null;
@@ -26,7 +27,27 @@ export function StripeConnectBanner({ stripeStatus, onStatusChange }: StripeConn
   const handleConnectStripe = async () => {
     setConnecting(true);
     try {
-      const { data, error } = await supabase.functions.invoke('create-connect-account');
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+
+      if (!accessToken) {
+        toast({
+          title: 'Sign in required',
+          description: 'Please sign in to connect Stripe.',
+        });
+        window.location.href = buildAuthUrl({
+          intent: 'EVENT_PRO_ONBOARDING',
+          profileType: 'EVENT_PRO',
+          returnTo: `${window.location.pathname}${window.location.search}`,
+        });
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-connect-account', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       if (error) throw error;
 
       if (data?.url) {
@@ -35,12 +56,13 @@ export function StripeConnectBanner({ stripeStatus, onStatusChange }: StripeConn
     } catch (error) {
       console.error('Error starting Stripe Connect:', error);
       toast({
-        title: "Failed to start Stripe setup",
-        description: error instanceof Error ? error.message : "Please try again",
-        variant: "destructive"
+        title: 'Failed to start Stripe setup',
+        description: error instanceof Error ? error.message : 'Please try again',
+        variant: 'destructive',
       });
     } finally {
       setConnecting(false);
+      onStatusChange?.();
     }
   };
 
