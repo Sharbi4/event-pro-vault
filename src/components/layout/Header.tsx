@@ -300,6 +300,21 @@ export function Header() {
                       </Link>
                     )}
                     
+                    <div className="h-px bg-border my-2" />
+                    
+                    <Link 
+                      to="/browse" 
+                      className={`flex items-center gap-2 text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
+                        location.pathname === '/browse' 
+                          ? 'text-foreground bg-secondary' 
+                          : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
+                      }`}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Search className="w-4 h-4" />
+                      Browse Services
+                    </Link>
+                    
                     <Link
                       to="/faq" 
                       className={`text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
