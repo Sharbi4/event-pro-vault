@@ -19,7 +19,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { DollarSign, MapPin, Zap, Shield, HelpCircle, Settings2, Car } from 'lucide-react';
+import { DollarSign, MapPin, Zap, Shield, HelpCircle, Settings2, Car, Clock } from 'lucide-react';
 import { PackageFormData } from './PackageFormWizard';
 import { FormSection } from './FormSection';
 import { PricingTypeSelector, PricingType } from './PricingTypeSelector';
@@ -29,6 +29,40 @@ interface StepPricingTravelProps {
   formData: PackageFormData;
   updateFormData: (updates: Partial<PackageFormData>) => void;
 }
+
+const timeOptions = [
+  { value: '06:00', label: '6:00 AM' },
+  { value: '07:00', label: '7:00 AM' },
+  { value: '08:00', label: '8:00 AM' },
+  { value: '09:00', label: '9:00 AM' },
+  { value: '10:00', label: '10:00 AM' },
+  { value: '11:00', label: '11:00 AM' },
+  { value: '12:00', label: '12:00 PM' },
+  { value: '13:00', label: '1:00 PM' },
+  { value: '14:00', label: '2:00 PM' },
+  { value: '15:00', label: '3:00 PM' },
+  { value: '16:00', label: '4:00 PM' },
+  { value: '17:00', label: '5:00 PM' },
+  { value: '18:00', label: '6:00 PM' },
+  { value: '19:00', label: '7:00 PM' },
+  { value: '20:00', label: '8:00 PM' },
+  { value: '21:00', label: '9:00 PM' },
+  { value: '22:00', label: '10:00 PM' },
+  { value: '23:00', label: '11:00 PM' },
+];
+
+const durationOptions = [
+  { value: 60, label: '1 hour' },
+  { value: 120, label: '2 hours' },
+  { value: 180, label: '3 hours' },
+  { value: 240, label: '4 hours' },
+  { value: 300, label: '5 hours' },
+  { value: 360, label: '6 hours' },
+  { value: 420, label: '7 hours' },
+  { value: 480, label: '8 hours' },
+  { value: 600, label: '10 hours' },
+  { value: 720, label: '12 hours' },
+];
 
 export function StepPricingTravel({ formData, updateFormData }: StepPricingTravelProps) {
   const pricingType = formData.pricing_type || 'hourly';
@@ -68,7 +102,7 @@ export function StepPricingTravel({ formData, updateFormData }: StepPricingTrave
       case 'hourly':
         return { label: 'Min Hours', field: 'min_hours' as const, suffix: 'hours' };
       case 'daily':
-        return { label: 'Min Days', field: 'min_units' as const, suffix: 'days' };
+        return { label: 'Min Days', field: 'min_days' as const, suffix: 'days' };
       case 'per_guest':
         return { label: 'Min Guests', field: 'min_guests' as const, suffix: 'guests' };
       case 'per_item':
@@ -81,6 +115,7 @@ export function StepPricingTravel({ formData, updateFormData }: StepPricingTrave
   };
 
   const minConfig = getMinimumConfig();
+  const isDaily = pricingType === 'daily';
 
   const handlePricingTypeChange = (type: PricingType) => {
     updateFormData({
@@ -178,6 +213,61 @@ export function StepPricingTravel({ formData, updateFormData }: StepPricingTrave
           <p className="text-xs text-muted-foreground mt-1">
             Show a "starting at" price to attract inquiries
           </p>
+        </FormSection>
+      )}
+
+      {/* Daily Booking Time Settings */}
+      {isDaily && !isCustomQuote && (
+        <FormSection
+          icon={Clock}
+          iconColor="text-blue-500"
+          title="Event Time"
+          description="Default start time and duration for daily bookings"
+        >
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-xs mb-1.5 block">Default Start Time</Label>
+              <Select
+                value={formData.default_start_time || ''}
+                onValueChange={(value) => updateFormData({ default_start_time: value || undefined })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select time" />
+                </SelectTrigger>
+                <SelectContent>
+                  {timeOptions.map((time) => (
+                    <SelectItem key={time.value} value={time.value}>
+                      {time.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Customer can adjust at booking
+              </p>
+            </div>
+            <div>
+              <Label className="text-xs mb-1.5 block">Duration</Label>
+              <Select
+                value={formData.duration_minutes?.toString() || ''}
+                onValueChange={(value) => updateFormData({ duration_minutes: value ? parseInt(value) : undefined })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Select duration" />
+                </SelectTrigger>
+                <SelectContent>
+                  {durationOptions.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value.toString()}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground mt-1">
+                Total service time
+              </p>
+            </div>
+          </div>
         </FormSection>
       )}
 

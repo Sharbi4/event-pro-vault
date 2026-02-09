@@ -20,6 +20,7 @@ export interface VendorPackage {
   starting_at: number | null;
   min_units: number;
   min_hours: number | null;
+  min_days: number | null;
   min_guests: number | null;
   min_quantity: number | null;
   min_spend: number | null;
@@ -43,6 +44,9 @@ export interface VendorPackage {
   cancellation_policy: string;
   booking_mode: 'INSTANT' | 'REQUEST';
   payment_options: 'ONLINE' | 'CASH' | 'BOTH';
+  // Daily booking time settings
+  default_start_time: string | null;
+  duration_minutes: number | null;
   created_at: string;
   updated_at: string;
 }

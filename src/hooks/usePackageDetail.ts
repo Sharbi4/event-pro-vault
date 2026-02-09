@@ -33,6 +33,8 @@ export interface PackageDetailData {
   cancellation_policy: string | null;
   customer_requirements: string | null;
   deposit: number | null;
+  // Daily booking defaults
+  default_start_time: string | null;
   // Vendor info
   vendor_user_id: string;
   vendor_name: string;
@@ -186,6 +188,7 @@ export function usePackageDetail(packageId: string | undefined) {
           cancellation_policy: pkg.cancellation_policy,
           customer_requirements: pkg.customer_requirements,
           deposit: pkg.deposit ? Number(pkg.deposit) : null,
+          default_start_time: (pkg as any).default_start_time || null,
           // Vendor info
           vendor_user_id: pkg.user_id,
           vendor_name: detailsResult.data.business_name || 'Unknown Vendor',

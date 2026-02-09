@@ -44,6 +44,7 @@ export interface PackageFormData {
   starting_at?: number;
   min_units: number;
   min_hours: number;
+  min_days?: number;
   min_guests?: number;
   min_quantity?: number;
   min_spend?: number;
@@ -70,6 +71,9 @@ export interface PackageFormData {
   // Booking & Payment settings
   booking_mode: BookingMode;
   payment_options: PaymentOptions;
+  // Daily booking time settings
+  default_start_time?: string;
+  duration_minutes?: number;
 }
 
 interface PackageFormWizardProps {
@@ -98,6 +102,7 @@ const defaultFormData: PackageFormData = {
   price: 0,
   min_units: 1,
   min_hours: 1,
+  min_days: 1,
   additional_fees: [],
   travel_radius: 25,
   travel_fee_per_mile: 0,
@@ -116,6 +121,8 @@ const defaultFormData: PackageFormData = {
   blocked_dates: [],
   booking_mode: 'INSTANT',
   payment_options: 'ONLINE',
+  default_start_time: undefined,
+  duration_minutes: undefined,
 };
 
 export function PackageFormWizard({
@@ -161,6 +168,7 @@ export function PackageFormWizard({
         starting_at: initialData.starting_at || undefined,
         min_units: initialData.min_units,
         min_hours: initialData.min_hours || 1,
+        min_days: (initialData as any).min_days || 1,
         min_guests: initialData.min_guests || undefined,
         min_quantity: initialData.min_quantity || undefined,
         min_spend: initialData.min_spend || undefined,
@@ -185,6 +193,8 @@ export function PackageFormWizard({
         blocked_dates: [],
         booking_mode: ((initialData as any).booking_mode as BookingMode) || 'INSTANT',
         payment_options: ((initialData as any).payment_options as PaymentOptions) || 'ONLINE',
+        default_start_time: (initialData as any).default_start_time || undefined,
+        duration_minutes: initialData.duration_minutes || undefined,
       });
     } else {
       setFormData(defaultFormData);
@@ -222,6 +232,7 @@ export function PackageFormWizard({
       pricing_type: formData.pricing_type,
       starting_at: formData.starting_at ?? null,
       min_hours: formData.min_hours ?? null,
+      min_days: formData.min_days ?? null,
       min_guests: formData.min_guests ?? null,
       min_quantity: formData.min_quantity ?? null,
       min_spend: formData.min_spend ?? null,
@@ -232,6 +243,8 @@ export function PackageFormWizard({
       included_miles: formData.included_miles ?? null,
       fee_per_mile: formData.fee_per_mile ?? null,
       pickup_only: formData.pickup_only ?? null,
+      default_start_time: formData.default_start_time ?? null,
+      duration_minutes: formData.duration_minutes ?? null,
     } as any;
     
     // Remove availability fields from package data (stored separately)
