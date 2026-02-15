@@ -1,25 +1,25 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Check } from 'lucide-react';
+import { Sparkles, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { eventProCategories } from '@/data/eventpro-categories';
 
 interface ProfileTypeModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const eventProOption = {
-  title: 'Event Pro',
-  subtitle: 'Services & Packages',
-  description: 'Create service packages, set your availability, and get booked for events.',
-  features: ['Hourly & daily packages', 'Instant book or review requests', 'Accept online & cash payments'],
-  icon: Sparkles,
-};
+const PREVIEW_COUNT = 6;
+
+const highlightCategories = [
+  'food-truck', 'caterer', 'bakery', 'cake-baker', 'event-rentals', 'dj',
+];
 
 export function ProfileTypeModal({ open, onOpenChange }: ProfileTypeModalProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const [showAll, setShowAll] = useState(false);
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -28,22 +28,27 @@ export function ProfileTypeModal({ open, onOpenChange }: ProfileTypeModalProps) 
     onOpenChange(false);
 
     if (!user) {
-      // Not logged in - go to dedicated Event Pro auth page
       navigate('/auth/pro');
     } else {
-      // Already logged in - go straight to onboarding
       navigate('/eventpro-onboarding');
     }
 
     setIsLoading(false);
   };
 
-  const Icon = eventProOption.icon;
+  // Put highlighted ones first, then the rest
+  const highlighted = highlightCategories
+    .map(id => eventProCategories.find(c => c.id === id))
+    .filter(Boolean) as typeof eventProCategories;
+  const rest = eventProCategories.filter(c => !highlightCategories.includes(c.id));
+  const ordered = [...highlighted, ...rest];
+  const visible = showAll ? ordered : ordered.slice(0, PREVIEW_COUNT);
+  const hiddenCount = ordered.length - PREVIEW_COUNT;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden">
-        <DialogHeader className="p-6 pb-4">
+    <Dialog open={open} onOpenChange={(v) => { if (!v) setShowAll(false); onOpenChange(v); }}>
+      <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden max-h-[90vh] flex flex-col">
+        <DialogHeader className="p-6 pb-3">
           <DialogTitle className="text-2xl font-bold text-center">
             Become an Event Pro
           </DialogTitle>
@@ -52,34 +57,69 @@ export function ProfileTypeModal({ open, onOpenChange }: ProfileTypeModalProps) 
           </p>
         </DialogHeader>
 
-        <div className="px-6 pb-6">
-          <div className="p-5 rounded-xl border-2 border-primary bg-primary/5">
+        <div className="px-6 pb-2 overflow-y-auto flex-1">
+          {/* Features */}
+          <div className="p-4 rounded-xl border-2 border-primary bg-primary/5 mb-4">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary text-primary-foreground">
-                <Icon className="w-5 h-5" />
+                <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">{eventProOption.title}</h3>
-                <p className="text-xs text-muted-foreground">{eventProOption.subtitle}</p>
+                <h3 className="font-semibold text-foreground">Event Pro</h3>
+                <p className="text-xs text-muted-foreground">Services & Packages</p>
               </div>
             </div>
-
-            <p className="text-sm text-muted-foreground mb-3">
-              {eventProOption.description}
-            </p>
-
             <ul className="space-y-1.5">
-              {eventProOption.features.map((feature, idx) => (
+              {['Hourly & daily packages', 'Instant book or review requests', 'Accept online & cash payments'].map((feature, idx) => (
                 <li key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Check className="w-3 h-3 text-primary" />
+                  <Check className="w-3 h-3 text-primary flex-shrink-0" />
                   {feature}
                 </li>
               ))}
             </ul>
           </div>
+
+          {/* Categories */}
+          <div>
+            <p className="text-sm font-semibold text-foreground mb-1">
+              Great for food trucks, caterers, cottage bakers, event rentals & more
+            </p>
+            <div className="flex flex-wrap gap-1.5 mt-2">
+              {visible.map((cat) => {
+                const Icon = cat.icon;
+                return (
+                  <span
+                    key={cat.id}
+                    className="inline-flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full bg-muted text-muted-foreground border border-border"
+                  >
+                    <Icon className="w-3 h-3 text-primary flex-shrink-0" />
+                    {cat.name}
+                  </span>
+                );
+              })}
+            </div>
+            {!showAll && hiddenCount > 0 && (
+              <button
+                onClick={() => setShowAll(true)}
+                className="mt-2 text-xs text-primary font-medium flex items-center gap-1 hover:underline"
+              >
+                +{hiddenCount} more categories
+                <ChevronDown className="w-3 h-3" />
+              </button>
+            )}
+            {showAll && (
+              <button
+                onClick={() => setShowAll(false)}
+                className="mt-2 text-xs text-primary font-medium flex items-center gap-1 hover:underline"
+              >
+                Show less
+                <ChevronUp className="w-3 h-3" />
+              </button>
+            )}
+          </div>
         </div>
 
-        <div className="p-6 pt-0">
+        <div className="p-6 pt-3 border-t border-border">
           <Button
             variant="darkShine"
             size="lg"
