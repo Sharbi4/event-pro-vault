@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,6 +10,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles, MessageCircle, Bell, AlertTriangle } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { VendorOverview } from '@/components/vendor-dashboard/VendorOverview';
 import { VendorBookings } from '@/components/vendor-dashboard/VendorBookings';
 import { VendorListings } from '@/components/vendor-dashboard/VendorListings';
@@ -26,8 +28,9 @@ import { ApprovalStatusBanner } from '@/components/shared/ApprovalStatusBanner';
 import { StripeSetupCard } from '@/components/shared/StripeSetupCard';
 const VendorDashboard = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const defaultTab = searchParams.get('tab') || 'overview';
+  const stripeConnectReturn = searchParams.get('stripe_connect');
   const { user, loading: authLoading, signOut } = useAuth();
   
   const {
@@ -72,6 +75,46 @@ const VendorDashboard = () => {
       setCoverUrl(vendorDetails.cover_image_url);
     }
   }, [profile?.avatar_url, vendorDetails?.cover_image_url]);
+
+  const { toast } = useToast();
+
+  // Handle Stripe Connect return - check status and refresh
+  useEffect(() => {
+    if (!stripeConnectReturn || !user) return;
+    
+    const checkConnectStatus = async () => {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession();
+        const accessToken = sessionData.session?.access_token;
+        if (!accessToken) return;
+
+        const { data, error } = await supabase.functions.invoke('check-connect-status', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+
+        if (!error && data) {
+          refetch();
+          if (data.status === 'active') {
+            toast({ title: 'Stripe Connected!', description: 'You can now accept online payments.' });
+          } else if (data.detailsSubmitted) {
+            toast({ title: 'Almost there!', description: 'Stripe is verifying your account. This usually takes a few minutes.' });
+          } else if (stripeConnectReturn === 'refresh') {
+            toast({ title: 'Continue setup', description: 'Click "Connect Stripe" to resume where you left off.' });
+          }
+        }
+      } catch (err) {
+        console.error('Error checking connect status:', err);
+      }
+      
+      // Clean up URL params
+      setSearchParams((prev) => {
+        prev.delete('stripe_connect');
+        return prev;
+      }, { replace: true });
+    };
+
+    checkConnectStatus();
+  }, [stripeConnectReturn, user]);
 
   useEffect(() => {
     if (!authLoading && !user) {
