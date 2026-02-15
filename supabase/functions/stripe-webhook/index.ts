@@ -1,15 +1,15 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@14.21.0?target=deno";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, stripe-signature",
 };
 
-const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-  apiVersion: "2023-10-16",
-});
+const logStep = (step: string, details?: unknown) => {
+  console.log(`[STRIPE-WEBHOOK] ${step}`, details ? JSON.stringify(details) : '');
+};
 
 const supabaseAdmin = createClient(
   Deno.env.get("SUPABASE_URL") ?? "",
@@ -26,29 +26,40 @@ serve(async (req) => {
     const webhookSecret = Deno.env.get("STRIPE_WEBHOOK_SECRET");
     
     if (!signature || !webhookSecret) {
-      console.error("Missing signature or webhook secret");
+      logStep("Missing signature or webhook secret");
       return new Response(JSON.stringify({ error: "Missing signature" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+      apiVersion: "2025-08-27.basil",
+    });
+
     const body = await req.text();
     let event: Stripe.Event;
 
     try {
-      event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      // Use constructEventAsync for Deno compatibility
+      event = await stripe.webhooks.constructEventAsync(body, signature, webhookSecret);
     } catch (err) {
-      console.error("Webhook signature verification failed:", err);
+      logStep("Webhook signature verification failed", { error: String(err) });
       return new Response(JSON.stringify({ error: "Invalid signature" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log(`Received webhook event: ${event.type}`);
+    logStep(`Received event: ${event.type}`);
 
     switch (event.type) {
+      case "account.updated": {
+        const account = event.data.object as Stripe.Account;
+        await handleAccountUpdated(account);
+        break;
+      }
+
       case "payment_intent.succeeded": {
         const paymentIntent = event.data.object as Stripe.PaymentIntent;
         await handlePaymentIntentSucceeded(paymentIntent);
@@ -75,18 +86,18 @@ serve(async (req) => {
       
       case "transfer.created": {
         const transfer = event.data.object as Stripe.Transfer;
-        console.log(`Transfer created: ${transfer.id} for ${transfer.amount / 100}`);
+        logStep(`Transfer created: ${transfer.id} for ${transfer.amount / 100}`);
         break;
       }
       
       case "payout.paid": {
         const payout = event.data.object as Stripe.Payout;
-        console.log(`Payout completed: ${payout.id} for ${payout.amount / 100}`);
+        logStep(`Payout completed: ${payout.id} for ${payout.amount / 100}`);
         break;
       }
       
       default:
-        console.log(`Unhandled event type: ${event.type}`);
+        logStep(`Unhandled event type: ${event.type}`);
     }
 
     return new Response(JSON.stringify({ received: true }), {
@@ -94,8 +105,8 @@ serve(async (req) => {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
-    console.error("Webhook error:", error);
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    logStep("ERROR", { message: errorMessage });
     return new Response(JSON.stringify({ error: errorMessage }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -103,8 +114,43 @@ serve(async (req) => {
   }
 });
 
+// Handle Connect account status changes (from Stripe onboarding completion)
+async function handleAccountUpdated(account: Stripe.Account) {
+  logStep("Account updated", {
+    accountId: account.id,
+    chargesEnabled: account.charges_enabled,
+    payoutsEnabled: account.payouts_enabled,
+    detailsSubmitted: account.details_submitted,
+  });
+
+  let newStatus = "pending";
+  if (account.charges_enabled && account.payouts_enabled) {
+    newStatus = "active";
+  } else if (account.details_submitted) {
+    newStatus = "pending_verification";
+  }
+
+  const updateData: Record<string, unknown> = {
+    stripe_account_status: newStatus,
+  };
+  if (newStatus === "active") {
+    updateData.onboarding_completed_at = new Date().toISOString();
+  }
+
+  const { error } = await supabaseAdmin
+    .from("profiles")
+    .update(updateData)
+    .eq("stripe_account_id", account.id);
+
+  if (error) {
+    logStep("Error updating profile for account.updated", { error: error.message });
+  } else {
+    logStep("Profile status updated via webhook", { accountId: account.id, newStatus });
+  }
+}
+
 async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
-  console.log(`PaymentIntent succeeded: ${paymentIntent.id}`);
+  logStep(`PaymentIntent succeeded: ${paymentIntent.id}`);
   
   const metadata = paymentIntent.metadata;
   
@@ -121,18 +167,16 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       .eq("id", metadata.slot_booking_id);
     
     if (error) {
-      console.error("Error updating slot booking:", error);
+      logStep("Error updating slot booking", { error: error.message });
     } else {
-      console.log(`Slot booking ${metadata.slot_booking_id} marked as paid`);
-      
-      // Decrement inventory
+      logStep(`Slot booking ${metadata.slot_booking_id} marked as paid`);
       if (metadata.slot_inventory_id && metadata.quantity) {
         await decrementSlotInventory(metadata.slot_inventory_id, parseInt(metadata.quantity));
       }
     }
   }
   
-  // Handle regular bookings (vendor packages)
+  // Handle regular bookings
   if (metadata?.booking_id) {
     const updateData: Record<string, unknown> = {
       payment_status: "paid",
@@ -158,53 +202,38 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       .eq("id", metadata.booking_id);
     
     if (error) {
-      console.error("Error updating booking:", error);
+      logStep("Error updating booking", { error: error.message });
     } else {
-      console.log(`Booking ${metadata.booking_id} payment recorded`);
+      logStep(`Booking ${metadata.booking_id} payment recorded`);
     }
   }
 }
 
 async function handlePaymentIntentFailed(paymentIntent: Stripe.PaymentIntent) {
-  console.log(`PaymentIntent failed: ${paymentIntent.id}`);
+  logStep(`PaymentIntent failed: ${paymentIntent.id}`);
   
   const metadata = paymentIntent.metadata;
   
   if (metadata?.slot_booking_id) {
-    const { error } = await supabaseAdmin
+    await supabaseAdmin
       .from("slot_bookings")
-      .update({
-        payment_status: "failed",
-        updated_at: new Date().toISOString(),
-      })
+      .update({ payment_status: "failed", updated_at: new Date().toISOString() })
       .eq("id", metadata.slot_booking_id);
-    
-    if (error) {
-      console.error("Error updating slot booking:", error);
-    }
   }
   
   if (metadata?.booking_id) {
-    const { error } = await supabaseAdmin
+    await supabaseAdmin
       .from("bookings")
-      .update({
-        payment_status: "failed",
-        updated_at: new Date().toISOString(),
-      })
+      .update({ payment_status: "failed", updated_at: new Date().toISOString() })
       .eq("id", metadata.booking_id);
-    
-    if (error) {
-      console.error("Error updating booking:", error);
-    }
   }
 }
 
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
-  console.log(`Checkout session completed: ${session.id}`);
+  logStep(`Checkout session completed: ${session.id}`);
   
   const metadata = session.metadata;
   
-  // Handle slot bookings from checkout
   if (metadata?.slot_booking_id) {
     const { error } = await supabaseAdmin
       .from("slot_bookings")
@@ -216,21 +245,13 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
       })
       .eq("id", metadata.slot_booking_id);
     
-    if (error) {
-      console.error("Error updating slot booking from checkout:", error);
-    } else {
-      console.log(`Slot booking ${metadata.slot_booking_id} confirmed from checkout`);
-      
-      // Decrement inventory
-      if (metadata.slot_inventory_id && metadata.quantity) {
-        await decrementSlotInventory(metadata.slot_inventory_id, parseInt(metadata.quantity));
-      }
+    if (!error && metadata.slot_inventory_id && metadata.quantity) {
+      await decrementSlotInventory(metadata.slot_inventory_id, parseInt(metadata.quantity));
     }
   }
   
-  // Handle regular bookings from checkout
   if (metadata?.booking_id) {
-    const { error } = await supabaseAdmin
+    await supabaseAdmin
       .from("bookings")
       .update({
         payment_status: "paid",
@@ -240,55 +261,33 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         updated_at: new Date().toISOString(),
       })
       .eq("id", metadata.booking_id);
-    
-    if (error) {
-      console.error("Error updating booking from checkout:", error);
-    } else {
-      console.log(`Booking ${metadata.booking_id} confirmed from checkout`);
-    }
   }
 }
 
 async function decrementSlotInventory(inventoryId: string, quantity: number) {
-  // First get current inventory
   const { data: inventory, error: fetchError } = await supabaseAdmin
     .from("slot_inventory")
     .select("slots_remaining")
     .eq("id", inventoryId)
     .single();
   
-  if (fetchError || !inventory) {
-    console.error("Error fetching inventory:", fetchError);
-    return;
-  }
+  if (fetchError || !inventory) return;
   
   const newRemaining = Math.max(0, inventory.slots_remaining - quantity);
-  
-  const { error: updateError } = await supabaseAdmin
+  await supabaseAdmin
     .from("slot_inventory")
-    .update({
-      slots_remaining: newRemaining,
-      updated_at: new Date().toISOString(),
-    })
+    .update({ slots_remaining: newRemaining, updated_at: new Date().toISOString() })
     .eq("id", inventoryId);
   
-  if (updateError) {
-    console.error("Error decrementing inventory:", updateError);
-  } else {
-    console.log(`Inventory ${inventoryId} decremented by ${quantity}, now ${newRemaining} remaining`);
-  }
+  logStep(`Inventory ${inventoryId} decremented by ${quantity}, now ${newRemaining}`);
 }
 
 async function handleChargeRefunded(charge: Stripe.Charge) {
-  console.log(`Charge refunded: ${charge.id}, amount refunded: ${charge.amount_refunded / 100}`);
+  logStep(`Charge refunded: ${charge.id}, amount: ${charge.amount_refunded / 100}`);
   
   const paymentIntentId = charge.payment_intent as string;
-  if (!paymentIntentId) {
-    console.log("No payment intent on refunded charge");
-    return;
-  }
+  if (!paymentIntentId) return;
 
-  // Check for slot booking with this payment intent
   const { data: slotBooking } = await supabaseAdmin
     .from("slot_bookings")
     .select("id, quantity, slot_inventory_id")
@@ -296,46 +295,31 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
     .single();
 
   if (slotBooking) {
-    // Update slot booking status
-    const { error } = await supabaseAdmin
+    await supabaseAdmin
       .from("slot_bookings")
-      .update({
-        payment_status: "refunded",
-        status: "cancelled",
-        updated_at: new Date().toISOString(),
-      })
+      .update({ payment_status: "refunded", status: "cancelled", updated_at: new Date().toISOString() })
       .eq("id", slotBooking.id);
 
-    if (error) {
-      console.error("Error updating slot booking for refund:", error);
-    } else {
-      console.log(`Slot booking ${slotBooking.id} marked as refunded`);
-      
-      // Restore inventory
-      if (slotBooking.slot_inventory_id) {
-        const { data: inventory } = await supabaseAdmin
-          .from("slot_inventory")
-          .select("slots_remaining")
-          .eq("id", slotBooking.slot_inventory_id)
-          .single();
+    if (slotBooking.slot_inventory_id) {
+      const { data: inventory } = await supabaseAdmin
+        .from("slot_inventory")
+        .select("slots_remaining")
+        .eq("id", slotBooking.slot_inventory_id)
+        .single();
 
-        if (inventory) {
-          await supabaseAdmin
-            .from("slot_inventory")
-            .update({
-              slots_remaining: inventory.slots_remaining + slotBooking.quantity,
-              updated_at: new Date().toISOString(),
-            })
-            .eq("id", slotBooking.slot_inventory_id);
-          
-          console.log(`Restored ${slotBooking.quantity} slots to inventory`);
-        }
+      if (inventory) {
+        await supabaseAdmin
+          .from("slot_inventory")
+          .update({
+            slots_remaining: inventory.slots_remaining + slotBooking.quantity,
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", slotBooking.slot_inventory_id);
       }
     }
     return;
   }
 
-  // Check for regular booking with this payment intent
   const { data: booking } = await supabaseAdmin
     .from("bookings")
     .select("id")
@@ -343,19 +327,9 @@ async function handleChargeRefunded(charge: Stripe.Charge) {
     .single();
 
   if (booking) {
-    const { error } = await supabaseAdmin
+    await supabaseAdmin
       .from("bookings")
-      .update({
-        payment_status: "refunded",
-        status: "cancelled",
-        updated_at: new Date().toISOString(),
-      })
+      .update({ payment_status: "refunded", status: "cancelled", updated_at: new Date().toISOString() })
       .eq("id", booking.id);
-
-    if (error) {
-      console.error("Error updating booking for refund:", error);
-    } else {
-      console.log(`Booking ${booking.id} marked as refunded`);
-    }
   }
 }

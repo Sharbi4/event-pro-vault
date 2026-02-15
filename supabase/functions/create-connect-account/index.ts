@@ -134,8 +134,8 @@ serve(async (req) => {
     // Create account link for onboarding
     const accountLink = await stripe.accountLinks.create({
       account: accountId,
-      refresh_url: `${origin}/vendor-onboarding?step=connect-refresh`,
-      return_url: `${origin}/vendor-onboarding?step=connect-complete`,
+      refresh_url: `${origin}/vendor-dashboard?stripe_connect=refresh`,
+      return_url: `${origin}/vendor-dashboard?stripe_connect=complete`,
       type: "account_onboarding",
       collect: "eventually_due",
     });
