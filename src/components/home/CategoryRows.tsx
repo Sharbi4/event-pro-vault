@@ -9,58 +9,52 @@ import { vendors as mockVendors, packages as mockPackages } from '@/data/vendors
 import { Vendor } from '@/types';
 import { useCategoryCounts, useCategoryPackages } from '@/hooks/useFeaturedContent';
 import { 
-  Truck, UtensilsCrossed, ChefHat, Wine, 
-  Music, Sparkles, Tent, Heart, Store, Leaf,
-  Cake
+  Truck, UtensilsCrossed, Pizza, Coffee, IceCream, 
+  Cake, Fish, Soup, Beef, Flame, Candy, CupSoda,
+  Sandwich, Drumstick, CakeSlice, Salad, Leaf, Egg, Shell,
+  MoreHorizontal
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ElementType> = {
-  Truck,
-  UtensilsCrossed,
-  ChefHat,
-  Wine,
-  Music,
-  Sparkles,
-  Tent,
-  Heart,
-  Store,
-  Leaf,
-  Cake,
+  Truck, UtensilsCrossed, Pizza, Coffee, IceCream,
+  Cake, Fish, Soup, Beef, Flame, Candy, CupSoda,
+  Sandwich, Drumstick, CakeSlice, Salad, Leaf, Egg, Shell,
+  MoreHorizontal,
 };
 
-// Featured category groups with vendors
+// Featured category groups
 const categoryGroups = [
   {
-    id: 'markets',
-    title: 'Local Markets',
-    subtitle: 'Find vendor spots at flea markets & farmers markets',
-    categoryIds: ['flea-markets', 'farmers-markets'],
-    icon: Store,
-    link: '/markets',
+    id: 'mexican-bbq',
+    title: 'Tacos & BBQ',
+    subtitle: 'Mexican street food, smoked meats & Southern flavors',
+    categoryIds: ['taco-trucks', 'bbq-trucks'],
+    icon: Flame,
+    link: '/browse?category=taco-trucks',
   },
   {
-    id: 'food',
-    title: 'Food & Catering',
-    subtitle: 'Food trucks, caterers, and private chefs',
-    categoryIds: ['food-trucks', 'catering', 'private-chefs'],
-    icon: UtensilsCrossed,
-    link: '/browse?category=food-trucks',
+    id: 'pizza-burgers',
+    title: 'Pizza & Burgers',
+    subtitle: 'Wood-fired pizza, gourmet burgers & sliders',
+    categoryIds: ['pizza-trucks', 'burger-trucks'],
+    icon: Pizza,
+    link: '/browse?category=pizza-trucks',
   },
   {
-    id: 'entertainment',
-    title: 'Entertainment',
-    subtitle: 'DJs, performers, and live entertainment',
-    categoryIds: ['djs', 'performers'],
-    icon: Music,
-    link: '/browse?category=djs',
+    id: 'sweet-treats',
+    title: 'Sweet Treats',
+    subtitle: 'Ice cream, desserts, cotton candy & coffee',
+    categoryIds: ['ice-cream-trucks', 'dessert-trucks', 'cotton-candy', 'coffee-trucks'],
+    icon: IceCream,
+    link: '/browse?category=ice-cream-trucks',
   },
   {
-    id: 'services',
-    title: 'Event Services',
-    subtitle: 'Bartending, rentals, and wellness',
-    categoryIds: ['bartending', 'rentals', 'wellness'],
-    icon: Wine,
-    link: '/browse?category=bartending',
+    id: 'global-flavors',
+    title: 'Global Flavors',
+    subtitle: 'Asian fusion, seafood, Mediterranean & more',
+    categoryIds: ['asian-trucks', 'seafood-trucks', 'catering-trucks', 'smoothie-trucks'],
+    icon: Soup,
+    link: '/browse?category=asian-trucks',
   },
 ];
 
@@ -104,7 +98,7 @@ function CategoryPill({
         ) : null}
         {category.featured && (
           <Badge variant="gradient" className="text-[10px] px-1.5 py-0">
-            New
+            Hot
           </Badge>
         )}
       </div>

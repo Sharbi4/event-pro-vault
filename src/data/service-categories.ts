@@ -1,92 +1,148 @@
 import { Category } from '@/types';
 
-// Service categories for Event Services mode
+// Food truck categories for the marketplace
 export const serviceCategories: Category[] = [
   {
-    id: 'food-trucks',
-    name: 'Food Trucks',
+    id: 'taco-trucks',
+    name: 'Taco Trucks',
     icon: 'Truck',
-    description: 'Mobile cuisine for any event',
-    count: 156,
-    featured: true
-  },
-  {
-    id: 'catering',
-    name: 'Catering',
-    icon: 'UtensilsCrossed',
-    description: 'Full-service event catering',
+    description: 'Authentic Mexican street food',
     count: 203,
     featured: true
   },
   {
-    id: 'private-chefs',
-    name: 'Private Chefs',
-    icon: 'ChefHat',
-    description: 'Personalized culinary experiences',
-    count: 89
-  },
-  {
-    id: 'bartending',
-    name: 'Mobile Bartending',
-    icon: 'Wine',
-    description: 'Professional bar services',
-    count: 124
-  },
-  {
-    id: 'djs',
-    name: 'DJs',
-    icon: 'Music',
-    description: 'Set the vibe for your event',
-    count: 278,
+    id: 'bbq-trucks',
+    name: 'BBQ Trucks',
+    icon: 'Flame',
+    description: 'Smoked meats & Southern classics',
+    count: 178,
     featured: true
   },
   {
-    id: 'performers',
-    name: 'Performers',
-    icon: 'Sparkles',
-    description: 'Magicians, dancers, entertainers',
+    id: 'pizza-trucks',
+    name: 'Pizza Trucks',
+    icon: 'Pizza',
+    description: 'Wood-fired & artisan pizza',
+    count: 145,
+    featured: true
+  },
+  {
+    id: 'burger-trucks',
+    name: 'Burger Trucks',
+    icon: 'Beef',
+    description: 'Gourmet burgers & sliders',
     count: 167
   },
   {
-    id: 'rentals',
-    name: 'Event Rentals',
-    icon: 'Tent',
-    description: 'Tables, chairs, tents & more',
+    id: 'ice-cream-trucks',
+    name: 'Ice Cream Trucks',
+    icon: 'IceCream',
+    description: 'Frozen treats & desserts',
+    count: 134
+  },
+  {
+    id: 'coffee-trucks',
+    name: 'Coffee Trucks',
+    icon: 'Coffee',
+    description: 'Espresso bars & specialty drinks',
+    count: 112
+  },
+  {
+    id: 'asian-trucks',
+    name: 'Asian Fusion',
+    icon: 'Soup',
+    description: 'Korean, Thai, Japanese & more',
+    count: 156
+  },
+  {
+    id: 'dessert-trucks',
+    name: 'Dessert Trucks',
+    icon: 'Cake',
+    description: 'Cupcakes, donuts & sweet treats',
     count: 98
   },
   {
-    id: 'wellness',
-    name: 'Wellness',
-    icon: 'Heart',
-    description: 'Spiritual & wellness services',
-    count: 72
-  },
-  {
-    id: 'photography',
-    name: 'Photography',
-    icon: 'Camera',
-    description: 'Capture your special moments',
-    count: 145
-  },
-  {
-    id: 'videography',
-    name: 'Videography',
-    icon: 'Video',
-    description: 'Professional video services',
+    id: 'seafood-trucks',
+    name: 'Seafood Trucks',
+    icon: 'Fish',
+    description: 'Lobster rolls, fish tacos & more',
     count: 87
   },
   {
-    id: 'bakery',
-    name: 'Bakery',
-    icon: 'Cake',
-    description: 'Cakes, pastries & treats',
-    count: 112
+    id: 'cotton-candy',
+    name: 'Cotton Candy',
+    icon: 'Candy',
+    description: 'Gourmet cotton candy & sugar art',
+    count: 64
+  },
+  {
+    id: 'catering-trucks',
+    name: 'Catering Trucks',
+    icon: 'UtensilsCrossed',
+    description: 'Full-service mobile catering',
+    count: 189
+  },
+  {
+    id: 'smoothie-trucks',
+    name: 'Smoothie & Juice',
+    icon: 'CupSoda',
+    description: 'Fresh juices, smoothies & açaí',
+    count: 76
+  },
+  {
+    id: 'sandwich-trucks',
+    name: 'Sandwich Trucks',
+    icon: 'Sandwich',
+    description: 'Subs, wraps & gourmet sandwiches',
+    count: 92
+  },
+  {
+    id: 'chicken-trucks',
+    name: 'Chicken & Wings',
+    icon: 'Drumstick',
+    description: 'Fried chicken, wings & tenders',
+    count: 118
+  },
+  {
+    id: 'crepe-trucks',
+    name: 'Crêpe & Waffle',
+    icon: 'CakeSlice',
+    description: 'Sweet & savory crêpes and waffles',
+    count: 54
+  },
+  {
+    id: 'mediterranean-trucks',
+    name: 'Mediterranean',
+    icon: 'Salad',
+    description: 'Falafel, gyros, kebabs & bowls',
+    count: 89
+  },
+  {
+    id: 'vegan-trucks',
+    name: 'Vegan & Plant-Based',
+    icon: 'Leaf',
+    description: '100% plant-based mobile food',
+    count: 67
+  },
+  {
+    id: 'breakfast-trucks',
+    name: 'Breakfast Trucks',
+    icon: 'Egg',
+    description: 'Morning burritos, pancakes & more',
+    count: 73
+  },
+  {
+    id: 'lobster-trucks',
+    name: 'Lobster & Crab',
+    icon: 'Shell',
+    description: 'Lobster rolls & crab cakes',
+    count: 42
   },
   {
     id: 'other',
     name: 'More',
     icon: 'MoreHorizontal',
-    description: 'Other event services',
+    description: 'Other mobile food vendors',
     count: 234
   }
 ];
