@@ -87,4 +87,18 @@ export const categories: Category[] = [
     description: 'Fresh juices, smoothies & açaí',
     count: 76
   },
+  {
+    id: 'shawarma-trucks',
+    name: 'Shawarma',
+    icon: 'Beef',
+    description: 'Mediterranean wraps & platters',
+    count: 45
+  },
+  {
+    id: 'other',
+    name: 'Other',
+    icon: 'MoreHorizontal',
+    description: 'Other mobile food vendors',
+    count: 120
+  },
 ];

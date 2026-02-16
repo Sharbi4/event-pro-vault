@@ -92,6 +92,13 @@ export const serviceCategories: Category[] = [
     count: 78
   },
   {
+    id: 'shawarma-trucks',
+    name: 'Shawarma',
+    icon: 'Beef',
+    description: 'Mediterranean wraps & platters',
+    count: 45
+  },
+  {
     id: 'other',
     name: 'More',
     icon: 'MoreHorizontal',
