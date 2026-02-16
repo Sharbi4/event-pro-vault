@@ -268,7 +268,7 @@ export function PackageFormWizard({
   const isStepValid = () => {
     switch (currentStep) {
       case 0:
-        return formData.name.trim().length > 0 && formData.category.length > 0;
+        return formData.name.trim().length > 0 && formData.category.trim().length > 0;
       case 1:
         // Custom quote doesn't require price
         if (formData.pricing_type === 'custom_quote') return true;
@@ -329,12 +329,12 @@ export function PackageFormWizard({
 
   // Navigation buttons component
   const Navigation = () => (
-    <div className="flex gap-2 pt-3 border-t">
+    <div className="flex items-center justify-between pt-3 border-t">
       <Button
         type="button"
-        variant="outline"
+        variant="ghost"
+        size="sm"
         onClick={currentStep === 0 ? onClose : handleBack}
-        className="flex-1 sm:flex-none"
       >
         {currentStep === 0 ? 'Cancel' : (
           <>
@@ -344,15 +344,18 @@ export function PackageFormWizard({
         )}
       </Button>
 
+      <span className="text-xs text-muted-foreground">
+        Step {currentStep + 1} of {STEPS.length}
+      </span>
+
       {currentStep < STEPS.length - 1 ? (
         <Button
           type="button"
           variant="gradient"
           onClick={handleNext}
           disabled={!isStepValid()}
-          className="flex-1 sm:flex-none sm:ml-auto"
         >
-          Next
+          Continue
           <ChevronRight className="w-4 h-4 ml-1" />
         </Button>
       ) : (
@@ -361,7 +364,6 @@ export function PackageFormWizard({
           variant="gradient"
           onClick={handleSubmit}
           disabled={loading || !isStepValid()}
-          className="flex-1 sm:flex-none sm:ml-auto"
         >
           {loading ? (
             <>
@@ -422,7 +424,7 @@ export function PackageFormWizard({
           if (!nextOpen) onClose();
         }}
       >
-        <DrawerContent className="max-h-[95vh]">
+        <DrawerContent className="max-h-[95vh]" onPointerDownOutside={(e) => e.preventDefault()}>
           <DrawerHeader className="pb-2">
             <DrawerTitle className="text-lg">
               {initialData ? 'Edit Package' : 'New Package'}
@@ -430,7 +432,11 @@ export function PackageFormWizard({
             <StepIndicators />
             <Progress value={progress} className="h-1" />
           </DrawerHeader>
-          <div className="px-4 pb-4 flex flex-col overflow-hidden">
+          <div 
+            className="px-4 pb-4 flex flex-col overflow-hidden"
+            onPointerDownCapture={(e) => e.stopPropagation()}
+            onTouchStartCapture={(e) => e.stopPropagation()}
+          >
             <StepContent />
             <Navigation />
           </div>
