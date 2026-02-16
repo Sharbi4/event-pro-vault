@@ -139,6 +139,29 @@ export const serviceCategories: Category[] = [
     count: 42
   },
   {
+    id: 'event-carts',
+    name: 'Event Carts',
+    icon: 'ShoppingCart',
+    description: 'Dessert carts, popcorn, churros & more',
+    count: 95,
+    featured: true
+  },
+  {
+    id: 'catering',
+    name: 'Catering',
+    icon: 'ConciergeBell',
+    description: 'Full-service catering for any event',
+    count: 210,
+    featured: true
+  },
+  {
+    id: 'private-chef',
+    name: 'Private Chef',
+    icon: 'ChefHat',
+    description: 'Personal chefs for intimate events',
+    count: 78
+  },
+  {
     id: 'other',
     name: 'More',
     icon: 'MoreHorizontal',
