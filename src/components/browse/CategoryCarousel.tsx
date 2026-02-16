@@ -1,8 +1,10 @@
 import { useRef } from 'react';
 import { 
-  Truck, UtensilsCrossed, ChefHat, Wine, Music, 
-  Sparkles, Tent, Heart, Camera, Video, Cake, 
-  MoreHorizontal, ChevronLeft, ChevronRight 
+  Truck, UtensilsCrossed, ChefHat, Sparkles, Cake, 
+  MoreHorizontal, ChevronLeft, ChevronRight,
+  Flame, Pizza, Beef, IceCream, Coffee, Soup,
+  Fish, Candy, CupSoda, Sandwich, Drumstick, CakeSlice,
+  Salad, Leaf, Egg, Shell, ShoppingCart, ConciergeBell
 } from 'lucide-react';
 import { Category } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -11,15 +13,27 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Truck,
   UtensilsCrossed,
   ChefHat,
-  Wine,
-  Music,
   Sparkles,
-  Tent,
-  Heart,
-  Camera,
-  Video,
   Cake,
   MoreHorizontal,
+  Flame,
+  Pizza,
+  Beef,
+  IceCream,
+  Coffee,
+  Soup,
+  Fish,
+  Candy,
+  CupSoda,
+  Sandwich,
+  Drumstick,
+  CakeSlice,
+  Salad,
+  Leaf,
+  Egg,
+  Shell,
+  ShoppingCart,
+  ConciergeBell,
 };
 
 interface CategoryCarouselProps {
