@@ -174,6 +174,7 @@ export default function ProProfile() {
               vendorUserId={resolvedUserId!}
               vendorName={profile.displayName || profile.businessName || 'Event Pro'}
               variant="gradient"
+              label="Message Event Pro"
             />
             <ShareButton
               url={profile.username ? `/eventpro/${profile.username}` : `/pro/${resolvedUserId}`}

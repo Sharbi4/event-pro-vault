@@ -12,6 +12,7 @@ interface ContactVendorButtonProps {
   className?: string;
   variant?: 'default' | 'outline' | 'ghost' | 'gradient';
   size?: 'default' | 'sm' | 'lg';
+  label?: string;
 }
 
 export function ContactVendorButton({
@@ -20,6 +21,7 @@ export function ContactVendorButton({
   className,
   variant = 'outline',
   size = 'default',
+  label = 'Contact',
 }: ContactVendorButtonProps) {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -116,7 +118,7 @@ export function ContactVendorButton({
       ) : (
         <MessageCircle className="w-4 h-4" />
       )}
-      Contact
+      {label}
     </Button>
   );
 }
