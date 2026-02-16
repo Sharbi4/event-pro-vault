@@ -18,15 +18,15 @@ export const SEO_CONFIG = {
   
   // Primary keywords
   keywords: [
-    'event services marketplace',
-    'book event services',
     'book food truck',
-    'hire photographer',
-    'mobile bartender',
-    'catering',
-    'DJs',
-    'performers',
-    'event rentals',
+    'food truck catering',
+    'taco truck for event',
+    'pizza truck near me',
+    'bbq truck booking',
+    'ice cream truck hire',
+    'mobile food vendor',
+    'food truck for party',
+    'coffee cart event',
     'book by availability',
   ],
 };
@@ -40,8 +40,8 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
   const pages: Record<string, { title: string; description: string; canonical: string; noIndex?: boolean }> = {
     // Public pages
     home: {
-      title: `${siteName} | Book Available Event Services`,
-      description: 'Search and book available event packages—food trucks, photographers, DJs, bartenders, rentals and more—by date, time, and location.',
+      title: `${siteName} | Book Food Trucks for Your Event`,
+      description: 'Search and book food trucks—tacos, pizza, BBQ, ice cream, coffee & more—by date, time, and location.',
       canonical: baseUrl,
     },
     learn: {
@@ -195,16 +195,16 @@ export function generateProSEO(pro: {
  * Categories for sitemap and internal linking
  */
 export const SERVICE_CATEGORIES = [
-  { slug: 'photography', name: 'Photography' },
-  { slug: 'dj', name: 'DJs' },
-  { slug: 'catering', name: 'Catering' },
-  { slug: 'food-trucks', name: 'Food Trucks' },
-  { slug: 'bartending', name: 'Bartending' },
-  { slug: 'decorations', name: 'Decorations' },
-  { slug: 'entertainment', name: 'Entertainment' },
-  { slug: 'rentals', name: 'Rentals' },
-  { slug: 'videography', name: 'Videography' },
-  { slug: 'florist', name: 'Florist' },
+  { slug: 'taco-trucks', name: 'Taco Trucks' },
+  { slug: 'bbq-trucks', name: 'BBQ Trucks' },
+  { slug: 'pizza-trucks', name: 'Pizza Trucks' },
+  { slug: 'burger-trucks', name: 'Burger Trucks' },
+  { slug: 'ice-cream-trucks', name: 'Ice Cream Trucks' },
+  { slug: 'coffee-trucks', name: 'Coffee Trucks' },
+  { slug: 'asian-trucks', name: 'Asian Fusion' },
+  { slug: 'dessert-trucks', name: 'Dessert Trucks' },
+  { slug: 'seafood-trucks', name: 'Seafood Trucks' },
+  { slug: 'catering-trucks', name: 'Catering Trucks' },
 ];
 
 /**

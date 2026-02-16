@@ -17,11 +17,11 @@ export function VendorCTA() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="font-display text-3xl md:text-5xl font-bold mb-6">
             Get booked faster.{' '}
-            <span className="gradient-text">List your services.</span>
+            <span className="gradient-text">List your truck.</span>
           </h2>
           <p className="text-lg text-muted-foreground mb-12 max-w-2xl mx-auto">
-            Join thousands of event professionals growing their business on Event Pros. 
-            Set your own rates, create custom packages, and reach clients actively looking for your services.
+            Join hundreds of food truck operators growing their business on EventPros. 
+            Set your own rates, create packages, and reach customers looking for mobile food at their events.
           </p>
 
           <div className="grid md:grid-cols-3 gap-8 mb-12">
