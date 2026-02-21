@@ -84,10 +84,9 @@ const EVENT_TYPES = [
   'Corporate Event', 
   'Birthday Party',
   'Private Party',
-  'School Event',
   'Festival',
-  'Block Party',
-  'Graduation',
+  'Concert',
+  'Conference',
   'Other',
 ];
 
@@ -114,7 +113,7 @@ export function SentenceBuilder({
 
   return (
     <div className="flex flex-wrap items-baseline justify-center gap-x-3 gap-y-3 md:gap-x-4 md:gap-y-4 text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold tracking-tight px-2">
-      <TypewriterText text="I need a food truck for a" className="text-foreground" />
+      <TypewriterText text="I am planning a" className="text-foreground" />
       
       {/* Event Type Selector */}
       <Popover open={eventOpen} onOpenChange={setEventOpen}>

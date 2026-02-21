@@ -5,7 +5,7 @@ const steps = [
     icon: Search,
     step: '01',
     title: 'Discover',
-    description: 'Browse our curated selection of food trucks. Filter by cuisine, location, and budget.'
+    description: 'Browse our curated selection of verified vendors. Filter by category, location, and budget.'
   },
   {
     icon: Package,
@@ -30,7 +30,7 @@ export function HowItWorks() {
             How It Works
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Book the perfect food truck in three simple steps
+            Book your perfect vendor in three simple steps
           </p>
         </div>
 

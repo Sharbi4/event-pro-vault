@@ -1,108 +1,92 @@
 import { Category } from '@/types';
 
-// Core food truck & mobile food categories for the browse carousel
+// Service categories for Event Services mode
 export const serviceCategories: Category[] = [
   {
-    id: 'taco-trucks',
-    name: 'Taco Trucks',
+    id: 'food-trucks',
+    name: 'Food Trucks',
     icon: 'Truck',
-    description: 'Authentic Mexican street food',
-    count: 203,
-    featured: true
-  },
-  {
-    id: 'bbq-trucks',
-    name: 'BBQ Trucks',
-    icon: 'Flame',
-    description: 'Smoked meats & Southern classics',
-    count: 178,
-    featured: true
-  },
-  {
-    id: 'pizza-trucks',
-    name: 'Pizza Trucks',
-    icon: 'Pizza',
-    description: 'Wood-fired & artisan pizza',
-    count: 145,
-    featured: true
-  },
-  {
-    id: 'burger-trucks',
-    name: 'Burger Trucks',
-    icon: 'Beef',
-    description: 'Gourmet burgers & sliders',
-    count: 167
-  },
-  {
-    id: 'ice-cream-trucks',
-    name: 'Ice Cream',
-    icon: 'IceCream',
-    description: 'Frozen treats & desserts',
-    count: 134
-  },
-  {
-    id: 'coffee-trucks',
-    name: 'Coffee & Drinks',
-    icon: 'Coffee',
-    description: 'Espresso bars & specialty drinks',
-    count: 112
-  },
-  {
-    id: 'asian-trucks',
-    name: 'Asian Fusion',
-    icon: 'Soup',
-    description: 'Korean, Thai, Japanese & more',
-    count: 156
-  },
-  {
-    id: 'dessert-trucks',
-    name: 'Desserts',
-    icon: 'Cake',
-    description: 'Cupcakes, donuts, crêpes & sweet treats',
-    count: 98
-  },
-  {
-    id: 'seafood-trucks',
-    name: 'Seafood',
-    icon: 'Fish',
-    description: 'Lobster rolls, fish tacos & more',
-    count: 87
-  },
-  {
-    id: 'event-carts',
-    name: 'Event Carts',
-    icon: 'ShoppingCart',
-    description: 'Cotton candy, popcorn, churros & more',
-    count: 95,
+    description: 'Mobile cuisine for any event',
+    count: 156,
     featured: true
   },
   {
     id: 'catering',
     name: 'Catering',
-    icon: 'ConciergeBell',
-    description: 'Full-service catering for any event',
-    count: 210,
+    icon: 'UtensilsCrossed',
+    description: 'Full-service event catering',
+    count: 203,
     featured: true
   },
   {
-    id: 'private-chef',
-    name: 'Private Chef',
+    id: 'private-chefs',
+    name: 'Private Chefs',
     icon: 'ChefHat',
-    description: 'Personal chefs for intimate events',
-    count: 78
+    description: 'Personalized culinary experiences',
+    count: 89
   },
   {
-    id: 'shawarma-trucks',
-    name: 'Shawarma',
-    icon: 'Beef',
-    description: 'Mediterranean wraps & platters',
-    count: 45
+    id: 'bartending',
+    name: 'Mobile Bartending',
+    icon: 'Wine',
+    description: 'Professional bar services',
+    count: 124
+  },
+  {
+    id: 'djs',
+    name: 'DJs',
+    icon: 'Music',
+    description: 'Set the vibe for your event',
+    count: 278,
+    featured: true
+  },
+  {
+    id: 'performers',
+    name: 'Performers',
+    icon: 'Sparkles',
+    description: 'Magicians, dancers, entertainers',
+    count: 167
+  },
+  {
+    id: 'rentals',
+    name: 'Event Rentals',
+    icon: 'Tent',
+    description: 'Tables, chairs, tents & more',
+    count: 98
+  },
+  {
+    id: 'wellness',
+    name: 'Wellness',
+    icon: 'Heart',
+    description: 'Spiritual & wellness services',
+    count: 72
+  },
+  {
+    id: 'photography',
+    name: 'Photography',
+    icon: 'Camera',
+    description: 'Capture your special moments',
+    count: 145
+  },
+  {
+    id: 'videography',
+    name: 'Videography',
+    icon: 'Video',
+    description: 'Professional video services',
+    count: 87
+  },
+  {
+    id: 'bakery',
+    name: 'Bakery',
+    icon: 'Cake',
+    description: 'Cakes, pastries & treats',
+    count: 112
   },
   {
     id: 'other',
     name: 'More',
     icon: 'MoreHorizontal',
-    description: 'Other mobile food vendors',
+    description: 'Other event services',
     count: 234
   }
 ];

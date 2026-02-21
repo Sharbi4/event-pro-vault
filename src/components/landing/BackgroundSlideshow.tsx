@@ -10,12 +10,12 @@ interface BackgroundSlideshowProps {
 
 // Fallback images if no packages found
 const FALLBACK_IMAGES = [
-  foodTruckScene,
-  'https://images.unsplash.com/photo-1565123409695-7b5ef63a2efb?w=1920&q=80', // Taco truck serving
-  'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1920&q=80', // Food truck festival
-  'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=1920&q=80', // Gourmet food platter
-  'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1920&q=80', // Pizza close-up
-  'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?w=1920&q=80', // Gourmet food spread
+  foodTruckScene, // Food truck scene
+  'https://images.unsplash.com/photo-1519741497674-611481863552?w=1920&q=80', // Wedding ceremony
+  'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=1920&q=80', // DJ concert
+  'https://images.unsplash.com/photo-1530103862676-de8c9debad1d?w=1920&q=80', // Party balloons
+  'https://images.unsplash.com/photo-1464366400600-7168b8af9bc3?w=1920&q=80', // Food spread
+  'https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=1920&q=80', // Wedding flowers
 ];
 
 export function BackgroundSlideshow({ isComplete, interval = 7000 }: BackgroundSlideshowProps) {

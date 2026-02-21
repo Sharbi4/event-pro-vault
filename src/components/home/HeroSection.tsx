@@ -43,10 +43,10 @@ export function HeroSection() {
           {/* Compact headline */}
           <div className="text-center mb-6">
             <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-bold mb-3">
-              Book food trucks <span className="gradient-text">near you</span>
+              Find event pros <span className="gradient-text">near you</span>
             </h1>
             <p className="text-muted-foreground max-w-xl mx-auto">
-              Taco trucks, pizza trucks, BBQ, ice cream, coffee carts & more for your next event
+              Book food trucks, DJs, caterers, and more for your next event
             </p>
           </div>
 
@@ -58,7 +58,7 @@ export function HeroSection() {
                 <Search className="w-5 h-5 text-muted-foreground shrink-0" />
                 <input
                   type="text"
-                  placeholder="What kind of truck?"
+                  placeholder="What do you need?"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onKeyDown={handleKeyDown}
