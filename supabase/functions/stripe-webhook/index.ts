@@ -95,7 +95,16 @@ serve(async (req) => {
         logStep(`Payout completed: ${payout.id} for ${payout.amount / 100}`);
         break;
       }
-      
+
+      case "identity.verification_session.verified":
+      case "identity.verification_session.requires_input":
+      case "identity.verification_session.processing":
+      case "identity.verification_session.canceled": {
+        const session = event.data.object as Stripe.Identity.VerificationSession;
+        await handleIdentityVerificationUpdated(session);
+        break;
+      }
+
       default:
         logStep(`Unhandled event type: ${event.type}`);
     }
@@ -146,6 +155,40 @@ async function handleAccountUpdated(account: Stripe.Account) {
     logStep("Error updating profile for account.updated", { error: error.message });
   } else {
     logStep("Profile status updated via webhook", { accountId: account.id, newStatus });
+  }
+}
+
+// Handle Stripe Identity verification status changes
+async function handleIdentityVerificationUpdated(session: Stripe.Identity.VerificationSession) {
+  logStep("Identity verification updated", {
+    sessionId: session.id,
+    status: session.status,
+  });
+
+  const userId = session.metadata?.user_id;
+  if (!userId) {
+    logStep("Identity session missing user_id metadata; skipping", { sessionId: session.id });
+    return;
+  }
+
+  let newStatus: string = session.status ?? "pending";
+  if (session.status === "verified") newStatus = "verified";
+  else if (session.status === "requires_input") newStatus = "requires_input";
+  else if (session.status === "processing") newStatus = "processing";
+  else if (session.status === "canceled") newStatus = "canceled";
+
+  const { error } = await supabaseAdmin
+    .from("profiles")
+    .update({
+      identity_verification_status: newStatus,
+      identity_verification_session_id: session.id,
+    })
+    .eq("user_id", userId);
+
+  if (error) {
+    logStep("Error updating identity status from webhook", { error: error.message });
+  } else {
+    logStep("Identity status synced via webhook", { userId, newStatus });
   }
 }
 
