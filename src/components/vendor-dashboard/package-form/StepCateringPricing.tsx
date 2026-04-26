@@ -121,18 +121,21 @@ export function StepCateringPricing({ formData, updateFormData, errors }: Props)
                 placeholder="850"
                 value={formData.price}
                 onChange={(v) => updateFormData({ price: v })}
+                error={errors?.price}
               />
               <NumberInput
                 label="Guests included"
                 placeholder="50"
                 value={formData.included_guests ?? undefined}
                 onChange={(v) => updateFormData({ included_guests: v ?? null })}
+                error={errors?.included_guests}
               />
               <PriceInput
                 label="Additional guest fee (optional)"
                 placeholder="0"
                 value={formData.additional_per_person ?? undefined}
                 onChange={(v) => updateFormData({ additional_per_person: v ?? null })}
+                error={errors?.additional_per_person}
               />
             </>
           )}
@@ -144,6 +147,7 @@ export function StepCateringPricing({ formData, updateFormData, errors }: Props)
                 placeholder="18"
                 value={formData.price}
                 onChange={(v) => updateFormData({ price: v })}
+                error={errors?.price}
               />
               <div className="grid grid-cols-2 gap-3">
                 <NumberInput
@@ -151,12 +155,14 @@ export function StepCateringPricing({ formData, updateFormData, errors }: Props)
                   placeholder="50"
                   value={formData.min_guests ?? undefined}
                   onChange={(v) => updateFormData({ min_guests: v })}
+                  error={errors?.min_guests}
                 />
                 <NumberInput
                   label="Max guests"
                   placeholder="200"
                   value={formData.max_guests ?? undefined}
                   onChange={(v) => updateFormData({ max_guests: v })}
+                  error={errors?.max_guests}
                 />
               </div>
               <PriceInput
@@ -175,24 +181,28 @@ export function StepCateringPricing({ formData, updateFormData, errors }: Props)
                 placeholder="600"
                 value={formData.price}
                 onChange={(v) => updateFormData({ price: v })}
+                error={errors?.price}
               />
               <NumberInput
                 label="Guests included in base"
                 placeholder="30"
                 value={formData.included_guests ?? undefined}
                 onChange={(v) => updateFormData({ included_guests: v ?? null })}
+                error={errors?.included_guests}
               />
               <PriceInput
                 label="Additional price per person"
                 placeholder="15"
                 value={formData.additional_per_person ?? undefined}
                 onChange={(v) => updateFormData({ additional_per_person: v ?? null })}
+                error={errors?.additional_per_person}
               />
               <NumberInput
                 label="Max guests"
                 placeholder="150"
                 value={formData.max_guests ?? undefined}
                 onChange={(v) => updateFormData({ max_guests: v })}
+                error={errors?.max_guests}
               />
             </>
           )}
