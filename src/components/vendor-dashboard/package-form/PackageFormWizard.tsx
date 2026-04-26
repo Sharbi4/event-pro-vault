@@ -104,13 +104,15 @@ interface PackageFormWizardProps {
 }
 
 const STEPS = [
-  { id: 'basic', label: 'Basics', shortLabel: '1' },
-  { id: 'pricing', label: 'Pricing', shortLabel: '2' },
-  { id: 'inclusions', label: 'Details', shortLabel: '3' },
-  { id: 'booking', label: 'Booking', shortLabel: '4' },
-  { id: 'availability', label: 'Availability', shortLabel: '5' },
-  { id: 'media', label: 'Media', shortLabel: '6' },
-  { id: 'preview', label: 'Preview', shortLabel: '7' },
+  { id: 'type', label: 'Type', shortLabel: '1' },
+  { id: 'basic', label: 'Basics', shortLabel: '2' },
+  { id: 'pricing', label: 'Pricing', shortLabel: '3' },
+  { id: 'time', label: 'Time', shortLabel: '4' },
+  { id: 'inclusions', label: 'Details', shortLabel: '5' },
+  { id: 'media', label: 'Photos', shortLabel: '6' },
+  { id: 'booking', label: 'Rules', shortLabel: '7' },
+  { id: 'availability', label: 'Calendar', shortLabel: '8' },
+  { id: 'preview', label: 'Review', shortLabel: '9' },
 ];
 
 const defaultFormData: PackageFormData = {
