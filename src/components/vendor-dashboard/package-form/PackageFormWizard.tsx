@@ -249,6 +249,7 @@ export function PackageFormWizard({
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<PackageFormData>(defaultFormData);
   const [stripeConnected, setStripeConnected] = useState(false);
+  const [showErrors, setShowErrors] = useState(false);
   const isMobile = useIsMobile();
 
   // Check Stripe status on mount
