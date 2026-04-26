@@ -343,16 +343,25 @@ export default function Browse() {
 
               {/* View Toggle */}
               <div className="flex items-center border border-border rounded-lg overflow-hidden">
-                <Button 
+                <Button
+                  variant={viewMode === 'vendors' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="rounded-none gap-1.5"
+                  onClick={() => setViewMode('vendors')}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                  <span className="hidden sm:inline">Vendors</span>
+                </Button>
+                <Button
                   variant={viewMode === 'grid' ? 'default' : 'ghost'}
                   size="sm"
                   className="rounded-none gap-1.5"
                   onClick={() => setViewMode('grid')}
                 >
-                  <LayoutGrid className="w-4 h-4" />
-                  <span className="hidden sm:inline">Grid</span>
+                  <Package className="w-4 h-4" />
+                  <span className="hidden sm:inline">Packages</span>
                 </Button>
-                <Button 
+                <Button
                   variant={viewMode === 'map' ? 'default' : 'ghost'}
                   size="sm"
                   className="rounded-none gap-1.5"
@@ -360,6 +369,7 @@ export default function Browse() {
                 >
                   <Map className="w-4 h-4" />
                   <span className="hidden sm:inline">Map</span>
+                </Button>
                 </Button>
               </div>
               
