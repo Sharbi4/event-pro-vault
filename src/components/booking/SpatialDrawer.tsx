@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { saveBookingDraft, buildAuthUrl } from '@/lib/authIntent';
 import { TimeSlotPicker } from './TimeSlotPicker';
 import { AddressInput, AddressData, isAddressComplete, formatAddress } from '@/components/shared/AddressInput';
+import { useTravelFeeQuote } from '@/hooks/useTravelFeeQuote';
 
 interface SpatialDrawerProps {
   open: boolean;
@@ -34,6 +35,12 @@ interface SpatialDrawerProps {
     vendor_user_id?: string;
     payment_options?: string;
     vendor_email?: string | null; // Added for notifications
+    // Travel-fee inputs (all optional — quote degrades gracefully if missing)
+    vendor_lat?: number | null;
+    vendor_lng?: number | null;
+    travel_fee_per_mile?: number | null;
+    included_travel_miles?: number | null;
+    max_travel_miles?: number | null;
     vendor?: {
       display_name?: string;
       avatar_url?: string;
@@ -92,7 +99,20 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
   const isInstant = pkg.booking_mode === 'INSTANT';
   const isHourly = pkg.pricing_type === 'hourly' || pkg.type === 'hourly' || pkg.type === 'HOURLY';
   const basePrice = isHourly ? pkg.price * hours : pkg.price;
-  const totalPrice = basePrice;
+
+  // Non-blocking travel-fee quote (debounced + 5s timeout, fails open)
+  const travelQuote = useTravelFeeQuote({
+    addressString: isAddressComplete(eventAddress) ? formatAddress(eventAddress) : '',
+    vendorLat: pkg.vendor_lat,
+    vendorLng: pkg.vendor_lng,
+    includedMiles: pkg.included_travel_miles,
+    feePerMile: pkg.travel_fee_per_mile,
+    maxTravelMiles: pkg.max_travel_miles,
+    enabled: isAddressComplete(eventAddress) && pkg.vendor_lat != null && pkg.vendor_lng != null,
+  });
+
+  const travelFee = travelQuote.status === 'ready' ? travelQuote.fee : 0;
+  const totalPrice = basePrice + travelFee;
   
   // Calculate duration and buffer times
   const durationMinutes = isHourly ? hours * 60 : (pkg.duration_minutes || 60);
@@ -494,6 +514,45 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                   <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3 text-sm text-foreground">
                     This vendor hasn't finished setting up online payments
                     yet. Send them a message to arrange this booking directly.
+                  </div>
+                )}
+
+                {/* Travel fee preview (non-blocking) */}
+                {travelQuote.status !== 'idle' && (
+                  <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Travel fee</span>
+                      <span className="font-mono">
+                        {travelQuote.status === 'loading' && (
+                          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            Calculating…
+                          </span>
+                        )}
+                        {travelQuote.status === 'ready' && (
+                          travelFee > 0
+                            ? `+$${travelFee.toLocaleString()}`
+                            : 'Included'
+                        )}
+                        {travelQuote.status === 'error' && (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                        {travelQuote.status === 'out_of_range' && (
+                          <span className="text-destructive">Out of range</span>
+                        )}
+                      </span>
+                    </div>
+                    {travelQuote.status === 'ready' && travelQuote.distanceMiles != null && (
+                      <p className="text-xs text-muted-foreground">
+                        {travelQuote.distanceMiles.toFixed(1)} mi from Event Pro
+                        {travelQuote.billableMiles && travelQuote.billableMiles > 0
+                          ? ` · ${travelQuote.billableMiles.toFixed(1)} billable mi`
+                          : ' · within free travel zone'}
+                      </p>
+                    )}
+                    {(travelQuote.status === 'error' || travelQuote.status === 'out_of_range') && travelQuote.error && (
+                      <p className="text-xs text-muted-foreground">{travelQuote.error}</p>
+                    )}
                   </div>
                 )}
 
