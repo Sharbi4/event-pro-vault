@@ -248,6 +248,20 @@ function ReviewCard({ review }: { review: VendorReviewData }) {
               </p>
             )}
 
+            {/* Tags */}
+            {review.tags && review.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mt-3">
+                {review.tags.map((t) => (
+                  <Badge key={t} variant="outline" className="text-[10px] font-normal">
+                    {t}
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            {/* Vendor reply (or inline reply form for the vendor) */}
+            <VendorReplyArea review={review} />
+
             {/* Footer */}
             <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50">
               <span className="text-xs text-muted-foreground">
@@ -264,5 +278,122 @@ function ReviewCard({ review }: { review: VendorReviewData }) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function VendorReplyArea({ review }: { review: VendorReviewData }) {
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [reply, setReply] = useState(review.vendor_reply ?? '');
+  const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [savedReply, setSavedReply] = useState(review.vendor_reply ?? null);
+  const [savedAt, setSavedAt] = useState(review.vendor_reply_at ?? null);
+
+  const isVendor = !!user && !!review.vendor_user_id && user.id === review.vendor_user_id;
+
+  if (savedReply) {
+    return (
+      <div className="mt-3 ml-2 border-l-2 border-primary/40 pl-3 py-2 bg-primary/5 rounded-r-md">
+        <div className="flex items-center gap-2 text-xs font-medium text-primary mb-1">
+          <MessageSquare className="w-3 h-3" />
+          Response from vendor
+          {savedAt && (
+            <span className="text-muted-foreground font-normal">
+              · {formatDistanceToNow(new Date(savedAt), { addSuffix: true })}
+            </span>
+          )}
+        </div>
+        <p className="text-sm text-foreground">{savedReply}</p>
+        {isVendor && (
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="text-xs text-muted-foreground hover:text-foreground mt-1"
+          >
+            Edit reply
+          </button>
+        )}
+        {isVendor && editing && (
+          <div className="mt-2 space-y-2">
+            <Textarea
+              value={reply}
+              onChange={(e) => setReply(e.target.value)}
+              rows={3}
+              maxLength={500}
+              placeholder="Thank the customer or address feedback…"
+            />
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                disabled={saving || !reply.trim()}
+                onClick={async () => {
+                  setSaving(true);
+                  const now = new Date().toISOString();
+                  const { error } = await supabase
+                    .from('reviews')
+                    .update({ vendor_reply: reply.trim(), vendor_reply_at: now })
+                    .eq('id', review.id);
+                  setSaving(false);
+                  if (error) {
+                    toast({ title: 'Could not save reply', description: error.message, variant: 'destructive' });
+                    return;
+                  }
+                  setSavedReply(reply.trim());
+                  setSavedAt(now);
+                  setEditing(false);
+                  toast({ title: 'Reply updated' });
+                }}
+              >
+                {saving ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Save'}
+              </Button>
+              <Button size="sm" variant="ghost" onClick={() => { setEditing(false); setReply(savedReply ?? ''); }}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (!isVendor) return null;
+
+  return (
+    <div className="mt-3 ml-2 border-l-2 border-border pl-3 py-2">
+      <Textarea
+        value={reply}
+        onChange={(e) => setReply(e.target.value)}
+        rows={2}
+        maxLength={500}
+        placeholder="Reply publicly to this review…"
+        className="text-sm"
+      />
+      <div className="mt-2 flex justify-end">
+        <Button
+          size="sm"
+          disabled={saving || !reply.trim()}
+          onClick={async () => {
+            setSaving(true);
+            const now = new Date().toISOString();
+            const { error } = await supabase
+              .from('reviews')
+              .update({ vendor_reply: reply.trim(), vendor_reply_at: now })
+              .eq('id', review.id);
+            setSaving(false);
+            if (error) {
+              toast({ title: 'Could not post reply', description: error.message, variant: 'destructive' });
+              return;
+            }
+            setSavedReply(reply.trim());
+            setSavedAt(now);
+            toast({ title: 'Reply posted' });
+          }}
+        >
+          {saving ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <MessageSquare className="w-3 h-3 mr-1" />}
+          Post reply
+        </Button>
+      </div>
+    </div>
   );
 }
