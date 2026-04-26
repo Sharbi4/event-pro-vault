@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Clock, Calendar, ChevronRight, Check, Package } from 'lucide-react';
 import { useFeaturedPackages } from '@/hooks/useFeaturedContent';
-import { packages as mockPackages, vendors as mockVendors } from '@/data/vendors';
+import { packages as mockPackages, Event Pros as mockVendors } from '@/data/vendors';
 import { TopRatedBadge } from '@/components/badges/TrustBadges';
 
 export function FeaturedPackages() {
@@ -16,7 +16,7 @@ export function FeaturedPackages() {
   
   // Format mock packages to match the expected structure
   const mockFeaturedPackages = mockPackages.filter(p => p.featured).slice(0, 3).map(pkg => {
-    const vendor = mockVendors.find(v => v.id === pkg.vendorId);
+    const Event Pro = mockVendors.find(v => v.id === pkg.vendorId);
     return {
       id: pkg.id,
       name: pkg.name,
@@ -25,12 +25,12 @@ export function FeaturedPackages() {
       type: pkg.type,
       min_units: pkg.minUnits,
       includes: pkg.includes || [],
-      cover_image_url: vendor?.gallery?.[0] || null,
+      cover_image_url: Event Pro?.gallery?.[0] || null,
       category: null,
       vendor_user_id: pkg.vendorId,
-      vendor_name: vendor?.name || 'Event Pro',
+      vendor_name: Event Pro?.name || 'Event Pro',
       vendor_avatar: null,
-      vendor_city: vendor?.location?.split(',')[0] || null,
+      vendor_city: Event Pro?.location?.split(',')[0] || null,
     };
   });
 

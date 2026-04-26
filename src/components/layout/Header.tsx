@@ -42,7 +42,7 @@ export function Header() {
         return;
       }
       
-      // Check if user is a vendor or customer and get unread counts accordingly
+      // Check if user is a Event Pro or customer and get unread counts accordingly
       const { data: vendorConversations } = await supabase
         .from('conversations')
         .select('vendor_unread_count')

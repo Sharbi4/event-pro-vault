@@ -4,7 +4,7 @@ const TYPES = [
   {
     icon: Truck,
     title: 'Pull-Up Booking',
-    copy: 'Bring a food truck, trailer, or mobile vendor to your apartment, office, brewery, school, market, or neighborhood.',
+    copy: 'Bring a food truck, trailer, or mobile Event Pro to your apartment, office, brewery, school, market, or neighborhood.',
   },
   {
     icon: Package,
@@ -14,7 +14,7 @@ const TYPES = [
   {
     icon: MessageSquare,
     title: 'Private Packages',
-    copy: 'Need something custom? Message a vendor and they can send a private package you can book securely through EventPro.',
+    copy: 'Need something custom? Message a Event Pro and they can send a private package you can book securely through EventPro.',
   },
 ];
 

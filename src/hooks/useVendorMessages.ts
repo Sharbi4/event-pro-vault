@@ -24,7 +24,7 @@ export interface Message {
   id: string;
   conversation_id: string;
   sender_user_id: string | null;
-  sender_type: 'vendor' | 'client';
+  sender_type: 'Event Pro' | 'client';
   content: string;
   is_read: boolean;
   read_at: string | null;
@@ -37,7 +37,7 @@ export function useVendorMessages() {
   const queryClient = useQueryClient();
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
 
-  // Fetch all conversations for the vendor
+  // Fetch all conversations for the Event Pro
   const { data: conversations = [], isLoading: conversationsLoading, refetch: refetchConversations } = useQuery({
     queryKey: ['vendor-conversations', user?.id],
     queryFn: async () => {
@@ -194,7 +194,7 @@ export function useVendorMessages() {
         await supabase.from('messages').insert({
           conversation_id: conversation.id,
           sender_user_id: user.id,
-          sender_type: 'vendor',
+          sender_type: 'Event Pro',
           content: data.initialMessage,
         });
 
@@ -226,7 +226,7 @@ export function useVendorMessages() {
       const { error: msgError } = await supabase.from('messages').insert({
         conversation_id: data.conversationId,
         sender_user_id: user.id,
-        sender_type: 'vendor',
+        sender_type: 'Event Pro',
         content: data.content,
       });
 
@@ -249,7 +249,7 @@ export function useVendorMessages() {
           body: {
             conversationId: data.conversationId,
             messageContent: data.content,
-            senderType: 'vendor',
+            senderType: 'Event Pro',
           },
         });
       } catch (notifError) {
@@ -282,7 +282,7 @@ export function useVendorMessages() {
 
       if (msgError) throw msgError;
 
-      // Reset vendor unread count
+      // Reset Event Pro unread count
       const { error: convError } = await supabase
         .from('conversations')
         .update({ vendor_unread_count: 0 })

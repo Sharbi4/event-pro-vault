@@ -80,7 +80,7 @@ export function SettingsTab({
                       <Badge variant="secondary" className="text-xs">Recommended</Badge>
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      Vendors can book immediately. Slots decrement on checkout.
+                      Event Pros can book immediately. Slots decrement on checkout.
                     </p>
                   </div>
                 </div>
@@ -136,7 +136,7 @@ export function SettingsTab({
               </p>
               <p className="text-sm text-muted-foreground">
                 {market.isPublished 
-                  ? 'Your market is visible to vendors and accepting bookings.'
+                  ? 'Your market is visible to Event Pros and accepting bookings.'
                   : 'Your market is hidden. Complete the setup checklist to publish.'
                 }
               </p>

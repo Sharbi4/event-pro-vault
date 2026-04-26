@@ -30,13 +30,13 @@ export default function BlogPost() {
   // Dynamic SEO for blog post
   useSEO({
     title: post?.title || 'Blog - EventPro',
-    description: post?.excerpt || 'Read the latest articles about event planning, vendor tips, and industry insights.',
+    description: post?.excerpt || 'Read the latest articles about event planning, Event Pro tips, and industry insights.',
     canonical: post ? `https://event-pro-vault.lovable.app/blog/${post.slug}` : undefined,
     type: 'article',
     image: post?.cover_image_url || undefined,
     author: post?.author_name,
     publishedTime: post?.published_at || undefined,
-    keywords: post?.tags || ['event planning', 'vendor tips', 'industry news'],
+    keywords: post?.tags || ['event planning', 'Event Pro tips', 'industry news'],
   });
 
   const handleCopyLink = async () => {

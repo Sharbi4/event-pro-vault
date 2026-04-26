@@ -26,10 +26,10 @@ export function ModeSwitcher({ compact = false }: ModeSwitcherProps) {
 
   if (!user || loading) return null;
 
-  const handleModeSwitch = (mode: 'vendor' | 'customer') => {
+  const handleModeSwitch = (mode: 'Event Pro' | 'customer') => {
     setOpen(false);
     switch (mode) {
-      case 'vendor':
+      case 'Event Pro':
         if (hasVendorPackages) {
           navigate('/vendor-dashboard');
         } else {
@@ -62,9 +62,9 @@ export function ModeSwitcher({ compact = false }: ModeSwitcherProps) {
           Switch Mode
         </DropdownMenuLabel>
         
-        {/* Vendor Mode */}
+        {/* Event Pro Mode */}
         <DropdownMenuItem 
-          onClick={() => handleModeSwitch('vendor')}
+          onClick={() => handleModeSwitch('Event Pro')}
           className="flex items-center gap-3 py-3 cursor-pointer"
         >
           <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">

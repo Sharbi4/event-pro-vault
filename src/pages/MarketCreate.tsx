@@ -347,18 +347,18 @@ export default function MarketCreate() {
                   id="description"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe your market, what vendors can expect, the vibe, crowd..."
+                  placeholder="Describe your market, what Event Pros can expect, the vibe, crowd..."
                   className="min-h-[100px]"
                 />
               </CardContent>
             </Card>
 
-            {/* Vendor Categories */}
+            {/* Event Pro Categories */}
             <Card>
               <CardContent className="p-6">
                 <Label className="text-base font-medium flex items-center gap-2 mb-3">
                   <Tag className="w-4 h-4 text-primary" />
-                  Vendor Categories Allowed
+                  Event Pro Categories Allowed
                   <span className="text-xs text-muted-foreground font-normal">(optional)</span>
                 </Label>
                 <div className="flex flex-wrap gap-2">

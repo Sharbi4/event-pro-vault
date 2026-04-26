@@ -68,7 +68,7 @@ export default function BookingSuccess() {
           .eq('id', bookingData.package_id)
           .single();
 
-        // Fetch vendor name
+        // Fetch Event Pro name
         const { data: vendorData } = await supabase
           .from('vendor_details')
           .select('business_name')
@@ -113,7 +113,7 @@ export default function BookingSuccess() {
             We couldn't find your booking details.
           </p>
           <Button onClick={() => navigate('/discover')}>
-            Browse Vendors
+            Browse Event Pros
           </Button>
         </div>
       </div>
@@ -181,7 +181,7 @@ export default function BookingSuccess() {
             </div>
             
             <div>
-              <p className="text-sm text-muted-foreground">Vendor</p>
+              <p className="text-sm text-muted-foreground">Event Pro</p>
               <p className="font-medium">{booking.vendor_name}</p>
             </div>
 
@@ -266,11 +266,11 @@ export default function BookingSuccess() {
             <ol className="space-y-3 text-sm text-muted-foreground">
               <li className="flex items-start gap-3">
                 <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                <span>Confirmation email sent to you and the vendor</span>
+                <span>Confirmation email sent to you and the Event Pro</span>
               </li>
               <li className="flex items-start gap-3">
                 <MessageCircle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                <span>Vendor will reach out to finalize event details</span>
+                <span>Event Pro will reach out to finalize event details</span>
               </li>
               <li className="flex items-start gap-3">
                 <CreditCard className="w-5 h-5 text-muted-foreground flex-shrink-0" />
@@ -298,7 +298,7 @@ export default function BookingSuccess() {
               onClick={() => navigate('/discover')}
               className="w-full h-12 text-base"
             >
-              Browse More Vendors
+              Browse More Event Pros
             </Button>
           </motion.div>
         </motion.div>

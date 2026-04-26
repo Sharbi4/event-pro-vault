@@ -8,10 +8,10 @@ export function FinalCTA() {
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto text-center">
           <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">
-            Find the right vendor for your <span className="gradient-text">next event.</span>
+            Find the right Event Pro for your <span className="gradient-text">next event.</span>
           </h2>
           <p className="text-muted-foreground mb-8">
-            Search by date, location, cuisine, and vendor type — all in one place.
+            Search by date, location, cuisine, and Event Pro type — all in one place.
           </p>
           <Button asChild variant="gradient" size="lg" className="rounded-full">
             <Link to="/browse">

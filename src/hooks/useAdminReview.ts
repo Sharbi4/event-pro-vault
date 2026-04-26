@@ -20,7 +20,7 @@ export interface PendingEventPro {
   approvalStatus: ApprovalStatus;
   approvalNotes: string | null;
   stripeAccountStatus: string | null;
-  // Vendor details
+  // Event Pro details
   businessName: string | null;
   businessDescription: string | null;
   serviceCategories: string[];
@@ -92,7 +92,7 @@ export function useAdminReview() {
       return;
     }
 
-    // Fetch vendor details for each profile
+    // Fetch Event Pro details for each profile
     const userIds = profiles?.map(p => p.user_id) || [];
     const { data: vendorDetails } = await supabase
       .from('vendor_details')

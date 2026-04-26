@@ -89,19 +89,19 @@ export function HeroSection() {
             Get the party <span className="gradient-text">started.</span>
           </h1>
           <p className="text-base md:text-lg text-muted-foreground max-w-xl mb-8">
-            Book a food truck, mobile bar, dessert vendor, or caterer to pull up, serve, and make your event feel effortless.
+            Book a food truck, mobile bar, dessert Event Pro, or caterer to pull up, serve, and make your event feel effortless.
           </p>
 
           {/* Premium search card */}
           <div className="bg-card/95 backdrop-blur border border-border rounded-3xl p-3 shadow-2xl">
             <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
-              {/* Vendor Type */}
+              {/* Event Pro Type */}
               <div className="md:col-span-3">
                 <Select value={vendorType} onValueChange={setVendorType}>
                   <SelectTrigger className="h-full border-0 bg-transparent hover:bg-secondary/50 rounded-2xl px-4 py-3 focus:ring-0">
                     <div className="text-left min-w-0 w-full">
-                      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Vendor type</div>
-                      <SelectValue placeholder="Any vendor" />
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Event Pro type</div>
+                      <SelectValue placeholder="Any Event Pro" />
                     </div>
                   </SelectTrigger>
                   <SelectContent>
@@ -186,7 +186,7 @@ export function HeroSection() {
                   size="icon"
                   onClick={handleSearch}
                   className="rounded-2xl h-12 w-12 shrink-0"
-                  aria-label="Find available vendors"
+                  aria-label="Find available Event Pros"
                 >
                   <Search className="w-5 h-5" />
                 </Button>
@@ -214,7 +214,7 @@ export function HeroSection() {
                 className="md:ml-auto rounded-2xl h-11 px-6 font-semibold"
               >
                 <Search className="w-4 h-4 mr-2" />
-                Find available vendors
+                Find available Event Pros
               </Button>
             </div>
           </div>

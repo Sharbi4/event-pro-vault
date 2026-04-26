@@ -34,7 +34,7 @@ interface SpatialDrawerProps {
     vendor_user_id?: string;
     payment_options?: string;
     vendor_email?: string | null; // Added for notifications
-    vendor?: {
+    Event Pro?: {
       display_name?: string;
       avatar_url?: string;
       is_verified?: boolean;
@@ -116,15 +116,15 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
     return `${displayHour}:${minute.toString().padStart(2, '0')} ${ampm}`;
   };
   
-  // Check payment options + vendor's online payout readiness
+  // Check payment options + Event Pro's online payout readiness
   const paymentOptions = pkg.payment_options || 'ONLINE';
   const vendorPayoutsActive = pkg.vendor?.stripe_account_status === 'active';
-  // Online payment requires the vendor to have completed Stripe Connect
+  // Online payment requires the Event Pro to have completed Stripe Connect
   const canPayOnline =
     (paymentOptions === 'ONLINE' || paymentOptions === 'BOTH') &&
     vendorPayoutsActive;
   const canPayCash = paymentOptions === 'CASH' || paymentOptions === 'BOTH';
-  // True when the package is online-only but the vendor hasn't finished payouts
+  // True when the package is online-only but the Event Pro hasn't finished payouts
   const onlineOnlyButNoPayouts =
     paymentOptions === 'ONLINE' && !vendorPayoutsActive;
 
@@ -169,7 +169,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
     setBookingState('loading');
 
     try {
-      // Create the booking with vendor email for notifications
+      // Create the booking with Event Pro email for notifications
       const booking = await createBooking({
         vendor_id: pkg.id,
         vendor_user_id: pkg.vendor_user_id || null,
@@ -188,7 +188,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
         booking_mode: isInstant ? 'INSTANT' : 'REQUEST',
         customer_email: isGuest ? customerEmail.trim() : user?.email,
         customer_name: user?.user_metadata?.full_name || customerEmail.split('@')[0],
-        vendor_name: pkg.vendor?.display_name || 'Vendor',
+        vendor_name: pkg.vendor?.display_name || 'Event Pro',
         vendor_email: pkg.vendor_email || undefined,
         package_name: pkg.name,
         unit_type: isHourly ? 'hours' : 'booking',
@@ -216,7 +216,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
           console.error('Checkout error:', error);
           toast({
             title: "Payment setup failed",
-            description: "Booking created but payment could not be processed. The vendor will contact you.",
+            description: "Booking created but payment could not be processed. The Event Pro will contact you.",
           });
           setBookingState('success');
           return;
@@ -235,7 +235,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
         title: isInstant ? "Booking confirmed!" : "Request sent!",
         description: isInstant 
           ? "Your event is secured. Check your email for details."
-          : "The vendor will review your request and respond soon.",
+          : "The Event Pro will review your request and respond soon.",
       });
 
       // Close drawer after delay
@@ -312,13 +312,13 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                 <p className="text-muted-foreground text-center">
                   {isInstant 
                     ? 'Check your email for booking details.'
-                    : 'The vendor will respond to your request soon.'}
+                    : 'The Event Pro will respond to your request soon.'}
                 </p>
               </div>
             ) : (
               /* Content - Mobile-first spacing */
               <div className="p-4 md:p-6 space-y-6 md:space-y-8 pb-32 md:pb-6">
-                {/* Vendor Info */}
+                {/* Event Pro Info */}
                 <div className="flex items-center gap-3 md:gap-4">
                   <Avatar className="w-12 h-12 md:w-14 md:h-14 border border-border">
                     <AvatarImage src={pkg.vendor?.avatar_url} alt={pkg.vendor?.display_name} />

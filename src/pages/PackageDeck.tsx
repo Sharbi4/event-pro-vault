@@ -166,7 +166,7 @@ export default function PackageDeck() {
       min_hours: pkg.min_units || 1,
       vendor_user_id: pkg.vendor_user_id,
       payment_options: 'BOTH', // Allow both payment methods
-      vendor: {
+      Event Pro: {
         display_name: pkg.vendor_name,
         avatar_url: pkg.vendor_avatar,
         is_verified: pkg.is_verified,

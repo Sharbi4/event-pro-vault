@@ -77,7 +77,7 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
   const cityLine = [group.vendor_city, group.vendor_state].filter(Boolean).join(', ');
   const profileHref = `/vendor/${group.vendor_user_id}`;
 
-  // Pick the best hero image across this vendor's previewed packages
+  // Pick the best hero image across this Event Pro's previewed packages
   const heroImage = group.packages
     .map((p) => p.images?.[0])
     .find((img): img is string => !!img);

@@ -1,6 +1,6 @@
-import { Vendor, Package, Review } from '@/types';
+import { Event Pro, Package, Review } from '@/types';
 
-export const vendors: Vendor[] = [
+export const Event Pros: Event Pro[] = [
   {
     id: 'v1',
     name: 'Blaze & Grill Co.',
@@ -176,7 +176,7 @@ export const vendors: Vendor[] = [
     instantBook: true,
     featured: true
   },
-  // Los Angeles Vendors
+  // Los Angeles Event Pros
   {
     id: 'v9',
     name: 'LA Lens Photography',
@@ -244,7 +244,7 @@ export const vendors: Vendor[] = [
     instantBook: false,
     featured: true
   },
-  // Houston Vendors
+  // Houston Event Pros
   {
     id: 'v12',
     name: 'H-Town BBQ Kings',
@@ -310,7 +310,7 @@ export const vendors: Vendor[] = [
     instantBook: true,
     featured: false
   },
-  // Atlanta Vendors
+  // Atlanta Event Pros
   {
     id: 'v15',
     name: 'Peach State Catering',
@@ -378,7 +378,7 @@ export const vendors: Vendor[] = [
     instantBook: false,
     featured: true
   },
-  // Chicago Vendors
+  // Chicago Event Pros
   {
     id: 'v18',
     name: 'Windy City DJs',
@@ -727,7 +727,7 @@ export const packages: Package[] = [
       { id: 'a29', name: 'Engagement Session', price: 500 },
       { id: 'a30', name: 'Parent Albums (2)', price: 600 }
     ],
-    requirements: ['Vendor meal for photographers'],
+    requirements: ['Event Pro meal for photographers'],
     instantBook: false,
     featured: true
   },
@@ -955,7 +955,7 @@ export const packages: Package[] = [
       { id: 'a55', name: 'Drone Coverage', price: 400 },
       { id: 'a56', name: 'Same-Day Edit', price: 800 }
     ],
-    requirements: ['Vendor meals', 'Timeline coordination'],
+    requirements: ['Event Pro meals', 'Timeline coordination'],
     instantBook: false,
     featured: true
   },
@@ -1078,7 +1078,7 @@ export const packages: Package[] = [
       { id: 'a69', name: 'Engagement Session', price: 400 },
       { id: 'a70', name: 'Album Design', price: 600 }
     ],
-    requirements: ['Timeline meeting', 'Vendor meals'],
+    requirements: ['Timeline meeting', 'Event Pro meals'],
     instantBook: false,
     featured: true
   },

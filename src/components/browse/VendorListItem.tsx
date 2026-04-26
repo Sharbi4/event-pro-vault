@@ -1,17 +1,17 @@
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Vendor } from '@/types';
+import { Event Pro } from '@/types';
 import { Star, MapPin, Clock, Zap, ShieldCheck } from 'lucide-react';
 
 interface VendorListItemProps {
-  vendor: Vendor;
+  Event Pro: Event Pro;
   isSelected?: boolean;
   onHover?: () => void;
   onLeave?: () => void;
 }
 
-export function VendorListItem({ vendor, isSelected, onHover, onLeave }: VendorListItemProps) {
+export function VendorListItem({ Event Pro, isSelected, onHover, onLeave }: VendorListItemProps) {
   return (
     <Link to={`/vendor/${vendor.id}`}>
       <Card 

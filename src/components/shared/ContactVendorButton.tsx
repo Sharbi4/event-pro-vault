@@ -51,7 +51,7 @@ export function ContactVendorButton({
       return;
     }
 
-    // Don't allow vendors to message themselves
+    // Don't allow Event Pros to message themselves
     if (user.id === vendorUserId) {
       toast.error("You can't message yourself");
       return;
@@ -60,7 +60,7 @@ export function ContactVendorButton({
     setIsCreating(true);
 
     try {
-      // Check if conversation already exists between this client and vendor
+      // Check if conversation already exists between this client and Event Pro
       const { data: existingConvo } = await supabase
         .from('conversations')
         .select('id')

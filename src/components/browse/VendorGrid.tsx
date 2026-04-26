@@ -1,18 +1,18 @@
 import { Link } from 'react-router-dom';
 import { Star, Heart, Zap, ShieldCheck, MapPin } from 'lucide-react';
-import { Vendor } from '@/types';
+import { Event Pro } from '@/types';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 interface VendorGridProps {
-  vendors: Vendor[];
+  Event Pros: Event Pro[];
 }
 
-export function VendorGrid({ vendors }: VendorGridProps) {
+export function VendorGrid({ Event Pros }: VendorGridProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {vendors.map((vendor, index) => (
+      {vendors.map((Event Pro, index) => (
         <Link
           key={vendor.id}
           to={`/vendor/${vendor.id}`}
@@ -69,7 +69,7 @@ export function VendorGrid({ vendors }: VendorGridProps) {
                 </span>
               </div>
 
-              {/* Vendor Name */}
+              {/* Event Pro Name */}
               <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 mb-1">
                 {vendor.name}
               </h3>

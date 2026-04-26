@@ -27,11 +27,11 @@ interface MarketListingTabProps {
 const MARKET_TYPES = [
   { value: 'farmers_market', label: 'Farmers Market' },
   { value: 'flea_market', label: 'Flea Market' },
-  { value: 'vendor_market', label: 'Vendor Market' },
+  { value: 'vendor_market', label: 'Event Pro Market' },
   { value: 'night_market', label: 'Night Market' },
   { value: 'popup_event', label: 'Pop-up Event' },
   { value: 'food_truck_roundup', label: 'Food Truck Roundup' },
-  { value: 'festival_vendor_area', label: 'Festival Vendor Area' },
+  { value: 'festival_vendor_area', label: 'Festival Event Pro Area' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -274,7 +274,7 @@ export function MarketListingTab({ market, updateMarket, saving }: MarketListing
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">Publish Listing</p>
-              <p className="text-sm text-muted-foreground">Make your market visible to vendors</p>
+              <p className="text-sm text-muted-foreground">Make your market visible to Event Pros</p>
             </div>
             <Switch
               checked={localState.isPublished}
@@ -284,7 +284,7 @@ export function MarketListingTab({ market, updateMarket, saving }: MarketListing
           <div className="flex items-center justify-between">
             <div>
               <p className="font-medium">Accept Bookings</p>
-              <p className="text-sm text-muted-foreground">Allow vendors to reserve slots</p>
+              <p className="text-sm text-muted-foreground">Allow Event Pros to reserve slots</p>
             </div>
             <Switch
               checked={localState.bookingsEnabled}

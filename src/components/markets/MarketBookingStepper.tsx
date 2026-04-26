@@ -99,7 +99,7 @@ export function MarketBookingStepper({
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringDuration, setRecurringDuration] = useState<RecurringDuration>('4-weeks');
   
-  // Step 3: Vendor Info
+  // Step 3: Event Pro Info
   const [vendorName, setVendorName] = useState('');
   const [vendorCategory, setVendorCategory] = useState('');
   const [contactName, setContactName] = useState('');
@@ -254,7 +254,7 @@ export function MarketBookingStepper({
   const steps: { id: BookingStep; label: string }[] = [
     { id: 'slot-datetime', label: 'Slot & Date' },
     { id: 'frequency', label: 'Frequency' },
-    { id: 'vendor-info', label: 'Vendor Info' },
+    { id: 'vendor-info', label: 'Event Pro Info' },
     { id: 'setup-needs', label: 'Setup Needs' },
     { id: 'review', label: 'Review & Pay' },
   ];
@@ -778,13 +778,13 @@ export function MarketBookingStepper({
         return (
           <div className="space-y-6">
             <div className="text-center mb-4">
-              <h4 className="font-display text-lg font-bold text-foreground">Vendor Details</h4>
+              <h4 className="font-display text-lg font-bold text-foreground">Event Pro Details</h4>
               <p className="text-sm text-muted-foreground">Tell us about your business</p>
             </div>
 
             <div className="space-y-4">
               <div>
-                <Label htmlFor="vendorName">Business / Vendor Name *</Label>
+                <Label htmlFor="vendorName">Business / Event Pro Name *</Label>
                 <Input
                   id="vendorName"
                   value={vendorName}
@@ -795,7 +795,7 @@ export function MarketBookingStepper({
               </div>
 
               <div>
-                <Label>Vendor Category *</Label>
+                <Label>Event Pro Category *</Label>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {VENDOR_CATEGORIES.map(cat => (
                     <Badge
@@ -858,7 +858,7 @@ export function MarketBookingStepper({
             </div>
 
             <div>
-              <Label>Vendor Type *</Label>
+              <Label>Event Pro Type *</Label>
               <div className="grid grid-cols-2 gap-3 mt-2">
                 {[
                   { id: 'booth', icon: Tent, label: 'Booth/Tent' },
@@ -1047,7 +1047,7 @@ export function MarketBookingStepper({
                 )}
 
                 <div>
-                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Vendor</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wider mb-1">Event Pro</p>
                   <p className="font-medium text-foreground">{vendorName}</p>
                   <p className="text-sm text-muted-foreground">{vendorCategory} • {vendorType}</p>
                 </div>

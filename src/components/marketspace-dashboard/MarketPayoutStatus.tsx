@@ -205,7 +205,7 @@ export function MarketPayoutStatus({ variant = 'banner', onNavigateTab }: Market
                 </div>
                 <p className="text-sm text-muted-foreground mb-2">
                   {status === 'pending' || status === 'pending_verification'
-                    ? 'Complete your Stripe setup to receive payouts from vendor bookings.'
+                    ? 'Complete your Stripe setup to receive payouts from Event Pro bookings.'
                     : 'Connect Stripe to receive your market slot payouts. Takes ~2 minutes.'}
                 </p>
                 {requirements.length > 0 && (
@@ -329,7 +329,7 @@ export function MarketPayoutStatus({ variant = 'banner', onNavigateTab }: Market
                 <p className="text-muted-foreground">
                   {status === 'pending' 
                     ? 'Complete your Stripe setup to start receiving payouts.'
-                    : 'Connect your Stripe account to receive payouts from vendor bookings.'}
+                    : 'Connect your Stripe account to receive payouts from Event Pro bookings.'}
                 </p>
                 {requirements.length > 0 && (
                   <div>

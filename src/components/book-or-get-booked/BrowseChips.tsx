@@ -2,13 +2,13 @@ import { Link } from 'react-router-dom';
 
 const groups = [
   {
-    title: 'By vendor type',
+    title: 'By Event Pro type',
     items: [
       ['Food Trucks', '/browse?category=food-truck'],
       ['Food Trailers', '/browse?category=food-trailer'],
       ['Mobile Bartenders', '/browse?category=mobile-bartender'],
       ['Cottage Bakers', '/browse?category=cottage-baker'],
-      ['Dessert Vendors', '/browse?category=dessert'],
+      ['Dessert Event Pros', '/browse?category=dessert'],
       ['Mobile Coffee', '/browse?category=mobile-coffee'],
       ['Mobile Food Businesses', '/browse?category=mobile-food'],
     ],
@@ -58,14 +58,14 @@ interface Props {
   title?: string;
 }
 
-export function BrowseChips({ compact = false, title = 'Find the right food vendor faster' }: Props) {
+export function BrowseChips({ compact = false, title = 'Find the right food Event Pro faster' }: Props) {
   const visible = compact ? groups.slice(0, 2) : groups;
   return (
     <section className={compact ? 'py-8' : 'py-16 sm:py-24 bg-secondary/30'}>
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto text-center mb-10">
           <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">{title}</h2>
-          <p className="mt-3 text-muted-foreground">Jump straight to vendors that fit your event.</p>
+          <p className="mt-3 text-muted-foreground">Jump straight to Event Pros that fit your event.</p>
         </div>
         <div className="space-y-8">
           {visible.map((g) => (

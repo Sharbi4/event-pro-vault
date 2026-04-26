@@ -46,7 +46,7 @@ export default function PackageDetail() {
     image: packageSeo?.image,
     keywords: [
       packageData?.category || 'event service',
-      'book vendor',
+      'book Event Pro',
       'event package',
       packageData?.vendor_display_name || packageData?.vendor_name || '',
       'book by availability',

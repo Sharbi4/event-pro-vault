@@ -54,7 +54,7 @@ const faqs = [
   },
   {
     q: 'What makes EventPro different?',
-    a: 'Availability-first search. You don\'t just find vendors—you find packages that are actually available for your date and time.',
+    a: 'Availability-first search. You don\'t just find Event Pros—you find packages that are actually available for your date and time.',
   },
   {
     q: 'How do I get started as an Event Pro?',
@@ -91,11 +91,11 @@ export default function Learn() {
     canonical: seo.canonical,
     type: 'website',
     keywords: [
-      'how to book event vendors',
-      'become event vendor',
+      'how to book event Event Pros',
+      'become event Event Pro',
       'list event services',
       'event marketplace',
-      'vendor booking platform',
+      'Event Pro booking platform',
       'event services marketplace',
     ],
   });

@@ -16,8 +16,8 @@ interface VerifiedEventProBadgeProps {
 
 /**
  * "Verified Event Pro" trust badge.
- * Shown when a vendor has completed optional Stripe Identity verification.
- * Used on browse cards (sm), profile headers (md/lg), and vendor dashboards.
+ * Shown when a Event Pro has completed optional Stripe Identity verification.
+ * Used on browse cards (sm), profile headers (md/lg), and Event Pro dashboards.
  */
 export function VerifiedEventProBadge({
   size = 'sm',

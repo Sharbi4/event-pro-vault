@@ -24,7 +24,7 @@ export function OccasionGrid() {
         <h2 className="font-display text-3xl md:text-4xl font-bold mb-2">
           What are you planning?
         </h2>
-        <p className="text-muted-foreground mb-8">Browse vendors by event type.</p>
+        <p className="text-muted-foreground mb-8">Browse Event Pros by event type.</p>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {OCCASIONS.map((o) => (

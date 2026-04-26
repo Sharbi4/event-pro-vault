@@ -98,7 +98,7 @@ export default function VendorOnboarding() {
         .eq('user_id', user.id)
         .single();
 
-      // Check vendor details
+      // Check Event Pro details
       const { data: vendorDetails } = await supabase
         .from('vendor_details')
         .select('*')
@@ -175,7 +175,7 @@ export default function VendorOnboarding() {
     setLoading(true);
 
     try {
-      // Upsert vendor details
+      // Upsert Event Pro details
       const { error } = await supabase
         .from('vendor_details')
         .upsert({
@@ -395,7 +395,7 @@ export default function VendorOnboarding() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-8">
           <h1 className="font-display text-3xl md:text-4xl font-bold mb-2">
-            Become a <span className="gradient-text">Vendor</span>
+            Become a <span className="gradient-text">Event Pro</span>
           </h1>
           <p className="text-muted-foreground">
             Complete these steps to start listing your services
@@ -536,7 +536,7 @@ export default function VendorOnboarding() {
                   <div className="space-y-2">
                     <h3 className="font-display text-xl font-bold">Market</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
-                      Venues, festivals, and event organizers looking to host and manage multiple vendors
+                      Venues, festivals, and event organizers looking to host and manage multiple Event Pros
                     </p>
                   </div>
 
@@ -548,11 +548,11 @@ export default function VendorOnboarding() {
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Star className="w-4 h-4 text-accent" />
-                      <span>Attract vendors to your events</span>
+                      <span>Attract Event Pros to your events</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Star className="w-4 h-4 text-accent" />
-                      <span>Manage vendor applications</span>
+                      <span>Manage Event Pro applications</span>
                     </div>
                   </div>
                 </div>
@@ -960,7 +960,7 @@ export default function VendorOnboarding() {
               </div>
               <h2 className="text-2xl font-bold mb-2">You're all set!</h2>
               <p className="text-muted-foreground mb-6">
-                Your vendor account is ready. Start creating your first service listing.
+                Your Event Pro account is ready. Start creating your first service listing.
               </p>
               <div className="flex gap-4 justify-center">
                 <Button onClick={() => navigate('/dashboard')} variant="outline">

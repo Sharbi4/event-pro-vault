@@ -4,17 +4,17 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Star, MapPin, ChevronRight, User } from 'lucide-react';
 import { useFeaturedVendors } from '@/hooks/useFeaturedContent';
-import { vendors as mockVendors } from '@/data/vendors';
+import { Event Pros as mockVendors } from '@/data/vendors';
 import { TrustBadges, TopRatedBadge } from '@/components/badges/TrustBadges';
 
 export function FeaturedVendors() {
   const { data: dbVendors, isLoading } = useFeaturedVendors(4);
 
-  // Use database vendors if available, fallback to mock data
+  // Use database Event Pros if available, fallback to mock data
   const hasDbVendors = dbVendors && dbVendors.length > 0;
   
-  // Format mock vendors to match the expected structure
-  const mockFeaturedVendors = mockVendors.filter(v => v.featured).slice(0, 4).map(vendor => ({
+  // Format mock Event Pros to match the expected structure
+  const mockFeaturedVendors = mockVendors.filter(v => v.featured).slice(0, 4).map(Event Pro => ({
     id: vendor.id,
     user_id: vendor.id,
     display_name: vendor.name,
@@ -77,7 +77,7 @@ export function FeaturedVendors() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {displayVendors.map((vendor, index) => (
+          {displayVendors.map((Event Pro, index) => (
             <Link key={vendor.id} to={`/pro/${vendor.user_id}`}>
               <Card 
                 variant="glow" 

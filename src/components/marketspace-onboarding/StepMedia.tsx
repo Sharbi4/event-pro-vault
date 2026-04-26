@@ -36,7 +36,7 @@ export function StepMedia({ state, updateState, onSave }: StepMediaProps) {
           Photos & Videos
         </h2>
         <p className="text-sm text-muted-foreground">
-          Show vendors what your market looks like. Great photos attract more vendors!
+          Show Event Pros what your market looks like. Great photos attract more Event Pros!
         </p>
       </div>
 
@@ -48,7 +48,7 @@ export function StepMedia({ state, updateState, onSave }: StepMediaProps) {
             <p className="text-sm font-medium text-foreground">Tips for great photos</p>
             <ul className="text-xs text-muted-foreground space-y-1">
               <li>• Show the overall market atmosphere and layout</li>
-              <li>• Include photos of vendor booths and stalls</li>
+              <li>• Include photos of Event Pro booths and stalls</li>
               <li>• Capture the crowd and customer activity</li>
               <li>• Add photos of parking and entrance areas</li>
             </ul>

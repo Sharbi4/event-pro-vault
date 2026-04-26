@@ -99,7 +99,7 @@ export function BrowsePackageCard({ pkg }: BrowsePackageCardProps) {
             {pkg.name}
           </h3>
 
-          {/* Vendor Info */}
+          {/* Event Pro Info */}
           <div className="flex items-center gap-2 mt-2">
             <Avatar className="w-6 h-6 border border-border">
               <AvatarImage src={pkg.vendor_avatar || undefined} />

@@ -50,12 +50,12 @@ export default function Browse() {
     canonical: SEO_CONFIG.baseUrl + '/browse',
     type: 'website',
     keywords: [
-      'event vendors near me',
+      'event Event Pros near me',
       'book catering',
       'hire DJ',
       'event photographer',
       'food truck booking',
-      'wedding vendors',
+      'wedding Event Pros',
       'party services',
       filters.category || 'event services',
       'book by availability',
@@ -64,7 +64,7 @@ export default function Browse() {
   
   const [showFilters, setShowFilters] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'vendors' | 'grid' | 'map'>('vendors');
+  const [viewMode, setViewMode] = useState<'Event Pros' | 'grid' | 'map'>('Event Pros');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -259,7 +259,7 @@ export default function Browse() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setViewMode(viewMode === 'map' ? 'vendors' : 'map')}
+                  onClick={() => setViewMode(viewMode === 'map' ? 'Event Pros' : 'map')}
                   className="h-9 gap-1.5"
                 >
                   {viewMode === 'map' ? <LayoutGrid className="w-3.5 h-3.5" /> : <Map className="w-3.5 h-3.5" />}
@@ -354,13 +354,13 @@ export default function Browse() {
               {/* View Toggle */}
               <div className="flex items-center border border-border rounded-lg overflow-hidden">
                 <Button
-                  variant={viewMode === 'vendors' ? 'default' : 'ghost'}
+                  variant={viewMode === 'Event Pros' ? 'default' : 'ghost'}
                   size="sm"
                   className="rounded-none gap-1.5"
-                  onClick={() => setViewMode('vendors')}
+                  onClick={() => setViewMode('Event Pros')}
                 >
                   <LayoutGrid className="w-4 h-4" />
-                  <span className="hidden sm:inline">Vendors</span>
+                  <span className="hidden sm:inline">Event Pros</span>
                 </Button>
                 <Button
                   variant={viewMode === 'grid' ? 'default' : 'ghost'}
@@ -469,8 +469,8 @@ export default function Browse() {
             </div>
           )}
 
-          {/* Vendor Grid (default — vendor-grouped, StyleSeat-style) */}
-          {!loading && packages.length > 0 && viewMode === 'vendors' && (() => {
+          {/* Event Pro Grid (default — vendor-grouped, StyleSeat-style) */}
+          {!loading && packages.length > 0 && viewMode === 'Event Pros' && (() => {
             const groups = groupPackagesByVendor(packages, 3);
             return (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -545,9 +545,9 @@ export default function Browse() {
               </h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 {filters.date && startTime && endTime
-                  ? `No vendors available on ${format(new Date(filters.date), 'MMMM d')}, ${formatTimeDisplay(startTime)}–${formatTimeDisplay(endTime)}`
+                  ? `No Event Pros available on ${format(new Date(filters.date), 'MMMM d')}, ${formatTimeDisplay(startTime)}–${formatTimeDisplay(endTime)}`
                   : filters.date 
-                  ? `No vendors available on ${format(new Date(filters.date), 'MMMM d, yyyy')}. Try adjusting your search.`
+                  ? `No Event Pros available on ${format(new Date(filters.date), 'MMMM d, yyyy')}. Try adjusting your search.`
                   : 'Try adjusting your search or filters to find what you\'re looking for.'
                 }
               </p>

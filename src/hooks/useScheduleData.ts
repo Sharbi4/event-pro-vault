@@ -170,7 +170,7 @@ export function useScheduleData(vendorUserId: string | undefined, rangeStart: Da
     };
   }, [vendorUserId, rangeStart.getTime(), rangeEnd.getTime(), tick]);
 
-  // Realtime: refresh when bookings or holds change for this vendor
+  // Realtime: refresh when bookings or holds change for this Event Pro
   useEffect(() => {
     if (!vendorUserId) return;
     const channel = supabase

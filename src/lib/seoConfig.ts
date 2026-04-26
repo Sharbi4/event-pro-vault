@@ -27,7 +27,7 @@ export const SEO_CONFIG = {
     'cottage baker',
     'mobile coffee cart',
     'ice cream truck rental',
-    'food vendor booking',
+    'food Event Pro booking',
   ],
 };
 
@@ -41,7 +41,7 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
     // Public pages
     home: {
       title: `${siteName} | Book Food Trucks, Caterers & Mobile Bartenders`,
-      description: 'Book food trucks, caterers, mobile bartenders, bakers and dessert vendors for your next event — search by date, time, and location.',
+      description: 'Book food trucks, caterers, mobile bartenders, bakers and dessert Event Pros for your next event — search by date, time, and location.',
       canonical: baseUrl,
     },
     learn: {
@@ -55,14 +55,14 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
       canonical: `${baseUrl}/learn/event-pros`,
     },
     learnMarkets: {
-      title: `For Market Managers — Fill Vendor Spots | ${siteName}`,
-      description: 'Create slot types, post market days, and let vendors reserve instantly. Show remaining spots to drive faster bookings.',
+      title: `For Market Managers — Fill Event Pro Spots | ${siteName}`,
+      description: 'Create slot types, post market days, and let Event Pros reserve instantly. Show remaining spots to drive faster bookings.',
       canonical: `${baseUrl}/learn/markets`,
     },
     browse: {
       title: dynamicData?.category
         ? `Book ${dynamicData.category} Near You | ${siteName}`
-        : `Find Food Trucks & Mobile Food Vendors | ${siteName}`,
+        : `Find Food Trucks & Mobile Food Event Pros | ${siteName}`,
       description: dynamicData?.category
         ? `Find available ${dynamicData.category} packages for your date and time. Compare pricing, travel range, and book online or pay in cash.`
         : 'Search food trucks, caterers, mobile bartenders, bakers and beverage carts by date, time, and location. Real-time availability.',
@@ -103,8 +103,8 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
       canonical: `${baseUrl}/blog`,
     },
     markets: {
-      title: `Browse Markets & Vendor Spots | ${siteName}`,
-      description: 'Find and reserve vendor spots at farmers markets, food truck rallies, craft fairs, and pop-up events. Real-time availability.',
+      title: `Browse Markets & Event Pro Spots | ${siteName}`,
+      description: 'Find and reserve Event Pro spots at farmers markets, food truck rallies, craft fairs, and pop-up events. Real-time availability.',
       canonical: `${baseUrl}/markets`,
     },
     

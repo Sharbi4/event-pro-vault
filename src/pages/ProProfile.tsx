@@ -58,7 +58,7 @@ export default function ProProfile() {
 
   const loading = profileLoading || resolvingUsername;
 
-  // Dynamic SEO for vendor profile pages
+  // Dynamic SEO for Event Pro profile pages
   const proSeo = profile ? generateProSEO({
     displayName: profile.displayName,
     businessName: profile.businessName,
@@ -77,7 +77,7 @@ export default function ProProfile() {
       profile?.displayName || '',
       ...(profile?.serviceCategories || []),
       'event pro',
-      'book vendor',
+      'book Event Pro',
       profile?.serviceArea || '',
       'event services marketplace',
     ].filter(Boolean),
@@ -138,7 +138,7 @@ export default function ProProfile() {
 
   return (
     <Layout>
-      {/* Vendor Structured Data */}
+      {/* Event Pro Structured Data */}
       <LocalBusinessJsonLd
         data={{
           id: resolvedUserId || '',

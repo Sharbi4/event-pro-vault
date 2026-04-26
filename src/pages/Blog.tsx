@@ -18,9 +18,9 @@ import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 const categories: { id: BlogCategory | 'all'; label: string; icon: React.ElementType }[] = [
   { id: 'all', label: 'All Posts', icon: BookOpen },
   { id: 'event-planning', label: 'Event Planning', icon: Calendar },
-  { id: 'vendor-tips', label: 'Vendor Success', icon: TrendingUp },
+  { id: 'vendor-tips', label: 'Event Pro Success', icon: TrendingUp },
   { id: 'industry-news', label: 'Industry News', icon: Sparkles },
-  { id: 'featured-vendors', label: 'Featured Vendors', icon: Users },
+  { id: 'featured-vendors', label: 'Featured Event Pros', icon: Users },
 ];
 
 export default function Blog() {
@@ -34,13 +34,13 @@ export default function Blog() {
 
   // SEO for Blog index
   useSEO({
-    title: 'Event Pro Blog - Tips for Hosts & Vendors',
-    description: 'Expert tips for event planning, vendor success strategies, and industry insights. Learn how to create unforgettable events.',
+    title: 'Event Pro Blog - Tips for Hosts & Event Pros',
+    description: 'Expert tips for event planning, Event Pro success strategies, and industry insights. Learn how to create unforgettable events.',
     canonical: 'https://event-pro-vault.lovable.app/blog',
     type: 'website',
     keywords: [
       'event planning tips',
-      'vendor success',
+      'Event Pro success',
       'event industry news',
       'catering tips',
       'wedding planning',
@@ -69,7 +69,7 @@ export default function Blog() {
                 Insights for Event Success
               </h1>
               <p className="text-lg text-muted-foreground mb-8">
-                Expert tips for hosts planning unforgettable events and vendors growing their business.
+                Expert tips for hosts planning unforgettable events and Event Pros growing their business.
               </p>
               
               {/* Search */}

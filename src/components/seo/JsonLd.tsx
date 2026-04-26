@@ -38,7 +38,7 @@ export function WebsiteJsonLd() {
       type="WebSite"
       data={{
         name: 'EventPro by Vendibook',
-        description: 'Book premium event vendors in minutes',
+        description: 'Book premium event Event Pros in minutes',
       }}
     />
   );
@@ -55,7 +55,7 @@ export function OrganizationJsonLd() {
       name: 'EventPro by Vendibook',
       url: 'https://event-pro-vault.lovable.app',
       logo: 'https://event-pro-vault.lovable.app/favicon.png',
-      description: 'Premium event vendor marketplace. Book photographers, DJs, caterers, food trucks and more.',
+      description: 'Premium event Event Pro marketplace. Book photographers, DJs, caterers, food trucks and more.',
       foundingDate: '2024',
       contactPoint: {
         '@type': 'ContactPoint',
@@ -144,7 +144,7 @@ export function ProductJsonLd({ data }: { data: ProductData }) {
 }
 
 /**
- * LocalBusiness schema for vendor profiles
+ * LocalBusiness schema for Event Pro profiles
  */
 interface LocalBusinessData {
   id: string;

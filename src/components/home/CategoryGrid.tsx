@@ -26,7 +26,7 @@ export function CategoryGrid() {
             Browse by Category
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Find the perfect vendor for your event from our curated categories
+            Find the perfect Event Pro for your event from our curated categories
           </p>
         </div>
 
