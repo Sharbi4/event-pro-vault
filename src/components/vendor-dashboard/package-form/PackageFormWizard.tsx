@@ -115,17 +115,65 @@ interface PackageFormWizardProps {
   initialData?: VendorPackage | null;
 }
 
-const STEPS = [
-  { id: 'type', label: 'Type', shortLabel: '1' },
-  { id: 'basic', label: 'Basics', shortLabel: '2' },
-  { id: 'pricing', label: 'Pricing', shortLabel: '3' },
-  { id: 'time', label: 'Time', shortLabel: '4' },
-  { id: 'inclusions', label: 'Details', shortLabel: '5' },
-  { id: 'media', label: 'Photos', shortLabel: '6' },
-  { id: 'booking', label: 'Rules', shortLabel: '7' },
-  { id: 'availability', label: 'Calendar', shortLabel: '8' },
-  { id: 'preview', label: 'Review', shortLabel: '9' },
+type StepId =
+  | 'type'
+  | 'basics'
+  | 'pullup_pricing'
+  | 'pullup_timing'
+  | 'pullup_requirements'
+  | 'pullup_media'
+  | 'pullup_rules'
+  | 'pullup_calendar'
+  | 'pullup_review'
+  | 'catering_basics'
+  | 'catering_guests'
+  | 'catering_pricing'
+  | 'catering_inclusions'
+  | 'catering_timing'
+  | 'catering_questions'
+  | 'catering_rules'
+  | 'catering_media'
+  | 'catering_calendar'
+  | 'catering_review';
+
+interface StepDef {
+  id: StepId;
+  label: string;
+}
+
+const TYPE_STEP: StepDef = { id: 'type', label: 'Type' };
+
+const PULL_UP_STEPS: StepDef[] = [
+  TYPE_STEP,
+  { id: 'basics', label: 'Basics' },
+  { id: 'pullup_pricing', label: 'Pricing' },
+  { id: 'pullup_timing', label: 'Timing' },
+  { id: 'pullup_requirements', label: 'Location' },
+  { id: 'pullup_media', label: 'Photos' },
+  { id: 'pullup_rules', label: 'Rules' },
+  { id: 'pullup_calendar', label: 'Calendar' },
+  { id: 'pullup_review', label: 'Review' },
 ];
+
+const CATERING_STEPS: StepDef[] = [
+  TYPE_STEP,
+  { id: 'catering_basics', label: 'Basics' },
+  { id: 'catering_guests', label: 'Guests' },
+  { id: 'catering_pricing', label: 'Pricing' },
+  { id: 'catering_inclusions', label: 'Menu' },
+  { id: 'catering_timing', label: 'Time' },
+  { id: 'catering_questions', label: 'Questions' },
+  { id: 'catering_rules', label: 'Rules' },
+  { id: 'catering_media', label: 'Photos' },
+  { id: 'catering_calendar', label: 'Calendar' },
+  { id: 'catering_review', label: 'Review' },
+];
+
+function getSteps(kind: PackageKind | null): StepDef[] {
+  if (kind === 'pull_up') return PULL_UP_STEPS;
+  if (kind === 'catering') return CATERING_STEPS;
+  return [TYPE_STEP];
+}
 
 const defaultFormData: PackageFormData = {
   name: '',
