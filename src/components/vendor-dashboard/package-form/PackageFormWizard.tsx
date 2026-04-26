@@ -430,22 +430,61 @@ export function PackageFormWizard({
   const StepContent = () => (
     <div className="flex-1 overflow-y-auto py-4 min-h-[300px] sm:min-h-[400px]">
       {currentStep === 0 && (
-        <StepBasicInfo formData={formData} updateFormData={updateFormData} />
+        <StepPackageType
+          value={formData.package_kind}
+          onChange={(kind) => updateFormData({ package_kind: kind })}
+        />
       )}
       {currentStep === 1 && (
-        <StepPricingTravel formData={formData} updateFormData={updateFormData} />
+        <div className="space-y-6">
+          <StepBasicInfo formData={formData} updateFormData={updateFormData} />
+          <PackageBasicsExtras
+            kind={formData.package_kind}
+            category={formData.category}
+            cuisineStyles={formData.cuisine_styles}
+            bestFor={formData.best_for}
+            minGuests={formData.min_guests ?? undefined}
+            maxGuests={formData.max_guests ?? undefined}
+            packageName={formData.name}
+            onChange={(updates) => updateFormData(updates as Partial<PackageFormData>)}
+          />
+        </div>
       )}
       {currentStep === 2 && (
-        <StepInclusions formData={formData} updateFormData={updateFormData} />
+        <StepPricingTravel formData={formData} updateFormData={updateFormData} />
       )}
       {currentStep === 3 && (
-        <StepBookingPayment 
-          formData={formData} 
-          updateFormData={updateFormData}
-          stripeConnected={stripeConnected}
+        <TimeAndBuffers
+          durationMinutes={formData.duration_minutes}
+          setupMinutes={formData.setup_minutes}
+          cleanupMinutes={formData.cleanup_minutes}
+          bufferBeforeMinutes={formData.buffer_before_minutes}
+          bufferAfterMinutes={formData.buffer_after_minutes}
+          minimumNoticeHours={formData.minimum_notice_hours}
+          onChange={(updates) => updateFormData(updates as Partial<PackageFormData>)}
         />
       )}
       {currentStep === 4 && (
+        <StepInclusions formData={formData} updateFormData={updateFormData} />
+      )}
+      {currentStep === 5 && (
+        <StepMedia formData={formData} updateFormData={updateFormData} />
+      )}
+      {currentStep === 6 && (
+        <div className="space-y-6">
+          <StepBookingPayment
+            formData={formData}
+            updateFormData={updateFormData}
+            stripeConnected={stripeConnected}
+          />
+          <CustomerQuestionsPicker
+            category={formData.category}
+            selected={formData.customer_questions}
+            onChange={(qs) => updateFormData({ customer_questions: qs })}
+          />
+        </div>
+      )}
+      {currentStep === 7 && (
         <StepAvailability
           packageId={initialData?.id}
           weeklyAvailability={formData.weekly_availability}
@@ -454,10 +493,7 @@ export function PackageFormWizard({
           onBlockedDatesChange={(blocked) => updateFormData({ blocked_dates: blocked })}
         />
       )}
-      {currentStep === 5 && (
-        <StepMedia formData={formData} updateFormData={updateFormData} />
-      )}
-      {currentStep === 6 && (
+      {currentStep === 8 && (
         <PackagePreview formData={formData} />
       )}
     </div>
