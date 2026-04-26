@@ -147,6 +147,32 @@ export function CreatePrivatePackageDrawer({
   const [depositPercent, setDepositPercent] = useState<number>(50);
   const [includedItems, setIncludedItems] = useState<string[]>(['']);
   const [expiresInDays, setExpiresInDays] = useState<number>(7);
+  const [appliedPreset, setAppliedPreset] = useState<PresetKey | null>(null);
+
+  const applyPreset = (preset: Preset) => {
+    const p = preset.patch;
+    if (p.packageName !== undefined) setPackageName(p.packageName);
+    if (p.description !== undefined) setDescription(p.description);
+    if (p.guestCount !== undefined) setGuestCount(p.guestCount);
+    if (p.basePrice !== undefined) setBasePrice(p.basePrice);
+    if (p.travelFee !== undefined) setTravelFee(p.travelFee);
+    if (p.depositPercent !== undefined) setDepositPercent(p.depositPercent);
+    if (p.expiresInDays !== undefined) setExpiresInDays(p.expiresInDays);
+    if (p.menuDetails !== undefined) {
+      setMenuDetails((prev) => (prev && preset.mergeIncluded ? `${prev}\n\n${p.menuDetails}` : p.menuDetails!));
+    }
+    if (p.includedItems !== undefined) {
+      setIncludedItems((prev) => {
+        if (preset.mergeIncluded) {
+          const cleaned = prev.filter((s) => s.trim());
+          return [...cleaned, ...p.includedItems!];
+        }
+        return p.includedItems!;
+      });
+    }
+    setAppliedPreset(preset.key);
+    toast.success(`Applied "${preset.label}" preset`, { duration: 1500 });
+  };
 
   const totalPrice = (Number(basePrice) || 0) + (Number(travelFee) || 0);
   const depositAmount = Math.round(totalPrice * (depositPercent / 100) * 100) / 100;
