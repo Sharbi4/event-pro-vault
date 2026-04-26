@@ -190,7 +190,11 @@ export function useVendorDashboard() {
     ]);
 
     if (packagesRes.data) setPackages(packagesRes.data as unknown as VendorPackage[]);
-    if (bookingsRes.data) setBookings(bookingsRes.data as VendorBooking[]);
+    if (bookingsRes.data) {
+      // Hide unpaid online Instant-Book bookings from vendor inbox until customer pays.
+      const visible = (bookingsRes.data as any[]).filter(isBookingVisible);
+      setBookings(visible as VendorBooking[]);
+    }
     if (profileRes.data) setProfile(profileRes.data as VendorProfile);
     if (detailsRes.data) setVendorDetails(detailsRes.data as VendorDetails);
     
