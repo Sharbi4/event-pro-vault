@@ -341,27 +341,30 @@ export function PackageFormWizard({
     setFormData(prev => ({ ...prev, ...updates }));
   };
 
+  // Dynamic steps based on chosen package kind
+  const steps = getSteps(formData.package_kind);
+  const safeStepIndex = Math.min(currentStep, steps.length - 1);
+  const activeStep = steps[safeStepIndex];
+
   const handleNext = () => {
-    if (currentStep < STEPS.length - 1) {
-      setCurrentStep(prev => prev + 1);
+    if (safeStepIndex < steps.length - 1) {
+      setCurrentStep(safeStepIndex + 1);
     }
   };
 
   const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
+    if (safeStepIndex > 0) {
+      setCurrentStep(safeStepIndex - 1);
     }
   };
 
   const handleSubmit = async () => {
     setLoading(true);
-    // Extract availability data separately
     const availability = {
       weekly: formData.weekly_availability,
       blocked: formData.blocked_dates,
     };
-    
-    // Cast formData to match expected type, providing defaults for nullable fields
+
     const submitData = {
       ...formData,
       pricing_type: formData.pricing_type,
@@ -383,90 +386,103 @@ export function PackageFormWizard({
       default_start_time: formData.default_start_time ?? null,
       duration_minutes: formData.duration_minutes ?? null,
     } as any;
-    
-    // Remove availability fields from package data (stored separately)
+
     delete submitData.weekly_availability;
     delete submitData.blocked_dates;
-    
+
     await onSubmit(submitData, availability);
     setLoading(false);
     onClose();
   };
 
+  // Per-step validation by step id (more robust than index)
   const isStepValid = () => {
-    switch (currentStep) {
-      case 0:
-        // Package Type required
+    switch (activeStep?.id) {
+      case 'type':
         return formData.package_kind !== null;
-      case 1:
-        // Basics: name + category
+      case 'basics':
+      case 'catering_basics':
         return formData.name.trim().length > 0 && formData.category.length > 0;
-      case 2:
+      case 'pullup_pricing':
+        if (!formData.pull_up_pricing_model) return false;
+        if (formData.pull_up_pricing_model === 'no_upfront') return true;
+        if (formData.pull_up_pricing_model === 'min_guarantee') {
+          return (formData.min_guarantee_amount ?? 0) > 0;
+        }
+        if (formData.pull_up_pricing_model === 'show_up_plus_min') {
+          return formData.price > 0 && (formData.min_guarantee_amount ?? 0) > 0;
+        }
         return formData.price > 0;
-      case 3:
-        // Time step: at least a service duration
+      case 'catering_guests':
+        return (formData.min_guests ?? 0) > 0;
+      case 'catering_pricing':
+        return !!formData.catering_pricing_model && formData.price > 0;
+      case 'pullup_timing':
+      case 'catering_timing':
         return (formData.duration_minutes ?? 0) > 0;
-      case 6: {
-        // Booking rules: if online payment selected, require Stripe
-        const needsStripe = formData.payment_options === 'ONLINE' || formData.payment_options === 'BOTH';
+      case 'pullup_rules':
+      case 'catering_rules': {
+        const needsStripe =
+          formData.payment_options === 'ONLINE' || formData.payment_options === 'BOTH';
         if (needsStripe && !stripeConnected) return false;
         return true;
       }
-      case 7:
-        // Availability: at least one day enabled
-        return formData.weekly_availability.some(d => d.isEnabled);
+      case 'pullup_calendar':
+      case 'catering_calendar':
+        return formData.weekly_availability.some((d) => d.isEnabled);
       default:
         return true;
     }
   };
 
-  const progress = ((currentStep + 1) / STEPS.length) * 100;
+  const progress = ((safeStepIndex + 1) / steps.length) * 100;
 
-  // Step indicators component
-  const StepIndicators = () => (
+  // ---- JSX variables (NOT nested components — keeps input focus stable) ----
+
+  const stepIndicators = (
     <>
-      {/* Mobile: compact step counter + label */}
       <div className="sm:hidden flex items-center justify-between mt-2 mb-1 px-1">
         <span className="text-xs font-medium text-muted-foreground tabular-nums">
-          Step {currentStep + 1} of {STEPS.length}
+          Step {safeStepIndex + 1} of {steps.length}
         </span>
         <span className="text-xs font-semibold text-foreground truncate ml-2">
-          {STEPS[currentStep].label}
+          {steps[safeStepIndex].label}
         </span>
       </div>
 
-      {/* Desktop: full dot trail */}
-      <div className="hidden sm:flex items-center justify-center gap-2 mt-3 mb-1">
-        {STEPS.map((step, index) => (
+      <div className="hidden sm:flex items-center justify-center gap-2 mt-3 mb-1 flex-wrap">
+        {steps.map((step, index) => (
           <button
             key={step.id}
             type="button"
-            onClick={() => index < currentStep && setCurrentStep(index)}
-            disabled={index > currentStep}
+            onClick={() => index < safeStepIndex && setCurrentStep(index)}
+            disabled={index > safeStepIndex}
             className={`flex items-center gap-1.5 transition-all ${
-              index === currentStep
+              index === safeStepIndex
                 ? 'text-primary'
-                : index < currentStep
+                : index < safeStepIndex
                 ? 'text-muted-foreground cursor-pointer hover:text-foreground'
                 : 'text-muted-foreground/40 cursor-not-allowed'
             }`}
           >
             <div
               className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium transition-all ${
-                index < currentStep
+                index < safeStepIndex
                   ? 'bg-primary text-primary-foreground'
-                  : index === currentStep
+                  : index === safeStepIndex
                   ? 'bg-primary/20 text-primary ring-2 ring-primary'
                   : 'bg-muted text-muted-foreground'
               }`}
             >
-              {index < currentStep ? <Check className="w-3 h-3" /> : index + 1}
+              {index < safeStepIndex ? <Check className="w-3 h-3" /> : index + 1}
             </div>
             <span className="text-xs font-medium">{step.label}</span>
-            {index < STEPS.length - 1 && (
-              <div className={`w-8 h-0.5 mx-1 ${
-                index < currentStep ? 'bg-primary' : 'bg-muted'
-              }`} />
+            {index < steps.length - 1 && (
+              <div
+                className={`w-6 h-0.5 mx-1 ${
+                  index < safeStepIndex ? 'bg-primary' : 'bg-muted'
+                }`}
+              />
             )}
           </button>
         ))}
@@ -474,8 +490,7 @@ export function PackageFormWizard({
     </>
   );
 
-  // Navigation buttons component — sticky bottom bar on mobile
-  const Navigation = () => (
+  const navigation = (
     <div
       className="
         flex gap-2 pt-3 border-t bg-background
@@ -488,10 +503,10 @@ export function PackageFormWizard({
         type="button"
         variant="outline"
         size="lg"
-        onClick={currentStep === 0 ? onClose : handleBack}
+        onClick={safeStepIndex === 0 ? onClose : handleBack}
         className="flex-1 sm:flex-none h-12 sm:h-10 text-base sm:text-sm"
       >
-        {currentStep === 0 ? 'Cancel' : (
+        {safeStepIndex === 0 ? 'Cancel' : (
           <>
             <ChevronLeft className="w-4 h-4 mr-1" />
             Back
@@ -499,7 +514,7 @@ export function PackageFormWizard({
         )}
       </Button>
 
-      {currentStep < STEPS.length - 1 ? (
+      {safeStepIndex < steps.length - 1 ? (
         <Button
           type="button"
           variant="gradient"
@@ -541,83 +556,258 @@ export function PackageFormWizard({
     </div>
   );
 
-  // Step content component
-  const StepContent = () => (
+  // Render the active step's body based on its id
+  const renderStepBody = () => {
+    switch (activeStep?.id) {
+      case 'type':
+        return (
+          <StepPackageType
+            value={formData.package_kind}
+            onChange={(kind) => {
+              updateFormData({ package_kind: kind });
+              // Auto-advance to step 1 when a kind is picked
+              setCurrentStep(1);
+            }}
+          />
+        );
+
+      // ---- BASICS (shared component, slightly different titles) ----
+      case 'basics':
+      case 'catering_basics':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">
+                {activeStep.id === 'basics'
+                  ? 'Tell customers where you can pull up'
+                  : 'Tell customers what this package is for'}
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Name, short description, category, and food style.
+              </p>
+            </div>
+            <StepBasicInfo formData={formData} updateFormData={updateFormData} />
+            <PackageBasicsExtras
+              kind={formData.package_kind}
+              category={formData.category}
+              cuisineStyles={formData.cuisine_styles}
+              bestFor={formData.best_for}
+              minGuests={formData.min_guests ?? undefined}
+              maxGuests={formData.max_guests ?? undefined}
+              packageName={formData.name}
+              onChange={(updates) => updateFormData(updates as Partial<PackageFormData>)}
+            />
+          </div>
+        );
+
+      // ---- PULL-UP FLOW ----
+      case 'pullup_pricing':
+        return <StepPullUpPricing formData={formData} updateFormData={updateFormData} />;
+      case 'pullup_timing':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">
+                How long do you need on-site?
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                We block your calendar for setup, service, and cleanup.
+              </p>
+            </div>
+            <TimeAndBuffers
+              durationMinutes={formData.duration_minutes}
+              setupMinutes={formData.setup_minutes}
+              cleanupMinutes={formData.cleanup_minutes}
+              bufferBeforeMinutes={formData.buffer_before_minutes}
+              bufferAfterMinutes={formData.buffer_after_minutes}
+              minimumNoticeHours={formData.minimum_notice_hours}
+              onChange={(updates) => updateFormData(updates as Partial<PackageFormData>)}
+            />
+          </div>
+        );
+      case 'pullup_requirements':
+        return <StepPullUpRequirements formData={formData} updateFormData={updateFormData} />;
+      case 'pullup_media':
+        return (
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">Show what you serve</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Add photos and a quick menu preview customers can browse.
+              </p>
+            </div>
+            <StepMedia formData={formData} updateFormData={updateFormData} />
+          </div>
+        );
+      case 'pullup_rules':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">Set booking rules</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Approval, cancellation, and travel rules. We recommend reviewing requests first.
+              </p>
+            </div>
+            <StepBookingPayment
+              formData={formData}
+              updateFormData={updateFormData}
+              stripeConnected={stripeConnected}
+            />
+          </div>
+        );
+      case 'pullup_calendar':
+        return (
+          <StepAvailability
+            packageId={initialData?.id}
+            weeklyAvailability={formData.weekly_availability}
+            blockedDates={formData.blocked_dates}
+            onWeeklyChange={(weekly) => updateFormData({ weekly_availability: weekly })}
+            onBlockedDatesChange={(blocked) => updateFormData({ blocked_dates: blocked })}
+          />
+        );
+      case 'pullup_review':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">Review your pull-up booking</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Here's how customers will see this package.
+              </p>
+            </div>
+            <PackagePreview formData={formData} />
+            <PackageStatusSelector
+              value={formData.status}
+              onChange={(status) => updateFormData({ status })}
+              isNew={!initialData}
+            />
+          </div>
+        );
+
+      // ---- CATERING FLOW ----
+      case 'catering_guests':
+        return <StepCateringGuestsService formData={formData} updateFormData={updateFormData} />;
+      case 'catering_pricing':
+        return <StepCateringPricing formData={formData} updateFormData={updateFormData} />;
+      case 'catering_inclusions':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">Build the package menu</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                List what's included, then add optional upgrades as add-ons.
+              </p>
+            </div>
+            <StepInclusions formData={formData} updateFormData={updateFormData} />
+          </div>
+        );
+      case 'catering_timing':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">
+                How much time does this event package need?
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Catering events usually need longer setup and cleanup windows.
+              </p>
+            </div>
+            <TimeAndBuffers
+              durationMinutes={formData.duration_minutes}
+              setupMinutes={formData.setup_minutes}
+              cleanupMinutes={formData.cleanup_minutes}
+              bufferBeforeMinutes={formData.buffer_before_minutes}
+              bufferAfterMinutes={formData.buffer_after_minutes}
+              minimumNoticeHours={formData.minimum_notice_hours}
+              onChange={(updates) => updateFormData(updates as Partial<PackageFormData>)}
+            />
+          </div>
+        );
+      case 'catering_questions':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">
+                What should customers tell you before booking?
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Pick the questions that help you quote and prep for their event.
+              </p>
+            </div>
+            <CustomerQuestionsPicker
+              category={formData.category}
+              selected={formData.customer_questions}
+              onChange={(qs) => updateFormData({ customer_questions: qs })}
+            />
+          </div>
+        );
+      case 'catering_rules':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">
+                Set booking and cancellation rules
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                For larger events we recommend Moderate or Strict cancellation.
+              </p>
+            </div>
+            <StepBookingPayment
+              formData={formData}
+              updateFormData={updateFormData}
+              stripeConnected={stripeConnected}
+            />
+          </div>
+        );
+      case 'catering_media':
+        return (
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">
+                Make your package look bookable
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Add at least one photo. 3+ recommended.
+              </p>
+            </div>
+            <StepMedia formData={formData} updateFormData={updateFormData} />
+          </div>
+        );
+      case 'catering_calendar':
+        return (
+          <StepAvailability
+            packageId={initialData?.id}
+            weeklyAvailability={formData.weekly_availability}
+            blockedDates={formData.blocked_dates}
+            onWeeklyChange={(weekly) => updateFormData({ weekly_availability: weekly })}
+            onBlockedDatesChange={(blocked) => updateFormData({ blocked_dates: blocked })}
+          />
+        );
+      case 'catering_review':
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-xl font-semibold tracking-tight">Review your event package</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                Here's how customers will see this catering package.
+              </p>
+            </div>
+            <PackagePreview formData={formData} />
+            <PackageStatusSelector
+              value={formData.status}
+              onChange={(status) => updateFormData({ status })}
+              isNew={!initialData}
+            />
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  const stepContent = (
     <div className="flex-1 overflow-y-auto py-4 min-h-[300px] sm:min-h-[400px] pb-24 sm:pb-4">
-      {currentStep === 0 && (
-        <StepPackageType
-          value={formData.package_kind}
-          onChange={(kind) => updateFormData({ package_kind: kind })}
-        />
-      )}
-      {currentStep === 1 && (
-        <div className="space-y-6">
-          <StepBasicInfo formData={formData} updateFormData={updateFormData} />
-          <PackageBasicsExtras
-            kind={formData.package_kind}
-            category={formData.category}
-            cuisineStyles={formData.cuisine_styles}
-            bestFor={formData.best_for}
-            minGuests={formData.min_guests ?? undefined}
-            maxGuests={formData.max_guests ?? undefined}
-            packageName={formData.name}
-            onChange={(updates) => updateFormData(updates as Partial<PackageFormData>)}
-          />
-        </div>
-      )}
-      {currentStep === 2 && (
-        <StepPricingTravel formData={formData} updateFormData={updateFormData} />
-      )}
-      {currentStep === 3 && (
-        <TimeAndBuffers
-          durationMinutes={formData.duration_minutes}
-          setupMinutes={formData.setup_minutes}
-          cleanupMinutes={formData.cleanup_minutes}
-          bufferBeforeMinutes={formData.buffer_before_minutes}
-          bufferAfterMinutes={formData.buffer_after_minutes}
-          minimumNoticeHours={formData.minimum_notice_hours}
-          onChange={(updates) => updateFormData(updates as Partial<PackageFormData>)}
-        />
-      )}
-      {currentStep === 4 && (
-        <StepInclusions formData={formData} updateFormData={updateFormData} />
-      )}
-      {currentStep === 5 && (
-        <StepMedia formData={formData} updateFormData={updateFormData} />
-      )}
-      {currentStep === 6 && (
-        <div className="space-y-6">
-          <StepBookingPayment
-            formData={formData}
-            updateFormData={updateFormData}
-            stripeConnected={stripeConnected}
-          />
-          <CustomerQuestionsPicker
-            category={formData.category}
-            selected={formData.customer_questions}
-            onChange={(qs) => updateFormData({ customer_questions: qs })}
-          />
-        </div>
-      )}
-      {currentStep === 7 && (
-        <StepAvailability
-          packageId={initialData?.id}
-          weeklyAvailability={formData.weekly_availability}
-          blockedDates={formData.blocked_dates}
-          onWeeklyChange={(weekly) => updateFormData({ weekly_availability: weekly })}
-          onBlockedDatesChange={(blocked) => updateFormData({ blocked_dates: blocked })}
-        />
-      )}
-      {currentStep === 8 && (
-        <div className="space-y-6">
-          <PackagePreview formData={formData} />
-          <PackageStatusSelector
-            value={formData.status}
-            onChange={(status) => updateFormData({ status })}
-            isNew={!initialData}
-          />
-        </div>
-      )}
+      {renderStepBody()}
     </div>
   );
 
@@ -627,8 +817,6 @@ export function PackageFormWizard({
       <Drawer
         open={open}
         onOpenChange={(nextOpen) => {
-          // Prevent Vaul/Radix from toggling state during internal interactions (inputs, selects).
-          // Only close when the drawer is explicitly dismissed.
           if (!nextOpen) onClose();
         }}
       >
@@ -637,12 +825,12 @@ export function PackageFormWizard({
             <DrawerTitle className="text-lg">
               {initialData ? 'Edit Package' : 'New Package'}
             </DrawerTitle>
-            <StepIndicators />
+            {stepIndicators}
             <Progress value={progress} className="h-1.5" />
           </DrawerHeader>
           <div className="px-4 flex-1 flex flex-col overflow-hidden relative">
-            <StepContent />
-            <Navigation />
+            {stepContent}
+            {navigation}
           </div>
         </DrawerContent>
       </Drawer>
@@ -656,11 +844,11 @@ export function PackageFormWizard({
           <DialogTitle className="text-xl">
             {initialData ? 'Edit Package' : 'Create New Package'}
           </DialogTitle>
-          <StepIndicators />
+          {stepIndicators}
           <Progress value={progress} className="h-1.5" />
         </DialogHeader>
-        <StepContent />
-        <Navigation />
+        {stepContent}
+        {navigation}
       </DialogContent>
     </Dialog>
   );
