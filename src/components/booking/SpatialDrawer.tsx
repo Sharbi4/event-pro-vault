@@ -14,6 +14,7 @@ import { useToast } from '@/hooks/use-toast';
 import { saveBookingDraft, buildAuthUrl } from '@/lib/authIntent';
 import { TimeSlotPicker } from './TimeSlotPicker';
 import { AddressInput, AddressData, isAddressComplete, formatAddress } from '@/components/shared/AddressInput';
+import { useTravelFeeQuote } from '@/hooks/useTravelFeeQuote';
 
 interface SpatialDrawerProps {
   open: boolean;
