@@ -29,9 +29,11 @@ interface ShareKitDialogProps {
   onClose: () => void;
   packageId?: string | null;
   packageName?: string;
+  /** Show celebratory "Listing is live!" header — used after publish */
+  celebrate?: boolean;
 }
 
-export function ShareKitDialog({ open, onClose, packageId, packageName }: ShareKitDialogProps) {
+export function ShareKitDialog({ open, onClose, packageId, packageName, celebrate }: ShareKitDialogProps) {
   const { link, loading, buildShareUrl, trackShare } = useShareKit(packageId);
   const { user } = useAuth();
   const { toast } = useToast();
@@ -155,10 +157,28 @@ export function ShareKitDialog({ open, onClose, packageId, packageName }: ShareK
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+        {celebrate && (
+          <div className="-mx-6 -mt-6 mb-2 px-6 py-4 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent border-b">
+            <div className="flex items-center gap-2 mb-1">
+              <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+                <Check className="w-4 h-4" strokeWidth={3} />
+              </div>
+              <span className="text-xs font-semibold uppercase tracking-wide text-primary">
+                Listing is live
+              </span>
+            </div>
+            <p className="text-sm font-semibold leading-tight">
+              {packageName ? `"${packageName}" is published 🎉` : 'Your package is published 🎉'}
+            </p>
+            <p className="text-xs text-muted-foreground mt-1">
+              Share it now — most bookings come from your first 24 hours of promotion.
+            </p>
+          </div>
+        )}
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            Share Kit
+            {celebrate ? 'Share your new listing' : 'Share Kit'}
           </DialogTitle>
           <DialogDescription>
             Share to earn points, badges & unlock perks. Every share = +5 pts. Every signup = +25.
