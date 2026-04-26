@@ -13,7 +13,7 @@ import { cn } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { storeAuthIntent } from '@/lib/authIntent';
+import { setAuthIntent } from '@/lib/authIntent';
 
 interface AskPrivatePackageModalProps {
   open: boolean;
@@ -48,10 +48,8 @@ export function AskPrivatePackageModal({
 
   const handleSubmit = async () => {
     if (!user?.id) {
-      storeAuthIntent({
-        type: 'ask_private_package',
-        vendorUserId,
-        vendorName,
+      setAuthIntent({
+        intent: 'GENERAL',
         returnTo: window.location.pathname,
       });
       onOpenChange(false);
