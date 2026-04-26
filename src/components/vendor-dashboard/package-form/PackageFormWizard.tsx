@@ -314,15 +314,23 @@ export function PackageFormWizard({
   const isStepValid = () => {
     switch (currentStep) {
       case 0:
-        return formData.name.trim().length > 0 && formData.category.length > 0;
+        // Package Type required
+        return formData.package_kind !== null;
       case 1:
+        // Basics: name + category
+        return formData.name.trim().length > 0 && formData.category.length > 0;
+      case 2:
         return formData.price > 0;
       case 3:
-        // Booking step: if online payment selected, require Stripe
+        // Time step: at least a service duration
+        return (formData.duration_minutes ?? 0) > 0;
+      case 6: {
+        // Booking rules: if online payment selected, require Stripe
         const needsStripe = formData.payment_options === 'ONLINE' || formData.payment_options === 'BOTH';
         if (needsStripe && !stripeConnected) return false;
         return true;
-      case 4:
+      }
+      case 7:
         // Availability: at least one day enabled
         return formData.weekly_availability.some(d => d.isEnabled);
       default:
