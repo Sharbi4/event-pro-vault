@@ -341,8 +341,8 @@ export function PackageFormWizard({
 
   const progress = ((currentStep + 1) / STEPS.length) * 100;
 
-  // Step indicators component
-  const StepIndicators = () => (
+  // Step indicators JSX (NOT a nested component — that would remount inputs each keystroke)
+  const stepIndicators = (
     <>
       {/* Mobile: compact step counter + label */}
       <div className="sm:hidden flex items-center justify-between mt-2 mb-1 px-1">
@@ -393,8 +393,8 @@ export function PackageFormWizard({
     </>
   );
 
-  // Navigation buttons component — sticky bottom bar on mobile
-  const Navigation = () => (
+  // Navigation JSX (NOT a nested component)
+  const navigation = (
     <div
       className="
         flex gap-2 pt-3 border-t bg-background
@@ -460,8 +460,9 @@ export function PackageFormWizard({
     </div>
   );
 
-  // Step content component
-  const StepContent = () => (
+  // Step content JSX (NOT a nested component — defining components inline
+  // remounts their subtree on every parent render, which steals focus from inputs)
+  const stepContent = (
     <div className="flex-1 overflow-y-auto py-4 min-h-[300px] sm:min-h-[400px] pb-24 sm:pb-4">
       {currentStep === 0 && (
         <StepPackageType
@@ -556,12 +557,12 @@ export function PackageFormWizard({
             <DrawerTitle className="text-lg">
               {initialData ? 'Edit Package' : 'New Package'}
             </DrawerTitle>
-            <StepIndicators />
+            {stepIndicators}
             <Progress value={progress} className="h-1.5" />
           </DrawerHeader>
           <div className="px-4 flex-1 flex flex-col overflow-hidden relative">
-            <StepContent />
-            <Navigation />
+            {stepContent}
+            {navigation}
           </div>
         </DrawerContent>
       </Drawer>
@@ -575,11 +576,11 @@ export function PackageFormWizard({
           <DialogTitle className="text-xl">
             {initialData ? 'Edit Package' : 'Create New Package'}
           </DialogTitle>
-          <StepIndicators />
+          {stepIndicators}
           <Progress value={progress} className="h-1.5" />
         </DialogHeader>
-        <StepContent />
-        <Navigation />
+        {stepContent}
+        {navigation}
       </DialogContent>
     </Dialog>
   );
