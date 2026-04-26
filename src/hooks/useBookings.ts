@@ -31,6 +31,7 @@ export interface BookingData {
   deposit_percentage?: number;
   payment_method?: 'stripe' | 'cash';
   payment_status?: string;
+  cancellation_policy?: 'flexible' | 'standard' | 'strict';
 }
 
 export interface CreateBookingInput {
