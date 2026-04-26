@@ -253,6 +253,7 @@ export function CreatePrivatePackageDrawer({
       setBasePrice('');
       setTravelFee(0);
       setIncludedItems(['']);
+      setAppliedPreset(null);
     } catch (err) {
       console.error(err);
       toast.error('Failed to send package');
