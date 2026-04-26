@@ -81,7 +81,15 @@ export function useFeaturedPackages(limit = 6) {
 
       // Enrich with vendor data
       const enriched = packages
-        .filter(pkg => profileMap.has(pkg.user_id))
+        .filter(pkg => {
+          const profile = profileMap.get(pkg.user_id);
+          if (!profile) return false;
+          // Hide packages requiring online payment if vendor's Stripe isn't active
+          const po = (pkg as any).payment_options as 'ONLINE' | 'CASH' | 'BOTH' | null;
+          const requiresStripe = po === 'ONLINE' || po === 'BOTH';
+          if (requiresStripe && profile.stripe_account_status !== 'active') return false;
+          return true;
+        })
         .map(pkg => {
           const profile = profileMap.get(pkg.user_id);
           const details = detailsMap.get(pkg.user_id);
