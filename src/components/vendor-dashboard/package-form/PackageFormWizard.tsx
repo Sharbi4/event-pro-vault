@@ -368,9 +368,25 @@ export function PackageFormWizard({
   };
 
   const handleSubmit = async () => {
-    const result = validateStep(activeStep?.id);
-    if (!result.valid) {
+    // Always validate the current (review) step
+    const current = validateStep(activeStep?.id);
+    // When publishing, validate every prior step too
+    let allErrors: Record<string, string> = current.errors;
+    let firstInvalidIndex = -1;
+    if (formData.status === 'published') {
+      for (let i = 0; i < steps.length; i++) {
+        const r = validateStep(steps[i].id);
+        if (!r.valid) {
+          if (firstInvalidIndex === -1) firstInvalidIndex = i;
+          allErrors = { ...r.errors, ...allErrors };
+        }
+      }
+    }
+    if (!current.valid || (formData.status === 'published' && firstInvalidIndex !== -1)) {
       setShowErrors(true);
+      if (firstInvalidIndex !== -1 && firstInvalidIndex !== safeStepIndex) {
+        setCurrentStep(firstInvalidIndex);
+      }
       return;
     }
     setLoading(true);
