@@ -270,8 +270,6 @@ export function PackageFormWizard({
       case 0:
         return formData.name.trim().length > 0 && formData.category.length > 0;
       case 1:
-        // Custom quote doesn't require price
-        if (formData.pricing_type === 'custom_quote') return true;
         return formData.price > 0;
       case 3:
         // Booking step: if online payment selected, require Stripe
