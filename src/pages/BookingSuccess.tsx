@@ -256,6 +256,61 @@ export default function BookingSuccess() {
             )}
           </motion.div>
 
+          {/* Estimated Payout — vendor-only */}
+          {isVendorViewer && payoutEstimate && (
+            <motion.div
+              className="rounded-2xl p-4 md:p-6 mb-6 border border-primary/20 bg-primary/5"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.32 }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Wallet className="w-4 h-4 text-primary" />
+                <h3 className="font-semibold text-sm">Your estimated payout</h3>
+                {payoutEstimate.isPremiumActive ? (
+                  <span className="ml-auto inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                    <Sparkles className="w-3 h-3" /> Premium 6%
+                  </span>
+                ) : (
+                  <span className="ml-auto text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                    Standard 12.9%
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <span>Booking total</span>
+                  <span className="font-mono">${payoutEstimate.gross.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <span>Platform commission ({payoutEstimate.commissionPct}%)</span>
+                  <span className="font-mono">−${payoutEstimate.commission.toLocaleString()}</span>
+                </div>
+                <div className="h-px bg-border my-1" />
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold">Estimated payout</span>
+                  <span className="font-mono font-bold text-base">
+                    ${payoutEstimate.payout.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              {!payoutEstimate.isPremiumActive && (
+                <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
+                  Upgrade to Event Pro Premium to drop commission to 6% — that's about
+                  <span className="font-semibold text-foreground">
+                    {' '}${(+(payoutEstimate.gross * 0.069).toFixed(2)).toLocaleString()}{' '}
+                  </span>
+                  more on this booking.
+                </p>
+              )}
+              <p className="text-[11px] text-muted-foreground mt-2">
+                Excludes Stripe processing fees. Final payout shown in your dashboard after the event.
+              </p>
+            </motion.div>
+          )}
+
           {/* Add to Calendar */}
           <motion.div 
             className="mb-6 flex justify-center"
