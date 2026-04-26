@@ -48,6 +48,7 @@ import CityCategory from "./pages/CityCategory";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import BookingStatus from "./pages/BookingStatus";
 import PrivatePackageReview from "./pages/PrivatePackageReview";
+import { LegacyRedirect } from "./components/routing/LegacyRedirect";
 
 const queryClient = new QueryClient();
 
