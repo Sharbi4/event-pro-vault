@@ -18,6 +18,7 @@ import { VendorListings } from '@/components/vendor-dashboard/VendorListings';
 import { VendorAvailability } from '@/components/vendor-dashboard/VendorAvailability';
 import { VendorEarnings } from '@/components/vendor-dashboard/VendorEarnings';
 import { VendorMessages } from '@/components/vendor-dashboard/VendorMessages';
+import { PrivatePackagesList } from '@/components/messaging/PrivatePackagesList';
 import { VendorDisputes } from '@/components/vendor-dashboard/VendorDisputes';
 
 import { AvatarUpload } from '@/components/vendor-dashboard/AvatarUpload';
