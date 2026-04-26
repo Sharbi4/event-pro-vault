@@ -36,6 +36,14 @@ export function VerificationCard({
         'create-identity-verification',
       );
       if (error) throw error;
+      if (data?.fallback) {
+        nav.cancel();
+        toast.message(
+          data.message ||
+            "Identity verification isn't available for your account yet.",
+        );
+        return;
+      }
       if (data?.url) {
         if (nav.popupBlocked) {
           await navigator.clipboard.writeText(data.url).catch(() => undefined);

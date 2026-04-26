@@ -903,6 +903,14 @@ export default function VendorOnboarding() {
                       'create-identity-verification',
                     );
                     if (error) throw error;
+                    if (data?.fallback) {
+                      nav.cancel();
+                      toast.message(
+                        data.message ||
+                          "Identity verification isn't available for your account yet. You can skip this step.",
+                      );
+                      return;
+                    }
                     if (data?.url) {
                       if (nav.popupBlocked) {
                         await navigator.clipboard.writeText(data.url).catch(() => undefined);
