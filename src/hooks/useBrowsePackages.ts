@@ -119,6 +119,7 @@ export function useBrowsePackages() {
           images,
           instant_book,
           is_active,
+          payment_options,
           user_id
         `)
         .eq('is_active', true)
@@ -266,6 +267,14 @@ export function useBrowsePackages() {
           
           // Skip if Event Pro is not active
           if (!profile) return null;
+
+          // Hide packages that require online payment when vendor's Stripe is not active.
+          // Cash-only packages still show.
+          const paymentOptions = (pkg as any).payment_options as 'ONLINE' | 'CASH' | 'BOTH' | null;
+          const requiresStripe = paymentOptions === 'ONLINE' || paymentOptions === 'BOTH';
+          if (requiresStripe && profile.stripe_account_status !== 'active') {
+            return null;
+          }
 
           // Skip if this specific package is blocked on selected date
           if (filters.date && blockedPackageIds.has(pkg.id)) {

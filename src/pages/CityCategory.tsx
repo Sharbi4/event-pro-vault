@@ -81,7 +81,13 @@ export default function CityCategory() {
         .or(`category.ilike.%${categorySlug}%,name.ilike.%${categoryName}%,description.ilike.%${categoryName}%`);
 
       if (error) throw error;
-      return data || [];
+      // Hide packages that require online payment when vendor's Stripe is not active
+      return (data || []).filter((pkg: any) => {
+        const po = pkg.payment_options as 'ONLINE' | 'CASH' | 'BOTH' | null;
+        const requiresStripe = po === 'ONLINE' || po === 'BOTH';
+        if (!requiresStripe) return true;
+        return pkg.profiles?.stripe_account_status === 'active';
+      });
     },
     enabled: !!citySlug && !!categorySlug
   });
