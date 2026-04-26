@@ -93,8 +93,9 @@ const App = () => (
               <Route path="/signin" element={<Auth />} />
               <Route path="/post-auth" element={<PostAuth />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/vendor-dashboard" element={<VendorDashboard />} />
-              <Route path="/vendor-onboarding" element={<VendorOnboarding />} />
+              {/* Legacy: redirect old vendor dashboard/onboarding to new Event Pro routes */}
+              <Route path="/vendor-dashboard" element={<LegacyRedirect to="/dashboard" />} />
+              <Route path="/vendor-onboarding" element={<LegacyRedirect to="/eventpro-onboarding" />} />
               <Route path="/eventpro-onboarding" element={<EventProOnboarding />} />
               <Route path="/eventpro-best-practices" element={<EventProBestPractices />} />
               <Route path="/onboarding" element={<Onboarding />} />
