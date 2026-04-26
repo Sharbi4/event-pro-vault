@@ -13,7 +13,8 @@ import {
   ExternalLink,
   Shield,
   ShieldCheck,
-  ShieldAlert
+  ShieldAlert,
+  Loader2
 } from 'lucide-react';
 import { PackageFormData } from './PackageFormWizard';
 import { CANCELLATION_POLICIES, CancellationPolicyType } from '@/lib/cancellationPolicies';
@@ -26,13 +27,15 @@ interface StepBookingPaymentProps {
   updateFormData: (updates: Partial<PackageFormData>) => void;
   stripeConnected: boolean;
   onConnectStripe?: () => void;
+  connectingStripe?: boolean;
 }
 
 export function StepBookingPayment({ 
   formData, 
   updateFormData, 
   stripeConnected,
-  onConnectStripe 
+  onConnectStripe,
+  connectingStripe = false,
 }: StepBookingPaymentProps) {
   const bookingMode = formData.booking_mode || 'INSTANT';
   const paymentOptions = formData.payment_options || 'ONLINE';
