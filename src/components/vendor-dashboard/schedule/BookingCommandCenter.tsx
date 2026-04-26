@@ -207,6 +207,8 @@ export function BookingCommandCenter({ onMessageClient, onUpdateStatus }: Props)
                         })
                       : undefined
                   }
+                  onSendPaymentLink={handleSendPaymentLink}
+                  onMarkPaidInPerson={handleMarkPaidInPerson}
                   onCancel={
                     onUpdateStatus
                       ? (bk) => { if (confirm('Cancel this booking?')) onUpdateStatus(bk.id, 'cancelled'); }
