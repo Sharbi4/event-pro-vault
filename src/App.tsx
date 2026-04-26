@@ -48,6 +48,7 @@ import CityCategory from "./pages/CityCategory";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import BookingStatus from "./pages/BookingStatus";
 import PrivatePackageReview from "./pages/PrivatePackageReview";
+import { LegacyRedirect } from "./components/routing/LegacyRedirect";
 
 const queryClient = new QueryClient();
 
@@ -74,7 +75,6 @@ const App = () => (
               {/* Legacy browse (still accessible) */}
               <Route path="/browse" element={<Browse />} />
               
-              <Route path="/vendor/:id" element={<VendorProfile />} />
               <Route path="/pro/:id" element={<ProProfile />} />
               <Route path="/eventpro/:username" element={<ProProfile />} />
               <Route path="/package/:id" element={<PackageDetail />} />
@@ -93,8 +93,9 @@ const App = () => (
               <Route path="/signin" element={<Auth />} />
               <Route path="/post-auth" element={<PostAuth />} />
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/vendor-dashboard" element={<VendorDashboard />} />
-              <Route path="/vendor-onboarding" element={<VendorOnboarding />} />
+              {/* Legacy: redirect old vendor dashboard/onboarding to new Event Pro routes */}
+              <Route path="/vendor-dashboard" element={<LegacyRedirect to="/dashboard" />} />
+              <Route path="/vendor-onboarding" element={<LegacyRedirect to="/eventpro-onboarding" />} />
               <Route path="/eventpro-onboarding" element={<EventProOnboarding />} />
               <Route path="/eventpro-best-practices" element={<EventProBestPractices />} />
               <Route path="/onboarding" element={<Onboarding />} />
@@ -111,6 +112,17 @@ const App = () => (
               <Route path="/private-package/:id" element={<PrivatePackageReview />} />
               {/* SEO City/Category landing pages */}
               <Route path="/:citySlug/:categorySlug" element={<CityCategory />} />
+
+              {/* ===== Legacy URL aliases (preserve old bookmarks & external links) ===== */}
+              <Route path="/vendor/:id" element={<LegacyRedirect to="/pro/:id" />} />
+              <Route path="/vendors/:id" element={<LegacyRedirect to="/pro/:id" />} />
+              <Route path="/vendors" element={<LegacyRedirect to="/browse" />} />
+              <Route path="/become-a-vendor" element={<LegacyRedirect to="/become-a-pro" />} />
+              <Route path="/learn/vendors" element={<LegacyRedirect to="/learn/event-pros" />} />
+              <Route path="/auth/vendor" element={<LegacyRedirect to="/auth/pro" />} />
+              <Route path="/services" element={<LegacyRedirect to="/browse" />} />
+              <Route path="/browse-services" element={<LegacyRedirect to="/browse" />} />
+
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
