@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet';
@@ -31,7 +31,7 @@ import { CancellationPolicyBadge } from '@/components/shared/CancellationPolicyB
 import { AddressInput } from '@/components/shared/AddressInput';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { trackBookingStarted, trackBookingCompleted, trackBookingFailed } from '@/lib/trackingAnalytics';
-import { useTravelFeeQuote } from '@/hooks/useTravelFeeQuote';
+import { geocodeLocation } from '@/lib/geocoding';
 
 type PricingType = 'hourly' | 'daily' | 'flat' | 'per_guest' | 'per_item' | 'custom_quote';
 
@@ -103,6 +103,19 @@ const EVENT_TYPES = [
 
 const PLATFORM_FEE_RATE = 0.129;
 const DEFAULT_DEPOSIT_PERCENTAGE = 50;
+
+// Haversine distance calculation
+function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 3959; // Earth's radius in miles
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const a = 
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 export function BookingModal({
   open,
@@ -188,10 +201,58 @@ export function BookingModal({
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [zipCode, setZipCode] = useState('');
+  const [eventLat, setEventLat] = useState<number | null>(null);
+  const [eventLng, setEventLng] = useState<number | null>(null);
+  const [geocodingAddress, setGeocodingAddress] = useState(false);
+  const geocodeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptCancellation, setAcceptCancellation] = useState(false);
+
+  // Geocode address when it changes (debounced)
+  useEffect(() => {
+    // Clear previous timeout
+    if (geocodeTimeoutRef.current) {
+      clearTimeout(geocodeTimeoutRef.current);
+    }
+
+    // Only geocode if we have enough address info
+    if (!addressLine1.trim() || !city.trim() || !state) {
+      setEventLat(null);
+      setEventLng(null);
+      return;
+    }
+
+    // Debounce geocoding by 800ms
+    geocodeTimeoutRef.current = setTimeout(async () => {
+      const fullAddr = `${addressLine1}, ${city}, ${state} ${zipCode}`.trim();
+      setGeocodingAddress(true);
+      
+      try {
+        const result = await geocodeLocation(fullAddr);
+        if (result) {
+          setEventLat(result.lat);
+          setEventLng(result.lng);
+        } else {
+          setEventLat(null);
+          setEventLng(null);
+        }
+      } catch (err) {
+        console.error('Geocoding failed:', err);
+        setEventLat(null);
+        setEventLng(null);
+      } finally {
+        setGeocodingAddress(false);
+      }
+    }, 800);
+
+    return () => {
+      if (geocodeTimeoutRef.current) {
+        clearTimeout(geocodeTimeoutRef.current);
+      }
+    };
+  }, [addressLine1, city, state, zipCode]);
 
   // Computed values
   const fullAddress = useMemo(() => {
@@ -199,20 +260,26 @@ export function BookingModal({
     return parts.join(', ');
   }, [addressLine1, city, state, zipCode]);
 
-  const hasAddressForQuote = !!addressLine1.trim() && !!city.trim() && !!state.trim() && !!zipCode.trim();
-  const travelQuote = useTravelFeeQuote({
-    addressString: hasAddressForQuote && !pickupOnly ? fullAddress : '',
-    vendorLat: vendorBaseLat,
-    vendorLng: vendorBaseLng,
-    includedMiles: includedTravelMiles,
-    feePerMile: travelFeePerMile,
-    maxTravelMiles,
-    enabled: !pickupOnly && hasAddressForQuote && vendorBaseLat != null && vendorBaseLng != null,
-  });
-  const distanceMiles = travelQuote.distanceMiles;
-  const travelFee = travelQuote.status === 'ready' ? travelQuote.fee : 0;
-  const isWithinServiceArea = travelQuote.status !== 'out_of_range';
-  const geocodingAddress = travelQuote.status === 'loading';
+  // Distance calculation
+  const distanceMiles = useMemo(() => {
+    if (!vendorBaseLat || !vendorBaseLng || !eventLat || !eventLng) {
+      return null;
+    }
+    return calculateDistance(vendorBaseLat, vendorBaseLng, eventLat, eventLng);
+  }, [vendorBaseLat, vendorBaseLng, eventLat, eventLng]);
+
+  // Travel fee calculation
+  const travelFee = useMemo(() => {
+    if (!distanceMiles || travelFeePerMile <= 0) return 0;
+    const chargeableMiles = Math.max(0, distanceMiles - includedTravelMiles);
+    return chargeableMiles * travelFeePerMile;
+  }, [distanceMiles, includedTravelMiles, travelFeePerMile]);
+
+  // Check if within service area
+  const isWithinServiceArea = useMemo(() => {
+    if (!distanceMiles) return true; // Unknown distance, allow
+    return distanceMiles <= maxTravelMiles;
+  }, [distanceMiles, maxTravelMiles]);
 
   // Availability status for selected date
   const dateAvailability = useMemo(() => {
@@ -369,11 +436,11 @@ export function BookingModal({
         return validateDetailsStep();
       case 'address':
         // Must have basic address fields
-        if (!addressLine1.trim() || !city.trim() || !state.trim() || !zipCode.trim()) return false;
+        if (!addressLine1.trim() || !city.trim() || !state.trim()) return false;
         // Block while geocoding
         if (geocodingAddress) return false;
-        // If Event Pro coordinates are available, block only confirmed out-of-range addresses.
-        if (vendorBaseLat != null && vendorBaseLng != null) {
+        // If we have Event Pro coordinates and event coordinates, check service area
+        if (vendorBaseLat && vendorBaseLng && eventLat && eventLng) {
           return isWithinServiceArea;
         }
         // If Event Pro has no base coordinates, allow proceeding
