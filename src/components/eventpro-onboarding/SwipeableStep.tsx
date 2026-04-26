@@ -1,10 +1,11 @@
-import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { ReactNode, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ReactNode } from 'react';
 
 interface SwipeableStepProps {
   children: ReactNode;
   stepKey: string;
   direction: number;
+  // Kept for API compatibility; no longer wired to swipe gestures.
   onSwipeLeft?: () => void;
   onSwipeRight?: () => void;
 }
@@ -35,52 +36,19 @@ const variants = {
   }),
 };
 
-// Form elements that should block swipe gestures
-const INTERACTIVE_ELEMENTS = ['INPUT', 'TEXTAREA', 'SELECT', 'BUTTON', 'A'];
-
+/**
+ * Step transition wrapper.
+ *
+ * Swipe-to-change-step was removed: users reported accidental step changes
+ * when scrolling/tapping on mobile. Navigation now happens only via the
+ * explicit Back / Next buttons. The animated transition between steps is
+ * preserved.
+ */
 export function SwipeableStep({
   children,
   stepKey,
   direction,
-  onSwipeLeft,
-  onSwipeRight,
 }: SwipeableStepProps) {
-  const isDraggingFromInput = useRef(false);
-
-  const handleDragStart = useCallback(
-    (event: MouseEvent | TouchEvent | PointerEvent) => {
-      // Check if drag started from an interactive element
-      const target = event.target as HTMLElement;
-      const isInteractive = 
-        INTERACTIVE_ELEMENTS.includes(target.tagName) ||
-        target.closest('input, textarea, select, button, a, [role="button"], [contenteditable]');
-      
-      isDraggingFromInput.current = !!isInteractive;
-    },
-    []
-  );
-
-  const handleDragEnd = useCallback(
-    (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-      // Don't process swipe if it started from an interactive element
-      if (isDraggingFromInput.current) {
-        isDraggingFromInput.current = false;
-        return;
-      }
-
-      // Increased thresholds to prevent accidental swipes
-      const offsetThreshold = 150; // Increased from 100
-      const velocityThreshold = 0.5; // Increased from 0.3
-
-      if (info.offset.x < -offsetThreshold && info.velocity.x < -velocityThreshold) {
-        onSwipeLeft?.();
-      } else if (info.offset.x > offsetThreshold && info.velocity.x > velocityThreshold) {
-        onSwipeRight?.();
-      }
-    },
-    [onSwipeLeft, onSwipeRight]
-  );
-
   return (
     <AnimatePresence mode="wait" custom={direction}>
       <motion.div
@@ -90,13 +58,7 @@ export function SwipeableStep({
         initial="enter"
         animate="center"
         exit="exit"
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.1}
-        dragDirectionLock
-        onDragStart={handleDragStart}
-        onDragEnd={handleDragEnd}
-        className="w-full touch-pan-y"
+        className="w-full"
         style={{ touchAction: 'pan-y' }}
       >
         {children}
