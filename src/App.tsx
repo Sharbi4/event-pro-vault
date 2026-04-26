@@ -100,6 +100,7 @@ const App = () => (
               <Route path="/admin/analytics" element={<AdminAnalytics />} />
               {/* Booking Status Lookup */}
               <Route path="/booking-status" element={<BookingStatus />} />
+              <Route path="/private-package/:id" element={<PrivatePackageReview />} />
               {/* SEO City/Category landing pages */}
               <Route path="/:citySlug/:categorySlug" element={<CityCategory />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
