@@ -75,17 +75,32 @@ export default function BookingSuccess() {
           .eq('id', bookingData.package_id)
           .single();
 
-        // Fetch Event Pro name
-        const { data: vendorData } = await supabase
+        // Fetch Event Pro name + commission tier
+        const { data: vendorDetails } = await supabase
           .from('vendor_details')
           .select('business_name')
           .eq('user_id', bookingData.vendor_user_id)
           .single();
 
+        const { data: vendorProfile } = await supabase
+          .from('profiles')
+          .select('subscription_tier, subscription_ends_at')
+          .eq('user_id', bookingData.vendor_user_id)
+          .maybeSingle();
+
+        setVendorTier({
+          tier: vendorProfile?.subscription_tier ?? 'free',
+          ends_at: vendorProfile?.subscription_ends_at ?? null,
+        });
+
+        const { data: { user } } = await supabase.auth.getUser();
+        setViewerUserId(user?.id ?? null);
+
         setBooking({
           ...bookingData,
           package_name: packageData?.name || 'Event Package',
-          vendor_name: vendorData?.business_name || 'Event Pro',
+          vendor_name: vendorDetails?.business_name || 'Event Pro',
+          vendor_user_id: bookingData.vendor_user_id,
           deposit_amount: bookingData.deposit_amount ? bookingData.deposit_amount / 100 : 0,
           final_amount: bookingData.final_amount ? bookingData.final_amount / 100 : 0,
         });
@@ -99,6 +114,23 @@ export default function BookingSuccess() {
 
     verifyAndFetch();
   }, [bookingId, sessionId]);
+
+  // Compute payout estimate, reactive to vendor tier
+  const payoutEstimate = useMemo(() => {
+    if (!booking || !vendorTier) return null;
+    const isPremiumActive =
+      vendorTier.tier === 'premium' &&
+      (!vendorTier.ends_at || new Date(vendorTier.ends_at) > new Date());
+    const commissionPct = isPremiumActive
+      ? VENDOR_COMMISSION_PERCENT_PREMIUM
+      : VENDOR_COMMISSION_PERCENT_FREE;
+    const gross = Number(booking.total_price) || 0;
+    const commission = +(gross * (commissionPct / 100)).toFixed(2);
+    const payout = +(gross - commission).toFixed(2);
+    return { isPremiumActive, commissionPct, gross, commission, payout };
+  }, [booking, vendorTier]);
+
+  const isVendorViewer = !!(viewerUserId && booking?.vendor_user_id && viewerUserId === booking.vendor_user_id);
 
   if (loading) {
     return (
