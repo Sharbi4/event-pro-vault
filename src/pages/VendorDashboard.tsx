@@ -369,6 +369,13 @@ const VendorDashboard = () => {
             <VendorEarnings bookings={bookings} />
           </TabsContent>
 
+          <TabsContent value="schedule">
+            <BookingCommandCenter
+              onMessageClient={handleMessageClient}
+              onUpdateStatus={updateBookingStatus}
+            />
+          </TabsContent>
+
           <TabsContent value="bookings" className="space-y-6">
             <VendorBookings
               bookings={bookings}
