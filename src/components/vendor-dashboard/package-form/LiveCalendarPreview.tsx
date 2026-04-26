@@ -1,6 +1,7 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
-import { Calendar, Clock, Info } from 'lucide-react';
+import { Calendar, Clock, Eye, Info, Lock } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface LiveCalendarPreviewProps {
   durationMinutes: number;
