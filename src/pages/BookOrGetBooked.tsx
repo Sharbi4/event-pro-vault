@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
@@ -23,6 +23,7 @@ import { CustomerJourneyStrip } from '@/components/book-or-get-booked/CustomerJo
 import { EventProJourney } from '@/components/book-or-get-booked/EventProJourney';
 import { TrustCards } from '@/components/book-or-get-booked/TrustCards';
 import { BrowseChips } from '@/components/book-or-get-booked/BrowseChips';
+import { StickyMiniSearch } from '@/components/book-or-get-booked/StickyMiniSearch';
 
 
 const customerFAQs = [
