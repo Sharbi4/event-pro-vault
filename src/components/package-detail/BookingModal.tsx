@@ -369,11 +369,11 @@ export function BookingModal({
         return validateDetailsStep();
       case 'address':
         // Must have basic address fields
-        if (!addressLine1.trim() || !city.trim() || !state.trim()) return false;
+        if (!addressLine1.trim() || !city.trim() || !state.trim() || !zipCode.trim()) return false;
         // Block while geocoding
         if (geocodingAddress) return false;
-        // If we have Event Pro coordinates and event coordinates, check service area
-        if (vendorBaseLat && vendorBaseLng && eventLat && eventLng) {
+        // If Event Pro coordinates are available, block only confirmed out-of-range addresses.
+        if (vendorBaseLat != null && vendorBaseLng != null) {
           return isWithinServiceArea;
         }
         // If Event Pro has no base coordinates, allow proceeding
