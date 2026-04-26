@@ -101,9 +101,13 @@ export function BrowsePackageCard({ pkg }: BrowsePackageCardProps) {
 
           {/* Event Pro Info */}
           <div className="flex items-center gap-2 mt-2">
-            <Avatar className="w-6 h-6 border border-border">
-              <AvatarImage src={pkg.vendor_avatar || undefined} />
-              <AvatarFallback className="text-xs bg-muted">
+            <Avatar className="w-8 h-8 ring-2 ring-background shadow-sm shrink-0">
+              <AvatarImage
+                src={pkg.vendor_avatar || undefined}
+                alt={pkg.vendor_name}
+                className="object-cover"
+              />
+              <AvatarFallback className="text-[11px] font-semibold bg-gradient-to-br from-primary/30 to-primary/10 text-foreground">
                 {vendorInitials}
               </AvatarFallback>
             </Avatar>
