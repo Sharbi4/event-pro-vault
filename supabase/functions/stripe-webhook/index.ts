@@ -158,6 +158,40 @@ async function handleAccountUpdated(account: Stripe.Account) {
   }
 }
 
+// Handle Stripe Identity verification status changes
+async function handleIdentityVerificationUpdated(session: Stripe.Identity.VerificationSession) {
+  logStep("Identity verification updated", {
+    sessionId: session.id,
+    status: session.status,
+  });
+
+  const userId = session.metadata?.user_id;
+  if (!userId) {
+    logStep("Identity session missing user_id metadata; skipping", { sessionId: session.id });
+    return;
+  }
+
+  let newStatus: string = session.status ?? "pending";
+  if (session.status === "verified") newStatus = "verified";
+  else if (session.status === "requires_input") newStatus = "requires_input";
+  else if (session.status === "processing") newStatus = "processing";
+  else if (session.status === "canceled") newStatus = "canceled";
+
+  const { error } = await supabaseAdmin
+    .from("profiles")
+    .update({
+      identity_verification_status: newStatus,
+      identity_verification_session_id: session.id,
+    })
+    .eq("user_id", userId);
+
+  if (error) {
+    logStep("Error updating identity status from webhook", { error: error.message });
+  } else {
+    logStep("Identity status synced via webhook", { userId, newStatus });
+  }
+}
+
 async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   logStep(`PaymentIntent succeeded: ${paymentIntent.id}`);
   
