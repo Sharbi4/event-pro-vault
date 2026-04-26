@@ -204,7 +204,7 @@ export function BookingModal({
   const [eventLat, setEventLat] = useState<number | null>(null);
   const [eventLng, setEventLng] = useState<number | null>(null);
   const [geocodingAddress, setGeocodingAddress] = useState(false);
-  const geocodeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const geocodeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
