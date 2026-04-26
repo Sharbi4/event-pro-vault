@@ -9,7 +9,7 @@ import { useDisputes } from '@/hooks/useDisputes';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles, MessageCircle, Bell, AlertTriangle } from 'lucide-react';
+import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles, MessageCircle, Bell, AlertTriangle, CalendarRange } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { VendorOverview } from '@/components/vendor-dashboard/VendorOverview';
@@ -20,6 +20,7 @@ import { VendorEarnings } from '@/components/vendor-dashboard/VendorEarnings';
 import { VendorMessages } from '@/components/vendor-dashboard/VendorMessages';
 import { PrivatePackagesList } from '@/components/messaging/PrivatePackagesList';
 import { VendorDisputes } from '@/components/vendor-dashboard/VendorDisputes';
+import { BookingCommandCenter } from '@/components/vendor-dashboard/schedule/BookingCommandCenter';
 
 import { AvatarUpload } from '@/components/vendor-dashboard/AvatarUpload';
 import { CoverPhotoUpload } from '@/components/vendor-dashboard/CoverPhotoUpload';
