@@ -368,6 +368,11 @@ export function PackageFormWizard({
   };
 
   const handleSubmit = async () => {
+    const result = validateStep(activeStep?.id);
+    if (!result.valid) {
+      setShowErrors(true);
+      return;
+    }
     setLoading(true);
     const availability = {
       weekly: formData.weekly_availability,
@@ -404,45 +409,146 @@ export function PackageFormWizard({
     onClose();
   };
 
-  // Per-step validation by step id (more robust than index)
-  const isStepValid = () => {
-    switch (activeStep?.id) {
+  // Per-step validation. Returns granular errors for inline display.
+  function validateStep(stepId: StepId | undefined): {
+    valid: boolean;
+    errors: Record<string, string>;
+  } {
+    const errors: Record<string, string> = {};
+    switch (stepId) {
       case 'type':
-        return formData.package_kind !== null;
+        if (!formData.package_kind) errors.package_kind = 'Pick a package type to continue.';
+        break;
+
       case 'basics':
       case 'catering_basics':
-        return formData.name.trim().length > 0 && formData.category.length > 0;
-      case 'pullup_pricing':
-        if (!formData.pull_up_pricing_model) return false;
-        if (formData.pull_up_pricing_model === 'no_upfront') return true;
-        if (formData.pull_up_pricing_model === 'min_guarantee') {
-          return (formData.min_guarantee_amount ?? 0) > 0;
+        if (!formData.name.trim()) errors.name = 'Add a package name customers will see.';
+        if (!formData.category) errors.category = 'Pick a category.';
+        break;
+
+      case 'pullup_pricing': {
+        const m = formData.pull_up_pricing_model;
+        if (!m) {
+          errors.pull_up_pricing_model = 'Pick a pricing model to continue.';
+          break;
         }
-        if (formData.pull_up_pricing_model === 'show_up_plus_min') {
-          return formData.price > 0 && (formData.min_guarantee_amount ?? 0) > 0;
+        if (m === 'show_up_fee' || m === 'show_up_plus_min') {
+          if (!(formData.price > 0)) errors.price = 'Enter a show-up fee greater than $0.';
         }
-        return formData.price > 0;
+        if (m === 'min_guarantee' || m === 'show_up_plus_min') {
+          if (!((formData.min_guarantee_amount ?? 0) > 0))
+            errors.min_guarantee_amount = 'Enter a minimum guarantee greater than $0.';
+        }
+        if ((formData.deposit ?? 0) < 0) errors.deposit = 'Deposit cannot be negative.';
+        break;
+      }
+
       case 'catering_guests':
-        return (formData.min_guests ?? 0) > 0;
-      case 'catering_pricing':
-        return !!formData.catering_pricing_model && formData.price > 0;
+        if (!((formData.min_guests ?? 0) > 0))
+          errors.min_guests = 'Set the minimum guest count for this package.';
+        if (
+          formData.max_guests != null &&
+          formData.min_guests != null &&
+          formData.max_guests < formData.min_guests
+        ) {
+          errors.max_guests = 'Max guests must be greater than or equal to min guests.';
+        }
+        break;
+
+      case 'catering_pricing': {
+        const m = formData.catering_pricing_model;
+        if (!m) {
+          errors.catering_pricing_model = 'Pick a pricing model to continue.';
+          break;
+        }
+        if (!(formData.price > 0)) {
+          errors.price =
+            m === 'per_person'
+              ? 'Enter a price per person greater than $0.'
+              : 'Enter a base price greater than $0.';
+        }
+        if (m === 'flat' || m === 'base_plus_per_person') {
+          if (!((formData.included_guests ?? 0) > 0))
+            errors.included_guests = 'Enter how many guests are included.';
+        }
+        if (m === 'base_plus_per_person') {
+          if (!((formData.additional_per_person ?? 0) > 0))
+            errors.additional_per_person = 'Enter the additional price per guest.';
+          if (
+            formData.max_guests != null &&
+            formData.included_guests != null &&
+            formData.max_guests < formData.included_guests
+          ) {
+            errors.max_guests = 'Max guests must be ≥ guests included in base.';
+          }
+        }
+        if (m === 'per_person') {
+          if (
+            formData.max_guests != null &&
+            formData.min_guests != null &&
+            formData.max_guests < formData.min_guests
+          ) {
+            errors.max_guests = 'Max guests must be ≥ min guests.';
+          }
+        }
+        if (formData.payment_mode === 'deposit') {
+          const pct = formData.deposit_percentage ?? 0;
+          if (pct < 10 || pct > 90)
+            errors.deposit_percentage = 'Deposit must be between 10% and 90%.';
+        }
+        if (!formData.balance_due_timing)
+          errors.balance_due_timing = 'Pick when the balance is due.';
+        break;
+      }
+
+      case 'catering_inclusions': {
+        const items = formData.menu_items ?? [];
+        const food = items.filter((i) => (i.category ?? 'food') === 'food');
+        if (food.length === 0)
+          errors.menu_items = 'Add at least one menu item so customers know what they get.';
+        const badPriced = items.find(
+          (i) => !i.included && (i.price == null || i.price <= 0)
+        );
+        if (badPriced)
+          errors.menu_items =
+            errors.menu_items ?? `Set a price for the upgrade item “${badPriced.name}”.`;
+        break;
+      }
+
       case 'pullup_timing':
       case 'catering_timing':
-        return (formData.duration_minutes ?? 0) > 0;
+        if (!((formData.duration_minutes ?? 0) > 0))
+          errors.duration_minutes = 'Set how long this booking takes.';
+        break;
+
       case 'pullup_rules':
       case 'catering_rules': {
         const needsStripe =
           formData.payment_options === 'ONLINE' || formData.payment_options === 'BOTH';
-        if (needsStripe && !stripeConnected) return false;
-        return true;
+        if (needsStripe && !stripeConnected)
+          errors.payment_options =
+            'Connect your payout account to accept online payments, or switch to cash only.';
+        break;
       }
+
       case 'pullup_calendar':
       case 'catering_calendar':
-        return formData.weekly_availability.some((d) => d.isEnabled);
-      default:
-        return true;
+        if (!formData.weekly_availability.some((d) => d.isEnabled))
+          errors.weekly_availability = 'Enable at least one day of availability.';
+        break;
+
+      case 'pullup_review':
+      case 'catering_review':
+        if (!formData.images || formData.images.length === 0)
+          errors.images = 'Add at least one photo before publishing.';
+        break;
     }
-  };
+    return { valid: Object.keys(errors).length === 0, errors };
+  }
+
+  const stepValidation = validateStep(activeStep?.id);
+  const stepErrors = showErrors ? stepValidation.errors : {};
+  const isStepValid = () => stepValidation.valid;
 
   const progress = ((safeStepIndex + 1) / steps.length) * 100;
 
