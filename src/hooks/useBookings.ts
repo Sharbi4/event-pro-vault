@@ -31,7 +31,7 @@ export interface BookingData {
   deposit_percentage?: number;
   payment_method?: 'stripe' | 'cash';
   payment_status?: string;
-  cancellation_policy?: 'flexible' | 'standard' | 'strict';
+  cancellation_policy?: 'flexible' | 'standard' | 'strict' | 'custom';
 }
 
 export interface CreateBookingInput {
@@ -65,7 +65,7 @@ export interface CreateBookingInput {
   customer_email?: string;
   package_name?: string;
   unit_type?: string;
-  cancellation_policy?: 'flexible' | 'standard' | 'strict';
+  cancellation_policy?: 'flexible' | 'standard' | 'strict' | 'custom';
   // Guest checkout flag
   is_guest?: boolean;
 }
@@ -168,7 +168,7 @@ export function useBookings() {
         ...booking,
         package_name: pkg?.name || 'Package',
         package_cover_image: pkg?.cover_image_url || null,
-        cancellation_policy: (pkg?.cancellation_policy as 'flexible' | 'standard' | 'strict' | undefined) || 'standard',
+        cancellation_policy: (pkg?.cancellation_policy as 'flexible' | 'standard' | 'strict' | 'custom' | undefined) || 'standard',
         vendor_display_name: vendorProfile?.display_name || 'Event Pro',
         vendor_avatar: vendorProfile?.avatar_url || null,
       } as BookingData;
