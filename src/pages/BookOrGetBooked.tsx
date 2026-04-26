@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -65,16 +66,30 @@ const proFAQs = [
 
 export default function BookOrGetBooked() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [date, setDate] = useState('');
   const [location, setLocation] = useState('');
   const [vendorType, setVendorType] = useState('');
 
-  const handleSearch = () => {
+  // Prefilled browse URL based on hero inputs (used by customer CTAs)
+  const browseHref = useMemo(() => {
     const params = new URLSearchParams();
     if (date) params.set('date', date);
     if (location) params.set('location', location);
     if (vendorType) params.set('category', vendorType);
-    navigate(`/browse?${params.toString()}`);
+    const qs = params.toString();
+    return qs ? `/browse?${qs}` : '/browse';
+  }, [date, location, vendorType]);
+
+  // Event Pro entry: signed-in users go straight to the right dashboard tab,
+  // anonymous users land in onboarding first.
+  const proEntry = (tab?: string) =>
+    user
+      ? `/vendor-dashboard${tab ? `?tab=${tab}` : ''}`
+      : `/become-a-pro${tab ? `?next=${encodeURIComponent('/vendor-dashboard?tab=' + tab)}` : ''}`;
+
+  const handleSearch = () => {
+    navigate(browseHref);
   };
 
   useEffect(() => {
@@ -108,12 +123,12 @@ export default function BookOrGetBooked() {
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild size="lg" className="rounded-full bg-orange-500 hover:bg-orange-600 text-white">
-                <Link to="/browse">
+                <Link to={browseHref}>
                   Find vendors near me <ArrowRight className="ml-1.5 w-4 h-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-full">
-                <Link to="/become-a-pro">Become an Event Pro</Link>
+                <Link to={proEntry()}>{user ? 'Open vendor dashboard' : 'Become an Event Pro'}</Link>
               </Button>
             </div>
 
@@ -193,7 +208,7 @@ export default function BookOrGetBooked() {
                 </div>
                 <div className="mt-6 flex flex-wrap items-center gap-3">
                   <Button asChild className="rounded-full bg-orange-500 hover:bg-orange-600 text-white">
-                    <Link to="/browse">Start booking <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
+                    <Link to={browseHref}>Start booking <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
                   </Button>
                   <Link to="/browse?category=food-truck" className="text-sm font-medium hover:underline">
                     See food trucks near me
@@ -223,10 +238,12 @@ export default function BookOrGetBooked() {
                 </div>
                 <div className="mt-6 flex flex-wrap items-center gap-3">
                   <Button asChild className="rounded-full">
-                    <Link to="/become-a-pro">Become an Event Pro <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
+                    <Link to={proEntry('packages')}>
+                      {user ? 'Create a package' : 'Become an Event Pro'} <ArrowRight className="ml-1.5 w-4 h-4" />
+                    </Link>
                   </Button>
-                  <Link to="/book-or-get-booked#booking-options" className="text-sm font-medium hover:underline">
-                    Learn how packages work
+                  <Link to={proEntry('availability')} className="text-sm font-medium hover:underline">
+                    Set your calendar
                   </Link>
                 </div>
               </div>
@@ -265,14 +282,14 @@ export default function BookOrGetBooked() {
                 Search by date, location, vendor type, cuisine, and guest count.
               </p>
               <Button asChild className="mt-5 rounded-full bg-orange-500 hover:bg-orange-600 text-white">
-                <Link to="/browse">Start searching <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
+                <Link to={browseHref}>Start searching <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
               </Button>
               <div className="mt-5 flex flex-wrap gap-2">
                 {[
                   ['Browse food trucks', '/browse?category=food-truck'],
                   ['Browse mobile bartenders', '/browse?category=mobile-bartender'],
                   ['Browse dessert vendors', '/browse?category=dessert'],
-                  ['Available this weekend', '/browse?timing=weekend'],
+                  ['Available this weekend', '/browse?q=weekend'],
                 ].map(([l, h]) => (
                   <Link key={l} to={h} className="text-xs px-3 py-1.5 rounded-full border border-border/70 hover:border-foreground transition-colors">
                     {l}
@@ -286,15 +303,18 @@ export default function BookOrGetBooked() {
                 Create your EventPro profile, add packages, and turn open calendar dates into paid bookings.
               </p>
               <Button asChild variant="secondary" className="mt-5 rounded-full">
-                <Link to="/become-a-pro">Become an Event Pro <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
+                <Link to={proEntry()}>
+                  {user ? 'Open vendor dashboard' : 'Become an Event Pro'} <ArrowRight className="ml-1.5 w-4 h-4" />
+                </Link>
               </Button>
               <div className="mt-5 flex flex-wrap gap-2">
-                {[
-                  ['Create profile', '/become-a-pro'],
-                  ['Add packages', '/vendor-dashboard?tab=packages'],
-                  ['Set calendar', '/vendor-dashboard?tab=calendar'],
-                  ['Learn about private packages', '/book-or-get-booked#booking-options'],
-                ].map(([l, h]) => (
+                {([
+                  [user ? 'Edit profile' : 'Create profile', user ? '/vendor-dashboard?tab=settings' : '/become-a-pro'],
+                  ['Add packages', proEntry('packages')],
+                  ['Set calendar', proEntry('availability')],
+                  ['Manage requests', proEntry('bookings')],
+                  ['Open messages', proEntry('messages')],
+                ] as Array<[string, string]>).map(([l, h]) => (
                   <Link key={l} to={h} className="text-xs px-3 py-1.5 rounded-full border border-background/30 hover:border-background transition-colors">
                     {l}
                   </Link>
@@ -347,10 +367,10 @@ export default function BookOrGetBooked() {
             </h2>
             <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild size="lg" className="rounded-full bg-orange-500 hover:bg-orange-600 text-white">
-                <Link to="/browse">Find vendors near me</Link>
+                <Link to={browseHref}>Find vendors near me</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-full">
-                <Link to="/become-a-pro">Become an Event Pro</Link>
+                <Link to={proEntry()}>{user ? 'Open vendor dashboard' : 'Become an Event Pro'}</Link>
               </Button>
             </div>
           </div>
