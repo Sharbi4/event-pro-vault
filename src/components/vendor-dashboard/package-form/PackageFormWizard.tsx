@@ -517,7 +517,14 @@ export function PackageFormWizard({
         />
       )}
       {currentStep === 8 && (
-        <PackagePreview formData={formData} />
+        <div className="space-y-6">
+          <PackagePreview formData={formData} />
+          <PackageStatusSelector
+            value={formData.status}
+            onChange={(status) => updateFormData({ status })}
+            isNew={!initialData}
+          />
+        </div>
       )}
     </div>
   );
