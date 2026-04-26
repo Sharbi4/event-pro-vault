@@ -269,6 +269,15 @@ export function PackageFormWizard({
         minimum_notice_hours: (initialData as any).minimum_notice_hours ?? null,
         customer_questions: ((initialData as any).customer_questions as string[]) || [],
         status: ((initialData as any).status as PackageFormData['status']) || (initialData.is_active ? 'published' : 'draft'),
+        pull_up_pricing_model: ((initialData as any).pull_up_pricing_model as PackageFormData['pull_up_pricing_model']) ?? null,
+        min_guarantee_amount: (initialData as any).min_guarantee_amount ?? null,
+        customer_requirements: (initialData as any).customer_requirements ?? null,
+        catering_pricing_model: ((initialData as any).catering_pricing_model as PackageFormData['catering_pricing_model']) ?? null,
+        included_guests: (initialData as any).included_guests ?? null,
+        additional_per_person: (initialData as any).additional_per_person ?? null,
+        balance_due_timing: ((initialData as any).balance_due_timing as PackageFormData['balance_due_timing']) ?? 'before_event',
+        dietary_options: ((initialData as any).dietary_options as string[]) || [],
+        menu_items: ((initialData as any).menu_items as any[]) || [],
       });
     } else {
       setFormData(defaultFormData);
