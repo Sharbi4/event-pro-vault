@@ -17,9 +17,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import {
   BookingUiState, STATE_LABELS, CANCELLATION_RULES,
-  deriveBookingState, getCancellationStatus, getEventStart, getEventEnd,
+  deriveBookingState, getCancellationStatus, getCancellationDeadline,
+  getEventStart, getEventEnd,
   type CancellationPolicy,
 } from '@/lib/bookingState';
+import { formatDistanceToNowStrict } from 'date-fns';
 import { CancellationDialog } from '@/components/shared/CancellationDialog';
 import { ReviewDialog } from '@/components/reviews/ReviewDialog';
 import type { BookingData } from '@/hooks/useBookings';
