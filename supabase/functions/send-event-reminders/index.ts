@@ -21,16 +21,33 @@ const handler = async (req: Request): Promise<Response> => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Get dates for 7 days and 1 day from now
-    const sevenDaysFromNow = new Date(today);
-    sevenDaysFromNow.setDate(today.getDate() + 7);
-    const oneDayFromNow = new Date(today);
-    oneDayFromNow.setDate(today.getDate() + 1);
+    const dateOffset = (days: number) => {
+      const d = new Date(today);
+      d.setDate(today.getDate() + days);
+      return d.toISOString().split('T')[0];
+    };
 
-    const sevenDaysStr = sevenDaysFromNow.toISOString().split('T')[0];
-    const oneDayStr = oneDayFromNow.toISOString().split('T')[0];
+    const sevenDaysStr = dateOffset(7);
+    const twoDaysStr = dateOffset(2);   // 48-hour reminder
+    const oneDayStr = dateOffset(1);    // 24-hour reminder
+    const todayStr = dateOffset(0);     // morning-of reminder
 
-    console.log(`Checking for reminders: 7-day (${sevenDaysStr}), 24-hour (${oneDayStr})`);
+    console.log(`Reminders: 7d=${sevenDaysStr}, 48h=${twoDaysStr}, 24h=${oneDayStr}, morning-of=${todayStr}`);
+
+    const fetchConfirmed = async (dateStr: string) => {
+      const { data, error } = await supabase
+        .from("bookings")
+        .select("id")
+        .in("status", ["confirmed", "approved", "paid"])
+        .eq("event_date", dateStr);
+      if (error) console.error(`Fetch error for ${dateStr}:`, error);
+      return data ?? [];
+    };
+
+    const sevenDayBookings = await fetchConfirmed(sevenDaysStr);
+    const twoDayBookings = await fetchConfirmed(twoDaysStr);
+    const oneDayBookings = await fetchConfirmed(oneDayStr);
+    const morningOfBookings = await fetchConfirmed(todayStr);
 
     // Get confirmed bookings for 7-day reminder
     const { data: sevenDayBookings, error: error7d } = await supabase
