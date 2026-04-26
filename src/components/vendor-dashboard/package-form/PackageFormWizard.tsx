@@ -131,6 +131,9 @@ const defaultFormData: PackageFormData = {
   blocked_dates: [],
   booking_mode: 'INSTANT',
   payment_options: 'ONLINE',
+  payment_mode: 'full',
+  deposit_percentage: 50,
+  allow_in_person_balance: false,
   default_start_time: undefined,
   duration_minutes: undefined,
 };
