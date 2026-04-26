@@ -69,6 +69,7 @@ export default function BookOrGetBooked() {
   const [date, setDate] = useState('');
   const [location, setLocation] = useState('');
   const [vendorType, setVendorType] = useState('');
+  const heroSearchRef = useRef<HTMLDivElement>(null);
 
   const handleSearch = () => {
     const params = new URLSearchParams();
