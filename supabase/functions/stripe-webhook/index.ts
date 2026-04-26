@@ -95,7 +95,16 @@ serve(async (req) => {
         logStep(`Payout completed: ${payout.id} for ${payout.amount / 100}`);
         break;
       }
-      
+
+      case "identity.verification_session.verified":
+      case "identity.verification_session.requires_input":
+      case "identity.verification_session.processing":
+      case "identity.verification_session.canceled": {
+        const session = event.data.object as Stripe.Identity.VerificationSession;
+        await handleIdentityVerificationUpdated(session);
+        break;
+      }
+
       default:
         logStep(`Unhandled event type: ${event.type}`);
     }
