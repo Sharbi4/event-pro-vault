@@ -33,12 +33,15 @@ export function useCheckoutHold() {
     }
   };
 
-  const startTimer = (expiresAt: Date) => {
+  const startTimer = (expiresAt: Date, vendorUserId?: string) => {
     stopTimer();
     const tick = () => {
       const secs = Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 1000));
       setState(s => ({ ...s, secondsRemaining: secs, status: secs <= 0 ? 'expired' : 'holding' }));
-      if (secs <= 0) stopTimer();
+      if (secs <= 0) {
+        stopTimer();
+        emitAvailabilityRefresh(vendorUserId);
+      }
     };
     tick();
     intervalRef.current = window.setInterval(tick, 1000);
