@@ -17,9 +17,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import {
   BookingUiState, STATE_LABELS, CANCELLATION_RULES,
-  deriveBookingState, getCancellationStatus, getEventStart, getEventEnd,
+  deriveBookingState, getCancellationStatus, getCancellationDeadline,
+  getEventStart, getEventEnd,
   type CancellationPolicy,
 } from '@/lib/bookingState';
+import { formatDistanceToNowStrict } from 'date-fns';
 import { CancellationDialog } from '@/components/shared/CancellationDialog';
 import { ReviewDialog } from '@/components/reviews/ReviewDialog';
 import type { BookingData } from '@/hooks/useBookings';
@@ -406,27 +408,193 @@ export default function BookingDetail() {
         </div>
 
         {/* Cancellation policy */}
-        <Card className="p-5 mt-4">
-          <h2 className="font-semibold text-base mb-2 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" /> Cancellation policy
-          </h2>
-          <div className="text-sm">
-            <span className="font-medium">{rule.label}</span>
-            <span className="text-muted-foreground"> — {rule.description}</span>
-          </div>
-          {state === 'confirmed_cancellable' && (
-            <p className="text-xs text-muted-foreground mt-2">
-              {cancelStatus.refundPct === 100
-                ? 'You are within the full refund window.'
-                : `You are within a ${cancelStatus.refundPct}% refund window.`}
-            </p>
-          )}
-          {state === 'confirmed_locked' && (
-            <p className="text-xs text-muted-foreground mt-2">
-              Online cancellation is no longer available for this booking.
-            </p>
-          )}
-        </Card>
+        {(() => {
+          const totalPrice = Number(booking.total_price ?? 0);
+          const depositCents = Number(booking.deposit_amount ?? 0);
+          const depositDollars = depositCents / 100;
+          const isCustom = policy === 'custom';
+          const deadline = getCancellationDeadline(booking as any);
+          const partialDeadline = !isNaN(start.getTime())
+            ? new Date(start.getTime() - rule.partialRefundHours * 3_600_000)
+            : null;
+          const now = new Date();
+          const eventStarted = !isNaN(start.getTime()) && now >= start;
+
+          // Refund tiers shown to the user. Highlights current tier.
+          type Tier = { label: string; pct: number; window: string; cutoff: Date | null; active: boolean; passed: boolean };
+          const tiers: Tier[] = isCustom
+            ? []
+            : [
+                {
+                  label: 'Full refund',
+                  pct: 100,
+                  window: `${rule.fullRefundHours >= 24 ? `${Math.round(rule.fullRefundHours / 24)} days` : `${rule.fullRefundHours} hours`}+ before`,
+                  cutoff: deadline,
+                  active: cancelStatus.canCancel && cancelStatus.refundPct === 100,
+                  passed: !isNaN(deadline.getTime()) && now > deadline,
+                },
+                {
+                  label: `${rule.partialRefundPct}% refund`,
+                  pct: rule.partialRefundPct,
+                  window: `${rule.partialRefundHours >= 24 ? `${Math.round(rule.partialRefundHours / 24)} days` : `${rule.partialRefundHours} hours`} – ${rule.fullRefundHours >= 24 ? `${Math.round(rule.fullRefundHours / 24)} days` : `${rule.fullRefundHours} hours`} before`,
+                  cutoff: partialDeadline,
+                  active: cancelStatus.canCancel && cancelStatus.refundPct === rule.partialRefundPct && cancelStatus.refundPct !== 100,
+                  passed: partialDeadline ? now > partialDeadline : false,
+                },
+                {
+                  label: 'No refund',
+                  pct: 0,
+                  window: `Inside ${rule.partialRefundHours >= 24 ? `${Math.round(rule.partialRefundHours / 24)} days` : `${rule.partialRefundHours} hours`}`,
+                  cutoff: !isNaN(start.getTime()) ? start : null,
+                  active: !cancelStatus.canCancel && !eventStarted,
+                  passed: eventStarted,
+                },
+              ];
+
+          // Refund estimate based on current tier
+          const refundDollars = Math.max(0, (totalPrice * cancelStatus.refundPct) / 100);
+          const refundMinusDeposit = rule.depositNonRefundable
+            ? Math.max(0, refundDollars - depositDollars)
+            : refundDollars;
+          const showDepositLine = rule.depositNonRefundable && depositDollars > 0;
+
+          return (
+            <Card className="p-5 mt-4">
+              <div className="flex items-start justify-between gap-3 flex-wrap mb-3">
+                <h2 className="font-semibold text-base flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4" /> Cancellation policy
+                </h2>
+                <Badge variant="outline" className="font-medium">{rule.label}</Badge>
+              </div>
+
+              <p className="text-sm text-muted-foreground mb-4">{rule.description}</p>
+
+              {/* Refund tier ladder */}
+              {!isCustom && (
+                <ol className="space-y-2 mb-4">
+                  {tiers.map((t) => (
+                    <li
+                      key={t.label}
+                      className={`flex items-start justify-between gap-3 rounded-lg border p-3 text-sm transition-colors ${
+                        t.active
+                          ? 'border-primary/40 bg-primary/5'
+                          : t.passed
+                          ? 'border-border bg-secondary/40 opacity-60'
+                          : 'border-border bg-card'
+                      }`}
+                    >
+                      <div className="flex items-start gap-2.5 min-w-0">
+                        <span
+                          className={`mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${
+                            t.active
+                              ? 'bg-primary text-primary-foreground'
+                              : t.passed
+                              ? 'bg-muted text-muted-foreground line-through'
+                              : 'bg-secondary text-foreground'
+                          }`}
+                        >
+                          {t.pct}%
+                        </span>
+                        <div className="min-w-0">
+                          <div className={`font-medium ${t.passed ? 'line-through' : ''}`}>{t.label}</div>
+                          <div className="text-xs text-muted-foreground">{t.window}</div>
+                        </div>
+                      </div>
+                      {t.cutoff && !isNaN(t.cutoff.getTime()) && (
+                        <div className="text-right shrink-0">
+                          <div className="text-xs text-muted-foreground">until</div>
+                          <div className="text-xs font-medium">{format(t.cutoff, 'MMM d, h:mm a')}</div>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              )}
+
+              {/* Current status / refund estimate */}
+              {state === 'confirmed_cancellable' && cancelStatus.canCancel && !isCustom && (
+                <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-2 font-medium text-emerald-700 dark:text-emerald-400">
+                      <CheckCircle2 className="w-4 h-4" />
+                      You can cancel now for a {cancelStatus.refundPct}% refund
+                    </div>
+                    {!isNaN(deadline.getTime()) && cancelStatus.refundPct === 100 && (
+                      <span className="text-xs text-muted-foreground">
+                        Full-refund window closes in{' '}
+                        <span className="font-medium text-foreground">
+                          {formatDistanceToNowStrict(deadline)}
+                        </span>
+                      </span>
+                    )}
+                    {partialDeadline && !isNaN(partialDeadline.getTime()) && cancelStatus.refundPct !== 100 && (
+                      <span className="text-xs text-muted-foreground">
+                        Closes in{' '}
+                        <span className="font-medium text-foreground">
+                          {formatDistanceToNowStrict(partialDeadline)}
+                        </span>
+                      </span>
+                    )}
+                  </div>
+                  {totalPrice > 0 && (
+                    <div className="mt-2 pt-2 border-t border-emerald-500/20 space-y-0.5 text-xs">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Estimated refund</span>
+                        <span className="font-semibold">{fmtMoney(refundDollars)}</span>
+                      </div>
+                      {showDepositLine && (
+                        <>
+                          <div className="flex justify-between text-muted-foreground">
+                            <span>Less non-refundable deposit</span>
+                            <span>−{fmtMoney(depositDollars)}</span>
+                          </div>
+                          <div className="flex justify-between font-semibold pt-0.5 border-t border-emerald-500/20">
+                            <span>You'd receive</span>
+                            <span>{fmtMoney(refundMinusDeposit)}</span>
+                          </div>
+                        </>
+                      )}
+                      <div className="text-[10px] text-muted-foreground pt-1">
+                        Platform fees are non-refundable on customer-initiated cancellations.
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {state === 'confirmed_locked' && (
+                <div className="rounded-lg border border-border bg-secondary/40 p-3 text-sm flex items-start gap-2">
+                  <Lock className="w-4 h-4 mt-0.5 shrink-0 text-muted-foreground" />
+                  <div>
+                    <div className="font-medium">Cancellation window has closed</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {cancelStatus.reason} Message your vendor for change requests.
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {isCustom && (
+                <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm flex items-start gap-2">
+                  <AlertCircle className="w-4 h-4 mt-0.5 shrink-0 text-amber-700 dark:text-amber-400" />
+                  <div>
+                    <div className="font-medium">Custom policy</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      This booking uses a custom cancellation policy. Message your vendor to request changes or a refund.
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {rule.depositNonRefundable && !isCustom && depositDollars > 0 && state !== 'confirmed_cancellable' && (
+                <p className="text-[11px] text-muted-foreground mt-3">
+                  Note: Deposit of {fmtMoney(depositDollars)} is non-refundable under the {rule.label} policy.
+                </p>
+              )}
+            </Card>
+          );
+        })()}
+
 
         {/* Reminder timeline */}
         <Card className="p-5 mt-4">
