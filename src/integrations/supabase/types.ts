@@ -151,6 +151,12 @@ export type Database = {
           booking_mode: string | null
           booking_type: string
           breakdown_minutes: number | null
+          calendar_block_end: string | null
+          calendar_block_start: string | null
+          cancellation_deadline: string | null
+          cancelled_at: string | null
+          completed_at: string | null
+          confirmed_at: string | null
           created_at: string
           customer_email: string | null
           deposit_amount: number | null
@@ -160,12 +166,16 @@ export type Database = {
           end_time: string | null
           event_city: string | null
           event_date: string
+          event_end_at: string | null
           event_location: string
+          event_start_at: string | null
           event_state: string | null
+          event_timezone: string | null
           event_zip: string | null
           final_amount: number | null
           final_paid_at: string | null
           id: string
+          lifecycle_status: string | null
           notes: string | null
           package_id: string
           payment_amount: number | null
@@ -195,6 +205,12 @@ export type Database = {
           booking_mode?: string | null
           booking_type?: string
           breakdown_minutes?: number | null
+          calendar_block_end?: string | null
+          calendar_block_start?: string | null
+          cancellation_deadline?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
           created_at?: string
           customer_email?: string | null
           deposit_amount?: number | null
@@ -204,12 +220,16 @@ export type Database = {
           end_time?: string | null
           event_city?: string | null
           event_date: string
+          event_end_at?: string | null
           event_location: string
+          event_start_at?: string | null
           event_state?: string | null
+          event_timezone?: string | null
           event_zip?: string | null
           final_amount?: number | null
           final_paid_at?: string | null
           id?: string
+          lifecycle_status?: string | null
           notes?: string | null
           package_id: string
           payment_amount?: number | null
@@ -239,6 +259,12 @@ export type Database = {
           booking_mode?: string | null
           booking_type?: string
           breakdown_minutes?: number | null
+          calendar_block_end?: string | null
+          calendar_block_start?: string | null
+          cancellation_deadline?: string | null
+          cancelled_at?: string | null
+          completed_at?: string | null
+          confirmed_at?: string | null
           created_at?: string
           customer_email?: string | null
           deposit_amount?: number | null
@@ -248,12 +274,16 @@ export type Database = {
           end_time?: string | null
           event_city?: string | null
           event_date?: string
+          event_end_at?: string | null
           event_location?: string
+          event_start_at?: string | null
           event_state?: string | null
+          event_timezone?: string | null
           event_zip?: string | null
           final_amount?: number | null
           final_paid_at?: string | null
           id?: string
+          lifecycle_status?: string | null
           notes?: string | null
           package_id?: string
           payment_amount?: number | null
@@ -275,6 +305,54 @@ export type Database = {
           vendor_id?: string
           vendor_stripe_account_id?: string | null
           vendor_user_id?: string | null
+        }
+        Relationships: []
+      }
+      calendar_holds: {
+        Row: {
+          booking_id: string | null
+          created_at: string
+          customer_email: string | null
+          customer_user_id: string | null
+          expires_at: string
+          hold_end: string
+          hold_start: string
+          id: string
+          package_id: string | null
+          source: string
+          status: string
+          updated_at: string
+          vendor_user_id: string
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_user_id?: string | null
+          expires_at: string
+          hold_end: string
+          hold_start: string
+          id?: string
+          package_id?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+          vendor_user_id: string
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_user_id?: string | null
+          expires_at?: string
+          hold_end?: string
+          hold_start?: string
+          id?: string
+          package_id?: string | null
+          source?: string
+          status?: string
+          updated_at?: string
+          vendor_user_id?: string
         }
         Relationships: []
       }
@@ -834,6 +912,8 @@ export type Database = {
           base_price: number
           booking_id: string | null
           breakdown_time_minutes: number | null
+          calendar_block_end: string | null
+          calendar_block_start: string | null
           cancellation_policy: string | null
           cancelled_at: string | null
           category: string | null
@@ -878,6 +958,8 @@ export type Database = {
           base_price?: number
           booking_id?: string | null
           breakdown_time_minutes?: number | null
+          calendar_block_end?: string | null
+          calendar_block_start?: string | null
           cancellation_policy?: string | null
           cancelled_at?: string | null
           category?: string | null
@@ -922,6 +1004,8 @@ export type Database = {
           base_price?: number
           booking_id?: string | null
           breakdown_time_minutes?: number | null
+          calendar_block_end?: string | null
+          calendar_block_start?: string | null
           cancellation_policy?: string | null
           cancelled_at?: string | null
           category?: string | null
@@ -1510,36 +1594,78 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_blocked_times: {
+        Row: {
+          block_end: string
+          block_start: string
+          created_at: string
+          id: string
+          is_full_day: boolean
+          reason: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          block_end: string
+          block_start: string
+          created_at?: string
+          id?: string
+          is_full_day?: boolean
+          reason?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          block_end?: string
+          block_start?: string
+          created_at?: string
+          id?: string
+          is_full_day?: boolean
+          reason?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       vendor_buffer_settings: {
         Row: {
+          advance_booking_days: number
           available_by_request_only: boolean
           buffer_after_minutes: number
           buffer_before_minutes: number
           created_at: string
           id: string
+          minimum_notice_hours: number
           respect_setup_breakdown: boolean
           updated_at: string
           user_id: string
+          vendor_approval_expires_hours: number
         }
         Insert: {
+          advance_booking_days?: number
           available_by_request_only?: boolean
           buffer_after_minutes?: number
           buffer_before_minutes?: number
           created_at?: string
           id?: string
+          minimum_notice_hours?: number
           respect_setup_breakdown?: boolean
           updated_at?: string
           user_id: string
+          vendor_approval_expires_hours?: number
         }
         Update: {
+          advance_booking_days?: number
           available_by_request_only?: boolean
           buffer_after_minutes?: number
           buffer_before_minutes?: number
           created_at?: string
           id?: string
+          minimum_notice_hours?: number
           respect_setup_breakdown?: boolean
           updated_at?: string
           user_id?: string
+          vendor_approval_expires_hours?: number
         }
         Relationships: []
       }
@@ -1637,6 +1763,8 @@ export type Database = {
         Row: {
           add_ons: Json | null
           additional_fees: Json | null
+          available_days_override: number[] | null
+          available_window_override: Json | null
           booking_mode: string
           breakdown_time_minutes: number | null
           cancellation_policy: string | null
@@ -1658,6 +1786,7 @@ export type Database = {
           is_active: boolean | null
           is_featured: boolean | null
           is_published: boolean | null
+          max_bookings_per_day: number | null
           max_guests: number | null
           max_items: number | null
           max_travel_miles: number | null
@@ -1675,6 +1804,7 @@ export type Database = {
           price_per_mile: number | null
           pricing_type: string | null
           requirements: string[] | null
+          requires_vendor_approval: boolean
           setup_time_minutes: number | null
           sort_order: number | null
           starting_at: number | null
@@ -1687,6 +1817,8 @@ export type Database = {
         Insert: {
           add_ons?: Json | null
           additional_fees?: Json | null
+          available_days_override?: number[] | null
+          available_window_override?: Json | null
           booking_mode?: string
           breakdown_time_minutes?: number | null
           cancellation_policy?: string | null
@@ -1708,6 +1840,7 @@ export type Database = {
           is_active?: boolean | null
           is_featured?: boolean | null
           is_published?: boolean | null
+          max_bookings_per_day?: number | null
           max_guests?: number | null
           max_items?: number | null
           max_travel_miles?: number | null
@@ -1725,6 +1858,7 @@ export type Database = {
           price_per_mile?: number | null
           pricing_type?: string | null
           requirements?: string[] | null
+          requires_vendor_approval?: boolean
           setup_time_minutes?: number | null
           sort_order?: number | null
           starting_at?: number | null
@@ -1737,6 +1871,8 @@ export type Database = {
         Update: {
           add_ons?: Json | null
           additional_fees?: Json | null
+          available_days_override?: number[] | null
+          available_window_override?: Json | null
           booking_mode?: string
           breakdown_time_minutes?: number | null
           cancellation_policy?: string | null
@@ -1758,6 +1894,7 @@ export type Database = {
           is_active?: boolean | null
           is_featured?: boolean | null
           is_published?: boolean | null
+          max_bookings_per_day?: number | null
           max_guests?: number | null
           max_items?: number | null
           max_travel_miles?: number | null
@@ -1775,6 +1912,7 @@ export type Database = {
           price_per_mile?: number | null
           pricing_type?: string | null
           requirements?: string[] | null
+          requires_vendor_approval?: boolean
           setup_time_minutes?: number | null
           sort_order?: number | null
           starting_at?: number | null
