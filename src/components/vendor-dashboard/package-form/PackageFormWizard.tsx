@@ -451,7 +451,7 @@ export function PackageFormWizard({
 
   // Step content component
   const StepContent = () => (
-    <div className="flex-1 overflow-y-auto py-4 min-h-[300px] sm:min-h-[400px]">
+    <div className="flex-1 overflow-y-auto py-4 min-h-[300px] sm:min-h-[400px] pb-24 sm:pb-4">
       {currentStep === 0 && (
         <StepPackageType
           value={formData.package_kind}
