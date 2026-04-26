@@ -717,7 +717,7 @@ export function PackageFormWizard({
 
       // ---- PULL-UP FLOW ----
       case 'pullup_pricing':
-        return <StepPullUpPricing formData={formData} updateFormData={updateFormData} />;
+        return <StepPullUpPricing formData={formData} updateFormData={updateFormData} errors={stepErrors} />;
       case 'pullup_timing':
         return (
           <div className="space-y-6">
@@ -802,7 +802,7 @@ export function PackageFormWizard({
       case 'catering_guests':
         return <StepCateringGuestsService formData={formData} updateFormData={updateFormData} />;
       case 'catering_pricing':
-        return <StepCateringPricing formData={formData} updateFormData={updateFormData} />;
+        return <StepCateringPricing formData={formData} updateFormData={updateFormData} errors={stepErrors} />;
       case 'catering_inclusions':
         return (
           <div className="space-y-6">
@@ -812,7 +812,7 @@ export function PackageFormWizard({
                 List what's included, then add optional upgrades as add-ons.
               </p>
             </div>
-            <StepInclusions formData={formData} updateFormData={updateFormData} />
+            <StepInclusions formData={formData} updateFormData={updateFormData} errors={stepErrors} />
           </div>
         );
       case 'catering_timing':
