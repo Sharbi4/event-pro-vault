@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, Calendar, MapPin, CreditCard, ArrowRight, Loader2, MessageCircle, CheckCircle, Wallet, Sparkles } from 'lucide-react';
+import { Check, Calendar, MapPin, CreditCard, ArrowRight, Loader2, MessageCircle, CheckCircle, Wallet, Sparkles, FileDown } from 'lucide-react';
+import { generateBookingReceipt, buildReceiptNumber } from '@/lib/receipt/generateBookingReceipt';
+import { toast } from 'sonner';
 import { format, parseISO, addHours } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
