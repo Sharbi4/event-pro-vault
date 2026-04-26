@@ -116,10 +116,24 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
     return `${displayHour}:${minute.toString().padStart(2, '0')} ${ampm}`;
   };
   
-  // Check payment options
+  // Check payment options + vendor's online payout readiness
   const paymentOptions = pkg.payment_options || 'ONLINE';
-  const canPayOnline = paymentOptions === 'ONLINE' || paymentOptions === 'BOTH';
+  const vendorPayoutsActive = pkg.vendor?.stripe_account_status === 'active';
+  // Online payment requires the vendor to have completed Stripe Connect
+  const canPayOnline =
+    (paymentOptions === 'ONLINE' || paymentOptions === 'BOTH') &&
+    vendorPayoutsActive;
   const canPayCash = paymentOptions === 'CASH' || paymentOptions === 'BOTH';
+  // True when the package is online-only but the vendor hasn't finished payouts
+  const onlineOnlyButNoPayouts =
+    paymentOptions === 'ONLINE' && !vendorPayoutsActive;
+
+  // Auto-fall back to cash when online is unavailable
+  useEffect(() => {
+    if (!canPayOnline && canPayCash && paymentMethod === 'stripe') {
+      setPaymentMethod('cash');
+    }
+  }, [canPayOnline, canPayCash, paymentMethod]);
 
   const handleSecure = async () => {
     // Validate inputs
