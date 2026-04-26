@@ -1305,6 +1305,151 @@ export type Database = {
           },
         ]
       }
+      share_events: {
+        Row: {
+          channel: string | null
+          created_at: string
+          event_type: string
+          id: string
+          metadata: Json | null
+          referrer: string | null
+          share_link_id: string | null
+          user_agent: string | null
+          vendor_user_id: string
+        }
+        Insert: {
+          channel?: string | null
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          referrer?: string | null
+          share_link_id?: string | null
+          user_agent?: string | null
+          vendor_user_id: string
+        }
+        Update: {
+          channel?: string | null
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          referrer?: string | null
+          share_link_id?: string | null
+          user_agent?: string | null
+          vendor_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_events_share_link_id_fkey"
+            columns: ["share_link_id"]
+            isOneToOne: false
+            referencedRelation: "share_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      share_invites: {
+        Row: {
+          channel: string
+          converted_at: string | null
+          created_at: string
+          id: string
+          message: string | null
+          opened_at: string | null
+          recipient_email: string | null
+          recipient_name: string | null
+          recipient_phone: string | null
+          sent_at: string
+          share_link_id: string | null
+          status: string
+          vendor_user_id: string
+        }
+        Insert: {
+          channel: string
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          opened_at?: string | null
+          recipient_email?: string | null
+          recipient_name?: string | null
+          recipient_phone?: string | null
+          sent_at?: string
+          share_link_id?: string | null
+          status?: string
+          vendor_user_id: string
+        }
+        Update: {
+          channel?: string
+          converted_at?: string | null
+          created_at?: string
+          id?: string
+          message?: string | null
+          opened_at?: string | null
+          recipient_email?: string | null
+          recipient_name?: string | null
+          recipient_phone?: string | null
+          sent_at?: string
+          share_link_id?: string | null
+          status?: string
+          vendor_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "share_invites_share_link_id_fkey"
+            columns: ["share_link_id"]
+            isOneToOne: false
+            referencedRelation: "share_links"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      share_links: {
+        Row: {
+          booking_count: number
+          channel: string | null
+          click_count: number
+          code: string
+          created_at: string
+          id: string
+          is_active: boolean
+          package_id: string | null
+          points_earned: number
+          signup_count: number
+          updated_at: string
+          vendor_user_id: string
+        }
+        Insert: {
+          booking_count?: number
+          channel?: string | null
+          click_count?: number
+          code: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          package_id?: string | null
+          points_earned?: number
+          signup_count?: number
+          updated_at?: string
+          vendor_user_id: string
+        }
+        Update: {
+          booking_count?: number
+          channel?: string | null
+          click_count?: number
+          code?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          package_id?: string | null
+          points_earned?: number
+          signup_count?: number
+          updated_at?: string
+          vendor_user_id?: string
+        }
+        Relationships: []
+      }
       slot_bookings: {
         Row: {
           address_line1: string | null
@@ -1618,6 +1763,36 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_achievements: {
+        Row: {
+          achievement_key: string
+          description: string | null
+          icon: string | null
+          id: string
+          title: string
+          unlocked_at: string
+          vendor_user_id: string
+        }
+        Insert: {
+          achievement_key: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          title: string
+          unlocked_at?: string
+          vendor_user_id: string
+        }
+        Update: {
+          achievement_key?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          title?: string
+          unlocked_at?: string
+          vendor_user_id?: string
+        }
+        Relationships: []
+      }
       vendor_availability: {
         Row: {
           created_at: string
@@ -1720,6 +1895,54 @@ export type Database = {
           updated_at?: string
           user_id?: string
           vendor_approval_expires_hours?: number
+        }
+        Relationships: []
+      }
+      vendor_challenges: {
+        Row: {
+          challenge_key: string
+          completed_at: string | null
+          created_at: string
+          description: string | null
+          ends_at: string
+          goal: number
+          id: string
+          progress: number
+          reward_points: number
+          starts_at: string
+          title: string
+          updated_at: string
+          vendor_user_id: string
+        }
+        Insert: {
+          challenge_key: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at: string
+          goal: number
+          id?: string
+          progress?: number
+          reward_points?: number
+          starts_at?: string
+          title: string
+          updated_at?: string
+          vendor_user_id: string
+        }
+        Update: {
+          challenge_key?: string
+          completed_at?: string | null
+          created_at?: string
+          description?: string | null
+          ends_at?: string
+          goal?: number
+          id?: string
+          progress?: number
+          reward_points?: number
+          starts_at?: string
+          title?: string
+          updated_at?: string
+          vendor_user_id?: string
         }
         Relationships: []
       }
@@ -1842,6 +2065,7 @@ export type Database = {
           description: string | null
           dietary_options: string[] | null
           duration_minutes: number | null
+          featured_until: string | null
           fee_per_mile: number | null
           id: string
           images: string[] | null
@@ -1917,6 +2141,7 @@ export type Database = {
           description?: string | null
           dietary_options?: string[] | null
           duration_minutes?: number | null
+          featured_until?: string | null
           fee_per_mile?: number | null
           id?: string
           images?: string[] | null
@@ -1992,6 +2217,7 @@ export type Database = {
           description?: string | null
           dietary_options?: string[] | null
           duration_minutes?: number | null
+          featured_until?: string | null
           fee_per_mile?: number | null
           id?: string
           images?: string[] | null
@@ -2038,6 +2264,78 @@ export type Database = {
           type?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      vendor_point_events: {
+        Row: {
+          action: string
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          points: number
+          related_id: string | null
+          vendor_user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          points: number
+          related_id?: string | null
+          vendor_user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          points?: number
+          related_id?: string | null
+          vendor_user_id?: string
+        }
+        Relationships: []
+      }
+      vendor_points: {
+        Row: {
+          created_at: string
+          current_streak_days: number
+          last_activity_at: string | null
+          lifetime_points: number
+          longest_streak_days: number
+          multiplier: number
+          tier: string
+          total_points: number
+          updated_at: string
+          vendor_user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak_days?: number
+          last_activity_at?: string | null
+          lifetime_points?: number
+          longest_streak_days?: number
+          multiplier?: number
+          tier?: string
+          total_points?: number
+          updated_at?: string
+          vendor_user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak_days?: number
+          last_activity_at?: string | null
+          lifetime_points?: number
+          longest_streak_days?: number
+          multiplier?: number
+          tier?: string
+          total_points?: number
+          updated_at?: string
+          vendor_user_id?: string
         }
         Relationships: []
       }

@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Sparkles, Package, BarChart3, Zap, Check, Loader2, Star, Mail, Share2 } from 'lucide-react';
+import { X, Sparkles, Star, Percent, Crown, Loader2, Check, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface PremiumUpgradeModalProps {
@@ -12,29 +12,24 @@ interface PremiumUpgradeModalProps {
 
 const benefits = [
   {
-    icon: Package,
-    title: 'Up to 20 Packages',
-    description: 'Create more packages to showcase your full range of services',
-  },
-  {
     icon: Star,
-    title: 'Featured Partner',
-    description: 'Your listings appear at the top of search results',
+    title: 'Featured listings',
+    description: 'Your packages pinned to the top of search results — every category, every city.',
   },
   {
-    icon: Mail,
-    title: 'Email Newsletter Feature',
-    description: 'Get featured in our customer email newsletters',
+    icon: Percent,
+    title: 'Reduced commission: 6%',
+    description: 'Drop from the 12.9% standard fee to just 6% on every online booking.',
   },
   {
-    icon: Share2,
-    title: 'Social Media Spotlight',
-    description: 'Featured promotions on our social media channels',
+    icon: TrendingUp,
+    title: 'Premium badge on every listing',
+    description: 'Stand out with the gold "Premium Pro" badge on cards and your profile.',
   },
   {
-    icon: BarChart3,
-    title: 'AI Analytics',
-    description: 'Get intelligent insights on your business performance',
+    icon: Crown,
+    title: 'Up to 20 packages',
+    description: 'Quadruple your catalog limit so you can launch every offering you want.',
   },
 ];
 
@@ -82,14 +77,14 @@ export default function PremiumUpgradeModal({
                   </div>
                   <div>
                     <h2 className="text-xl font-bold">Event Pro Premium</h2>
-                    <p className="text-sm text-white/80">Unlock your full potential</p>
+                    <p className="text-sm text-white/80">Featured listings + 6% commission</p>
                   </div>
                 </div>
 
                 <div className="mt-4 p-3 bg-white/10 rounded-lg">
                   <p className="text-sm">
-                    You've reached the <span className="font-bold">5 package limit</span> on the free tier.
-                    Upgrade to create up to 20 packages!
+                    Save up to <span className="font-bold">$690/year</span> in fees with the
+                    reduced 6% commission rate (down from 12.9%).
                   </p>
                 </div>
               </div>
@@ -123,12 +118,15 @@ export default function PremiumUpgradeModal({
                 <div className="p-4 bg-secondary/50 rounded-xl mb-4">
                   <div className="flex items-baseline justify-between">
                     <div>
-                      <span className="text-3xl font-bold text-foreground">$25</span>
+                      <span className="text-3xl font-bold text-foreground">$40</span>
                       <span className="text-muted-foreground">/month</span>
                     </div>
                     <div className="text-right">
                       <span className="text-xs text-muted-foreground">Current: {currentPackageCount}/5 packages</span>
                     </div>
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Commission drops from <s>12.9%</s> → <span className="font-semibold text-primary">6%</span>
                   </div>
                 </div>
 

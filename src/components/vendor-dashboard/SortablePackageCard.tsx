@@ -31,8 +31,9 @@ import {
 } from 'lucide-react';
 import { VendorPackage } from '@/hooks/useVendorDashboard';
 import { categories } from '@/data/categories';
-import { KeyboardEvent } from 'react';
+import { KeyboardEvent, useState } from 'react';
 import { toast } from '@/hooks/use-toast';
+import { ShareKitDialog } from '@/components/share-kit/ShareKitDialog';
 
 interface SortablePackageCardProps {
   pkg: VendorPackage;
@@ -68,6 +69,8 @@ export function SortablePackageCard({
     isDragging
   } = useSortable({ id: pkg.id });
 
+  const [shareKitOpen, setShareKitOpen] = useState(false);
+
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -88,42 +91,7 @@ export function SortablePackageCard({
     }
   };
 
-  const handleShare = async () => {
-    const shareUrl = `${window.location.origin}/package/${pkg.id}`;
-    const shareData = {
-      title: pkg.name,
-      text: `Check out ${pkg.name} on Event Pro!`,
-      url: shareUrl,
-    };
-
-    if (navigator.share && navigator.canShare?.(shareData)) {
-      try {
-        await navigator.share(shareData);
-      } catch (error) {
-        if ((error as Error).name !== 'AbortError') {
-          copyToClipboard(shareUrl);
-        }
-      }
-    } else {
-      copyToClipboard(shareUrl);
-    }
-  };
-
-  const copyToClipboard = async (url: string) => {
-    try {
-      await navigator.clipboard.writeText(url);
-      toast({
-        title: 'Link copied!',
-        description: 'Share this link with your clients.',
-      });
-    } catch {
-      toast({
-        title: 'Failed to copy',
-        description: 'Please copy the URL manually.',
-        variant: 'destructive',
-      });
-    }
-  };
+  const handleShare = () => setShareKitOpen(true);
 
   return (
     <Card 
@@ -306,6 +274,12 @@ export function SortablePackageCard({
           </div>
         </div>
       </CardContent>
+      <ShareKitDialog
+        open={shareKitOpen}
+        onClose={() => setShareKitOpen(false)}
+        packageId={pkg.id}
+        packageName={pkg.name}
+      />
     </Card>
   );
 }
