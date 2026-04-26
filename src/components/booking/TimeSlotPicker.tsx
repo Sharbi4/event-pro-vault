@@ -70,6 +70,8 @@ export function TimeSlotPicker({
   selectedTime,
   onTimeSelect,
   onSlotSelect,
+  onAlternativeDate,
+  onMessageVendor,
   className,
 }: TimeSlotPickerProps) {
   const dateStr = useMemo(() => (selectedDate ? toYMD(selectedDate) : undefined), [selectedDate]);
@@ -92,6 +94,55 @@ export function TimeSlotPicker({
     onTimeSelect(slot.start);
     onSlotSelect?.(slot);
   };
+
+  // ─── Nearby-date suggestions (shown only when current date has 0 slots) ───
+  const [nextDates, setNextDates] = useState<Array<{ date: Date; firstStart: string }>>([]);
+  const [searchingAlt, setSearchingAlt] = useState(false);
+  const noSlots = !loading && !error && slots.length === 0 && Boolean(selectedDate);
+
+  useEffect(() => {
+    if (!noSlots || !vendorUserId || !selectedDate) {
+      setNextDates([]);
+      return;
+    }
+    let cancelled = false;
+    setSearchingAlt(true);
+
+    (async () => {
+      const found: Array<{ date: Date; firstStart: string }> = [];
+      // Probe the next 14 days forward; collect up to 3 with availability.
+      for (let i = 1; i <= 14 && found.length < 3; i++) {
+        const probe = addDays(selectedDate, i);
+        try {
+          const { data } = await supabase.functions.invoke('get-available-slots', {
+            body: {
+              vendor_user_id: vendorUserId,
+              package_id: packageId,
+              date: toYMD(probe),
+              mode,
+              duration_minutes: durationMinutes,
+              setup_minutes: setupMinutes,
+              breakdown_minutes: breakdownMinutes,
+              interval_minutes: intervalMinutes,
+            },
+          });
+          const probeSlots = (data?.slots as BookableSlot[]) ?? [];
+          if (probeSlots.length > 0) {
+            found.push({ date: probe, firstStart: probeSlots[0].start });
+          }
+        } catch {
+          // skip probe failures silently
+        }
+      }
+      if (!cancelled) {
+        setNextDates(found);
+        setSearchingAlt(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [noSlots, vendorUserId, packageId, dateStr, mode, durationMinutes, setupMinutes, breakdownMinutes, intervalMinutes]);
 
   if (loading) {
     return (
