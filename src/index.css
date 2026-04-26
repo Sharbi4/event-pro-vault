@@ -242,7 +242,7 @@
     color: hsl(var(--request));
   }
 
-  /* Demand pulse for high-demand vendors */
+  /* Demand pulse for high-demand Event Pros */
   .demand-pulse {
     animation: demand-pulse 2s ease-in-out infinite;
   }

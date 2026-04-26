@@ -35,7 +35,7 @@ export function useFeaturedPackages(limit = 6) {
   return useQuery({
     queryKey: ['featured-packages', limit],
     queryFn: async (): Promise<FeaturedPackage[]> => {
-      // Fetch active packages from verified vendors
+      // Fetch active packages from verified Event Pros
       const { data: packages, error } = await supabase
         .from('vendor_packages')
         .select(`
@@ -53,12 +53,12 @@ export function useFeaturedPackages(limit = 6) {
         .eq('is_active', true)
         .eq('is_published', true)
         .order('created_at', { ascending: false })
-        .limit(limit * 2); // Fetch more to filter by verified vendors
+        .limit(limit * 2); // Fetch more to filter by verified Event Pros
 
       if (error) throw error;
       if (!packages?.length) return [];
 
-      // Get vendor details for these packages
+      // Get Event Pro details for these packages
       const vendorIds = [...new Set(packages.map(p => p.user_id))];
       
       const { data: profiles } = await supabase
@@ -77,7 +77,7 @@ export function useFeaturedPackages(limit = 6) {
       const profileMap = new Map(profiles.map(p => [p.user_id, p]));
       const detailsMap = new Map(vendorDetails?.map(d => [d.user_id, d]) || []);
 
-      // Filter packages to only verified vendors and enrich with vendor data
+      // Filter packages to only verified Event Pros and enrich with Event Pro data
       const enrichedPackages = packages
         .filter(pkg => profileMap.has(pkg.user_id))
         .map(pkg => {
@@ -111,7 +111,7 @@ export function useFeaturedVendors(limit = 4) {
   return useQuery({
     queryKey: ['featured-vendors', limit],
     queryFn: async (): Promise<FeaturedVendor[]> => {
-      // Fetch verified vendor profiles
+      // Fetch verified Event Pro profiles
       const { data: profiles, error } = await supabase
         .from('profiles')
         .select(`
@@ -134,7 +134,7 @@ export function useFeaturedVendors(limit = 4) {
 
       const userIds = profiles.map(p => p.user_id);
 
-      // Get vendor details for categories and cover images
+      // Get Event Pro details for categories and cover images
       const { data: vendorDetails } = await supabase
         .from('vendor_details')
         .select('user_id, service_categories, cover_image_url')
@@ -148,7 +148,7 @@ export function useFeaturedVendors(limit = 4) {
 
       const detailsMap = new Map(vendorDetails?.map(d => [d.user_id, d]) || []);
       
-      // Calculate review stats per vendor
+      // Calculate review stats per Event Pro
       const reviewStats = new Map<string, { total: number; count: number }>();
       reviews?.forEach(r => {
         const existing = reviewStats.get(r.vendor_user_id) || { total: 0, count: 0 };
@@ -212,7 +212,7 @@ export function useRecentReviews(limit = 3) {
       if (error) throw error;
       if (!reviews?.length) return [];
 
-      // Get vendor names
+      // Get Event Pro names
       const vendorIds = [...new Set(reviews.map(r => r.vendor_user_id))];
       const { data: profiles } = await supabase
         .from('profiles')
@@ -248,7 +248,7 @@ export function useCategoryCounts() {
 
       if (error) throw error;
 
-      // Also check that vendors are verified (have active Stripe)
+      // Also check that Event Pros are verified (have active Stripe)
       const userIds = [...new Set(packages?.map(p => p.user_id) || [])];
       
       if (userIds.length === 0) return new Map();
@@ -261,7 +261,7 @@ export function useCategoryCounts() {
 
       const activeUserIds = new Set(profiles?.map(p => p.user_id) || []);
 
-      // Count packages per category from verified vendors only
+      // Count packages per category from verified Event Pros only
       const counts = new Map<string, number>();
       
       packages?.forEach(pkg => {
@@ -319,7 +319,7 @@ export function useCategoryPackages(categoryIds: string[], limit = 6) {
       if (error) throw error;
       if (!packages?.length) return [];
 
-      // Get vendor details
+      // Get Event Pro details
       const vendorIds = [...new Set(packages.map(p => p.user_id))];
       
       const { data: profiles } = await supabase
@@ -343,7 +343,7 @@ export function useCategoryPackages(categoryIds: string[], limit = 6) {
       const profileMap = new Map(profiles.map(p => [p.user_id, p]));
       const detailsMap = new Map(vendorDetails?.map(d => [d.user_id, d]) || []);
       
-      // Calculate review stats per vendor
+      // Calculate review stats per Event Pro
       const reviewStats = new Map<string, { total: number; count: number }>();
       reviews?.forEach(r => {
         const existing = reviewStats.get(r.vendor_user_id) || { total: 0, count: 0 };

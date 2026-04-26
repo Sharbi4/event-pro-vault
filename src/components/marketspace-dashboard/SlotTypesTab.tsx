@@ -170,7 +170,7 @@ export function SlotTypesTab({
       <div className="flex items-center justify-between">
         <div>
           <h2 className="font-display text-xl font-bold text-foreground">Slot Types</h2>
-          <p className="text-sm text-muted-foreground">Manage your vendor space options</p>
+          <p className="text-sm text-muted-foreground">Manage your Event Pro space options</p>
         </div>
         <Button onClick={openCreateDialog} className="gap-2" disabled={!marketId}>
           <Plus className="w-4 h-4" />
@@ -183,7 +183,7 @@ export function SlotTypesTab({
           <Store className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="font-medium text-foreground mb-2">No slot types yet</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Create slot types to define your vendor spaces.
+            Create slot types to define your Event Pro spaces.
           </p>
           <Button onClick={openCreateDialog} variant="outline" className="gap-2">
             <Plus className="w-4 h-4" />

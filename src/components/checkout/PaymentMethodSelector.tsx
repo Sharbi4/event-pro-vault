@@ -31,7 +31,7 @@ export function PaymentMethodSelector({
   useEffect(() => {
     const fetchPaymentSettings = async () => {
       if (!vendorUserId) {
-        // Default to stripe only if no vendor user id
+        // Default to stripe only if no Event Pro user id
         setSettings({ accepts_cash: false, accepts_stripe: true });
         setLoading(false);
         return;
@@ -105,7 +105,7 @@ export function PaymentMethodSelector({
             </div>
             <div className="flex-1">
               <p className="font-medium text-foreground">Cash / In-Person Payment</p>
-              <p className="text-xs text-muted-foreground">Pay the vendor directly • No service fee</p>
+              <p className="text-xs text-muted-foreground">Pay the Event Pro directly • No service fee</p>
             </div>
           </div>
         </div>
@@ -179,7 +179,7 @@ export function PaymentMethodSelector({
                 )}
               </div>
               <p className="text-xs text-muted-foreground">
-                Pay the vendor directly at the event
+                Pay the Event Pro directly at the event
               </p>
             </div>
             <div className="text-right">
@@ -195,7 +195,7 @@ export function PaymentMethodSelector({
         <p>
           {selectedMethod === 'stripe' 
             ? "A 12.9% service fee will be added to your total. Your payment is protected by Stripe's secure payment processing."
-            : "You'll pay the vendor directly in cash or via their preferred method at the event. No online payment required."
+            : "You'll pay the Event Pro directly in cash or via their preferred method at the event. No online payment required."
           }
         </p>
       </div>

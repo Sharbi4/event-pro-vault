@@ -41,8 +41,8 @@ interface VendorDisputeCardProps {
 }
 
 const reasonLabels: Record<string, string> = {
-  no_show: 'Vendor did not show up',
-  late: 'Vendor was significantly late',
+  no_show: 'Event Pro did not show up',
+  late: 'Event Pro was significantly late',
   incomplete: 'Service was incomplete',
   quality: 'Quality issues',
   other: 'Other issue',

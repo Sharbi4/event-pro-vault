@@ -62,7 +62,7 @@ export function FeaturedVendors() {
         <div className="flex items-end justify-between mb-12">
           <div>
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              Featured Event Pros
+              Featured vendors
             </h2>
             <p className="text-muted-foreground max-w-xl">
               Top-rated professionals ready to make your event unforgettable
@@ -88,7 +88,7 @@ export function FeaturedVendors() {
                   {vendor.cover_image_url ? (
                     <img
                       src={vendor.cover_image_url}
-                      alt={vendor.display_name || 'Event Pro'}
+                      alt={vendor.display_name || 'vendor'}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
@@ -114,7 +114,7 @@ export function FeaturedVendors() {
                 </div>
                 <CardContent className="p-4">
                   <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
-                    {vendor.display_name || 'Event Pro'}
+                    {vendor.display_name || 'vendor'}
                   </h3>
                   {vendor.categories?.[0] && (
                     <p className="text-sm text-muted-foreground mb-3">
@@ -147,7 +147,7 @@ export function FeaturedVendors() {
         <div className="mt-8 text-center md:hidden">
           <Link to="/browse">
             <Button variant="outline" className="gap-2">
-              View All Event Pros
+              View All vendors
               <ChevronRight className="w-4 h-4" />
             </Button>
           </Link>

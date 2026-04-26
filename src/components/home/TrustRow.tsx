@@ -1,7 +1,7 @@
 import { ShieldCheck, Star, Package, MessageSquare, Sparkles, Lock } from 'lucide-react';
 
 const ITEMS = [
-  { icon: ShieldCheck, label: 'Verified vendors' },
+  { icon: ShieldCheck, label: 'Verified Event Pros' },
   { icon: Star, label: 'Ratings & reviews' },
   { icon: Package, label: 'Package-based booking' },
   { icon: MessageSquare, label: 'In-platform messaging' },

@@ -23,7 +23,7 @@ const SERVICE_STYLES = [
 
 const STAFFING = [
   'No staff included',
-  'Vendor/operator included',
+  'Event Pro/operator included',
   'Serving staff included',
   'Bartender included',
   'Extra staff available as add-on',

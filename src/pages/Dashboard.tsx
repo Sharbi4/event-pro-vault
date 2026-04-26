@@ -340,7 +340,7 @@ export default function Dashboard() {
           {hasVendorPackages && (
             <Button variant="outline" size="sm" onClick={() => navigate('/vendor-dashboard')} className="gap-2">
               <Users className="w-4 h-4" />
-              Vendor Dashboard
+              vendor Dashboard
             </Button>
           )}
           {profile?.is_published && profile?.is_vendor && (
@@ -352,7 +352,7 @@ export default function Dashboard() {
           {!hasVendorPackages && (
             <Button variant="gradient" size="sm" onClick={() => navigate('/eventpro-onboarding')} className="gap-2">
               <Star className="w-4 h-4" />
-              Become an Event Pro
+              Become an vendor
             </Button>
           )}
         </div>
@@ -464,7 +464,7 @@ export default function Dashboard() {
                 <Link to="/browse">
                   <Button variant="gradient" size="sm" className="gap-1.5">
                     <Search className="w-3.5 h-3.5" />
-                    Browse Vendors
+                    Browse vendors
                   </Button>
                 </Link>
               </Card>
@@ -537,7 +537,7 @@ export default function Dashboard() {
                 <Link to="/browse">
                   <Button variant="gradient" size="sm" className="gap-1.5">
                     <Search className="w-3.5 h-3.5" />
-                    Browse Vendors
+                    Browse vendors
                   </Button>
                 </Link>
               </Card>
@@ -674,7 +674,7 @@ export default function Dashboard() {
             }}
             bookingId={bookingToReview.id}
             vendorUserId={bookingToReview.vendor_user_id}
-            vendorName={bookingToReview.vendor_display_name || 'Event Pro'}
+            vendorName={bookingToReview.vendor_display_name || 'vendor'}
             packageId={bookingToReview.package_id}
             packageName={bookingToReview.package_name}
             eventDate={bookingToReview.event_date}

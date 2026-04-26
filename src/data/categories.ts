@@ -7,6 +7,6 @@ export const categories: Category[] = [
   { id: 'bartending', name: 'Mobile Bartending', icon: 'Wine', description: 'Bar carts & mobile bar service', count: 124 },
   { id: 'desserts', name: 'Desserts & Bakers', icon: 'Cake', description: 'Cottage bakers, cakes & sweet treats', count: 72 },
   { id: 'coffee-beverage', name: 'Coffee & Beverage', icon: 'Coffee', description: 'Mobile coffee & specialty drink carts', count: 48 },
-  { id: 'ice-cream', name: 'Ice Cream & Treats', icon: 'IceCream', description: 'Ice cream trucks & dessert vendors', count: 36 },
+  { id: 'ice-cream', name: 'Ice Cream & Treats', icon: 'IceCream', description: 'Ice cream trucks & dessert Event Pros', count: 36 },
   { id: 'food-popup', name: 'Food Pop-ups', icon: 'Store', description: 'Pop-up chefs & culinary experiences', count: 41 },
 ];

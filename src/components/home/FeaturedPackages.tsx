@@ -28,7 +28,7 @@ export function FeaturedPackages() {
       cover_image_url: vendor?.gallery?.[0] || null,
       category: null,
       vendor_user_id: pkg.vendorId,
-      vendor_name: vendor?.name || 'Event Pro',
+      vendor_name: vendor?.name || 'vendor',
       vendor_avatar: null,
       vendor_city: vendor?.location?.split(',')[0] || null,
     };

@@ -30,7 +30,7 @@ export function FlexibleDatesSection() {
     {
       icon: Moon,
       title: 'Friday night',
-      subtitle: 'Late-night vendors',
+      subtitle: 'Late-night Event Pros',
       date: format(nextFriday(today), 'yyyy-MM-dd'),
     },
     {
@@ -62,7 +62,7 @@ export function FlexibleDatesSection() {
               Flexible on timing?
             </h2>
             <p className="text-muted-foreground">
-              Don't dead-end on a date — see vendors available nearby in time.
+              Don't dead-end on a date — see Event Pros available nearby in time.
             </p>
           </div>
         </div>

@@ -127,7 +127,7 @@ export function generateBookingChecklist(booking: {
   if (isCash) {
     items.push({
       id: 'payment-cash',
-      label: 'Arrange payment with vendor',
+      label: 'Arrange payment with Event Pro',
       completed: true, // Cash bookings are always "arranged"
       icon: 'payment',
     });
@@ -151,7 +151,7 @@ export function generateBookingChecklist(booking: {
 
   items.push({
     id: 'message',
-    label: 'Confirm details with vendor',
+    label: 'Confirm details with Event Pro',
     completed: !!booking.hasConversation,
     icon: 'message',
   });

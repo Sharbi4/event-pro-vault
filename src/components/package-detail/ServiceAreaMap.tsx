@@ -96,10 +96,10 @@ export function ServiceAreaMap({ lat, lng, radiusMiles, vendorName }: ServiceAre
               strokeWeight: 2,
             }}
           />
-          {/* Vendor location marker */}
+          {/* Event Pro location marker */}
           <Marker
             position={{ lat, lng }}
-            title={vendorName || 'Vendor location'}
+            title={vendorName || 'Event Pro location'}
           />
         </GoogleMap>
       </div>

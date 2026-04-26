@@ -18,7 +18,7 @@ interface VerificationCardProps {
 }
 
 /**
- * Optional Stripe Identity verification card shown on the vendor Settings tab.
+ * Optional Stripe Identity verification card shown on the Event Pro Settings tab.
  * Verification is NOT required to publish, get bookings, or receive payouts —
  * it only unlocks the "Verified Event Pro" trust badge.
  */

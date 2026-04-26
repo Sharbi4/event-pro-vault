@@ -99,7 +99,7 @@ const examplePackages = [
     rating: 4.9,
     reviews: 34,
     icon: Users,
-    includes: ['Venue coordination', 'Vendor management', 'Day-of coordination'],
+    includes: ['Venue coordination', 'Event Pro management', 'Day-of coordination'],
     badge: 'Request Quote',
     badgeColor: 'bg-secondary text-secondary-foreground',
   },
@@ -174,7 +174,7 @@ export default function LearnEventPros() {
     description: seo.description,
     canonical: seo.canonical,
     type: 'website',
-    keywords: ['become event vendor', 'list event services', 'event pro signup', 'vendor registration'],
+    keywords: ['become event Event Pro', 'list event services', 'event pro signup', 'Event Pro registration'],
   });
 
   const handleListService = () => {

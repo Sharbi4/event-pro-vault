@@ -69,7 +69,7 @@ export function VendorGrid({ vendors }: VendorGridProps) {
                 </span>
               </div>
 
-              {/* Vendor Name */}
+              {/* vendor Name */}
               <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 mb-1">
                 {vendor.name}
               </h3>

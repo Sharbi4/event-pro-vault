@@ -62,7 +62,7 @@ interface BookingModalProps {
   maxTravelMiles?: number;
   includedTravelMiles?: number;
   travelFeePerMile?: number;
-  // Vendor base location
+  // Event Pro base location
   vendorBaseLat?: number;
   vendorBaseLng?: number;
   // Cancellation policy
@@ -439,11 +439,11 @@ export function BookingModal({
         if (!addressLine1.trim() || !city.trim() || !state.trim()) return false;
         // Block while geocoding
         if (geocodingAddress) return false;
-        // If we have vendor coordinates and event coordinates, check service area
+        // If we have Event Pro coordinates and event coordinates, check service area
         if (vendorBaseLat && vendorBaseLng && eventLat && eventLng) {
           return isWithinServiceArea;
         }
-        // If vendor has no base coordinates, allow proceeding
+        // If Event Pro has no base coordinates, allow proceeding
         return true;
       case 'payment':
         return true;
@@ -1139,7 +1139,7 @@ export function BookingModal({
               </div>
             )}
 
-            {/* Vendor has no base location warning */}
+            {/* Event Pro has no base location warning */}
             {!geocodingAddress && addressLine1.trim() && city.trim() && state && !vendorBaseLat && (
               <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border">
                 <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
@@ -1261,7 +1261,7 @@ export function BookingModal({
               {pickupOnly && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Location</span>
-                  <span className="font-medium text-foreground">Pickup from vendor</span>
+                  <span className="font-medium text-foreground">Pickup from Event Pro</span>
                 </div>
               )}
               <div className="flex justify-between">
@@ -1294,7 +1294,7 @@ export function BookingModal({
               </div>
             )}
 
-            {/* Requirements from vendor */}
+            {/* Requirements from Event Pro */}
             {((requirements && requirements.length > 0) || customerRequirements) && (
               <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-2">
                 <h4 className="font-semibold text-foreground flex items-center gap-2">

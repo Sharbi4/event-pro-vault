@@ -158,7 +158,7 @@ export default function PackageDetail() {
         <div className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Package not found</h1>
           <Link to="/browse">
-            <Button variant="gradient">Browse Vendors</Button>
+            <Button variant="gradient">Browse vendors</Button>
           </Link>
         </div>
       </Layout>
@@ -254,8 +254,8 @@ export default function PackageDetail() {
         toast({
           title: "Request sent!",
           description: paymentMethod === 'stripe'
-            ? "You'll only be charged if the Event Pro approves your request."
-            : "You'll be notified when the Event Pro responds."
+            ? "You'll only be charged if the vendor approves your request."
+            : "You'll be notified when the vendor responds."
         });
       }
       // Redirect to dashboard to see booking
@@ -692,7 +692,7 @@ export default function PackageDetail() {
                 </p>
                 {!isInstantBook && paymentMethod === 'stripe' && (
                   <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2">
-                    You'll only be charged if the Event Pro approves your request.
+                    You'll only be charged if the vendor approves your request.
                   </p>
                 )}
               </Card>

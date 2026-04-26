@@ -165,7 +165,7 @@ export function useEventProOnboarding() {
         .eq('user_id', user.id)
         .single();
 
-      // Fetch vendor details
+      // Fetch Event Pro details
       const { data: vendorDetails } = await supabase
         .from('vendor_details')
         .select('*')
@@ -291,7 +291,7 @@ export function useEventProOnboarding() {
         .from('profiles')
         .upsert(profileUpdate, { onConflict: 'user_id' });
 
-      // Update vendor details - check if exists first
+      // Update Event Pro details - check if exists first
       const { data: existingDetails } = await supabase
         .from('vendor_details')
         .select('id')

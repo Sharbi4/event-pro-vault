@@ -11,7 +11,7 @@ export default function VendorTerms() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">1. Introduction</h2>
             <p className="text-muted-foreground leading-relaxed">
-              These Event Pro Terms & Conditions ("Vendor Terms") govern your use of EventPro by Vendibook as a service provider. By registering as an Event Pro, you agree to these terms in addition to our general Terms of Service.
+              These Event Pro Terms & Conditions ("Event Pro Terms") govern your use of EventPro by Vendibook as a service provider. By registering as an Event Pro, you agree to these terms in addition to our general Terms of Service.
             </p>
           </section>
 
@@ -131,7 +131,7 @@ export default function VendorTerms() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">12. Contact Us</h2>
             <p className="text-muted-foreground leading-relaxed">
-              If you have questions about these Vendor Terms, please contact us at:
+              If you have questions about these Event Pro Terms, please contact us at:
             </p>
             <p className="text-muted-foreground mt-2">
               <strong>Email:</strong> <a href="mailto:support@vendibook.com" className="text-primary hover:underline">support@vendibook.com</a>

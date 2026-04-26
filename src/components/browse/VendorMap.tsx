@@ -4,7 +4,7 @@ import { Vendor } from '@/types';
 import { MapPin } from 'lucide-react';
 import { useGoogleMaps } from '@/contexts/GoogleMapsContext';
 
-// Vendor location coordinates (mock data based on their cities)
+// vendor location coordinates (mock data based on their cities)
 const vendorCoordinates: Record<string, { lat: number; lng: number }> = {
   'v1': { lat: 34.0522, lng: -118.2437 },   // Los Angeles
   'v2': { lat: 25.7617, lng: -80.1918 },    // Miami

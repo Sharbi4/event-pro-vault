@@ -18,7 +18,7 @@ export interface VendorGroup {
 
 /**
  * Group an already-filtered list of packages by vendor.
- * Each vendor card surfaces up to `maxPerVendor` packages, ranked by:
+ * Each Event Pro card surfaces up to `maxPerVendor` packages, ranked by:
  *   1) instant_book first  2) lower price first
  */
 export function groupPackagesByVendor(
@@ -58,7 +58,7 @@ export function groupPackagesByVendor(
     });
   }
 
-  // Vendors with the most matching packages bubble up first, then by rating
+  // Event Pros with the most matching packages bubble up first, then by rating
   return groups.sort((a, b) => {
     if (b.packages.length !== a.packages.length) return b.packages.length - a.packages.length;
     return (b.avg_rating ?? 0) - (a.avg_rating ?? 0);

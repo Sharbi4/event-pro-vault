@@ -76,10 +76,10 @@ export default function BecomePro() {
     canonical: seo.canonical,
     type: 'website',
     keywords: [
-      'become event vendor',
+      'become event Event Pro',
       'list event services',
       'event pro signup',
-      'vendor registration',
+      'Event Pro registration',
       'sell event services',
       'catering business',
       'DJ booking platform',
@@ -118,7 +118,7 @@ export default function BecomePro() {
               <span className="gradient-text">Event Pros</span>
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              Join thousands of vendors getting booked for events every day. 
+              Join thousands of Event Pros getting booked for events every day. 
               Create your profile, set your rates, and start earning.
             </p>
             <Link to="/vendor-onboarding">
@@ -140,7 +140,7 @@ export default function BecomePro() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <div>
               <div className="text-4xl font-bold gradient-text mb-2">10K+</div>
-              <p className="text-muted-foreground">Active Vendors</p>
+              <p className="text-muted-foreground">Active Event Pros</p>
             </div>
             <div>
               <div className="text-4xl font-bold gradient-text mb-2">50K+</div>
@@ -148,11 +148,11 @@ export default function BecomePro() {
             </div>
             <div>
               <div className="text-4xl font-bold gradient-text mb-2">$2M+</div>
-              <p className="text-muted-foreground">Paid to Vendors</p>
+              <p className="text-muted-foreground">Paid to Event Pros</p>
             </div>
             <div>
               <div className="text-4xl font-bold gradient-text mb-2">4.8★</div>
-              <p className="text-muted-foreground">Avg. Vendor Rating</p>
+              <p className="text-muted-foreground">Avg. Event Pro Rating</p>
             </div>
           </div>
         </div>
@@ -163,7 +163,7 @@ export default function BecomePro() {
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              Why vendors love Event Pros
+              Why Event Pros love Event Pros
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
               Everything you need to run and grow your event business

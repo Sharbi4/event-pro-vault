@@ -13,7 +13,7 @@ export interface HoldState {
 const DEFAULT_HOLD_MIN = 15;
 
 /**
- * Manages a 15-minute checkout hold against a vendor's calendar.
+ * Manages a 15-minute checkout hold against a Event Pro's calendar.
  * Call createHold() once the customer commits to a date+time; the hold
  * auto-expires (server-side) and the local countdown reflects it.
  */

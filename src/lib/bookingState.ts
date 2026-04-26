@@ -16,7 +16,7 @@ export type CancellationPolicy = 'flexible' | 'standard' | 'strict' | 'custom';
 
 export interface CancellationRule {
   policy: CancellationPolicy;
-  /** Display label shown to customers and vendors */
+  /** Display label shown to customers and Event Pros */
   label: string;
   /** hours before event_start where a full refund is still possible */
   fullRefundHours: number;
@@ -60,7 +60,7 @@ export const CANCELLATION_RULES: Record<CancellationPolicy, CancellationRule> = 
     fullRefundHours: 0,
     partialRefundHours: 0,
     partialRefundPct: 0,
-    description: 'Custom policy — see vendor terms for full details.',
+    description: 'Custom policy — see Event Pro terms for full details.',
   },
 };
 
@@ -133,12 +133,12 @@ export function getCancellationStatus(b: BookingData, now = new Date()): Cancell
     return { canCancel: false, refundPct: 0, reason: 'Event has already started.' };
   }
   const policy = (b.cancellation_policy ?? 'standard') as CancellationPolicy;
-  // Custom policies must be handled manually with the vendor — never auto-allow.
+  // Custom policies must be handled manually with the Event Pro — never auto-allow.
   if (policy === 'custom') {
     return {
       canCancel: false,
       refundPct: 0,
-      reason: 'This booking uses a custom policy. Message your vendor to request cancellation.',
+      reason: 'This booking uses a custom policy. Message your Event Pro to request cancellation.',
     };
   }
   const rule = CANCELLATION_RULES[policy];

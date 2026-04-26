@@ -188,7 +188,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
         booking_mode: isInstant ? 'INSTANT' : 'REQUEST',
         customer_email: isGuest ? customerEmail.trim() : user?.email,
         customer_name: user?.user_metadata?.full_name || customerEmail.split('@')[0],
-        vendor_name: pkg.vendor?.display_name || 'Vendor',
+        vendor_name: pkg.vendor?.display_name || 'vendor',
         vendor_email: pkg.vendor_email || undefined,
         package_name: pkg.name,
         unit_type: isHourly ? 'hours' : 'booking',
@@ -318,7 +318,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
             ) : (
               /* Content - Mobile-first spacing */
               <div className="p-4 md:p-6 space-y-6 md:space-y-8 pb-32 md:pb-6">
-                {/* Vendor Info */}
+                {/* vendor Info */}
                 <div className="flex items-center gap-3 md:gap-4">
                   <Avatar className="w-12 h-12 md:w-14 md:h-14 border border-border">
                     <AvatarImage src={pkg.vendor?.avatar_url} alt={pkg.vendor?.display_name} />
@@ -328,7 +328,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm md:text-base">{pkg.vendor?.display_name || 'Event Pro'}</span>
+                      <span className="font-semibold text-sm md:text-base">{pkg.vendor?.display_name || 'vendor'}</span>
                       {pkg.vendor?.is_verified && (
                         <span className="inline-flex items-center justify-center w-4 h-4 md:w-5 md:h-5 rounded-full bg-foreground text-background">
                           <Check className="w-2.5 h-2.5 md:w-3 md:h-3" strokeWidth={3} />
@@ -492,7 +492,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                 {/* Online-only / no payouts gate */}
                 {onlineOnlyButNoPayouts && (
                   <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3 text-sm text-foreground">
-                    This Event Pro hasn't finished setting up online payments
+                    This vendor hasn't finished setting up online payments
                     yet. Send them a message to arrange this booking directly.
                   </div>
                 )}

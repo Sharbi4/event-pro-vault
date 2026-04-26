@@ -299,7 +299,7 @@ export default function FAQ() {
     type: 'website',
     keywords: [
       'event booking FAQ',
-      'vendor booking help',
+      'Event Pro booking help',
       'cancellation policy',
       'payment questions',
       'event pro help',
@@ -451,7 +451,7 @@ export default function FAQ() {
                 How Booking Works
               </h2>
               <p className="text-muted-foreground">
-                Four simple steps to book your perfect event vendor
+                Four simple steps to book your perfect event Event Pro
               </p>
             </div>
 

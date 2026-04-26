@@ -29,19 +29,19 @@ import { StickyMiniSearch } from '@/components/book-or-get-booked/StickyMiniSear
 const customerFAQs = [
   {
     q: 'Can I book a food truck for an apartment event?',
-    a: 'Yes. Use Pull-Up Booking to bring a food truck, trailer, mobile bar, or dessert vendor to apartments, offices, neighborhoods, schools, breweries, and pop-ups.',
+    a: 'Yes. Use Pull-Up Booking to bring a food truck, trailer, mobile bar, or dessert Event Pro to apartments, offices, neighborhoods, schools, breweries, and pop-ups.',
   },
   {
     q: 'What if I need something custom?',
-    a: 'Message the vendor through EventPro. They can send you a private package to review and book on the platform.',
+    a: 'Message the Event Pro through EventPro. They can send you a private package to review and book on the platform.',
   },
   {
     q: 'Can I search by date and time?',
-    a: 'Yes. EventPro is built around availability, so you can search for vendors who can work your event date and time.',
+    a: 'Yes. EventPro is built around availability, so you can search for Event Pros who can work your event date and time.',
   },
   {
-    q: 'Do vendors have packages?',
-    a: 'Yes. Vendors can offer Pull-Up Bookings and Catering Packages. Some can also send Private Packages through messages.',
+    q: 'Do Event Pros have packages?',
+    a: 'Yes. Event Pros can offer Pull-Up Bookings and Catering Packages. Some can also send Private Packages through messages.',
   },
 ];
 
@@ -83,7 +83,7 @@ export default function BookOrGetBooked() {
     document.title = 'Book or Get Booked — EventPro';
     const desc = document.querySelector('meta[name="description"]');
     const content =
-      'Find and book food trucks, mobile bars, dessert vendors, and cottage bakers for real events — or create a profile and get booked.';
+      'Find and book food trucks, mobile bars, dessert Event Pros, and cottage bakers for real events — or create a profile and get booked.';
     if (desc) desc.setAttribute('content', content);
   }, []);
 
@@ -110,7 +110,7 @@ export default function BookOrGetBooked() {
               <span className="text-orange-600">Your business, booked.</span>
             </h1>
             <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-              Find and book food trucks, mobile bars, dessert vendors, cottage bakers, trailers, and mobile food businesses for real events.
+              Find and book food trucks, mobile bars, dessert Event Pros, cottage bakers, trailers, and mobile food businesses for real events.
             </p>
             <p className="mt-2 text-sm text-muted-foreground max-w-2xl mx-auto">
               Search by date, time, location, cuisine, and guest count — or create a profile to get booked by customers nearby.
@@ -119,7 +119,7 @@ export default function BookOrGetBooked() {
             <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild size="lg" className="rounded-full bg-orange-500 hover:bg-orange-600 text-white">
                 <Link to="/browse">
-                  Find vendors near me <ArrowRight className="ml-1.5 w-4 h-4" />
+                  Find Event Pros near me <ArrowRight className="ml-1.5 w-4 h-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-full">
@@ -153,22 +153,22 @@ export default function BookOrGetBooked() {
                 </div>
                 <div className="sm:col-span-4">
                   <Select value={vendorType} onValueChange={setVendorType}>
-                    <SelectTrigger className="rounded-xl" aria-label="Vendor type">
-                      <SelectValue placeholder="Vendor type" />
+                    <SelectTrigger className="rounded-xl" aria-label="Event Pro type">
+                      <SelectValue placeholder="Event Pro type" />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="food-truck">Food Truck</SelectItem>
                       <SelectItem value="food-trailer">Food Trailer</SelectItem>
                       <SelectItem value="mobile-bartender">Mobile Bartender</SelectItem>
                       <SelectItem value="cottage-baker">Cottage Baker</SelectItem>
-                      <SelectItem value="dessert">Dessert Vendor</SelectItem>
+                      <SelectItem value="dessert">Dessert Event Pro</SelectItem>
                       <SelectItem value="mobile-coffee">Mobile Coffee</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
               </div>
               <Button onClick={handleSearch} className="mt-3 w-full rounded-xl bg-foreground text-background hover:bg-foreground/90">
-                <Search className="w-4 h-4 mr-1.5" /> Search vendors
+                <Search className="w-4 h-4 mr-1.5" /> Search Event Pros
               </Button>
             </Card>
             </div>
@@ -193,7 +193,7 @@ export default function BookOrGetBooked() {
                 </div>
                 <h3 className="text-2xl font-semibold">I&apos;m planning an event</h3>
                 <p className="mt-2 text-muted-foreground">
-                  Search available vendors, compare packages, message for custom needs, and book everything in one place.
+                  Search available Event Pros, compare packages, message for custom needs, and book everything in one place.
                 </p>
                 <div className="mt-5">
                   <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Best for</div>
@@ -228,7 +228,7 @@ export default function BookOrGetBooked() {
                 <div className="mt-5">
                   <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">Best for</div>
                   <div className="flex flex-wrap gap-1.5">
-                    {['Food trucks', 'Food trailers', 'Mobile bartenders', 'Cottage bakers', 'Dessert vendors', 'Mobile coffee', 'Mobile food businesses'].map((t) => (
+                    {['Food trucks', 'Food trailers', 'Mobile bartenders', 'Cottage bakers', 'Dessert Event Pros', 'Mobile coffee', 'Mobile food businesses'].map((t) => (
                       <span key={t} className="text-xs px-2.5 py-1 rounded-full bg-secondary">{t}</span>
                     ))}
                   </div>
@@ -272,9 +272,9 @@ export default function BookOrGetBooked() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6 max-w-5xl mx-auto">
             <Card className="p-7 sm:p-8 rounded-3xl border-border/60">
-              <h3 className="text-2xl font-semibold">Find food vendors near you</h3>
+              <h3 className="text-2xl font-semibold">Find food Event Pros near you</h3>
               <p className="mt-2 text-muted-foreground">
-                Search by date, location, vendor type, cuisine, and guest count.
+                Search by date, location, Event Pro type, cuisine, and guest count.
               </p>
               <Button asChild className="mt-5 rounded-full bg-orange-500 hover:bg-orange-600 text-white">
                 <Link to="/browse">Start searching <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
@@ -283,7 +283,7 @@ export default function BookOrGetBooked() {
                 {[
                   ['Browse food trucks', '/browse?category=food-truck'],
                   ['Browse mobile bartenders', '/browse?category=mobile-bartender'],
-                  ['Browse dessert vendors', '/browse?category=dessert'],
+                  ['Browse dessert Event Pros', '/browse?category=dessert'],
                   ['Available this weekend', '/browse?timing=weekend'],
                 ].map(([l, h]) => (
                   <Link key={l} to={h} className="text-xs px-3 py-1.5 rounded-full border border-border/70 hover:border-foreground transition-colors">
@@ -359,7 +359,7 @@ export default function BookOrGetBooked() {
             </h2>
             <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild size="lg" className="rounded-full bg-orange-500 hover:bg-orange-600 text-white">
-                <Link to="/browse">Find vendors near me</Link>
+                <Link to="/browse">Find Event Pros near me</Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-full">
                 <Link to="/become-a-pro">Become an Event Pro</Link>
