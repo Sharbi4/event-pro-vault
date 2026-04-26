@@ -3,6 +3,7 @@ import { Check, CheckCheck, ShieldAlert } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { maskContactInfo } from '@/lib/maskContactInfo';
 import type { Message } from '@/hooks/useVendorMessages';
+import { PrivatePackageCard } from '@/components/messaging/PrivatePackageCard';
 import {
   Tooltip,
   TooltipContent,
