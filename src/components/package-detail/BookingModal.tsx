@@ -185,6 +185,8 @@ export function BookingModal({
   const [eventDate, setEventDate] = useState<Date | undefined>(initialDate);
   const [startTime, setStartTime] = useState(defaultStartTime || '10:00');
   const [endTime, setEndTime] = useState('14:00');
+  // Customer-selected hours for hourly packages (overrides minimum if higher)
+  const [hourlyHours, setHourlyHours] = useState<number>(Math.max(minHours || 1, 1));
   const [dailyDuration, setDailyDuration] = useState(durationMinutes || 240); // Default 4 hours for daily
   const [eventType, setEventType] = useState('');
   const [guestCount, setGuestCount] = useState(minGuests?.toString() || '');
