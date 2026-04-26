@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { emitAvailabilityRefresh } from './useAvailableSlots';
 
 export interface HoldState {
   holdId: string | null;
