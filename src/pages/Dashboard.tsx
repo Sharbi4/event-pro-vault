@@ -434,7 +434,18 @@ export default function Dashboard() {
           </TabsList>
 
           {/* Bookings Tab */}
-          <TabsContent value="bookings" className="space-y-3">
+          <TabsContent value="bookings" className="space-y-4">
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <Package className="w-4 h-4 text-muted-foreground" />
+                <h3 className="text-sm font-semibold text-foreground">Custom offers from vendors</h3>
+              </div>
+              <PrivatePackagesList role="customer" />
+            </div>
+
+            <div className="pt-2 border-t">
+              <h3 className="text-sm font-semibold text-foreground mb-3 mt-2">Your bookings</h3>
+            </div>
             {bookingsLoading ? (
               <div className="flex items-center justify-center py-8">
                 <Loader2 className="w-6 h-6 animate-spin text-primary" />
