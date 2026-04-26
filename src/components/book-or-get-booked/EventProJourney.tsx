@@ -5,10 +5,10 @@ import { UserCircle2, PackagePlus, CalendarRange, Inbox, MessageSquarePlus, Layo
 const steps = [
   { icon: UserCircle2, title: 'Create your profile', copy: 'Business name, photos, service area, food style, and what you offer.', link: { href: '/become-a-pro', label: 'Create profile' } },
   { icon: PackagePlus, title: 'Add packages', copy: 'Build Pull-Up Bookings and Catering Packages customers can understand and book.', link: { href: '/vendor-dashboard?tab=packages', label: 'Create package' } },
-  { icon: CalendarRange, title: 'Set your calendar', copy: 'Control availability, blocked times, setup time, cleanup time, and booking rules.', link: { href: '/vendor-dashboard?tab=calendar', label: 'Set availability' } },
-  { icon: Inbox, title: 'Get booking requests', copy: 'Customers can book packages or message you for custom needs.', link: { href: '/vendor-dashboard?tab=requests', label: 'Manage requests' } },
-  { icon: MessageSquarePlus, title: 'Send private packages', copy: 'Create custom offers inside messages and let customers book on-platform.', link: { href: '/vendor-dashboard?tab=messages', label: 'Learn private packages' } },
-  { icon: LayoutDashboard, title: 'Manage in one dashboard', copy: 'Bookings, messages, packages, reminders, payouts, and reviews.', link: { href: '/vendor-dashboard', label: 'Open dashboard' } },
+  { icon: CalendarRange, title: 'Set your calendar', copy: 'Control availability, blocked times, setup time, cleanup time, and booking rules.', link: { href: '/vendor-dashboard?tab=availability', label: 'Set availability' } },
+  { icon: Inbox, title: 'Get booking requests', copy: 'Customers can book packages or message you for custom needs.', link: { href: '/vendor-dashboard?tab=bookings', label: 'Manage requests' } },
+  { icon: MessageSquarePlus, title: 'Send private packages', copy: 'Create custom offers inside messages and let customers book on-platform.', link: { href: '/vendor-dashboard?tab=messages', label: 'Open messages' } },
+  { icon: LayoutDashboard, title: 'Manage in one dashboard', copy: 'Bookings, messages, packages, reminders, payouts, and reviews.', link: { href: '/vendor-dashboard?tab=overview', label: 'Open dashboard' } },
 ];
 
 export function EventProJourney() {
