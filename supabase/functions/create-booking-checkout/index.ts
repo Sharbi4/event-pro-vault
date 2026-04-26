@@ -56,24 +56,47 @@ serve(async (req) => {
       .single();
 
     if (vendorError || !vendorProfile?.stripe_account_id) {
-      throw new Error("Vendor has not set up payment processing yet");
+      logStep("Vendor missing Stripe account", { vendor_user_id: booking.vendor_user_id });
+      return new Response(JSON.stringify({
+        error: "vendor_payments_not_setup",
+        message: "This Event Pro hasn't enabled online payments yet. You can still book using cash / pay-in-person, or message them to set up online payments.",
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
     if (vendorProfile.stripe_account_status !== 'active') {
-      throw new Error("Vendor's payment account is not fully activated");
+      logStep("Vendor Stripe account not active", { status: vendorProfile.stripe_account_status });
+      return new Response(JSON.stringify({
+        error: "vendor_payments_pending",
+        message: "This Event Pro is still finishing their payment account setup. Please try cash / pay-in-person, or contact them directly.",
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
 
-    logStep("Found vendor Stripe account", { 
+    logStep("Found vendor Stripe account", {
       accountId: vendorProfile.stripe_account_id,
-      status: vendorProfile.stripe_account_status 
+      status: vendorProfile.stripe_account_status
     });
 
-    // Get customer email from the booking's user
-    const { data: authUser } = await supabaseClient.auth.admin.getUserById(booking.user_id);
-    const customerEmail = authUser?.user?.email;
+    // Get customer email — prefer booking row (works for guests), fall back to auth user
+    let customerEmail = (booking as any).customer_email as string | null;
+    if (!customerEmail && booking.user_id) {
+      const { data: authUser } = await supabaseClient.auth.admin.getUserById(booking.user_id);
+      customerEmail = authUser?.user?.email ?? null;
+    }
 
     if (!customerEmail) {
-      throw new Error("Customer email not found");
+      return new Response(JSON.stringify({
+        error: "customer_email_missing",
+        message: "We couldn't find an email for this booking. Please contact support.",
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
     }
     logStep("Found customer email", { email: customerEmail });
 

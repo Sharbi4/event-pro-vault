@@ -189,7 +189,10 @@ export function usePackageDetail(packageId: string | undefined) {
           payment_options: (pkg.payment_options as 'ONLINE' | 'CASH' | 'BOTH') || 'ONLINE',
           cancellation_policy: pkg.cancellation_policy,
           customer_requirements: pkg.customer_requirements,
-          deposit: pkg.deposit ? Number(pkg.deposit) : null,
+          // Prefer the new `deposit_percentage` field; fall back to legacy `deposit`
+          deposit: (pkg as any).deposit_percentage != null
+            ? Number((pkg as any).deposit_percentage)
+            : (pkg.deposit != null ? Number(pkg.deposit) : null),
           default_start_time: (pkg as any).default_start_time || null,
           // Event Pro info
           vendor_user_id: pkg.user_id,
