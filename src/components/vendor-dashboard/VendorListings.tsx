@@ -301,6 +301,15 @@ export function VendorListings({
         loading={checkoutLoading}
         currentPackageCount={packages.length}
       />
+
+      {/* Post-publish Share Kit overlay — major conversion moment */}
+      <ShareKitDialog
+        open={!!justPublished}
+        onClose={() => setJustPublished(null)}
+        packageId={justPublished?.id ?? null}
+        packageName={justPublished?.name}
+        celebrate
+      />
     </div>
   );
 }
