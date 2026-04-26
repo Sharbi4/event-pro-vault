@@ -75,7 +75,6 @@ const App = () => (
               {/* Legacy browse (still accessible) */}
               <Route path="/browse" element={<Browse />} />
               
-              <Route path="/vendor/:id" element={<VendorProfile />} />
               <Route path="/pro/:id" element={<ProProfile />} />
               <Route path="/eventpro/:username" element={<ProProfile />} />
               <Route path="/package/:id" element={<PackageDetail />} />
