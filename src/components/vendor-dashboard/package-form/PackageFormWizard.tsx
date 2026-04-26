@@ -73,6 +73,9 @@ export interface PackageFormData {
   // Booking & Payment settings
   booking_mode: BookingMode;
   payment_options: PaymentOptions;
+  payment_mode: 'full' | 'deposit';
+  deposit_percentage: number;
+  allow_in_person_balance: boolean;
   // Daily booking time settings
   default_start_time?: string;
   duration_minutes?: number;
