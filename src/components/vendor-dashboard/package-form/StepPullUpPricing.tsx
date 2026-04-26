@@ -80,7 +80,8 @@ export function StepPullUpPricing({ formData, updateFormData, errors }: Props) {
                 'hover:border-primary/60 hover:shadow-sm relative',
                 selected
                   ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                  : 'border-border bg-card'
+                  : 'border-border bg-card',
+                errors?.pull_up_pricing_model && !selected && 'border-destructive/40'
               )}
             >
               {selected && (
@@ -102,6 +103,9 @@ export function StepPullUpPricing({ formData, updateFormData, errors }: Props) {
           );
         })}
       </div>
+      {errors?.pull_up_pricing_model && (
+        <p className="text-xs text-destructive -mt-2">{errors.pull_up_pricing_model}</p>
+      )}
 
       {/* Conditional fields */}
       {model && (
