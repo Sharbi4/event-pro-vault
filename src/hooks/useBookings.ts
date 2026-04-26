@@ -261,6 +261,32 @@ export function useBookings() {
       fetchBookings();
     }
 
+    // Send transactional email to the customer (fire and forget)
+    if (resolvedEmail) {
+      const isRequestMode = bookingData.booking_mode === 'REQUEST';
+      supabase.functions.invoke('send-transactional-email', {
+        body: {
+          templateName: isRequestMode ? 'booking-request-received' : 'booking-confirmation',
+          recipientEmail: resolvedEmail,
+          idempotencyKey: `booking-${isRequestMode ? 'request' : 'confirm'}-${data.id}`,
+          templateData: {
+            customerName: bookingData.customer_name || 'there',
+            vendorName: bookingData.vendor_name || 'your Event Pro',
+            packageName: bookingData.package_name || 'your package',
+            eventDate: bookingData.event_date,
+            eventLocation: bookingData.event_location,
+            units: bookingData.units,
+            unitType: bookingData.unit_type || 'unit',
+            totalPrice: bookingData.total_price,
+            paymentMethod: bookingData.payment_method || 'stripe',
+            bookingId: data.id,
+          },
+        },
+      }).then(({ error: emailError }) => {
+        if (emailError) console.error('Customer email failed:', emailError);
+      });
+    }
+
     // Send email notification to Event Pro (fire and forget)
     if (bookingData.vendor_email) {
       supabase.functions.invoke('send-booking-notification', {
