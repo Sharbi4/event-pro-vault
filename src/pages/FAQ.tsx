@@ -648,7 +648,7 @@ export default function FAQ() {
                                   {faq.hasTooltip && renderTooltip(faq.hasTooltip)}
                                 </span>
                               </AccordionTrigger>
-                              <AccordionContent className="text-muted-foreground pb-4">
+                              <AccordionContent className="text-muted-foreground pb-4 whitespace-pre-line leading-relaxed">
                                 {faq.answer}
                               </AccordionContent>
                             </AccordionItem>
@@ -678,7 +678,7 @@ export default function FAQ() {
                             {faq.hasTooltip && renderTooltip(faq.hasTooltip)}
                           </span>
                         </AccordionTrigger>
-                        <AccordionContent className="text-muted-foreground pb-4">
+                        <AccordionContent className="text-muted-foreground pb-4 whitespace-pre-line leading-relaxed">
                           {faq.answer}
                         </AccordionContent>
                       </AccordionItem>
