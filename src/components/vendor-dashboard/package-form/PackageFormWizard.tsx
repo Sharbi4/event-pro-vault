@@ -21,6 +21,10 @@ import { StepInclusions } from './StepInclusions';
 import { StepMedia } from './StepMedia';
 import { StepAvailability, PackageWeeklyAvailability, PackageBlockedDate, getDefaultWeeklyAvailability } from './StepAvailability';
 import { StepBookingPayment, BookingMode, PaymentOptions } from './StepBookingPayment';
+import { StepPackageType, PackageKind } from './StepPackageType';
+import { PackageBasicsExtras } from './PackageBasicsExtras';
+import { TimeAndBuffers } from './TimeAndBuffers';
+import { CustomerQuestionsPicker } from './CustomerQuestionsPicker';
 import { PackagePreview } from './PackagePreview';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
@@ -79,6 +83,17 @@ export interface PackageFormData {
   // Daily booking time settings
   default_start_time?: string;
   duration_minutes?: number;
+  // New: Pull-Up vs Catering model
+  package_kind: PackageKind | null;
+  cuisine_styles: string[];
+  best_for: string[];
+  setup_minutes: number;
+  cleanup_minutes: number;
+  buffer_before_minutes: number;
+  buffer_after_minutes: number;
+  minimum_notice_hours: number | null;
+  customer_questions: string[];
+  status: 'draft' | 'published' | 'paused' | 'archived';
 }
 
 interface PackageFormWizardProps {
@@ -89,13 +104,15 @@ interface PackageFormWizardProps {
 }
 
 const STEPS = [
-  { id: 'basic', label: 'Basics', shortLabel: '1' },
-  { id: 'pricing', label: 'Pricing', shortLabel: '2' },
-  { id: 'inclusions', label: 'Details', shortLabel: '3' },
-  { id: 'booking', label: 'Booking', shortLabel: '4' },
-  { id: 'availability', label: 'Availability', shortLabel: '5' },
-  { id: 'media', label: 'Media', shortLabel: '6' },
-  { id: 'preview', label: 'Preview', shortLabel: '7' },
+  { id: 'type', label: 'Type', shortLabel: '1' },
+  { id: 'basic', label: 'Basics', shortLabel: '2' },
+  { id: 'pricing', label: 'Pricing', shortLabel: '3' },
+  { id: 'time', label: 'Time', shortLabel: '4' },
+  { id: 'inclusions', label: 'Details', shortLabel: '5' },
+  { id: 'media', label: 'Photos', shortLabel: '6' },
+  { id: 'booking', label: 'Rules', shortLabel: '7' },
+  { id: 'availability', label: 'Calendar', shortLabel: '8' },
+  { id: 'preview', label: 'Review', shortLabel: '9' },
 ];
 
 const defaultFormData: PackageFormData = {
@@ -129,13 +146,23 @@ const defaultFormData: PackageFormData = {
   images: [],
   weekly_availability: getDefaultWeeklyAvailability(),
   blocked_dates: [],
-  booking_mode: 'INSTANT',
+  booking_mode: 'REQUEST',
   payment_options: 'ONLINE',
   payment_mode: 'full',
   deposit_percentage: 50,
   allow_in_person_balance: false,
   default_start_time: undefined,
   duration_minutes: undefined,
+  package_kind: null,
+  cuisine_styles: [],
+  best_for: [],
+  setup_minutes: 0,
+  cleanup_minutes: 0,
+  buffer_before_minutes: 0,
+  buffer_after_minutes: 0,
+  minimum_notice_hours: null,
+  customer_questions: [],
+  status: 'draft',
 };
 
 export function PackageFormWizard({
@@ -211,6 +238,16 @@ export function PackageFormWizard({
         allow_in_person_balance: (initialData as any).allow_in_person_balance ?? false,
         default_start_time: (initialData as any).default_start_time || undefined,
         duration_minutes: initialData.duration_minutes || undefined,
+        package_kind: ((initialData as any).package_kind as PackageKind) ?? null,
+        cuisine_styles: ((initialData as any).cuisine_styles as string[]) || [],
+        best_for: ((initialData as any).best_for as string[]) || [],
+        setup_minutes: (initialData as any).setup_minutes ?? 0,
+        cleanup_minutes: (initialData as any).cleanup_minutes ?? 0,
+        buffer_before_minutes: (initialData as any).buffer_before_minutes ?? 0,
+        buffer_after_minutes: (initialData as any).buffer_after_minutes ?? 0,
+        minimum_notice_hours: (initialData as any).minimum_notice_hours ?? null,
+        customer_questions: ((initialData as any).customer_questions as string[]) || [],
+        status: ((initialData as any).status as PackageFormData['status']) || (initialData.is_active ? 'published' : 'draft'),
       });
     } else {
       setFormData(defaultFormData);
@@ -277,15 +314,23 @@ export function PackageFormWizard({
   const isStepValid = () => {
     switch (currentStep) {
       case 0:
-        return formData.name.trim().length > 0 && formData.category.length > 0;
+        // Package Type required
+        return formData.package_kind !== null;
       case 1:
+        // Basics: name + category
+        return formData.name.trim().length > 0 && formData.category.length > 0;
+      case 2:
         return formData.price > 0;
       case 3:
-        // Booking step: if online payment selected, require Stripe
+        // Time step: at least a service duration
+        return (formData.duration_minutes ?? 0) > 0;
+      case 6: {
+        // Booking rules: if online payment selected, require Stripe
         const needsStripe = formData.payment_options === 'ONLINE' || formData.payment_options === 'BOTH';
         if (needsStripe && !stripeConnected) return false;
         return true;
-      case 4:
+      }
+      case 7:
         // Availability: at least one day enabled
         return formData.weekly_availability.some(d => d.isEnabled);
       default:
@@ -385,22 +430,61 @@ export function PackageFormWizard({
   const StepContent = () => (
     <div className="flex-1 overflow-y-auto py-4 min-h-[300px] sm:min-h-[400px]">
       {currentStep === 0 && (
-        <StepBasicInfo formData={formData} updateFormData={updateFormData} />
+        <StepPackageType
+          value={formData.package_kind}
+          onChange={(kind) => updateFormData({ package_kind: kind })}
+        />
       )}
       {currentStep === 1 && (
-        <StepPricingTravel formData={formData} updateFormData={updateFormData} />
+        <div className="space-y-6">
+          <StepBasicInfo formData={formData} updateFormData={updateFormData} />
+          <PackageBasicsExtras
+            kind={formData.package_kind}
+            category={formData.category}
+            cuisineStyles={formData.cuisine_styles}
+            bestFor={formData.best_for}
+            minGuests={formData.min_guests ?? undefined}
+            maxGuests={formData.max_guests ?? undefined}
+            packageName={formData.name}
+            onChange={(updates) => updateFormData(updates as Partial<PackageFormData>)}
+          />
+        </div>
       )}
       {currentStep === 2 && (
-        <StepInclusions formData={formData} updateFormData={updateFormData} />
+        <StepPricingTravel formData={formData} updateFormData={updateFormData} />
       )}
       {currentStep === 3 && (
-        <StepBookingPayment 
-          formData={formData} 
-          updateFormData={updateFormData}
-          stripeConnected={stripeConnected}
+        <TimeAndBuffers
+          durationMinutes={formData.duration_minutes}
+          setupMinutes={formData.setup_minutes}
+          cleanupMinutes={formData.cleanup_minutes}
+          bufferBeforeMinutes={formData.buffer_before_minutes}
+          bufferAfterMinutes={formData.buffer_after_minutes}
+          minimumNoticeHours={formData.minimum_notice_hours}
+          onChange={(updates) => updateFormData(updates as Partial<PackageFormData>)}
         />
       )}
       {currentStep === 4 && (
+        <StepInclusions formData={formData} updateFormData={updateFormData} />
+      )}
+      {currentStep === 5 && (
+        <StepMedia formData={formData} updateFormData={updateFormData} />
+      )}
+      {currentStep === 6 && (
+        <div className="space-y-6">
+          <StepBookingPayment
+            formData={formData}
+            updateFormData={updateFormData}
+            stripeConnected={stripeConnected}
+          />
+          <CustomerQuestionsPicker
+            category={formData.category}
+            selected={formData.customer_questions}
+            onChange={(qs) => updateFormData({ customer_questions: qs })}
+          />
+        </div>
+      )}
+      {currentStep === 7 && (
         <StepAvailability
           packageId={initialData?.id}
           weeklyAvailability={formData.weekly_availability}
@@ -409,10 +493,7 @@ export function PackageFormWizard({
           onBlockedDatesChange={(blocked) => updateFormData({ blocked_dates: blocked })}
         />
       )}
-      {currentStep === 5 && (
-        <StepMedia formData={formData} updateFormData={updateFormData} />
-      )}
-      {currentStep === 6 && (
+      {currentStep === 8 && (
         <PackagePreview formData={formData} />
       )}
     </div>

@@ -1787,24 +1787,35 @@ export type Database = {
         Row: {
           add_ons: Json | null
           additional_fees: Json | null
+          additional_per_person: number | null
           allow_in_person_balance: boolean
           available_days_override: number[] | null
           available_window_override: Json | null
+          balance_due_timing: string | null
+          best_for: string[] | null
           booking_mode: string
           breakdown_time_minutes: number | null
+          buffer_after_minutes: number
+          buffer_before_minutes: number
           cancellation_policy: string | null
           category: string | null
+          catering_pricing_model: string | null
+          cleanup_minutes: number
           cover_image_url: string | null
           created_at: string
+          cuisine_styles: string[] | null
+          customer_questions: string[] | null
           customer_requirements: string | null
           default_start_time: string | null
           deposit: number | null
           deposit_percentage: number
           description: string | null
+          dietary_options: string[] | null
           duration_minutes: number | null
           fee_per_mile: number | null
           id: string
           images: string[] | null
+          included_guests: number | null
           included_miles: number | null
           included_travel_miles: number | null
           includes: string[] | null
@@ -1816,25 +1827,32 @@ export type Database = {
           max_guests: number | null
           max_items: number | null
           max_travel_miles: number | null
+          menu_items: Json
           min_days: number | null
+          min_guarantee_amount: number | null
           min_guests: number | null
           min_hours: number | null
           min_quantity: number | null
           min_spend: number | null
           min_units: number
+          minimum_notice_hours: number | null
           name: string
           overtime_rate: number | null
+          package_kind: string | null
           payment_mode: string
           payment_options: string
           pickup_only: boolean | null
           price: number
           price_per_mile: number | null
           pricing_type: string | null
+          pull_up_pricing_model: string | null
           requirements: string[] | null
           requires_vendor_approval: boolean
+          setup_minutes: number
           setup_time_minutes: number | null
           sort_order: number | null
           starting_at: number | null
+          status: string
           travel_fee_per_mile: number | null
           travel_radius: number | null
           type: string
@@ -1844,24 +1862,35 @@ export type Database = {
         Insert: {
           add_ons?: Json | null
           additional_fees?: Json | null
+          additional_per_person?: number | null
           allow_in_person_balance?: boolean
           available_days_override?: number[] | null
           available_window_override?: Json | null
+          balance_due_timing?: string | null
+          best_for?: string[] | null
           booking_mode?: string
           breakdown_time_minutes?: number | null
+          buffer_after_minutes?: number
+          buffer_before_minutes?: number
           cancellation_policy?: string | null
           category?: string | null
+          catering_pricing_model?: string | null
+          cleanup_minutes?: number
           cover_image_url?: string | null
           created_at?: string
+          cuisine_styles?: string[] | null
+          customer_questions?: string[] | null
           customer_requirements?: string | null
           default_start_time?: string | null
           deposit?: number | null
           deposit_percentage?: number
           description?: string | null
+          dietary_options?: string[] | null
           duration_minutes?: number | null
           fee_per_mile?: number | null
           id?: string
           images?: string[] | null
+          included_guests?: number | null
           included_miles?: number | null
           included_travel_miles?: number | null
           includes?: string[] | null
@@ -1873,25 +1902,32 @@ export type Database = {
           max_guests?: number | null
           max_items?: number | null
           max_travel_miles?: number | null
+          menu_items?: Json
           min_days?: number | null
+          min_guarantee_amount?: number | null
           min_guests?: number | null
           min_hours?: number | null
           min_quantity?: number | null
           min_spend?: number | null
           min_units?: number
+          minimum_notice_hours?: number | null
           name: string
           overtime_rate?: number | null
+          package_kind?: string | null
           payment_mode?: string
           payment_options?: string
           pickup_only?: boolean | null
           price: number
           price_per_mile?: number | null
           pricing_type?: string | null
+          pull_up_pricing_model?: string | null
           requirements?: string[] | null
           requires_vendor_approval?: boolean
+          setup_minutes?: number
           setup_time_minutes?: number | null
           sort_order?: number | null
           starting_at?: number | null
+          status?: string
           travel_fee_per_mile?: number | null
           travel_radius?: number | null
           type?: string
@@ -1901,24 +1937,35 @@ export type Database = {
         Update: {
           add_ons?: Json | null
           additional_fees?: Json | null
+          additional_per_person?: number | null
           allow_in_person_balance?: boolean
           available_days_override?: number[] | null
           available_window_override?: Json | null
+          balance_due_timing?: string | null
+          best_for?: string[] | null
           booking_mode?: string
           breakdown_time_minutes?: number | null
+          buffer_after_minutes?: number
+          buffer_before_minutes?: number
           cancellation_policy?: string | null
           category?: string | null
+          catering_pricing_model?: string | null
+          cleanup_minutes?: number
           cover_image_url?: string | null
           created_at?: string
+          cuisine_styles?: string[] | null
+          customer_questions?: string[] | null
           customer_requirements?: string | null
           default_start_time?: string | null
           deposit?: number | null
           deposit_percentage?: number
           description?: string | null
+          dietary_options?: string[] | null
           duration_minutes?: number | null
           fee_per_mile?: number | null
           id?: string
           images?: string[] | null
+          included_guests?: number | null
           included_miles?: number | null
           included_travel_miles?: number | null
           includes?: string[] | null
@@ -1930,25 +1977,32 @@ export type Database = {
           max_guests?: number | null
           max_items?: number | null
           max_travel_miles?: number | null
+          menu_items?: Json
           min_days?: number | null
+          min_guarantee_amount?: number | null
           min_guests?: number | null
           min_hours?: number | null
           min_quantity?: number | null
           min_spend?: number | null
           min_units?: number
+          minimum_notice_hours?: number | null
           name?: string
           overtime_rate?: number | null
+          package_kind?: string | null
           payment_mode?: string
           payment_options?: string
           pickup_only?: boolean | null
           price?: number
           price_per_mile?: number | null
           pricing_type?: string | null
+          pull_up_pricing_model?: string | null
           requirements?: string[] | null
           requires_vendor_approval?: boolean
+          setup_minutes?: number
           setup_time_minutes?: number | null
           sort_order?: number | null
           starting_at?: number | null
+          status?: string
           travel_fee_per_mile?: number | null
           travel_radius?: number | null
           type?: string
