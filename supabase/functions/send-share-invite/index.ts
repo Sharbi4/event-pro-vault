@@ -3,7 +3,8 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
@@ -34,57 +35,40 @@ serve(async (req) => {
       });
     }
 
-    const origin = req.headers.get("origin") || "https://event-pro-vault.lovable.app";
+    const origin = req.headers.get("origin") || "https://eventpro.vendibook.com";
     const link = `${origin}/r/${share_code}`;
 
-    const RESEND_API_KEY = Deno.env.get("RESEND_API_KEY");
-    if (!RESEND_API_KEY) throw new Error("RESEND_API_KEY not configured");
+    // Use service-role client to invoke send-transactional-email
+    const adminClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    );
 
-    const subject = package_name
-      ? `${user.email} invited you to book ${package_name} on EventPros`
-      : `${user.email} invited you on EventPros`;
-
-    const html = `
-      <div style="font-family:system-ui,sans-serif;max-width:560px;margin:0 auto;padding:24px;color:#111">
-        <h2 style="margin:0 0 12px">You're invited 🎉</h2>
-        <p style="white-space:pre-wrap">${(message ?? '').toString().slice(0, 1000)}</p>
-        <p style="margin-top:24px">
-          <a href="${link}" style="background:#111;color:#fff;text-decoration:none;padding:12px 20px;border-radius:8px;display:inline-block">
-            View on EventPros →
-          </a>
-        </p>
-        <p style="font-size:12px;color:#888;margin-top:24px">
-          Sent via the EventPros Share Kit by ${user.email}
-        </p>
-      </div>
-    `;
-
-    const resp = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${RESEND_API_KEY}`,
-        "Content-Type": "application/json",
+    await adminClient.functions.invoke("send-transactional-email", {
+      body: {
+        templateName: "message-received",
+        recipientEmail: recipient_email,
+        idempotencyKey: `share-${share_code}-${recipient_email}`,
+        templateData: {
+          recipientName: "there",
+          senderName: user.email,
+          preview: package_name
+            ? `You've been invited to book ${package_name}. ${(message ?? '').slice(0, 200)}`
+            : (message ?? `You've been invited on EventPros`).slice(0, 240),
+          conversationUrl: link,
+        },
       },
-      body: JSON.stringify({
-        from: "EventPros <onboarding@resend.dev>",
-        to: [recipient_email],
-        subject,
-        html,
-        reply_to: user.email,
-      }),
     });
 
-    const result = await resp.json();
-    if (!resp.ok) throw new Error(result?.message ?? "Resend error");
-
-    return new Response(JSON.stringify({ ok: true, id: result.id }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return new Response(JSON.stringify({ success: true }), {
       status: 200,
-    });
-  } catch (err) {
-    return new Response(JSON.stringify({ error: (err as Error).message }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e: any) {
+    console.error("send-share-invite error:", e);
+    return new Response(JSON.stringify({ error: e.message ?? "Failed" }), {
       status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });
