@@ -49,58 +49,35 @@ const handler = async (req: Request): Promise<Response> => {
     const oneDayBookings = await fetchConfirmed(oneDayStr);
     const morningOfBookings = await fetchConfirmed(todayStr);
 
-    // Get confirmed bookings for 7-day reminder
-    const { data: sevenDayBookings, error: error7d } = await supabase
-      .from("bookings")
-      .select("id")
-      .eq("status", "confirmed")
-      .eq("event_date", sevenDaysStr);
-
-    if (error7d) {
-      console.error("Error fetching 7-day bookings:", error7d);
-    }
-
-    // Get confirmed bookings for 24-hour reminder
-    const { data: oneDayBookings, error: error1d } = await supabase
-      .from("bookings")
-      .select("id")
-      .eq("status", "confirmed")
-      .eq("event_date", oneDayStr);
-
-    if (error1d) {
-      console.error("Error fetching 24-hour bookings:", error1d);
-    }
-
-    const results = {
+    const results: Record<string, { sent: number; errors: number }> = {
       sevenDay: { sent: 0, errors: 0 },
+      twoDay: { sent: 0, errors: 0 },
       oneDay: { sent: 0, errors: 0 },
+      morningOf: { sent: 0, errors: 0 },
     };
 
-    // Send 7-day reminders
-    for (const booking of sevenDayBookings || []) {
-      try {
-        await supabase.functions.invoke('send-booking-status-notification', {
-          body: { booking_id: booking.id, status: 'reminder_7d' }
-        });
-        results.sevenDay.sent++;
-      } catch (e) {
-        console.error(`7-day reminder error for ${booking.id}:`, e);
-        results.sevenDay.errors++;
+    const sendBatch = async (
+      bookings: { id: string }[],
+      status: string,
+      bucket: keyof typeof results,
+    ) => {
+      for (const booking of bookings) {
+        try {
+          await supabase.functions.invoke('send-booking-status-notification', {
+            body: { booking_id: booking.id, status },
+          });
+          results[bucket].sent++;
+        } catch (e) {
+          console.error(`${status} error for ${booking.id}:`, e);
+          results[bucket].errors++;
+        }
       }
-    }
+    };
 
-    // Send 24-hour reminders
-    for (const booking of oneDayBookings || []) {
-      try {
-        await supabase.functions.invoke('send-booking-status-notification', {
-          body: { booking_id: booking.id, status: 'reminder_24h' }
-        });
-        results.oneDay.sent++;
-      } catch (e) {
-        console.error(`24-hour reminder error for ${booking.id}:`, e);
-        results.oneDay.errors++;
-      }
-    }
+    await sendBatch(sevenDayBookings, 'reminder_7d', 'sevenDay');
+    await sendBatch(twoDayBookings, 'reminder_48h', 'twoDay');
+    await sendBatch(oneDayBookings, 'reminder_24h', 'oneDay');
+    await sendBatch(morningOfBookings, 'reminder_morning_of', 'morningOf');
 
     // Check for completed events (event date was yesterday) and send review requests
     const yesterday = new Date(today);
