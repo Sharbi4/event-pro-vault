@@ -154,6 +154,55 @@ export default function BookingSuccess() {
 
   const isVendorViewer = !!(viewerUserId && booking?.vendor_user_id && viewerUserId === booking.vendor_user_id);
 
+  const hasPaid = !!(
+    booking &&
+    (booking.deposit_paid_at ||
+      booking.final_paid_at ||
+      ['paid', 'deposit_paid', 'partially_paid', 'fully_paid'].includes(
+        (booking.payment_status || '').toLowerCase(),
+      ))
+  );
+
+  const [downloadingReceipt, setDownloadingReceipt] = useState(false);
+
+  const handleDownloadReceipt = async () => {
+    if (!booking) return;
+    try {
+      setDownloadingReceipt(true);
+      const issuedAt = new Date();
+      const receiptNumber = buildReceiptNumber(booking.id, issuedAt);
+      const doc = await generateBookingReceipt({
+        receiptNumber,
+        issuedAt,
+        bookingId: booking.id,
+        packageName: booking.package_name || 'Event Package',
+        vendorName: booking.vendor_name || 'Event Pro',
+        eventDate: parseISO(booking.event_date),
+        eventLocation: booking.event_location,
+        customerName: booking.customer_name,
+        customerEmail: booking.customer_email,
+        totalPrice: Number(booking.total_price) || 0,
+        depositAmount: booking.deposit_amount || 0,
+        finalAmount: booking.final_amount || 0,
+        platformFee: booking.platform_fee_amount ? booking.platform_fee_amount / 100 : null,
+        paymentMethod: booking.payment_method,
+        paymentStatus: booking.payment_status,
+        depositPaidAt: booking.deposit_paid_at ? new Date(booking.deposit_paid_at) : null,
+        finalPaidAt: booking.final_paid_at ? new Date(booking.final_paid_at) : null,
+        stripePaymentIntentId:
+          booking.stripe_deposit_payment_intent_id || booking.stripe_payment_intent_id,
+        stripeSessionId: booking.stripe_checkout_session_id,
+      });
+      doc.save(`${receiptNumber}.pdf`);
+      toast.success('Receipt downloaded');
+    } catch (e) {
+      console.error(e);
+      toast.error('Could not generate receipt. Please try again.');
+    } finally {
+      setDownloadingReceipt(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
