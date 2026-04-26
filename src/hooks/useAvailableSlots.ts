@@ -21,9 +21,23 @@ interface Result {
   refetch: () => void;
 }
 
+export const AVAILABILITY_REFRESH_EVENT = 'eventpro:availability-refresh';
+
+/**
+ * Notify all mounted useAvailableSlots hooks (optionally scoped to a vendor)
+ * to refetch immediately. Call this after creating/releasing a hold or booking.
+ */
+export function emitAvailabilityRefresh(vendorUserId?: string) {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(
+    new CustomEvent(AVAILABILITY_REFRESH_EVENT, { detail: { vendorUserId } })
+  );
+}
+
 /**
  * Fetches bookable slots from the canonical `get-available-slots` edge function.
- * Use this for the customer time-picker so client and server agree on availability.
+ * Auto-refreshes when calendar_holds or bookings change for this vendor (realtime),
+ * and when a manual `emitAvailabilityRefresh` event fires.
  */
 export function useAvailableSlots(args: Args): Result {
   const { vendorUserId, packageId, date, enabled = true } = args;
@@ -34,6 +48,7 @@ export function useAvailableSlots(args: Args): Result {
 
   const refetch = useCallback(() => setTick(t => t + 1), []);
 
+  // Fetch slots
   useEffect(() => {
     if (!enabled || !vendorUserId || !date) {
       setSlots([]);
@@ -66,6 +81,50 @@ export function useAvailableSlots(args: Args): Result {
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, vendorUserId, packageId, date, args.mode, args.durationMinutes, args.setupMinutes, args.breakdownMinutes, args.intervalMinutes, tick]);
+
+  // Realtime: refetch when holds/bookings change for this vendor
+  useEffect(() => {
+    if (!enabled || !vendorUserId) return;
+
+    const channel = supabase
+      .channel(`availability:${vendorUserId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'calendar_holds', filter: `vendor_user_id=eq.${vendorUserId}` },
+        () => setTick(t => t + 1)
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'bookings', filter: `vendor_user_id=eq.${vendorUserId}` },
+        () => setTick(t => t + 1)
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [enabled, vendorUserId]);
+
+  // Manual event-based refresh (fired right after creating/releasing a hold)
+  useEffect(() => {
+    if (!enabled) return;
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as { vendorUserId?: string } | undefined;
+      if (!detail?.vendorUserId || detail.vendorUserId === vendorUserId) {
+        setTick(t => t + 1);
+      }
+    };
+    window.addEventListener(AVAILABILITY_REFRESH_EVENT, handler);
+    return () => window.removeEventListener(AVAILABILITY_REFRESH_EVENT, handler);
+  }, [enabled, vendorUserId]);
+
+  // Auto-expire holds: poll a lightweight tick every 30s so expired-but-not-yet-cleaned
+  // holds drop off the picker even if the realtime UPDATE hasn't fired yet.
+  useEffect(() => {
+    if (!enabled || !vendorUserId) return;
+    const interval = setInterval(() => setTick(t => t + 1), 30_000);
+    return () => clearInterval(interval);
+  }, [enabled, vendorUserId]);
 
   return { loading, slots, error, refetch };
 }

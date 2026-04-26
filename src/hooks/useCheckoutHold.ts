@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { emitAvailabilityRefresh } from './useAvailableSlots';
 
 export interface HoldState {
   holdId: string | null;
@@ -32,12 +33,15 @@ export function useCheckoutHold() {
     }
   };
 
-  const startTimer = (expiresAt: Date) => {
+  const startTimer = (expiresAt: Date, vendorUserId?: string) => {
     stopTimer();
     const tick = () => {
       const secs = Math.max(0, Math.floor((expiresAt.getTime() - Date.now()) / 1000));
       setState(s => ({ ...s, secondsRemaining: secs, status: secs <= 0 ? 'expired' : 'holding' }));
-      if (secs <= 0) stopTimer();
+      if (secs <= 0) {
+        stopTimer();
+        emitAvailabilityRefresh(vendorUserId);
+      }
     };
     tick();
     intervalRef.current = window.setInterval(tick, 1000);
@@ -78,11 +82,12 @@ export function useCheckoutHold() {
       secondsRemaining: data.seconds_remaining,
       status: 'holding',
     });
-    startTimer(expiresAt);
+    startTimer(expiresAt, params.vendorUserId);
+    emitAvailabilityRefresh(params.vendorUserId);
     return { ok: true as const, holdId: data.hold_id, expiresAt };
   }, []);
 
-  const releaseHold = useCallback(async () => {
+  const releaseHold = useCallback(async (vendorUserId?: string) => {
     stopTimer();
     if (state.holdId) {
       await supabase
@@ -91,6 +96,7 @@ export function useCheckoutHold() {
         .eq('id', state.holdId);
     }
     setState({ holdId: null, expiresAt: null, secondsRemaining: 0, status: 'released' });
+    emitAvailabilityRefresh(vendorUserId);
   }, [state.holdId]);
 
   // Cleanup timer on unmount; do NOT auto-release (let it expire naturally so user can resume)
