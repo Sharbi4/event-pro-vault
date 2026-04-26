@@ -128,6 +128,7 @@ export default function BookOrGetBooked() {
             </div>
 
             {/* Compact search bar */}
+            <div ref={heroSearchRef}>
             <Card className="mt-8 p-3 sm:p-4 rounded-2xl border-border/70 shadow-sm text-left max-w-2xl mx-auto">
               <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
                 <div className="sm:col-span-4 relative">
