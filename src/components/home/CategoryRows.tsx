@@ -8,10 +8,8 @@ import { categories } from '@/data/categories';
 import { vendors as mockVendors, packages as mockPackages } from '@/data/vendors';
 import { Vendor } from '@/types';
 import { useCategoryCounts, useCategoryPackages } from '@/hooks/useFeaturedContent';
-import { 
-  Truck, UtensilsCrossed, ChefHat, Wine, 
-  Music, Sparkles, Tent, Heart, Store, Leaf,
-  Cake
+import {
+  Truck, UtensilsCrossed, ChefHat, Wine, Coffee, IceCream, Store, Cake
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -19,12 +17,9 @@ const iconMap: Record<string, React.ElementType> = {
   UtensilsCrossed,
   ChefHat,
   Wine,
-  Music,
-  Sparkles,
-  Tent,
-  Heart,
+  Coffee,
+  IceCream,
   Store,
-  Leaf,
   Cake,
 };
 
