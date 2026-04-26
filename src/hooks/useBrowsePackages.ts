@@ -400,16 +400,21 @@ export function useBrowsePackages() {
       if (filters.location) {
         if (filters.locationCoords) {
           const radius = filters.searchRadius || 25;
-          // Geocoded search: include vendors whose base is within the customer's
-          // chosen radius OR whose service area extends to the search location.
+          const searchCity = (filters.locationCoords.city || '').toLowerCase();
+          const searchState = (filters.locationCoords.state || '').toLowerCase();
+
+          // Geocoded search — radius matching strictly uses lat/lng.
+          // Vendors without coordinates only qualify when their city/state text
+          // matches the resolved place (so we never silently mis-match by string).
           filteredPackages = filteredPackages.filter(pkg => {
-            // If Event Pro doesn't have coordinates, fall back to text matching
             if (pkg.vendor_base_lat === null || pkg.vendor_base_lng === null) {
-              const locationLower = filters.location.toLowerCase();
-              return pkg.vendor_location?.toLowerCase().includes(locationLower) ||
-                     pkg.vendor_city?.toLowerCase().includes(locationLower) ||
-                     pkg.vendor_state?.toLowerCase().includes(locationLower) ||
-                     pkg.vendor_formatted_address?.toLowerCase().includes(locationLower);
+              if (!searchCity && !searchState) return false;
+              const vendorCity = (pkg.vendor_city || '').toLowerCase();
+              const vendorState = (pkg.vendor_state || '').toLowerCase();
+              return (
+                (searchCity && vendorCity === searchCity) ||
+                (searchState && vendorState === searchState)
+              );
             }
 
             const distance = getDistanceToVendor(
@@ -427,7 +432,8 @@ export function useBrowsePackages() {
             return distance <= (pkg.vendor_travel_radius || 50);
           });
         } else {
-          // No geocoding available, fall back to text matching
+          // No coords (Google unavailable or geocoding failed) — fall back to
+          // case-insensitive text matching so the user can still find Pros.
           const locationLower = filters.location.toLowerCase();
           filteredPackages = filteredPackages.filter(pkg => 
             pkg.vendor_location?.toLowerCase().includes(locationLower) ||
