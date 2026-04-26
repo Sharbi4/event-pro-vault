@@ -132,7 +132,23 @@ export function StickyMiniSearch({
                 <div className="min-w-0 flex-1">
                   <LocationAutocomplete
                     value={location}
-                    onChange={setLocation}
+                    onChange={(v) => {
+                      setLocation(v);
+                      setLocationCoords(null);
+                    }}
+                    onPlaceSelect={(place) => {
+                      setLocation(
+                        place.city
+                          ? place.state ? `${place.city}, ${place.state}` : place.city
+                          : place.formatted_address
+                      );
+                      setLocationCoords({
+                        lat: place.lat,
+                        lng: place.lng,
+                        city: place.city,
+                        state: place.state,
+                      });
+                    }}
                     placeholder="City or ZIP"
                   />
                 </div>
