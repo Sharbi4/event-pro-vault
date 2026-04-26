@@ -835,81 +835,48 @@ export function BookingModal({
                       </div>
                     </div>
 
-                    {/* Start time and duration for daily/flat bookings */}
+                    {/* Duration + StyleSeat-style available time blocks for daily/flat */}
                     {(effectivePricingType === 'daily' || effectivePricingType === 'flat') && (
                       <>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div>
-                            <label className="block text-sm font-medium text-foreground mb-2">
-                              Start Time
-                            </label>
-                            <Select 
-                              value={startTime} 
-                              onValueChange={setStartTime}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select time" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {['06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00', 
-                                  '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', 
-                                  '20:00', '21:00', '22:00'].map(time => {
-                                  const [h] = time.split(':');
-                                  const hour = parseInt(h);
-                                  const label = hour >= 12 
-                                    ? `${hour === 12 ? 12 : hour - 12}:00 PM` 
-                                    : `${hour}:00 AM`;
-                                  return (
-                                    <SelectItem key={time} value={time}>
-                                      {label}
-                                    </SelectItem>
-                                  );
-                                })}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-foreground mb-2">
-                              Duration
-                            </label>
-                            <Select 
-                              value={dailyDuration.toString()} 
-                              onValueChange={(v) => setDailyDuration(parseInt(v))}
-                            >
-                              <SelectTrigger>
-                                <SelectValue placeholder="Select duration" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="60">1 hour</SelectItem>
-                                <SelectItem value="120">2 hours</SelectItem>
-                                <SelectItem value="180">3 hours</SelectItem>
-                                <SelectItem value="240">4 hours</SelectItem>
-                                <SelectItem value="300">5 hours</SelectItem>
-                                <SelectItem value="360">6 hours</SelectItem>
-                                <SelectItem value="420">7 hours</SelectItem>
-                                <SelectItem value="480">8 hours</SelectItem>
-                                <SelectItem value="600">10 hours</SelectItem>
-                                <SelectItem value="720">12 hours</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
+                        <div>
+                          <label className="block text-sm font-medium text-foreground mb-2">
+                            Duration
+                          </label>
+                          <Select
+                            value={dailyDuration.toString()}
+                            onValueChange={(v) => setDailyDuration(parseInt(v))}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select duration" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="60">1 hour</SelectItem>
+                              <SelectItem value="120">2 hours</SelectItem>
+                              <SelectItem value="180">3 hours</SelectItem>
+                              <SelectItem value="240">4 hours</SelectItem>
+                              <SelectItem value="300">5 hours</SelectItem>
+                              <SelectItem value="360">6 hours</SelectItem>
+                              <SelectItem value="420">7 hours</SelectItem>
+                              <SelectItem value="480">8 hours</SelectItem>
+                              <SelectItem value="600">10 hours</SelectItem>
+                              <SelectItem value="720">12 hours</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
 
-                        <p className="text-xs text-muted-foreground flex items-center gap-1">
-                          <Clock className="w-3 h-3" />
-                          Event: {(() => {
-                            const [h] = startTime.split(':');
-                            const startHour = parseInt(h);
-                            const startLabel = startHour >= 12 
-                              ? `${startHour === 12 ? 12 : startHour - 12}:00 PM` 
-                              : `${startHour}:00 AM`;
-                            const endHour = startHour + Math.floor(dailyDuration / 60);
-                            const endLabel = endHour >= 12 
-                              ? `${endHour === 12 ? 12 : endHour > 12 ? endHour - 12 : endHour}:00 ${endHour >= 12 && endHour < 24 ? 'PM' : 'AM'}` 
-                              : `${endHour}:00 AM`;
-                            return `${startLabel} – ${endLabel}`;
-                          })()}
-                        </p>
+                        <TimeSlotPicker
+                          vendorUserId={vendorUserId}
+                          packageId={packageId}
+                          selectedDate={eventDate}
+                          durationMinutes={dailyDuration}
+                          setupMinutes={setupTimeMinutes || 0}
+                          breakdownMinutes={0}
+                          mode="HOURLY"
+                          intervalMinutes={30}
+                          selectedTime={startTime}
+                          onTimeSelect={setStartTime}
+                          onAlternativeDate={(d) => setEventDate(d)}
+                        />
                       </>
                     )}
 
