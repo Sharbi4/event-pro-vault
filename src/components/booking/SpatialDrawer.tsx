@@ -99,7 +99,20 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
   const isInstant = pkg.booking_mode === 'INSTANT';
   const isHourly = pkg.pricing_type === 'hourly' || pkg.type === 'hourly' || pkg.type === 'HOURLY';
   const basePrice = isHourly ? pkg.price * hours : pkg.price;
-  const totalPrice = basePrice;
+
+  // Non-blocking travel-fee quote (debounced + 5s timeout, fails open)
+  const travelQuote = useTravelFeeQuote({
+    addressString: isAddressComplete(eventAddress) ? formatAddress(eventAddress) : '',
+    vendorLat: pkg.vendor_lat,
+    vendorLng: pkg.vendor_lng,
+    includedMiles: pkg.included_travel_miles,
+    feePerMile: pkg.travel_fee_per_mile,
+    maxTravelMiles: pkg.max_travel_miles,
+    enabled: isAddressComplete(eventAddress) && pkg.vendor_lat != null && pkg.vendor_lng != null,
+  });
+
+  const travelFee = travelQuote.status === 'ready' ? travelQuote.fee : 0;
+  const totalPrice = basePrice + travelFee;
   
   // Calculate duration and buffer times
   const durationMinutes = isHourly ? hours * 60 : (pkg.duration_minutes || 60);
