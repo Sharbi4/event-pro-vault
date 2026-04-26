@@ -429,6 +429,10 @@ const VendorDashboard = () => {
             <VendorAvailability />
           </TabsContent>
 
+          <TabsContent value="rewards">
+            <GamificationPanel />
+          </TabsContent>
+
           <TabsContent value="settings">
             <div className="grid gap-6">
               {/* QR Code Section - Prominent at top */}
