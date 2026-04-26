@@ -141,6 +141,14 @@ export function useBookings() {
       return;
     }
 
+    // Hide unpaid online Instant-Book bookings (ghosts from abandoned checkout).
+    const visibleBookings = filterVisibleBookings(bookingsData as any);
+    if (visibleBookings.length === 0) {
+      setBookings([]);
+      setLoading(false);
+      return;
+    }
+
     // Get unique package IDs and Event Pro user IDs
     const packageIds = [...new Set(bookingsData.map(b => b.package_id).filter(Boolean))];
     const vendorUserIds = [...new Set(bookingsData.map(b => b.vendor_user_id).filter(Boolean))];
