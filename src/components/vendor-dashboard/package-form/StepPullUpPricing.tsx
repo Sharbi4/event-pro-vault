@@ -8,6 +8,7 @@ import { PackageFormData } from './PackageFormWizard';
 interface Props {
   formData: PackageFormData;
   updateFormData: (updates: Partial<PackageFormData>) => void;
+  errors?: Record<string, string>;
 }
 
 type Model = NonNullable<PackageFormData['pull_up_pricing_model']>;
@@ -44,7 +45,7 @@ const MODELS: {
   },
 ];
 
-export function StepPullUpPricing({ formData, updateFormData }: Props) {
+export function StepPullUpPricing({ formData, updateFormData, errors }: Props) {
   const model = formData.pull_up_pricing_model;
 
   const setModel = (m: Model) => {
