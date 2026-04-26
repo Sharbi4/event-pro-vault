@@ -228,6 +228,8 @@ export function useBookings() {
           ? 'awaiting_approval'
           : (bookingData.payment_method === 'cash' ? 'cash_due' : 'pending'),
         customer_email: resolvedEmail,
+        customer_name: bookingData.customer_name || null,
+        customer_phone: bookingData.customer_phone || null,
         // Time slot fields for cross-package availability
         start_time: bookingData.start_time || null,
         end_time: bookingData.end_time || null,
