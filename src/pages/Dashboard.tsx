@@ -26,6 +26,8 @@ import { EventCountdown } from '@/components/booking/EventCountdown';
 import { BookingChecklist, generateBookingChecklist } from '@/components/booking/BookingChecklist';
 import { AddToCalendarButton } from '@/components/booking/AddToCalendarButton';
 import { BookingReceipt } from '@/components/booking/BookingReceipt';
+import { BookingCard } from '@/components/dashboard/BookingCard';
+import { deriveBookingState, getBookingTab } from '@/lib/bookingState';
 import { vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -466,286 +468,50 @@ export default function Dashboard() {
                   </Button>
                 </Link>
               </Card>
-            ) : (
-              bookings.map(booking => {
-                const extBooking = booking as ExtendedBooking;
-                const isAwaitingPayment = booking.status === 'awaiting_payment';
-                const depositAmount = (extBooking.deposit_amount || 0) / 100;
-                const finalAmount = (extBooking.final_amount || 0) / 100;
-                const depositPaid = extBooking.deposit_paid_at;
-                const finalPaid = extBooking.final_paid_at;
-                const needsFinalPayment = depositPaid && !finalPaid && finalAmount > 0;
-                const paymentMethod = extBooking.payment_method || 'stripe';
-                const isCashPayment = paymentMethod === 'cash';
-                const isCancelled = booking.status === 'cancelled';
-                const eventDate = parseISO(booking.event_date);
-                const isUpcoming = isFuture(eventDate);
-                const hasConversation = bookingConversations.has(booking.id);
-                const hasReview = reviewedBookings.has(booking.id);
-                
-                return (
-                  <Card 
-                    key={booking.id} 
-                    variant={isAwaitingPayment || needsFinalPayment ? 'gradient' : 'glow'} 
-                    className={`p-4 ${isCancelled ? 'opacity-60' : ''}`}
-                  >
-                    <div className="flex gap-3">
-                      {/* Package/Vendor Image */}
-                      <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0 bg-muted">
-                        {booking.package_cover_image ? (
-                          <img
-                            src={booking.package_cover_image}
-                            alt={booking.package_name || 'Package'}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : booking.vendor_avatar ? (
-                          <img
-                            src={booking.vendor_avatar}
-                            alt={booking.vendor_display_name || 'Vendor'}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-primary/10">
-                            <Package className="w-6 h-6 text-primary" />
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <div className="min-w-0">
-                            <h3 className="font-semibold text-sm text-foreground truncate">
-                              {booking.package_name || 'Package'}
-                            </h3>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {booking.vendor_display_name || 'Event Pro'}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            {/* Countdown for upcoming events */}
-                            {isUpcoming && !isCancelled && (
-                              <EventCountdown eventDate={eventDate} compact />
-                            )}
-                            {getStatusBadge(extBooking)}
-                          </div>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {new Date(booking.event_date).toLocaleDateString()}
-                          </span>
-                          {booking.start_time && (
-                            <span className="flex items-center gap-1">
-                              <Clock className="w-3 h-3" />
-                              {booking.start_time}
-                            </span>
-                          )}
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3" />
-                            {booking.event_location}
-                          </span>
-                          {/* Compact checklist indicator */}
-                          {isUpcoming && !isCancelled && (
-                            <BookingChecklist
-                              items={generateBookingChecklist({
-                                deposit_paid_at: depositPaid,
-                                final_paid_at: finalPaid,
-                                hasConversation,
-                                hasReview,
-                                payment_method: paymentMethod,
-                              })}
-                              compact
-                            />
-                          )}
-                        </div>
-
-                        {/* Payment method indicator */}
-                        <div className="flex items-center gap-2 text-xs mt-1">
-                          {isCashPayment ? (
-                            <span className="flex items-center gap-1 text-green-600">
-                              <Banknote className="w-3 h-3" />
-                              Cash payment
-                            </span>
-                          ) : (
-                            <span className="flex items-center gap-1 text-muted-foreground">
-                              <CreditCard className="w-3 h-3" />
-                              Online payment
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Payment breakdown - only for Stripe payments */}
-                        {!isCashPayment && (depositAmount > 0 || finalAmount > 0) && (
-                          <div className="text-[10px] text-muted-foreground mt-1">
-                            <span className={depositPaid ? 'text-green-500' : ''}>
-                              Deposit: ${depositAmount.toFixed(0)} {depositPaid ? '✓' : ''}
-                            </span>
-                            {' · '}
-                            <span className={finalPaid ? 'text-green-500' : ''}>
-                              Balance: ${finalAmount.toFixed(0)} {finalPaid ? '✓' : ''}
-                            </span>
-                          </div>
-                        )}
-
-                        {/* Deposit refund eligibility indicator */}
-                        {!isCancelled && depositPaid && extBooking.deposit_amount && extBooking.deposit_amount > 0 && (
-                          <DepositRefundIndicator
-                            bookingCreatedAt={booking.created_at}
-                            eventDate={booking.event_date}
-                            depositPaidAt={depositPaid}
-                            depositAmount={extBooking.deposit_amount}
-                            className="mt-1.5"
-                          />
-                        )}
-
-                        <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/50">
-                          <span className="font-bold text-sm gradient-text">${booking.total_price}</span>
-                          <div className="flex items-center gap-1.5 flex-wrap">
-                            {/* Add to Calendar - for upcoming events */}
-                            {isUpcoming && !isCancelled && (
-                              <AddToCalendarButton
-                                event={{
-                                  title: `${booking.package_name} - ${booking.vendor_display_name}`,
-                                  description: `Event booking with ${booking.vendor_display_name}`,
-                                  location: booking.event_location,
-                                  startDate: eventDate,
-                                  durationHours: 4,
-                                }}
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 text-xs px-2"
-                              />
-                            )}
-
-                            {/* Message button */}
-                            {booking.vendor_user_id && !isCancelled && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-7 text-xs gap-1 px-2"
-                                onClick={() => handleMessageVendor(extBooking)}
-                                disabled={messagingBooking === booking.id}
-                              >
-                                {messagingBooking === booking.id ? (
-                                  <Loader2 className="w-3 h-3 animate-spin" />
-                                ) : (
-                                  <MessageCircle className="w-3 h-3" />
-                                )}
-                                <span className="hidden sm:inline">Message</span>
-                              </Button>
-                            )}
-
-                            {/* Pay Now for Stripe bookings awaiting payment */}
-                            {isAwaitingPayment && !isCashPayment && (
-                              <Button 
-                                variant="default" 
-                                size="sm" 
-                                className="h-7 text-xs gap-1 px-3"
-                                onClick={() => handlePayNow(extBooking)}
-                                disabled={payingBooking === booking.id}
-                              >
-                                {payingBooking === booking.id ? (
-                                  <Loader2 className="w-3 h-3 animate-spin" />
-                                ) : (
-                                  <CreditCard className="w-3 h-3" />
-                                )}
-                                Pay Now
-                              </Button>
-                            )}
-
-                            {/* For cash bookings awaiting payment */}
-                            {isAwaitingPayment && isCashPayment && (
-                              <Badge variant="secondary" className="text-[10px] h-6">
-                                <Banknote className="w-3 h-3 mr-1" />
-                                Pay at event
-                              </Badge>
-                            )}
-
-                            {/* Report Issue button - shows within 24 hours after event ends */}
-                            {!isCancelled && (
-                              <ReportIssueButton
-                                eventDate={booking.event_date}
-                                eventEndTime={booking.end_time}
-                                paymentMethod={paymentMethod}
-                                onClick={() => {
-                                  setBookingToReport(extBooking);
-                                  setReportIssueDialogOpen(true);
-                                }}
-                              />
-                            )}
-
-                            {/* Leave Review button - shows after event date */}
-                            {!isCancelled && 
-                             !reviewedBookings.has(booking.id) &&
-                             new Date(booking.event_date) < new Date() &&
-                             booking.vendor_user_id && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="h-7 text-xs gap-1 px-2 border-amber-500/50 text-amber-600 hover:bg-amber-500/10"
-                                onClick={() => {
-                                  setBookingToReview(extBooking);
-                                  setReviewDialogOpen(true);
-                                }}
-                              >
-                                <Star className="w-3 h-3" />
-                                <span className="hidden sm:inline">Review</span>
-                              </Button>
-                            )}
-
-                            {/* Cancel button */}
-                            {!isCancelled && booking.status !== 'completed' && (
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                className="h-7 text-xs gap-1 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                onClick={() => {
-                                  setBookingToCancel(extBooking);
-                                  setCancelDialogOpen(true);
-                                }}
-                              >
-                                <XCircle className="w-3 h-3" />
-                                <span className="hidden sm:inline">Cancel</span>
-                              </Button>
-                            )}
-
-                            {/* View Receipt */}
-                            <BookingReceipt
-                              booking={{
-                                ...booking,
-                                deposit_amount: extBooking.deposit_amount,
-                                final_amount: extBooking.final_amount,
-                                deposit_paid_at: extBooking.deposit_paid_at,
-                                final_paid_at: extBooking.final_paid_at,
-                                payment_method: paymentMethod,
-                                payment_status: extBooking.payment_status,
-                              }}
-                              trigger={
-                                <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2">
-                                  <FileText className="w-3 h-3" />
-                                  <span className="hidden sm:inline">Receipt</span>
-                                </Button>
-                              }
-                            />
-
-                            {/* View vendor profile */}
-                            {booking.vendor_user_id && (
-                              <Link to={`/vendor/${booking.vendor_user_id}`}>
-                                <Button variant="ghost" size="sm" className="h-7 text-xs gap-1 px-2">
-                                  <span className="hidden sm:inline">View</span>
-                                  <ChevronRight className="w-3 h-3" />
-                                </Button>
-                              </Link>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
+            ) : (() => {
+              const grouped = { pending: [] as ExtendedBooking[], upcoming: [] as ExtendedBooking[], past: [] as ExtendedBooking[], cancelled: [] as ExtendedBooking[] };
+              for (const b of bookings) {
+                const tab = getBookingTab(deriveBookingState(b as ExtendedBooking));
+                grouped[tab].push(b as ExtendedBooking);
+              }
+              const renderList = (list: ExtendedBooking[], emptyLabel: string) =>
+                list.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-8">{emptyLabel}</p>
+                ) : (
+                  <div className="space-y-3">
+                    {list.map((b) => (
+                      <BookingCard
+                        key={b.id}
+                        booking={b}
+                        isPaying={payingBooking === b.id}
+                        isMessaging={messagingBooking === b.id}
+                        onMessage={handleMessageVendor}
+                        onPayNow={handlePayNow}
+                        onCancel={(bk) => { setBookingToCancel(bk); setCancelDialogOpen(true); }}
+                        onLeaveReview={reviewedBookings.has(b.id) ? undefined : (bk) => { setBookingToReview(bk); setReviewDialogOpen(true); }}
+                      />
+                    ))}
+                  </div>
                 );
-              })
-            )}
+              return (
+                <Tabs defaultValue="upcoming" className="space-y-3">
+                  <TabsList className="w-full bg-secondary/50 border border-border/50 p-1 gap-1">
+                    <TabsTrigger value="pending" className="flex-1 text-xs gap-1.5">
+                      Pending {grouped.pending.length > 0 && <Badge variant="secondary" className="h-4 px-1 text-[10px]">{grouped.pending.length}</Badge>}
+                    </TabsTrigger>
+                    <TabsTrigger value="upcoming" className="flex-1 text-xs gap-1.5">
+                      Upcoming {grouped.upcoming.length > 0 && <Badge variant="secondary" className="h-4 px-1 text-[10px]">{grouped.upcoming.length}</Badge>}
+                    </TabsTrigger>
+                    <TabsTrigger value="past" className="flex-1 text-xs">Past</TabsTrigger>
+                    <TabsTrigger value="cancelled" className="flex-1 text-xs">Cancelled</TabsTrigger>
+                  </TabsList>
+                  <TabsContent value="pending">{renderList(grouped.pending, 'No pending bookings.')}</TabsContent>
+                  <TabsContent value="upcoming">{renderList(grouped.upcoming, 'No upcoming bookings.')}</TabsContent>
+                  <TabsContent value="past">{renderList(grouped.past, 'No past bookings yet.')}</TabsContent>
+                  <TabsContent value="cancelled">{renderList(grouped.cancelled, 'No cancelled bookings.')}</TabsContent>
+                </Tabs>
+              );
+            })()}
           </TabsContent>
 
           {/* Messages Tab */}

@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { CategoryCarousel } from '@/components/browse/CategoryCarousel';
 import { BrowsePackageCard } from '@/components/browse/BrowsePackageCard';
+import { BrowseVendorCard } from '@/components/browse/BrowseVendorCard';
 import { BrowsePackageMap } from '@/components/browse/BrowsePackageMap';
 import { SearchModal } from '@/components/browse/SearchModal';
 import { InlineNewsletterCard } from '@/components/browse/InlineNewsletterCard';
 import { Button } from '@/components/ui/button';
+import { groupPackagesByVendor } from '@/lib/groupPackagesByVendor';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -61,7 +64,7 @@ export default function Browse() {
   
   const [showFilters, setShowFilters] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [viewMode, setViewMode] = useState<'vendors' | 'grid' | 'map'>('vendors');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -72,6 +75,24 @@ export default function Browse() {
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Sync URL search params -> filters (homepage hero passes them in)
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    const loc = searchParams.get('location');
+    const dt = searchParams.get('date');
+    const start = searchParams.get('start');
+    const end = searchParams.get('end');
+    const q = searchParams.get('q');
+    if (cat) updateFilter('category', cat);
+    if (loc) updateFilter('location', loc);
+    if (dt) updateFilter('date', dt);
+    if (start) updateFilter('startTime', start);
+    if (end) updateFilter('endTime', end);
+    if (q) updateFilter('search', q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Use time from hook filters
@@ -228,11 +249,11 @@ export default function Browse() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setViewMode(viewMode === 'grid' ? 'map' : 'grid')}
+                  onClick={() => setViewMode(viewMode === 'map' ? 'vendors' : 'map')}
                   className="h-9 gap-1.5"
                 >
-                  {viewMode === 'grid' ? <Map className="w-3.5 h-3.5" /> : <LayoutGrid className="w-3.5 h-3.5" />}
-                  <span className="hidden sm:inline">{viewMode === 'grid' ? 'Map' : 'Grid'}</span>
+                  {viewMode === 'map' ? <LayoutGrid className="w-3.5 h-3.5" /> : <Map className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline">{viewMode === 'map' ? 'List' : 'Map'}</span>
                 </Button>
                 
                 {activeFiltersCount > 0 && (
@@ -322,16 +343,25 @@ export default function Browse() {
 
               {/* View Toggle */}
               <div className="flex items-center border border-border rounded-lg overflow-hidden">
-                <Button 
+                <Button
+                  variant={viewMode === 'vendors' ? 'default' : 'ghost'}
+                  size="sm"
+                  className="rounded-none gap-1.5"
+                  onClick={() => setViewMode('vendors')}
+                >
+                  <LayoutGrid className="w-4 h-4" />
+                  <span className="hidden sm:inline">Vendors</span>
+                </Button>
+                <Button
                   variant={viewMode === 'grid' ? 'default' : 'ghost'}
                   size="sm"
                   className="rounded-none gap-1.5"
                   onClick={() => setViewMode('grid')}
                 >
-                  <LayoutGrid className="w-4 h-4" />
-                  <span className="hidden sm:inline">Grid</span>
+                  <Package className="w-4 h-4" />
+                  <span className="hidden sm:inline">Packages</span>
                 </Button>
-                <Button 
+                <Button
                   variant={viewMode === 'map' ? 'default' : 'ghost'}
                   size="sm"
                   className="rounded-none gap-1.5"
@@ -428,6 +458,28 @@ export default function Browse() {
               ))}
             </div>
           )}
+
+          {/* Vendor Grid (default — vendor-grouped, StyleSeat-style) */}
+          {!loading && packages.length > 0 && viewMode === 'vendors' && (() => {
+            const groups = groupPackagesByVendor(packages, 3);
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {groups.map((group, index) => (
+                  <div
+                    key={group.vendor_user_id}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 0.03}s` }}
+                  >
+                    <BrowseVendorCard
+                      group={group}
+                      date={filters.date}
+                      startTime={filters.startTime}
+                    />
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
 
           {/* Package Grid */}
           {!loading && packages.length > 0 && viewMode === 'grid' && (
