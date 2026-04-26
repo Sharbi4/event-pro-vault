@@ -13,7 +13,9 @@ import {
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Loader2, ExternalLink } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { prepareExternalNavigation } from '@/lib/externalNavigation';
 import { VendorPackage } from '@/hooks/useVendorDashboard';
 import { StepBasicInfo } from './StepBasicInfo';
 import { StepPricingTravel } from './StepPricingTravel';
