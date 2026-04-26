@@ -75,6 +75,24 @@ export default function Browse() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Sync URL search params -> filters (homepage hero passes them in)
+  const [searchParams] = useSearchParams();
+  useEffect(() => {
+    const cat = searchParams.get('category');
+    const loc = searchParams.get('location');
+    const dt = searchParams.get('date');
+    const start = searchParams.get('start');
+    const end = searchParams.get('end');
+    const q = searchParams.get('q');
+    if (cat) updateFilter('category', cat);
+    if (loc) updateFilter('location', loc);
+    if (dt) updateFilter('date', dt);
+    if (start) updateFilter('startTime', start);
+    if (end) updateFilter('endTime', end);
+    if (q) updateFilter('search', q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Use time from hook filters
   const startTime = filters.startTime;
   const endTime = filters.endTime;
