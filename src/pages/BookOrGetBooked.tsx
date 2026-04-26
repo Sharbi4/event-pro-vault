@@ -23,7 +23,7 @@ import { CustomerJourneyStrip } from '@/components/book-or-get-booked/CustomerJo
 import { EventProJourney } from '@/components/book-or-get-booked/EventProJourney';
 import { TrustCards } from '@/components/book-or-get-booked/TrustCards';
 import { BrowseChips } from '@/components/book-or-get-booked/BrowseChips';
-import { Helmet } from 'react-helmet-async';
+import { useEffect } from 'react';
 
 const customerFAQs = [
   {
@@ -77,17 +77,16 @@ export default function BookOrGetBooked() {
     navigate(`/browse?${params.toString()}`);
   };
 
+  useEffect(() => {
+    document.title = 'Book or Get Booked — EventPro';
+    const desc = document.querySelector('meta[name="description"]');
+    const content =
+      'Find and book food trucks, mobile bars, dessert vendors, and cottage bakers for real events — or create a profile and get booked.';
+    if (desc) desc.setAttribute('content', content);
+  }, []);
+
   return (
     <Layout>
-      <Helmet>
-        <title>Book or Get Booked — EventPro</title>
-        <meta
-          name="description"
-          content="Find and book food trucks, mobile bars, dessert vendors, and cottage bakers for real events — or create a profile and get booked."
-        />
-        <link rel="canonical" href="/book-or-get-booked" />
-      </Helmet>
-
       {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-b from-orange-50/60 via-background to-background">
         <div className="container mx-auto px-4 pt-14 sm:pt-20 pb-12 sm:pb-16">
