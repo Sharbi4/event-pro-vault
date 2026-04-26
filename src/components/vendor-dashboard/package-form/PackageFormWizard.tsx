@@ -342,51 +342,72 @@ export function PackageFormWizard({
 
   // Step indicators component
   const StepIndicators = () => (
-    <div className="flex items-center justify-center gap-1 sm:gap-2 mt-3 mb-1">
-      {STEPS.map((step, index) => (
-        <button
-          key={step.id}
-          type="button"
-          onClick={() => index < currentStep && setCurrentStep(index)}
-          disabled={index > currentStep}
-          className={`flex items-center gap-1.5 transition-all ${
-            index === currentStep
-              ? 'text-primary'
-              : index < currentStep
-              ? 'text-muted-foreground cursor-pointer hover:text-foreground'
-              : 'text-muted-foreground/40 cursor-not-allowed'
-          }`}
-        >
-          <div
-            className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium transition-all ${
-              index < currentStep
-                ? 'bg-primary text-primary-foreground'
-                : index === currentStep
-                ? 'bg-primary/20 text-primary ring-2 ring-primary'
-                : 'bg-muted text-muted-foreground'
+    <>
+      {/* Mobile: compact step counter + label */}
+      <div className="sm:hidden flex items-center justify-between mt-2 mb-1 px-1">
+        <span className="text-xs font-medium text-muted-foreground tabular-nums">
+          Step {currentStep + 1} of {STEPS.length}
+        </span>
+        <span className="text-xs font-semibold text-foreground truncate ml-2">
+          {STEPS[currentStep].label}
+        </span>
+      </div>
+
+      {/* Desktop: full dot trail */}
+      <div className="hidden sm:flex items-center justify-center gap-2 mt-3 mb-1">
+        {STEPS.map((step, index) => (
+          <button
+            key={step.id}
+            type="button"
+            onClick={() => index < currentStep && setCurrentStep(index)}
+            disabled={index > currentStep}
+            className={`flex items-center gap-1.5 transition-all ${
+              index === currentStep
+                ? 'text-primary'
+                : index < currentStep
+                ? 'text-muted-foreground cursor-pointer hover:text-foreground'
+                : 'text-muted-foreground/40 cursor-not-allowed'
             }`}
           >
-            {index < currentStep ? <Check className="w-3 h-3" /> : index + 1}
-          </div>
-          <span className="hidden sm:inline text-xs font-medium">{step.label}</span>
-          {index < STEPS.length - 1 && (
-            <div className={`w-4 sm:w-8 h-0.5 mx-1 ${
-              index < currentStep ? 'bg-primary' : 'bg-muted'
-            }`} />
-          )}
-        </button>
-      ))}
-    </div>
+            <div
+              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium transition-all ${
+                index < currentStep
+                  ? 'bg-primary text-primary-foreground'
+                  : index === currentStep
+                  ? 'bg-primary/20 text-primary ring-2 ring-primary'
+                  : 'bg-muted text-muted-foreground'
+              }`}
+            >
+              {index < currentStep ? <Check className="w-3 h-3" /> : index + 1}
+            </div>
+            <span className="text-xs font-medium">{step.label}</span>
+            {index < STEPS.length - 1 && (
+              <div className={`w-8 h-0.5 mx-1 ${
+                index < currentStep ? 'bg-primary' : 'bg-muted'
+              }`} />
+            )}
+          </button>
+        ))}
+      </div>
+    </>
   );
 
-  // Navigation buttons component
+  // Navigation buttons component — sticky bottom bar on mobile
   const Navigation = () => (
-    <div className="flex gap-2 pt-3 border-t">
+    <div
+      className="
+        flex gap-2 pt-3 border-t bg-background
+        sticky bottom-0 left-0 right-0
+        -mx-4 sm:mx-0 px-4 sm:px-0 pb-[max(env(safe-area-inset-bottom),0.75rem)] sm:pb-3
+        z-10
+      "
+    >
       <Button
         type="button"
         variant="outline"
+        size="lg"
         onClick={currentStep === 0 ? onClose : handleBack}
-        className="flex-1 sm:flex-none"
+        className="flex-1 sm:flex-none h-12 sm:h-10 text-base sm:text-sm"
       >
         {currentStep === 0 ? 'Cancel' : (
           <>
@@ -400,9 +421,10 @@ export function PackageFormWizard({
         <Button
           type="button"
           variant="gradient"
+          size="lg"
           onClick={handleNext}
           disabled={!isStepValid()}
-          className="flex-1 sm:flex-none sm:ml-auto"
+          className="flex-1 sm:flex-none sm:ml-auto h-12 sm:h-10 text-base sm:text-sm font-semibold"
         >
           Next
           <ChevronRight className="w-4 h-4 ml-1" />
@@ -411,9 +433,10 @@ export function PackageFormWizard({
         <Button
           type="button"
           variant="gradient"
+          size="lg"
           onClick={handleSubmit}
           disabled={loading || !isStepValid()}
-          className="flex-1 sm:flex-none sm:ml-auto"
+          className="flex-1 sm:flex-none sm:ml-auto h-12 sm:h-10 text-base sm:text-sm font-semibold"
         >
           {loading ? (
             <>
@@ -428,7 +451,7 @@ export function PackageFormWizard({
 
   // Step content component
   const StepContent = () => (
-    <div className="flex-1 overflow-y-auto py-4 min-h-[300px] sm:min-h-[400px]">
+    <div className="flex-1 overflow-y-auto py-4 min-h-[300px] sm:min-h-[400px] pb-24 sm:pb-4">
       {currentStep === 0 && (
         <StepPackageType
           value={formData.package_kind}
@@ -510,15 +533,15 @@ export function PackageFormWizard({
           if (!nextOpen) onClose();
         }}
       >
-        <DrawerContent className="max-h-[95vh]">
-          <DrawerHeader className="pb-2">
+        <DrawerContent className="h-[96vh] max-h-[96vh]">
+          <DrawerHeader className="pb-2 px-4 shrink-0">
             <DrawerTitle className="text-lg">
               {initialData ? 'Edit Package' : 'New Package'}
             </DrawerTitle>
             <StepIndicators />
-            <Progress value={progress} className="h-1" />
+            <Progress value={progress} className="h-1.5" />
           </DrawerHeader>
-          <div className="px-4 pb-4 flex flex-col overflow-hidden">
+          <div className="px-4 flex-1 flex flex-col overflow-hidden relative">
             <StepContent />
             <Navigation />
           </div>
