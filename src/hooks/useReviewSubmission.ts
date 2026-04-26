@@ -7,6 +7,7 @@ export interface ReviewFormData {
   rating: number;
   title: string;
   content: string;
+  tags?: string[];
 }
 
 export interface ReviewSubmissionParams {
