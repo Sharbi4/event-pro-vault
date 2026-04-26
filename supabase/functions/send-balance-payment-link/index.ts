@@ -11,7 +11,9 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
 };
 
-const VENDOR_COMMISSION_PERCENT = 12.9;
+// Free tier vendors: 12.9% commission. Premium tier vendors: 6% commission.
+const VENDOR_COMMISSION_PERCENT_FREE = 12.9;
+const VENDOR_COMMISSION_PERCENT_PREMIUM = 6;
 const BOOKER_SERVICE_FEE_PERCENT = 12.9;
 
 const log = (s: string, d?: unknown) =>
@@ -69,7 +71,7 @@ serve(async (req) => {
 
     const { data: vendor } = await supabase
       .from("profiles")
-      .select("stripe_account_id, stripe_account_status")
+      .select("stripe_account_id, stripe_account_status, subscription_tier, subscription_ends_at")
       .eq("user_id", booking.vendor_user_id)
       .single();
     if (!vendor?.stripe_account_id || vendor.stripe_account_status !== "active") {
@@ -85,11 +87,15 @@ serve(async (req) => {
     const bookerServiceFeeCents = Math.round(
       baseFinalCents * (BOOKER_SERVICE_FEE_PERCENT / 100)
     );
+    const isPremium = vendor.subscription_tier === 'premium'
+      && (!vendor.subscription_ends_at || new Date(vendor.subscription_ends_at) > new Date());
+    const vendorCommissionPercent = isPremium ? VENDOR_COMMISSION_PERCENT_PREMIUM : VENDOR_COMMISSION_PERCENT_FREE;
     const vendorCommissionCents = Math.round(
-      baseFinalCents * (VENDOR_COMMISSION_PERCENT / 100)
+      baseFinalCents * (vendorCommissionPercent / 100)
     );
     const customerPaysCents = baseFinalCents + bookerServiceFeeCents;
     const platformFeeCents = bookerServiceFeeCents + vendorCommissionCents;
+    log("Vendor commission tier", { tier: vendor.subscription_tier, isPremium, vendorCommissionPercent });
 
     const origin = req.headers.get("origin") ?? "";
 
