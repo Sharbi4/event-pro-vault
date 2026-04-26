@@ -109,7 +109,7 @@ export interface PackageFormData {
   additional_per_person?: number | null;
   balance_due_timing?: 'before_event' | 'day_of_event' | 'after_event' | 'direct_to_vendor' | null;
   dietary_options?: string[];
-  menu_items?: { id: string; name: string; description?: string; included: boolean; price?: number }[];
+  menu_items?: { id: string; name: string; description?: string; included: boolean; price?: number; category?: 'food' | 'drink' }[];
 }
 
 interface PackageFormWizardProps {
