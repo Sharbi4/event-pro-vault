@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, Calendar, MapPin, CreditCard, ArrowRight, Loader2, MessageCircle, CheckCircle } from 'lucide-react';
+import { Check, Calendar, MapPin, CreditCard, ArrowRight, Loader2, MessageCircle, CheckCircle, Wallet, Sparkles } from 'lucide-react';
 import { format, parseISO, addHours } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,12 @@ interface BookingDetails {
   payment_status: string;
   package_name?: string;
   vendor_name?: string;
+  vendor_user_id?: string;
 }
+
+// Mirrors supabase/functions/_shared/commission.ts
+const VENDOR_COMMISSION_PERCENT_FREE = 12.9;
+const VENDOR_COMMISSION_PERCENT_PREMIUM = 6;
 
 export default function BookingSuccess() {
   const navigate = useNavigate();
@@ -33,6 +38,8 @@ export default function BookingSuccess() {
   const [booking, setBooking] = useState<BookingDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [verified, setVerified] = useState(false);
+  const [viewerUserId, setViewerUserId] = useState<string | null>(null);
+  const [vendorTier, setVendorTier] = useState<{ tier: string | null; ends_at: string | null } | null>(null);
   
   // Fire confetti when booking is verified
   useConfettiOnMount(verified && !loading);
@@ -68,17 +75,32 @@ export default function BookingSuccess() {
           .eq('id', bookingData.package_id)
           .single();
 
-        // Fetch Event Pro name
-        const { data: vendorData } = await supabase
+        // Fetch Event Pro name + commission tier
+        const { data: vendorDetails } = await supabase
           .from('vendor_details')
           .select('business_name')
           .eq('user_id', bookingData.vendor_user_id)
           .single();
 
+        const { data: vendorProfile } = await supabase
+          .from('profiles')
+          .select('subscription_tier, subscription_ends_at')
+          .eq('user_id', bookingData.vendor_user_id)
+          .maybeSingle();
+
+        setVendorTier({
+          tier: vendorProfile?.subscription_tier ?? 'free',
+          ends_at: vendorProfile?.subscription_ends_at ?? null,
+        });
+
+        const { data: { user } } = await supabase.auth.getUser();
+        setViewerUserId(user?.id ?? null);
+
         setBooking({
           ...bookingData,
           package_name: packageData?.name || 'Event Package',
-          vendor_name: vendorData?.business_name || 'Event Pro',
+          vendor_name: vendorDetails?.business_name || 'Event Pro',
+          vendor_user_id: bookingData.vendor_user_id,
           deposit_amount: bookingData.deposit_amount ? bookingData.deposit_amount / 100 : 0,
           final_amount: bookingData.final_amount ? bookingData.final_amount / 100 : 0,
         });
@@ -92,6 +114,23 @@ export default function BookingSuccess() {
 
     verifyAndFetch();
   }, [bookingId, sessionId]);
+
+  // Compute payout estimate, reactive to vendor tier
+  const payoutEstimate = useMemo(() => {
+    if (!booking || !vendorTier) return null;
+    const isPremiumActive =
+      vendorTier.tier === 'premium' &&
+      (!vendorTier.ends_at || new Date(vendorTier.ends_at) > new Date());
+    const commissionPct = isPremiumActive
+      ? VENDOR_COMMISSION_PERCENT_PREMIUM
+      : VENDOR_COMMISSION_PERCENT_FREE;
+    const gross = Number(booking.total_price) || 0;
+    const commission = +(gross * (commissionPct / 100)).toFixed(2);
+    const payout = +(gross - commission).toFixed(2);
+    return { isPremiumActive, commissionPct, gross, commission, payout };
+  }, [booking, vendorTier]);
+
+  const isVendorViewer = !!(viewerUserId && booking?.vendor_user_id && viewerUserId === booking.vendor_user_id);
 
   if (loading) {
     return (
@@ -216,6 +255,61 @@ export default function BookingSuccess() {
               </div>
             )}
           </motion.div>
+
+          {/* Estimated Payout — vendor-only */}
+          {isVendorViewer && payoutEstimate && (
+            <motion.div
+              className="rounded-2xl p-4 md:p-6 mb-6 border border-primary/20 bg-primary/5"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.32 }}
+            >
+              <div className="flex items-center gap-2 mb-3">
+                <Wallet className="w-4 h-4 text-primary" />
+                <h3 className="font-semibold text-sm">Your estimated payout</h3>
+                {payoutEstimate.isPremiumActive ? (
+                  <span className="ml-auto inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-primary">
+                    <Sparkles className="w-3 h-3" /> Premium 6%
+                  </span>
+                ) : (
+                  <span className="ml-auto text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                    Standard 12.9%
+                  </span>
+                )}
+              </div>
+
+              <div className="space-y-2 text-sm">
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <span>Booking total</span>
+                  <span className="font-mono">${payoutEstimate.gross.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <span>Platform commission ({payoutEstimate.commissionPct}%)</span>
+                  <span className="font-mono">−${payoutEstimate.commission.toLocaleString()}</span>
+                </div>
+                <div className="h-px bg-border my-1" />
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold">Estimated payout</span>
+                  <span className="font-mono font-bold text-base">
+                    ${payoutEstimate.payout.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              {!payoutEstimate.isPremiumActive && (
+                <p className="text-[11px] text-muted-foreground mt-3 leading-relaxed">
+                  Upgrade to Event Pro Premium to drop commission to 6% — that's about
+                  <span className="font-semibold text-foreground">
+                    {' '}${(+(payoutEstimate.gross * 0.069).toFixed(2)).toLocaleString()}{' '}
+                  </span>
+                  more on this booking.
+                </p>
+              )}
+              <p className="text-[11px] text-muted-foreground mt-2">
+                Excludes Stripe processing fees. Final payout shown in your dashboard after the event.
+              </p>
+            </motion.div>
+          )}
 
           {/* Add to Calendar */}
           <motion.div 
