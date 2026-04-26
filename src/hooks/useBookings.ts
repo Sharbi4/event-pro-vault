@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { filterVisibleBookings, isBookingVisible } from '@/lib/bookings/visibility';
 
 export interface BookingData {
   id: string;
@@ -140,9 +141,17 @@ export function useBookings() {
       return;
     }
 
+    // Hide unpaid online Instant-Book bookings (ghosts from abandoned checkout).
+    const visibleBookings = (bookingsData as any[]).filter(isBookingVisible);
+    if (visibleBookings.length === 0) {
+      setBookings([]);
+      setLoading(false);
+      return;
+    }
+
     // Get unique package IDs and Event Pro user IDs
-    const packageIds = [...new Set(bookingsData.map(b => b.package_id).filter(Boolean))];
-    const vendorUserIds = [...new Set(bookingsData.map(b => b.vendor_user_id).filter(Boolean))];
+    const packageIds = [...new Set(visibleBookings.map(b => b.package_id).filter(Boolean))];
+    const vendorUserIds = [...new Set(visibleBookings.map(b => b.vendor_user_id).filter(Boolean))];
 
     // Fetch packages
     const { data: packagesData } = await supabase
@@ -161,7 +170,7 @@ export function useBookings() {
     const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
 
     // Merge data
-    const enrichedBookings: BookingData[] = bookingsData.map(booking => {
+    const enrichedBookings: BookingData[] = visibleBookings.map(booking => {
       const pkg = packagesMap.get(booking.package_id);
       const vendorProfile = profilesMap.get(booking.vendor_user_id);
 
