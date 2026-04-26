@@ -312,7 +312,7 @@ export function Header() {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Search className="w-4 h-4" />
-                      Browse Services
+                      Browse & Book Event Pros
                     </Link>
                     
                     <Link
@@ -388,7 +388,7 @@ export function Header() {
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <Search className="w-4 h-4" />
-                      Browse Services
+                      Browse & Book Event Pros
                     </Link>
                     
                     <Link 

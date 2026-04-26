@@ -516,7 +516,7 @@ export default function SentenceLanding() {
                           onClick={() => setMenuOpen(false)}
                         >
                           <Search className="w-4 h-4 mr-2 inline" />
-                          Browse Services
+                          Browse & Book Event Pros
                         </Link>
                       </motion.div>
                       
