@@ -16,6 +16,7 @@ import { useCustomerMessages } from '@/hooks/useCustomerMessages';
 import { AdminReviewTab } from '@/components/dashboard/AdminReviewTab';
 import { AdminDisputesTab } from '@/components/dashboard/AdminDisputesTab';
 import { CustomerMessages } from '@/components/dashboard/CustomerMessages';
+import { PrivatePackagesList } from '@/components/messaging/PrivatePackagesList';
 import { CancellationDialog } from '@/components/shared/CancellationDialog';
 import { DepositRefundIndicator } from '@/components/shared/DepositRefundIndicator';
 import { ReportIssueDialog } from '@/components/shared/ReportIssueDialog';
