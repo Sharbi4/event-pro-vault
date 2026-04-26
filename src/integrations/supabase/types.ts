@@ -528,6 +528,36 @@ export type Database = {
         }
         Relationships: []
       }
+      identity_verification_events: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          session_id: string | null
+          status: string
+          stripe_event_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+          status: string
+          stripe_event_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          session_id?: string | null
+          status?: string
+          stripe_event_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           address: string | null
