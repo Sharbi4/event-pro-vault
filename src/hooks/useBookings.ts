@@ -150,8 +150,8 @@ export function useBookings() {
     }
 
     // Get unique package IDs and Event Pro user IDs
-    const packageIds = [...new Set(bookingsData.map(b => b.package_id).filter(Boolean))];
-    const vendorUserIds = [...new Set(bookingsData.map(b => b.vendor_user_id).filter(Boolean))];
+    const packageIds = [...new Set(visibleBookings.map(b => b.package_id).filter(Boolean))];
+    const vendorUserIds = [...new Set(visibleBookings.map(b => b.vendor_user_id).filter(Boolean))];
 
     // Fetch packages
     const { data: packagesData } = await supabase
@@ -170,7 +170,7 @@ export function useBookings() {
     const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
 
     // Merge data
-    const enrichedBookings: BookingData[] = bookingsData.map(booking => {
+    const enrichedBookings: BookingData[] = visibleBookings.map(booking => {
       const pkg = packagesMap.get(booking.package_id);
       const vendorProfile = profilesMap.get(booking.vendor_user_id);
 
