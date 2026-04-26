@@ -25,6 +25,7 @@ const LEGEND_KINDS: ScheduleBlockKind[] = [
 
 export function BookingCommandCenter({ onMessageClient, onUpdateStatus }: Props) {
   const { user } = useAuth();
+  const { toast } = useToast();
   const [view, setView] = useState<'day' | 'week'>('week');
   const [anchor, setAnchor] = useState<Date>(new Date());
 
