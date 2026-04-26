@@ -533,15 +533,15 @@ export function PackageFormWizard({
           if (!nextOpen) onClose();
         }}
       >
-        <DrawerContent className="max-h-[95vh]">
-          <DrawerHeader className="pb-2">
+        <DrawerContent className="h-[96vh] max-h-[96vh]">
+          <DrawerHeader className="pb-2 px-4 shrink-0">
             <DrawerTitle className="text-lg">
               {initialData ? 'Edit Package' : 'New Package'}
             </DrawerTitle>
             <StepIndicators />
-            <Progress value={progress} className="h-1" />
+            <Progress value={progress} className="h-1.5" />
           </DrawerHeader>
-          <div className="px-4 pb-4 flex flex-col overflow-hidden">
+          <div className="px-4 flex-1 flex flex-col overflow-hidden relative">
             <StepContent />
             <Navigation />
           </div>
