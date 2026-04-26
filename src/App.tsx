@@ -8,6 +8,7 @@ import { GoogleMapsProvider } from "@/contexts/GoogleMapsContext";
 
 // New "Art Gallery" views
 import SentenceLanding from "./pages/SentenceLanding";
+import Index from "./pages/Index";
 import PackageDeck from "./pages/PackageDeck";
 import BookingSuccess from "./pages/BookingSuccess";
 
@@ -58,8 +59,10 @@ const App = () => (
           <BrowserRouter>
             <CookieConsentBanner />
             <Routes>
-              {/* New "Art Gallery" Flow */}
-              <Route path="/" element={<SentenceLanding />} />
+              {/* Search-first homepage */}
+              <Route path="/" element={<Index />} />
+              {/* Legacy sentence-builder landing */}
+              <Route path="/planner" element={<SentenceLanding />} />
               <Route path="/discover" element={<PackageDeck />} />
               
               {/* Booking Success */}
