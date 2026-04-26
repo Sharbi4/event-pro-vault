@@ -1,92 +1,100 @@
-# Optional Identity Verification — Trust Upgrade Model
+# Create Package Flow — Pull-Up vs Catering
 
-Today, the public RLS policy for vendor profiles requires both `stripe_account_status = 'active'` AND `approval_status = 'approved'`. That makes Stripe Connect a hard gate for visibility, and identity verification is conflated into the same trust wall. We'll separate the two and reframe identity verification as an optional badge.
+Restructure the existing 7-step package wizard so vendors first choose a package type (Pull-Up Booking or Catering Package), then see fields and pricing models tailored to that type. Add Private Package education, smarter time/calendar logic, customer questions, and a duplicate action.
 
-## Core rule changes
+## New step order
 
-- **Stripe Identity** → optional. Never blocks publish, packages, bookings, messaging, payouts, or search visibility. Only controls the "Verified Event Pro" badge + filter + ranking boost.
-- **Stripe Connect / payout setup** → required only when a package uses online payment. Vendors offering only cash / in-person packages can publish and accept bookings without Connect.
-- **Admin approval** (`approval_status`) → still required to appear in public search (anti-spam).
-
-## Onboarding stepper (vendor)
-
-Reorder `src/pages/VendorOnboarding.tsx` and the `eventpro-onboarding` step components to:
-
-1. Business Basics
-2. Contact & Location
-3. Service Details
-4. Photos
-5. Packages
-6. Calendar
-7. **Payments** (Stripe Connect — skippable if vendor offers cash-only)
-8. **Optional Verification** (Stripe Identity — fully skippable, secondary CTA "Skip for now")
-9. Review & Publish
-
-Step 7 copy: "Set up payouts — Connect your payout account so you can receive online payments."
-Step 8 copy: "Get verified — Verification is optional, but it helps customers book with confidence."
-
-Publish CTA on Step 9 is enabled when required fields are complete (business name, category, phone, address, service area, profile photo, cover image, ≥1 published package, calendar availability). Identity verification is **not** in that checklist.
-
-## Database changes (migration)
-
-Add to `profiles`:
-- `is_identity_verified boolean default false` (derived convenience flag, kept in sync)
-- `identity_verified_at timestamptz`
-- `trust_score integer default 0` (computed: base + verified bonus + rating bonus)
-- `online_payments_enabled boolean default true` (vendor toggle for whether their packages use Connect)
-
-Update RLS policy `Public can view approved vendor profiles` on `profiles`:
 ```
-((is_vendor = true) AND (approval_status = 'approved'))
-OR (auth.uid() = user_id)
+1. Package Type     ← NEW first step
+2. Basics
+3. Pricing          (cards change per type)
+4. Time & Calendar  (adds setup/cleanup/buffers visualization)
+5. Photos & Details
+6. Booking Rules    (adds customer questions)
+7. Review & Publish
 ```
-(Drops the `stripe_account_status = 'active'` requirement — Connect is enforced at checkout time, not at visibility time.)
 
-Add similar relaxation to public `vendor_packages` visibility if it has the same gate (verify in migration).
+## Step-by-step changes
 
-## UI: Verified badge
+**Step 1 — Package Type (new)**
+Two big cards: Pull-Up Booking, Catering Package. Education note below cards: "Need to build something custom for a customer? You'll be able to create Private Packages from your message threads." Selection drives the rest of the wizard.
 
-New shared component `src/components/badges/VerifiedEventProBadge.tsx` (small + large variants):
-- Small: pill "Verified" with shield icon — used on `BrowseVendorCard`, `BrowsePackageCard`, `VendorListItem`, search results
-- Large: "Verified Event Pro" with tooltip "This Event Pro completed optional identity verification through EventPro." — used on public profile header
+**Step 2 — Basics**
+Add: cuisine/style multi-select, Best For multi-select (apartment event, office lunch, wedding, etc.), guest-count range. Keep name/description/category. Show smart name suggestions chips based on the vendor's category.
 
-Wire into existing `TrustBadges.tsx` `isVerified` prop (already plumbed) — verify all consumers pass `identity_verification_status === 'verified'`.
+**Step 3 — Pricing (type-driven)**
+- Pull-Up: 4 cards — Show-up fee, Minimum guarantee, Show-up + minimum, No upfront fee.
+- Catering: 3 cards — Flat package price, Per-person, Base + per-person.
+- Both: deposit block (None / % / Flat / Full upfront) and balance-due timing (Before / Day-of / After / Direct to vendor).
 
-## Vendor dashboard verification card
+**Step 4 — Time & Calendar**
+Fields: service duration, setup, cleanup, buffer before, buffer after, minimum notice (with "Use calendar default"), and a per-package availability override toggle. Add a visual showing "Customer sees X–Y / Your calendar blocks A–B" computed live.
 
-New component `src/components/vendor-dashboard/VerificationCard.tsx`, shown in the Settings tab below `StripeSetupCard`:
+**Step 5 — Photos & Details**
+Require ≥1 photo (already supported). Keep What's Included, Add-Ons. Add menu items list and dietary options.
 
-- **Not verified**: Title "Get the Verified Event Pro badge", body copy, primary "Get verified" → triggers Stripe Identity session, secondary "Maybe later" (dismiss for session).
-- **Processing**: "Verification in progress" with status pill.
-- **Verified**: Title "Verified Event Pro", body "Your profile has the Verified badge…", green check.
-- **Failed / requires_action**: Show retry CTA.
+**Step 6 — Booking Rules**
+Default to "Review requests first" (was Instant). Cancellation policy (Flexible/Moderate/Strict). Travel radius/fee/max. Customer questions multi-select drawn from a category-aware library (general, bartender, baker).
 
-## Search filter + ranking
+**Step 7 — Review & Publish**
+Tweak the existing PackagePreview to reflect the new fields. Buttons: Save as Draft, Publish Package. If profile is unpublished, show "Save package and continue profile setup."
 
-- Add "Verified only" toggle to `SearchModal.tsx` filters; pipe through `useBrowsePackages` query as `.eq('profiles.identity_verification_status', 'verified')` when active.
-- In `useBrowsePackages` ranking sort, add a small boost (e.g. +10 points) for verified vendors so they trend higher when scores tie.
+## Vendor package dashboard
 
-## Payments gating (online vs cash)
+Each package card gains a Duplicate action (clones the row with name " (Copy)" and status `draft`). Status chips: draft / published / paused / archived already supported via `is_active` plus a new `status` field.
 
-In `SpatialDrawer.tsx` checkout flow, when the selected package's `payment_mode` requires online payment AND the vendor's `stripe_account_status !== 'active'`:
-- Block checkout with message "This Event Pro hasn't finished setting up online payments yet — reach out to message them directly."
-- Cash-only packages skip this check entirely.
+## Database changes
+
+Add columns to `vendor_packages`:
+- `package_kind text` — `pull_up` or `catering`
+- `pull_up_pricing_model text` — `show_up_fee | min_guarantee | show_up_plus_min | no_upfront`
+- `catering_pricing_model text` — `flat | per_person | base_plus_per_person`
+- `min_guarantee_amount integer`
+- `included_guests integer`
+- `additional_per_person integer`
+- `cuisine_styles text[]`
+- `best_for text[]`
+- `setup_minutes integer default 0`
+- `cleanup_minutes integer default 0`
+- `buffer_before_minutes integer default 0`
+- `buffer_after_minutes integer default 0`
+- `minimum_notice_hours integer` (null = use calendar default)
+- `balance_due_timing text`
+- `menu_items jsonb default '[]'`
+- `dietary_options text[]`
+- `customer_questions text[]`
+- `status text default 'draft'` (draft/published/paused/archived)
+
+Existing booking flow continues to read `price`, `pricing_type`, `deposit_percentage`, etc.; new fields are additive and backward-compatible.
+
+## Files to add/edit
+
+New:
+- `src/components/vendor-dashboard/package-form/StepPackageType.tsx`
+- `src/components/vendor-dashboard/package-form/PullUpPricingCards.tsx`
+- `src/components/vendor-dashboard/package-form/CateringPricingCards.tsx`
+- `src/components/vendor-dashboard/package-form/CalendarBlockPreview.tsx`
+- `src/components/vendor-dashboard/package-form/CustomerQuestionsPicker.tsx`
+
+Edit:
+- `PackageFormWizard.tsx` — insert type step at index 0, gate visible steps by type, update STEPS array, default `booking_mode` to `REQUEST`.
+- `StepBasicInfo.tsx` — add cuisine/best-for/guest-range, smart name chips.
+- `StepPricingTravel.tsx` — split into pricing-only; render the type-specific cards. Keep travel fields on Booking Rules step.
+- `StepInclusions.tsx` — add menu items + dietary options.
+- `StepAvailability.tsx` → `StepTimeCalendar.tsx` — add setup/cleanup/buffers + live calendar-block preview.
+- `StepBookingPayment.tsx` — rename to Booking Rules; add customer questions; default to Request.
+- `PackagePreview.tsx` — render new fields.
+- `useVendorDashboard.ts` — extend `VendorPackage` type, add `duplicatePackage()`.
+- Vendor packages list view — add Duplicate button.
+
+Single migration adds the columns above with safe defaults so existing packages keep working.
 
 ## Acceptance criteria
 
-- A vendor with `identity_verification_status = 'not_started'` can complete onboarding, publish, get bookings, and receive payouts (if Connect is set up).
-- A cash-only vendor with no Stripe Connect can publish and appear in search.
-- The "Verified Event Pro" badge only appears when `identity_verification_status === 'verified'`.
-- "Verified only" filter in search returns only verified vendors.
-- Onboarding step order matches the 9-step list above; Step 8 has a working "Skip for now".
-- Existing verified vendors retain their badge (no data backfill needed beyond the new derived flag).
-
-## Files touched
-
-**Migration**: new file under `supabase/migrations/` for the column adds + RLS policy update.
-
-**New**: `src/components/badges/VerifiedEventProBadge.tsx`, `src/components/vendor-dashboard/VerificationCard.tsx`.
-
-**Edited**: `src/pages/VendorOnboarding.tsx`, `src/components/eventpro-onboarding/StepPayout.tsx` (+ new `StepVerification.tsx`), `src/pages/VendorDashboard.tsx`, `src/hooks/useVendorProfile.ts`, `src/hooks/useBrowsePackages.ts`, `src/components/browse/SearchModal.tsx`, `src/components/booking/SpatialDrawer.tsx`, `src/components/badges/TrustBadges.tsx`, public profile page (vendor header).
-
-Approve and I'll implement in this order: migration → onboarding reorder → badge component → dashboard card → search filter/ranking → checkout gating.
+- First step forces a Pull-Up vs Catering choice; no Quote Request option.
+- Pricing UI swaps based on chosen type.
+- Time step shows a live "customer sees vs calendar blocks" visualization.
+- Default booking mode is Request, with Instant as opt-in.
+- Customer questions persist on the package and surface to customers at booking.
+- Vendors can save a draft, publish, pause, archive, or duplicate any package.
+- Existing packages continue to load and remain bookable without re-editing.
