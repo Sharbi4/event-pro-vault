@@ -78,7 +78,7 @@ export default function Browse() {
   }, []);
 
   // Sync URL search params -> filters (homepage hero passes them in)
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
     const cat = searchParams.get('category');
     const loc = searchParams.get('location');
@@ -114,6 +114,47 @@ export default function Browse() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Sync filters -> URL so refresh restores selected location, coords, and
+  // primary search inputs. Keeps radius filtering consistent across reloads.
+  useEffect(() => {
+    const next = new URLSearchParams(searchParams);
+    const setOrDelete = (key: string, value: string | null | undefined) => {
+      if (value) next.set(key, value);
+      else next.delete(key);
+    };
+    setOrDelete('q', filters.search || null);
+    setOrDelete('location', filters.location || null);
+    setOrDelete('category', filters.category || null);
+    setOrDelete('date', filters.date || null);
+    setOrDelete('start', filters.startTime || null);
+    setOrDelete('end', filters.endTime || null);
+    if (filters.locationCoords) {
+      next.set('lat', String(filters.locationCoords.lat));
+      next.set('lng', String(filters.locationCoords.lng));
+      setOrDelete('city', filters.locationCoords.city || null);
+      setOrDelete('state', filters.locationCoords.state || null);
+    } else {
+      next.delete('lat');
+      next.delete('lng');
+      next.delete('city');
+      next.delete('state');
+    }
+    const currentStr = searchParams.toString();
+    const nextStr = next.toString();
+    if (currentStr !== nextStr) {
+      setSearchParams(next, { replace: true });
+    }
+  }, [
+    filters.search,
+    filters.location,
+    filters.category,
+    filters.date,
+    filters.startTime,
+    filters.endTime,
+    filters.locationCoords,
+    searchParams,
+    setSearchParams,
+  ]);
   // Use time from hook filters
   const startTime = filters.startTime;
   const endTime = filters.endTime;
