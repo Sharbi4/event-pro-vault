@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Loader2, Package, Plus, Trash2 } from 'lucide-react';
+import { Loader2, Package, Plus, Trash2, Sparkles, Users, ChefHat, Moon, Coffee, Wine } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,111 @@ import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+
+type PresetKey = 'small_party' | 'full_service' | 'late_night' | 'corporate' | 'brunch';
+
+interface Preset {
+  key: PresetKey;
+  label: string;
+  icon: typeof Sparkles;
+  patch: {
+    packageName?: string;
+    description?: string;
+    guestCount?: number;
+    basePrice?: number;
+    travelFee?: number;
+    depositPercent?: number;
+    expiresInDays?: number;
+    includedItems?: string[];
+    menuDetails?: string;
+  };
+  /** When true, fields are merged into existing values rather than replacing */
+  mergeIncluded?: boolean;
+}
+
+const PRESETS: Preset[] = [
+  {
+    key: 'small_party',
+    label: 'Small party',
+    icon: Users,
+    patch: {
+      packageName: 'Small Party Package',
+      description: 'Intimate gathering setup for up to 25 guests with core menu and standard service window.',
+      guestCount: 25,
+      basePrice: 750,
+      travelFee: 50,
+      depositPercent: 50,
+      expiresInDays: 7,
+      includedItems: ['Setup & breakdown', '2 hours of service', 'Disposable plates & utensils'],
+    },
+  },
+  {
+    key: 'full_service',
+    label: 'Full service',
+    icon: ChefHat,
+    patch: {
+      packageName: 'Full-Service Catering',
+      description: 'Complete white-glove experience with on-site staff, full menu, and extended service hours.',
+      guestCount: 75,
+      basePrice: 2400,
+      travelFee: 100,
+      depositPercent: 50,
+      expiresInDays: 14,
+      includedItems: [
+        'Setup & breakdown',
+        '4 hours of service',
+        'On-site staff (2 people)',
+        'Premium serveware',
+        'Beverage station',
+      ],
+    },
+  },
+  {
+    key: 'late_night',
+    label: 'Late-night add-ons',
+    icon: Moon,
+    mergeIncluded: true,
+    patch: {
+      basePrice: 350,
+      depositPercent: 100,
+      expiresInDays: 5,
+      includedItems: ['Late-night snack station (10pm–12am)', 'Coffee & dessert refresh', 'Extended cleanup'],
+      menuDetails: 'Late-night additions:\n• Slider bar\n• Mini tacos\n• Espresso & churros',
+    },
+  },
+  {
+    key: 'corporate',
+    label: 'Corporate lunch',
+    icon: Coffee,
+    patch: {
+      packageName: 'Corporate Lunch Package',
+      description: 'Boxed or buffet-style lunch delivery for offices and meetings.',
+      guestCount: 30,
+      basePrice: 600,
+      travelFee: 0,
+      depositPercent: 25,
+      expiresInDays: 5,
+      includedItems: ['Individually packaged meals', 'Drinks & condiments', 'Delivery & setup'],
+    },
+  },
+  {
+    key: 'brunch',
+    label: 'Brunch / bar',
+    icon: Wine,
+    patch: {
+      packageName: 'Brunch & Bar Package',
+      description: 'Mimosas, coffee bar, and brunch bites — perfect for showers and weekend events.',
+      guestCount: 40,
+      basePrice: 1200,
+      travelFee: 75,
+      depositPercent: 50,
+      expiresInDays: 10,
+      includedItems: ['Mimosa & coffee bar', 'Brunch buffet', 'Bartender (2 hrs)'],
+    },
+  },
+];
+
 
 interface CreatePrivatePackageDrawerProps {
   open: boolean;
