@@ -88,6 +88,7 @@ export function SearchModal({
     if (open) {
       setSearch(initialFilters.search);
       setLocation(initialFilters.location);
+      setLocationCoords(null);
       setDate(initialFilters.date);
       setStartTime(initialFilters.startTime);
       setEndTime(initialFilters.endTime);
@@ -128,6 +129,7 @@ export function SearchModal({
     onApplyFilters({
       search,
       location,
+      locationCoords,
       date,
       startTime,
       endTime,
@@ -144,6 +146,7 @@ export function SearchModal({
   const handleClear = () => {
     setSearch('');
     setLocation('');
+    setLocationCoords(null);
     setDate(null);
     setStartTime(null);
     setEndTime(null);
@@ -197,13 +200,28 @@ export function SearchModal({
                   />
                 </div>
                 
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Location (city, state)"
+                <div className="relative flex items-center gap-2 pl-3 h-12 bg-card border border-border rounded-md">
+                  <LocationAutocomplete
                     value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="pl-10 h-12 bg-card border-border"
+                    onChange={(v) => {
+                      setLocation(v);
+                      setLocationCoords(null);
+                    }}
+                    onPlaceSelect={(place) => {
+                      setLocation(
+                        place.city
+                          ? place.state ? `${place.city}, ${place.state}` : place.city
+                          : place.formatted_address
+                      );
+                      setLocationCoords({
+                        lat: place.lat,
+                        lng: place.lng,
+                        city: place.city,
+                        state: place.state,
+                        formattedAddress: place.formatted_address,
+                      });
+                    }}
+                    placeholder="Location (city, state)"
                   />
                 </div>
               </div>
