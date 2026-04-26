@@ -46,6 +46,7 @@ export interface BrowseFilters {
   endTime: string | null;
   location: string;
   locationCoords: GeocodedLocation | null; // Geocoded coordinates
+  searchRadius: number; // Customer-controlled search radius in miles (default 25)
   instantBook: boolean;
   verified: boolean;
   onlinePaymentsOnly: boolean;
