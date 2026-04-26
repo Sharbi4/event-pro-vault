@@ -289,11 +289,13 @@ function PriceInput({
   placeholder,
   value,
   onChange,
+  error,
 }: {
   label: string;
   placeholder?: string;
   value?: number;
   onChange: (v: number | undefined) => void;
+  error?: string;
 }) {
   return (
     <div>
@@ -304,15 +306,17 @@ function PriceInput({
           type="number"
           min="0"
           step="0.01"
-          className="pl-8"
+          className={cn('pl-8', error && 'border-destructive focus-visible:ring-destructive')}
           placeholder={placeholder}
           value={value ?? ''}
+          aria-invalid={!!error}
           onChange={(e) => {
             const v = parseFloat(e.target.value);
             onChange(isNaN(v) ? undefined : v);
           }}
         />
       </div>
+      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
   );
 }
@@ -322,11 +326,13 @@ function NumberInput({
   placeholder,
   value,
   onChange,
+  error,
 }: {
   label: string;
   placeholder?: string;
   value?: number;
   onChange: (v: number | undefined) => void;
+  error?: string;
 }) {
   return (
     <div>
@@ -335,14 +341,16 @@ function NumberInput({
         type="number"
         min="0"
         step="1"
-        className="mt-1"
+        className={cn('mt-1', error && 'border-destructive focus-visible:ring-destructive')}
         placeholder={placeholder}
         value={value ?? ''}
+        aria-invalid={!!error}
         onChange={(e) => {
           const v = parseInt(e.target.value);
           onChange(isNaN(v) ? undefined : v);
         }}
       />
+      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
   );
 }
