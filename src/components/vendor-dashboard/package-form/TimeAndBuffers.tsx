@@ -132,6 +132,14 @@ export function TimeAndBuffers({
         bufferAfterMinutes={bufferAfterMinutes}
       />
 
+      <LiveCalendarPreview
+        durationMinutes={durationMinutes ?? 0}
+        setupMinutes={setupMinutes}
+        cleanupMinutes={cleanupMinutes}
+        bufferBeforeMinutes={bufferBeforeMinutes}
+        bufferAfterMinutes={bufferAfterMinutes}
+      />
+
       <div className="space-y-2">
         <Label className="text-sm font-semibold">Minimum notice</Label>
         <p className="text-xs text-muted-foreground">
