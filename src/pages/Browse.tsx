@@ -78,7 +78,7 @@ export default function Browse() {
   }, []);
 
   // Sync URL search params -> filters (homepage hero passes them in)
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   useEffect(() => {
     const cat = searchParams.get('category');
     const loc = searchParams.get('location');
