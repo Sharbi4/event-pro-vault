@@ -13,7 +13,9 @@ import {
 } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Loader2, ExternalLink } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { prepareExternalNavigation } from '@/lib/externalNavigation';
 import { VendorPackage } from '@/hooks/useVendorDashboard';
 import { StepBasicInfo } from './StepBasicInfo';
 import { StepPricingTravel } from './StepPricingTravel';
@@ -245,26 +247,82 @@ export function PackageFormWizard({
   initialData
 }: PackageFormWizardProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const DRAFT_KEY = user ? `package-wizard-draft:${user.id}` : null;
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<PackageFormData>(defaultFormData);
   const [stripeConnected, setStripeConnected] = useState(false);
+  const [connectingStripe, setConnectingStripe] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
+  const [draftHydrated, setDraftHydrated] = useState(false);
   const isMobile = useIsMobile();
 
-  // Check Stripe status on mount
+  // Check Stripe status (re-runs when window regains focus, e.g. after Stripe onboarding tab closes)
+  const checkStripeStatus = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('profiles')
+      .select('stripe_account_status')
+      .eq('user_id', user.id)
+      .single();
+    setStripeConnected(data?.stripe_account_status === 'active');
+  };
+
   useEffect(() => {
-    const checkStripeStatus = async () => {
-      if (!user) return;
-      const { data } = await supabase
-        .from('profiles')
-        .select('stripe_account_status')
-        .eq('user_id', user.id)
-        .single();
-      setStripeConnected(data?.stripe_account_status === 'active');
-    };
     checkStripeStatus();
   }, [user]);
+
+  // Re-check Stripe status when user returns from Stripe onboarding tab
+  useEffect(() => {
+    if (!open) return;
+    const onFocus = () => checkStripeStatus();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [open, user]);
+
+  const handleConnectStripe = async () => {
+    const nav = prepareExternalNavigation();
+    setConnectingStripe(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        nav.cancel();
+        toast({ title: 'Sign in required', description: 'Please sign in to connect Stripe.' });
+        return;
+      }
+      const { data, error } = await supabase.functions.invoke('create-connect-account', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        if (nav.popupBlocked) {
+          await navigator.clipboard.writeText(data.url).catch(() => undefined);
+          toast({
+            title: 'Pop-up blocked',
+            description: 'Allow pop-ups, then click again. Link copied to clipboard.',
+          });
+        }
+        nav.open(data.url);
+        toast({
+          title: 'Finish Stripe setup in the new tab',
+          description: 'Your package draft is saved here. Return when done.',
+        });
+        return;
+      }
+      nav.cancel();
+    } catch (err) {
+      nav.cancel();
+      toast({
+        title: 'Failed to start Stripe setup',
+        description: err instanceof Error ? err.message : 'Please try again',
+        variant: 'destructive',
+      });
+    } finally {
+      setConnectingStripe(false);
+    }
+  };
 
   useEffect(() => {
     if (initialData) {
@@ -333,11 +391,47 @@ export function PackageFormWizard({
         menu_items: ((initialData as any).menu_items as any[]) || [],
       });
     } else {
-      setFormData(defaultFormData);
+      // No initial data → try to restore an in-progress draft (e.g. user left to connect Stripe)
+      let restored = false;
+      if (DRAFT_KEY && open) {
+        try {
+          const raw = localStorage.getItem(DRAFT_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed?.formData) {
+              setFormData({ ...defaultFormData, ...parsed.formData });
+              setCurrentStep(typeof parsed.currentStep === 'number' ? parsed.currentStep : 0);
+              restored = true;
+            }
+          }
+        } catch (_) { /* ignore corrupt draft */ }
+      }
+      if (!restored) {
+        setFormData(defaultFormData);
+        setCurrentStep(0);
+      }
     }
-    setCurrentStep(0);
+    if (initialData) setCurrentStep(0);
     setShowErrors(false);
+    setDraftHydrated(true);
   }, [initialData, open]);
+
+  // Persist in-progress new-package drafts so users can leave (e.g. for Stripe Connect) and return
+  useEffect(() => {
+    if (!open || !DRAFT_KEY || initialData || !draftHydrated) return;
+    try {
+      localStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({ formData, currentStep, savedAt: Date.now() })
+      );
+    } catch (_) { /* quota — ignore */ }
+  }, [formData, currentStep, open, DRAFT_KEY, initialData, draftHydrated]);
+
+  const clearDraft = () => {
+    if (DRAFT_KEY) {
+      try { localStorage.removeItem(DRAFT_KEY); } catch (_) { /* ignore */ }
+    }
+  };
 
   const updateFormData = (updates: Partial<PackageFormData>) => {
     setFormData(prev => ({ ...prev, ...updates }));
@@ -422,6 +516,7 @@ export function PackageFormWizard({
 
     await onSubmit(submitData, availability);
     setLoading(false);
+    if (!initialData) clearDraft();
     onClose();
   };
 
@@ -632,10 +727,8 @@ export function PackageFormWizard({
   const navigation = (
     <div
       className="
-        flex flex-col gap-2 pt-3 border-t bg-background
-        sticky bottom-0 left-0 right-0
+        flex flex-col gap-2 pt-3 border-t bg-background shrink-0
         -mx-4 sm:mx-0 px-4 sm:px-0 pb-[max(env(safe-area-inset-bottom),0.75rem)] sm:pb-3
-        z-10
       "
     >
       {showErrors && errorList.length > 0 && (
@@ -806,6 +899,8 @@ export function PackageFormWizard({
               formData={formData}
               updateFormData={updateFormData}
               stripeConnected={stripeConnected}
+              onConnectStripe={handleConnectStripe}
+              connectingStripe={connectingStripe}
             />
           </div>
         );
@@ -909,6 +1004,8 @@ export function PackageFormWizard({
               formData={formData}
               updateFormData={updateFormData}
               stripeConnected={stripeConnected}
+              onConnectStripe={handleConnectStripe}
+              connectingStripe={connectingStripe}
             />
           </div>
         );
@@ -960,7 +1057,7 @@ export function PackageFormWizard({
   };
 
   const stepContent = (
-    <div className="flex-1 overflow-y-auto py-4 min-h-[300px] sm:min-h-[400px] pb-24 sm:pb-4">
+    <div className="flex-1 min-h-0 overflow-y-auto py-4 pb-6">
       {renderStepBody()}
     </div>
   );

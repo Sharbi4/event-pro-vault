@@ -13,7 +13,8 @@ import {
   ExternalLink,
   Shield,
   ShieldCheck,
-  ShieldAlert
+  ShieldAlert,
+  Loader2
 } from 'lucide-react';
 import { PackageFormData } from './PackageFormWizard';
 import { CANCELLATION_POLICIES, CancellationPolicyType } from '@/lib/cancellationPolicies';
@@ -26,13 +27,15 @@ interface StepBookingPaymentProps {
   updateFormData: (updates: Partial<PackageFormData>) => void;
   stripeConnected: boolean;
   onConnectStripe?: () => void;
+  connectingStripe?: boolean;
 }
 
 export function StepBookingPayment({ 
   formData, 
   updateFormData, 
   stripeConnected,
-  onConnectStripe 
+  onConnectStripe,
+  connectingStripe = false,
 }: StepBookingPaymentProps) {
   const bookingMode = formData.booking_mode || 'INSTANT';
   const paymentOptions = formData.payment_options || 'ONLINE';
@@ -209,29 +212,48 @@ export function StepBookingPayment({
         </RadioGroup>
       </div>
 
-      {/* Stripe Connect Warning/Status */}
-      {stripeBlocked && (
-        <Card className="border-amber-300 bg-amber-50 dark:bg-amber-950/20">
+      {/* Stripe Connect — show whenever not connected, with stronger CTA when blocked */}
+      {!stripeConnected && (
+        <Card className={stripeBlocked
+          ? "border-amber-300 bg-amber-50 dark:bg-amber-950/20"
+          : "border-primary/30 bg-primary/5"}
+        >
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+              {stripeBlocked ? (
+                <AlertCircle className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+              ) : (
+                <CreditCard className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+              )}
               <div className="flex-1">
-                <p className="font-medium text-amber-800 dark:text-amber-200">
-                  Connect Stripe to enable online payments
+                <p className={`font-medium ${stripeBlocked ? 'text-amber-800 dark:text-amber-200' : 'text-foreground'}`}>
+                  {stripeBlocked ? 'Connect Stripe to enable online payments' : 'Want to accept online payments?'}
                 </p>
-                <p className="text-sm text-amber-700 dark:text-amber-300 mt-1">
-                  You need to connect your Stripe account before you can accept online payments.
-                  {formData.payment_options !== 'CASH' && ' Switch to "Pay in cash" or connect Stripe to continue.'}
+                <p className={`text-sm mt-1 ${stripeBlocked ? 'text-amber-700 dark:text-amber-300' : 'text-muted-foreground'}`}>
+                  {stripeBlocked
+                    ? 'You need to connect Stripe before customers can pay by card. Your draft is saved — you can return to this exact step.'
+                    : 'Connect Stripe in a new tab to start accepting card payments. Your draft stays saved here.'}
                 </p>
                 {onConnectStripe && (
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={onConnectStripe}
+                  <Button
+                    type="button"
+                    variant={stripeBlocked ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={(e) => { e.preventDefault(); onConnectStripe(); }}
+                    disabled={connectingStripe}
                     className="mt-3 gap-2"
                   >
-                    <ExternalLink className="w-4 h-4" />
-                    Connect Stripe
+                    {connectingStripe ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        Opening Stripe…
+                      </>
+                    ) : (
+                      <>
+                        <ExternalLink className="w-4 h-4" />
+                        Connect Stripe
+                      </>
+                    )}
                   </Button>
                 )}
               </div>
