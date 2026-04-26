@@ -87,6 +87,31 @@ serve(async (req) => {
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
+
+    // Stripe Identity rejects accounts/regions that aren't supported.
+    // Detect that case and return a structured fallback (HTTP 200) so the
+    // frontend can show a friendly "verification unavailable" state instead
+    // of crashing on a 500.
+    const isUnsupported =
+      /identity/i.test(errorMessage) &&
+      /(use[- ]?case|location|support|country|not\s+available)/i.test(errorMessage);
+
+    if (isUnsupported) {
+      return new Response(
+        JSON.stringify({
+          error: "IDENTITY_UNSUPPORTED",
+          fallback: true,
+          message:
+            "Identity verification isn't available for your account or region yet. You can keep using the platform — verification is optional.",
+          docs: "https://docs.stripe.com/identity/use-cases",
+        }),
+        {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 200,
+        }
+      );
+    }
+
     return new Response(JSON.stringify({ error: errorMessage }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
