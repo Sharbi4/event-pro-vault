@@ -112,6 +112,17 @@ const App = () => (
               <Route path="/private-package/:id" element={<PrivatePackageReview />} />
               {/* SEO City/Category landing pages */}
               <Route path="/:citySlug/:categorySlug" element={<CityCategory />} />
+
+              {/* ===== Legacy URL aliases (preserve old bookmarks & external links) ===== */}
+              <Route path="/vendor/:id" element={<LegacyRedirect to="/pro/:id" />} />
+              <Route path="/vendors/:id" element={<LegacyRedirect to="/pro/:id" />} />
+              <Route path="/vendors" element={<LegacyRedirect to="/browse" />} />
+              <Route path="/become-a-vendor" element={<LegacyRedirect to="/become-a-pro" />} />
+              <Route path="/learn/vendors" element={<LegacyRedirect to="/learn/event-pros" />} />
+              <Route path="/auth/vendor" element={<LegacyRedirect to="/auth/pro" />} />
+              <Route path="/services" element={<LegacyRedirect to="/browse" />} />
+              <Route path="/browse-services" element={<LegacyRedirect to="/browse" />} />
+
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
