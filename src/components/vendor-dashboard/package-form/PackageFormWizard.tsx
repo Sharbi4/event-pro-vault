@@ -621,69 +621,92 @@ export function PackageFormWizard({
     </>
   );
 
+  const errorList = Object.values(stepErrors);
+  const isPublishingReview =
+    (activeStep?.id === 'pullup_review' || activeStep?.id === 'catering_review') &&
+    formData.status === 'published';
+  // Disable publish button only when publishing AND we already know there's an error.
+  // For Next, never disable — we want users to click and see errors inline.
+  const disablePublish = isPublishingReview && errorList.length > 0;
+
   const navigation = (
     <div
       className="
-        flex gap-2 pt-3 border-t bg-background
+        flex flex-col gap-2 pt-3 border-t bg-background
         sticky bottom-0 left-0 right-0
         -mx-4 sm:mx-0 px-4 sm:px-0 pb-[max(env(safe-area-inset-bottom),0.75rem)] sm:pb-3
         z-10
       "
     >
-      <Button
-        type="button"
-        variant="outline"
-        size="lg"
-        onClick={safeStepIndex === 0 ? onClose : handleBack}
-        className="flex-1 sm:flex-none h-12 sm:h-10 text-base sm:text-sm"
-      >
-        {safeStepIndex === 0 ? 'Cancel' : (
-          <>
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Back
-          </>
-        )}
-      </Button>
-
-      {safeStepIndex < steps.length - 1 ? (
+      {showErrors && errorList.length > 0 && (
+        <div
+          role="alert"
+          className="flex gap-2 rounded-xl border border-destructive/40 bg-destructive/5 p-3 text-xs text-destructive"
+        >
+          <span className="font-semibold shrink-0">Fix to continue:</span>
+          <ul className="list-disc pl-4 space-y-0.5">
+            {errorList.slice(0, 4).map((msg) => (
+              <li key={msg}>{msg}</li>
+            ))}
+            {errorList.length > 4 && <li>+{errorList.length - 4} more</li>}
+          </ul>
+        </div>
+      )}
+      <div className="flex gap-2">
         <Button
           type="button"
-          variant="gradient"
+          variant="outline"
           size="lg"
-          onClick={handleNext}
-          disabled={!isStepValid()}
-          className="flex-1 sm:flex-none sm:ml-auto h-12 sm:h-10 text-base sm:text-sm font-semibold"
+          onClick={safeStepIndex === 0 ? onClose : handleBack}
+          className="flex-1 sm:flex-none h-12 sm:h-10 text-base sm:text-sm"
         >
-          Next
-          <ChevronRight className="w-4 h-4 ml-1" />
-        </Button>
-      ) : (
-        <Button
-          type="button"
-          variant="gradient"
-          size="lg"
-          onClick={handleSubmit}
-          disabled={loading || !isStepValid()}
-          className="flex-1 sm:flex-none sm:ml-auto h-12 sm:h-10 text-base sm:text-sm font-semibold"
-        >
-          {loading ? (
+          {safeStepIndex === 0 ? 'Cancel' : (
             <>
-              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              Saving...
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Back
             </>
-          ) : (
-            (() => {
-              const labels: Record<typeof formData.status, string> = {
-                draft: initialData ? 'Save as draft' : 'Save draft',
-                published: initialData ? 'Save & publish' : 'Publish package',
-                paused: initialData ? 'Save & pause' : 'Save (paused)',
-                archived: 'Archive package',
-              };
-              return labels[formData.status];
-            })()
           )}
         </Button>
-      )}
+
+        {safeStepIndex < steps.length - 1 ? (
+          <Button
+            type="button"
+            variant="gradient"
+            size="lg"
+            onClick={handleNext}
+            className="flex-1 sm:flex-none sm:ml-auto h-12 sm:h-10 text-base sm:text-sm font-semibold"
+          >
+            Next
+            <ChevronRight className="w-4 h-4 ml-1" />
+          </Button>
+        ) : (
+          <Button
+            type="button"
+            variant="gradient"
+            size="lg"
+            onClick={handleSubmit}
+            disabled={loading || disablePublish}
+            className="flex-1 sm:flex-none sm:ml-auto h-12 sm:h-10 text-base sm:text-sm font-semibold"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              (() => {
+                const labels: Record<typeof formData.status, string> = {
+                  draft: initialData ? 'Save as draft' : 'Save draft',
+                  published: initialData ? 'Save & publish' : 'Publish package',
+                  paused: initialData ? 'Save & pause' : 'Save (paused)',
+                  archived: 'Archive package',
+                };
+                return labels[formData.status];
+              })()
+            )}
+          </Button>
+        )}
+      </div>
     </div>
   );
 
