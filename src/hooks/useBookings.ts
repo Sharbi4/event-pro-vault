@@ -63,6 +63,7 @@ export interface CreateBookingInput {
   vendor_name?: string;
   customer_name?: string;
   customer_email?: string;
+  customer_phone?: string;
   package_name?: string;
   unit_type?: string;
   cancellation_policy?: 'flexible' | 'standard' | 'strict' | 'custom';
