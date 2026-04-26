@@ -1,5 +1,6 @@
 import { Layout } from '@/components/layout/Layout';
 import { HeroSection } from '@/components/home/HeroSection';
+import { FoodTruckPullUpStrip } from '@/components/home/FoodTruckPullUpStrip';
 import { CategoryCuisineChips } from '@/components/home/CategoryCuisineChips';
 import { AIConciergeStrip } from '@/components/home/AIConciergeStrip';
 import { FeaturedPackages } from '@/components/home/FeaturedPackages';
@@ -30,6 +31,7 @@ const Index = () => {
       <OrganizationJsonLd />
 
       <HeroSection />
+      <FoodTruckPullUpStrip />
       <CategoryCuisineChips />
       <AIConciergeStrip />
       <FeaturedPackages />

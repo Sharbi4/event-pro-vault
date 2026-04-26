@@ -58,12 +58,12 @@ export function CategoryCarousel({
         {/* Categories scroll container */}
         <div
           ref={scrollRef}
-          className="flex items-center gap-6 py-4 overflow-x-auto scrollbar-hide scroll-smooth"
+          className="flex items-stretch gap-3 sm:gap-5 py-4 px-1 md:px-12 overflow-x-auto scrollbar-hide scroll-smooth"
         >
           {/* All category */}
           <button
             onClick={() => onSelectCategory(null)}
-            className={`flex flex-col items-center gap-2 min-w-[64px] group transition-all ${
+            className={`flex flex-col items-center gap-2 min-w-[80px] shrink-0 group transition-all ${
               !selectedCategory
                 ? 'text-foreground'
                 : 'text-muted-foreground hover:text-foreground'
@@ -78,9 +78,9 @@ export function CategoryCarousel({
             >
               <Sparkles className="w-5 h-5" />
             </div>
-            <span className="text-xs font-medium whitespace-nowrap">All</span>
+            <span className="text-xs font-medium whitespace-nowrap leading-tight text-center">All</span>
             <div
-              className={`h-0.5 w-full rounded-full transition-all ${
+              className={`h-0.5 w-8 rounded-full transition-all ${
                 !selectedCategory ? 'bg-primary' : 'bg-transparent'
               }`}
             />
@@ -94,7 +94,7 @@ export function CategoryCarousel({
               <button
                 key={category.id}
                 onClick={() => onSelectCategory(category.id)}
-                className={`flex flex-col items-center gap-2 min-w-[64px] group transition-all ${
+                className={`flex flex-col items-center gap-2 min-w-[80px] shrink-0 group transition-all ${
                   isSelected
                     ? 'text-foreground'
                     : 'text-muted-foreground hover:text-foreground'
@@ -114,9 +114,9 @@ export function CategoryCarousel({
                     <span className="absolute -top-1 -right-1 w-2 h-2 bg-trust rounded-full" />
                   )}
                 </div>
-                <span className="text-xs font-medium whitespace-nowrap">{category.name}</span>
+                <span className="text-xs font-medium whitespace-nowrap leading-tight text-center max-w-[88px] truncate">{category.name}</span>
                 <div
-                  className={`h-0.5 w-full rounded-full transition-all ${
+                  className={`h-0.5 w-8 rounded-full transition-all ${
                     isSelected ? 'bg-primary' : 'bg-transparent'
                   }`}
                 />
