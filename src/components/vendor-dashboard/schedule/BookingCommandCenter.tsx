@@ -10,6 +10,8 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, CalendarRange, ListTodo, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { bookingBlocksCalendar } from '@/lib/bookingLifecycle';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface Props {
   onMessageClient?: (booking: { id: string; customer_email: string; event_location: string }) => void;
