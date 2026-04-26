@@ -30,6 +30,7 @@ import { CANCELLATION_POLICIES, CancellationPolicyType } from '@/lib/cancellatio
 import { CancellationPolicyBadge } from '@/components/shared/CancellationPolicyBadge';
 import { AddressInput } from '@/components/shared/AddressInput';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { TimeSlotPicker } from '@/components/booking/TimeSlotPicker';
 import { trackBookingStarted, trackBookingCompleted, trackBookingFailed } from '@/lib/trackingAnalytics';
 import { geocodeLocation } from '@/lib/geocoding';
 
