@@ -16,18 +16,18 @@ export const SEO_CONFIG = {
     phone: '1-877-883-6342',
   },
   
-  // Primary keywords
+  // Primary keywords (food & beverage focused)
   keywords: [
-    'event services marketplace',
-    'book event services',
-    'book food truck',
-    'hire photographer',
+    'book a food truck',
+    'food truck catering',
+    'mobile catering',
+    'private chef hire',
     'mobile bartender',
-    'catering',
-    'DJs',
-    'performers',
-    'event rentals',
-    'book by availability',
+    'mobile bar service',
+    'cottage baker',
+    'mobile coffee cart',
+    'ice cream truck rental',
+    'food vendor booking',
   ],
 };
 
