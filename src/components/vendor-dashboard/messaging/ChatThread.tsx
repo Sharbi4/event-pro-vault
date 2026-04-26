@@ -30,6 +30,7 @@ export function ChatThread({
   onMarkAsRead,
 }: ChatThreadProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [packageDrawerOpen, setPackageDrawerOpen] = useState(false);
 
   // Scroll to bottom when messages change
   useEffect(() => {
