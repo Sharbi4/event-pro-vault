@@ -343,6 +343,22 @@ export function BookingModal({
     }
   }, [availableHours, startTime, endTime]);
 
+  // Keep endTime in sync with the customer-selected start time + duration
+  // (for hourly packages we use hourlyHours; for daily/flat we use dailyDuration).
+  useEffect(() => {
+    if (!startTime) return;
+    const [h, m] = startTime.split(':').map(Number);
+    if (Number.isNaN(h) || Number.isNaN(m)) return;
+    const durMin = effectivePricingType === 'hourly'
+      ? hourlyHours * 60
+      : dailyDuration;
+    const total = h * 60 + m + durMin;
+    const eh = Math.floor((total % (24 * 60)) / 60);
+    const em = total % 60;
+    const next = `${String(eh).padStart(2, '0')}:${String(em).padStart(2, '0')}`;
+    if (next !== endTime) setEndTime(next);
+  }, [startTime, hourlyHours, dailyDuration, effectivePricingType, endTime]);
+
   const isInstant = bookingMode === 'INSTANT';
   const showPaymentStep = paymentOptions === 'BOTH';
   const stripeAvailable = vendorStripeStatus === 'active';
