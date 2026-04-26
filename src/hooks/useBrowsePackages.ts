@@ -119,6 +119,7 @@ export function useBrowsePackages() {
           images,
           instant_book,
           is_active,
+          payment_options,
           user_id
         `)
         .eq('is_active', true)
