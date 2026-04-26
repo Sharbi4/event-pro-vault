@@ -123,12 +123,12 @@ export default function BookOrGetBooked() {
 
             <div className="mt-7 flex flex-col sm:flex-row gap-3 justify-center">
               <Button asChild size="lg" className="rounded-full bg-orange-500 hover:bg-orange-600 text-white">
-                <Link to="/browse">
+                <Link to={browseHref}>
                   Find vendors near me <ArrowRight className="ml-1.5 w-4 h-4" />
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-full">
-                <Link to="/become-a-pro">Become an Event Pro</Link>
+                <Link to={proEntry()}>{user ? 'Open vendor dashboard' : 'Become an Event Pro'}</Link>
               </Button>
             </div>
 
