@@ -8,10 +8,8 @@ import { categories } from '@/data/categories';
 import { vendors as mockVendors, packages as mockPackages } from '@/data/vendors';
 import { Vendor } from '@/types';
 import { useCategoryCounts, useCategoryPackages } from '@/hooks/useFeaturedContent';
-import { 
-  Truck, UtensilsCrossed, ChefHat, Wine, 
-  Music, Sparkles, Tent, Heart, Store, Leaf,
-  Cake
+import {
+  Truck, UtensilsCrossed, ChefHat, Wine, Coffee, IceCream, Store, Cake
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -19,48 +17,45 @@ const iconMap: Record<string, React.ElementType> = {
   UtensilsCrossed,
   ChefHat,
   Wine,
-  Music,
-  Sparkles,
-  Tent,
-  Heart,
+  Coffee,
+  IceCream,
   Store,
-  Leaf,
   Cake,
 };
 
-// Featured category groups with vendors
+// Food-first category groups
 const categoryGroups = [
   {
-    id: 'markets',
-    title: 'Local Markets',
-    subtitle: 'Find vendor spots at flea markets & farmers markets',
-    categoryIds: ['flea-markets', 'farmers-markets'],
-    icon: Store,
-    link: '/markets',
-  },
-  {
-    id: 'food',
-    title: 'Food & Catering',
-    subtitle: 'Food trucks, caterers, and private chefs',
-    categoryIds: ['food-trucks', 'catering', 'private-chefs'],
-    icon: UtensilsCrossed,
+    id: 'food-trucks',
+    title: 'Food Trucks',
+    subtitle: 'Mobile kitchens for any event, big or small',
+    categoryIds: ['food-trucks'],
+    icon: Truck,
     link: '/browse?category=food-trucks',
   },
   {
-    id: 'entertainment',
-    title: 'Entertainment',
-    subtitle: 'DJs, performers, and live entertainment',
-    categoryIds: ['djs', 'performers'],
-    icon: Music,
-    link: '/browse?category=djs',
+    id: 'catering',
+    title: 'Catering & Private Chefs',
+    subtitle: 'Full-service catering and personalized chef experiences',
+    categoryIds: ['catering', 'private-chefs', 'food-popup'],
+    icon: UtensilsCrossed,
+    link: '/browse?category=catering',
   },
   {
-    id: 'services',
-    title: 'Event Services',
-    subtitle: 'Bartending, rentals, and wellness',
-    categoryIds: ['bartending', 'rentals', 'wellness'],
+    id: 'bar',
+    title: 'Mobile Bars & Beverage',
+    subtitle: 'Bartenders, bar carts, and mobile coffee',
+    categoryIds: ['bartending', 'coffee-beverage'],
     icon: Wine,
     link: '/browse?category=bartending',
+  },
+  {
+    id: 'sweets',
+    title: 'Desserts, Bakers & Treats',
+    subtitle: 'Cottage bakers, cake artists, and ice cream',
+    categoryIds: ['desserts', 'ice-cream'],
+    icon: Cake,
+    link: '/browse?category=desserts',
   },
 ];
 

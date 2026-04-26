@@ -2,9 +2,8 @@ import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { categories } from '@/data/categories';
-import { 
-  Truck, UtensilsCrossed, ChefHat, Wine, 
-  Music, Sparkles, Tent, Heart, Store, Leaf 
+import {
+  Truck, UtensilsCrossed, ChefHat, Wine, Coffee, IceCream, Store, Cake
 } from 'lucide-react';
 
 const iconMap: Record<string, React.ElementType> = {
@@ -12,12 +11,10 @@ const iconMap: Record<string, React.ElementType> = {
   UtensilsCrossed,
   ChefHat,
   Wine,
-  Music,
-  Sparkles,
-  Tent,
-  Heart,
+  Coffee,
+  IceCream,
   Store,
-  Leaf,
+  Cake,
 };
 
 export function CategoryGrid() {

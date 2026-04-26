@@ -1,8 +1,7 @@
 import { useRef } from 'react';
-import { 
-  Truck, UtensilsCrossed, ChefHat, Wine, Music, 
-  Sparkles, Tent, Heart, Camera, Video, Cake, 
-  MoreHorizontal, ChevronLeft, ChevronRight 
+import {
+  Truck, UtensilsCrossed, ChefHat, Wine, Coffee, IceCream,
+  Store, Cake, Sparkles, MoreHorizontal, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { Category } from '@/types';
 import { Button } from '@/components/ui/button';
@@ -12,13 +11,11 @@ const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   UtensilsCrossed,
   ChefHat,
   Wine,
-  Music,
-  Sparkles,
-  Tent,
-  Heart,
-  Camera,
-  Video,
+  Coffee,
+  IceCream,
+  Store,
   Cake,
+  Sparkles,
   MoreHorizontal,
 };
 
