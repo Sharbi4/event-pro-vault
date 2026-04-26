@@ -26,7 +26,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
-export type PricingType = 'hourly' | 'daily' | 'flat' | 'per_guest' | 'per_item' | 'custom_quote';
+export type PricingType = 'hourly' | 'daily' | 'flat' | 'per_guest' | 'per_item';
 
 export interface AdditionalFee {
   id: string;

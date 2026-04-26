@@ -1,7 +1,7 @@
-import { Clock, Calendar, DollarSign, Users, Package, HelpCircle } from 'lucide-react';
+import { Clock, Calendar, DollarSign, Users, Package } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type PricingType = 'hourly' | 'daily' | 'flat' | 'per_guest' | 'per_item' | 'custom_quote';
+export type PricingType = 'hourly' | 'daily' | 'flat' | 'per_guest' | 'per_item';
 
 interface PricingTypeSelectorProps {
   type: PricingType;
@@ -19,7 +19,6 @@ const pricingTypes: {
   { id: 'flat', label: 'Flat Rate', helper: 'Per event', icon: DollarSign },
   { id: 'per_guest', label: 'Per Guest', helper: 'Per person', icon: Users },
   { id: 'per_item', label: 'Per Item', helper: 'Per unit', icon: Package },
-  { id: 'custom_quote', label: 'Quote Only', helper: 'Inquiry required', icon: HelpCircle },
 ];
 
 export function PricingTypeSelector({ type, onTypeChange }: PricingTypeSelectorProps) {
