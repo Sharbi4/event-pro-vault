@@ -249,11 +249,11 @@ export default function Browse() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setViewMode(viewMode === 'grid' ? 'map' : 'grid')}
+                  onClick={() => setViewMode(viewMode === 'map' ? 'vendors' : 'map')}
                   className="h-9 gap-1.5"
                 >
-                  {viewMode === 'grid' ? <Map className="w-3.5 h-3.5" /> : <LayoutGrid className="w-3.5 h-3.5" />}
-                  <span className="hidden sm:inline">{viewMode === 'grid' ? 'Map' : 'Grid'}</span>
+                  {viewMode === 'map' ? <LayoutGrid className="w-3.5 h-3.5" /> : <Map className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline">{viewMode === 'map' ? 'List' : 'Map'}</span>
                 </Button>
                 
                 {activeFiltersCount > 0 && (
