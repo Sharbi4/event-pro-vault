@@ -89,24 +89,122 @@ export function LiveCalendarPreview({
     );
   }
 
+  return <PreviewBody
+    durationMinutes={durationMinutes}
+    setupMinutes={setupMinutes}
+    cleanupMinutes={cleanupMinutes}
+    bufferBeforeMinutes={bufferBeforeMinutes}
+    bufferAfterMinutes={bufferAfterMinutes}
+    blocks={blocks}
+    hours={hours}
+    dayStart={dayStart}
+    totalDayMinutes={totalDayMinutes}
+    pxPerMin={pxPerMin}
+    timelineHeight={TIMELINE_HEIGHT}
+    exampleBookings={exampleBookings}
+  />;
+}
+
+interface PreviewBodyProps {
+  durationMinutes: number;
+  setupMinutes: number;
+  cleanupMinutes: number;
+  bufferBeforeMinutes: number;
+  bufferAfterMinutes: number;
+  blocks: Block[];
+  hours: number[];
+  dayStart: number;
+  totalDayMinutes: number;
+  pxPerMin: number;
+  timelineHeight: number;
+  exampleBookings: string[];
+}
+
+type ViewMode = 'customer' | 'vendor';
+
+function PreviewBody({
+  durationMinutes,
+  setupMinutes,
+  cleanupMinutes,
+  bufferBeforeMinutes,
+  bufferAfterMinutes,
+  blocks,
+  hours,
+  dayStart,
+  totalDayMinutes,
+  pxPerMin,
+  timelineHeight,
+  exampleBookings,
+}: PreviewBodyProps) {
+  const [view, setView] = useState<ViewMode>('vendor');
+  const showOuter = view === 'vendor';
+
   return (
     <Card className="p-4 space-y-3 bg-muted/20">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-primary" />
           <h4 className="text-sm font-semibold">Live calendar preview</h4>
         </div>
-        <span className="text-[10px] text-muted-foreground">Example day</span>
+
+        {/* View toggle */}
+        <div
+          role="tablist"
+          aria-label="Calendar view"
+          className="inline-flex items-center bg-muted rounded-full p-0.5 text-xs"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view === 'customer'}
+            onClick={() => setView('customer')}
+            className={cn(
+              'inline-flex items-center gap-1 px-3 py-1 rounded-full transition-all',
+              view === 'customer'
+                ? 'bg-background text-foreground shadow-sm font-medium'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <Eye className="w-3 h-3" />
+            Customer view
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={view === 'vendor'}
+            onClick={() => setView('vendor')}
+            className={cn(
+              'inline-flex items-center gap-1 px-3 py-1 rounded-full transition-all',
+              view === 'vendor'
+                ? 'bg-background text-foreground shadow-sm font-medium'
+                : 'text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <Lock className="w-3 h-3" />
+            My calendar
+          </button>
+        </div>
       </div>
 
       <p className="text-xs text-muted-foreground leading-relaxed">
-        Here's how your day looks if you got{' '}
-        <span className="font-medium text-foreground">{exampleBookings.length} bookings</span>{' '}
-        with your current settings. Customers see the inner block; your calendar reserves the full block.
+        {view === 'customer' ? (
+          <>
+            What customers see when picking a time —{' '}
+            <span className="font-medium text-foreground">just the service window</span>.
+          </>
+        ) : (
+          <>
+            What's actually reserved on your calendar —{' '}
+            <span className="font-medium text-foreground">
+              service + setup, cleanup, and buffers
+            </span>
+            .
+          </>
+        )}
       </p>
 
       {/* Timeline */}
-      <div className="relative" style={{ height: TIMELINE_HEIGHT }}>
+      <div className="relative" style={{ height: timelineHeight }}>
         {/* Hour grid */}
         <div className="absolute inset-0">
           {hours.map((h) => {
@@ -129,12 +227,32 @@ export function LiveCalendarPreview({
         {/* Booking blocks */}
         <div className="absolute left-12 right-2 top-0 bottom-0">
           {blocks.map((b, i) => {
-            const top = Math.max(0, b.startMin * pxPerMin);
-            const height = Math.max(0, (b.endMin - b.startMin) * pxPerMin);
             const innerTop = (b.customerStartMin - b.startMin) * pxPerMin;
             const innerHeight = (b.customerEndMin - b.customerStartMin) * pxPerMin;
 
-            // Hide off-screen
+            // In customer view, only render the inner service block.
+            if (!showOuter) {
+              const top = Math.max(0, b.customerStartMin * pxPerMin);
+              const height = Math.max(20, innerHeight);
+              if (b.customerEndMin < 0 || b.customerStartMin > totalDayMinutes) return null;
+              return (
+                <div
+                  key={i}
+                  className="absolute left-0 right-0 rounded-sm bg-primary text-primary-foreground px-2 py-1 shadow-sm"
+                  style={{ top, height }}
+                >
+                  <div className="text-[10px] font-semibold leading-tight">{b.label}</div>
+                  <div className="text-[9px] opacity-90 tabular-nums leading-tight">
+                    {formatTime(b.customerStartMin + dayStart)} –{' '}
+                    {formatTime(b.customerEndMin + dayStart)}
+                  </div>
+                </div>
+              );
+            }
+
+            // Vendor view: full reserved block with inner service block.
+            const top = Math.max(0, b.startMin * pxPerMin);
+            const height = Math.max(0, (b.endMin - b.startMin) * pxPerMin);
             if (b.endMin < 0 || b.startMin > totalDayMinutes) return null;
 
             return (
@@ -143,27 +261,23 @@ export function LiveCalendarPreview({
                 className="absolute left-0 right-0 rounded-md bg-primary/15 border border-primary/40 overflow-hidden"
                 style={{ top, height }}
               >
-                {/* Setup label */}
                 {innerTop > 14 && (
                   <div className="absolute left-1.5 top-1 text-[9px] font-medium text-primary/80 uppercase tracking-wide">
                     Setup + buffer
                   </div>
                 )}
 
-                {/* Customer-visible service block */}
                 <div
                   className="absolute left-1 right-1 rounded-sm bg-primary text-primary-foreground px-2 py-1 shadow-sm"
                   style={{ top: innerTop, height: Math.max(20, innerHeight) }}
                 >
-                  <div className="text-[10px] font-semibold leading-tight">
-                    {b.label}
-                  </div>
+                  <div className="text-[10px] font-semibold leading-tight">{b.label}</div>
                   <div className="text-[9px] opacity-90 tabular-nums leading-tight">
-                    {formatTime(b.customerStartMin + dayStart)} – {formatTime(b.customerEndMin + dayStart)}
+                    {formatTime(b.customerStartMin + dayStart)} –{' '}
+                    {formatTime(b.customerEndMin + dayStart)}
                   </div>
                 </div>
 
-                {/* Cleanup label */}
                 {(height - innerTop - innerHeight) > 14 && (
                   <div className="absolute left-1.5 bottom-1 text-[9px] font-medium text-primary/80 uppercase tracking-wide">
                     Cleanup + buffer
@@ -176,19 +290,23 @@ export function LiveCalendarPreview({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-4 pt-2 border-t border-border/50">
+      <div className="flex items-center justify-center gap-4 pt-2 border-t border-border/50 flex-wrap">
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-sm bg-primary" />
           <span className="text-[10px] text-muted-foreground">Customer sees</span>
         </div>
-        <div className="flex items-center gap-1.5">
-          <div className="w-3 h-3 rounded-sm bg-primary/15 border border-primary/40" />
-          <span className="text-[10px] text-muted-foreground">Calendar blocks</span>
-        </div>
+        {showOuter && (
+          <div className="flex items-center gap-1.5">
+            <div className="w-3 h-3 rounded-sm bg-primary/15 border border-primary/40" />
+            <span className="text-[10px] text-muted-foreground">Calendar blocks</span>
+          </div>
+        )}
         <div className="flex items-center gap-1.5">
           <Clock className="w-3 h-3 text-muted-foreground" />
           <span className="text-[10px] text-muted-foreground tabular-nums">
-            {durationMinutes + setupMinutes + cleanupMinutes + bufferBeforeMinutes + bufferAfterMinutes} min/booking
+            {showOuter
+              ? `${durationMinutes + setupMinutes + cleanupMinutes + bufferBeforeMinutes + bufferAfterMinutes} min reserved`
+              : `${durationMinutes} min service`}
           </span>
         </div>
       </div>
