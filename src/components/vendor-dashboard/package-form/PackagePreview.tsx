@@ -93,11 +93,8 @@ function getTravelDisplay(formData: PackageFormData) {
 
 function calculateMinTotal(formData: PackageFormData): string | null {
   const pricingType = (formData.pricing_type || 'hourly') as PricingType;
-  
-  if (pricingType === 'custom_quote') {
-    return null;
-  }
-  
+
+
   if (pricingType === 'flat') {
     return `$${formData.price}`;
   }
@@ -132,7 +129,7 @@ export function PackagePreview({ formData }: PackagePreviewProps) {
   const minBooking = getMinBookingDisplay(formData);
   const travel = getTravelDisplay(formData);
   const minTotal = calculateMinTotal(formData);
-  const isCustomQuote = pricingType === 'custom_quote';
+  const isCustomQuote = false;
 
   return (
     <div className="space-y-4">
@@ -169,11 +166,6 @@ export function PackagePreview({ formData }: PackagePreviewProps) {
             {formData.instant_book && !isCustomQuote && (
               <Badge variant="trust" className="text-xs">
                 <Zap className="w-3 h-3 mr-0.5" /> Instant
-              </Badge>
-            )}
-            {isCustomQuote && (
-              <Badge variant="secondary" className="text-xs bg-white/90">
-                <MessageSquare className="w-3 h-3 mr-0.5" /> Quote Only
               </Badge>
             )}
           </div>
