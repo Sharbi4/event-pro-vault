@@ -45,6 +45,7 @@ interface SearchModalProps {
   onApplyFilters: (filters: {
     search: string;
     location: string;
+    locationCoords: PlaceCoords | null;
     date: string | null;
     startTime: string | null;
     endTime: string | null;
@@ -68,6 +69,7 @@ export function SearchModal({
   // Local state for the modal
   const [search, setSearch] = useState(initialFilters.search);
   const [location, setLocation] = useState(initialFilters.location);
+  const [locationCoords, setLocationCoords] = useState<PlaceCoords | null>(null);
   const [date, setDate] = useState<string | null>(initialFilters.date);
   const [startTime, setStartTime] = useState<string | null>(initialFilters.startTime);
   const [endTime, setEndTime] = useState<string | null>(initialFilters.endTime);
