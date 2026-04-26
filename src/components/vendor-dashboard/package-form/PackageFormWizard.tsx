@@ -960,7 +960,7 @@ export function PackageFormWizard({
   };
 
   const stepContent = (
-    <div className="flex-1 overflow-y-auto py-4 min-h-[300px] sm:min-h-[400px] pb-24 sm:pb-4">
+    <div className="flex-1 min-h-0 overflow-y-auto py-4 pb-6">
       {renderStepBody()}
     </div>
   );
