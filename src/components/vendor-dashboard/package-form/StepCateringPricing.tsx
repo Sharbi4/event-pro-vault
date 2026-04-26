@@ -14,6 +14,7 @@ import { PackageFormData } from './PackageFormWizard';
 interface Props {
   formData: PackageFormData;
   updateFormData: (updates: Partial<PackageFormData>) => void;
+  errors?: Record<string, string>;
 }
 
 type Model = NonNullable<PackageFormData['catering_pricing_model']>;
@@ -51,7 +52,7 @@ const BALANCE_TIMING: { value: NonNullable<PackageFormData['balance_due_timing']
   { value: 'direct_to_vendor', label: 'Paid directly to vendor' },
 ];
 
-export function StepCateringPricing({ formData, updateFormData }: Props) {
+export function StepCateringPricing({ formData, updateFormData, errors }: Props) {
   const model = formData.catering_pricing_model;
 
   const setModel = (m: Model) => {
