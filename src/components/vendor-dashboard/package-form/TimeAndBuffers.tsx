@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/select';
 import { Clock } from 'lucide-react';
 import { CalendarBlockPreview } from './CalendarBlockPreview';
+import { LiveCalendarPreview } from './LiveCalendarPreview';
 
 interface TimeAndBuffersProps {
   durationMinutes?: number;
@@ -124,6 +125,14 @@ export function TimeAndBuffers({
       </div>
 
       <CalendarBlockPreview
+        durationMinutes={durationMinutes ?? 0}
+        setupMinutes={setupMinutes}
+        cleanupMinutes={cleanupMinutes}
+        bufferBeforeMinutes={bufferBeforeMinutes}
+        bufferAfterMinutes={bufferAfterMinutes}
+      />
+
+      <LiveCalendarPreview
         durationMinutes={durationMinutes ?? 0}
         setupMinutes={setupMinutes}
         cleanupMinutes={cleanupMinutes}
