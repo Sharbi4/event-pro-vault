@@ -101,9 +101,9 @@ export function BrowsePackageCard({ pkg }: BrowsePackageCardProps) {
 
           {/* Event Pro Info */}
           <div className="flex items-center gap-2 mt-2">
-            <Avatar className="w-6 h-6 border border-border">
-              <AvatarImage src={pkg.vendor_avatar || undefined} />
-              <AvatarFallback className="text-xs bg-muted">
+            <Avatar className="w-7 h-7 shrink-0 border border-border ring-1 ring-background">
+              <AvatarImage src={pkg.vendor_avatar || undefined} className="object-cover" />
+              <AvatarFallback className={`text-xs text-white bg-gradient-to-br ${gradient}`}>
                 {vendorInitials}
               </AvatarFallback>
             </Avatar>
