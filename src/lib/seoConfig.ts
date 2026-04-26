@@ -5,8 +5,8 @@
 
 export const SEO_CONFIG = {
   siteName: 'EventPro by Vendibook',
-  baseUrl: 'https://event-pro-vault.lovable.app',
-  defaultImage: 'https://event-pro-vault.lovable.app/favicon.png',
+  baseUrl: 'https://eventpro.vendibook.com',
+  defaultImage: 'https://eventpro.vendibook.com/og-image.png',
   themeColor: '#1a1a2e', // Dark shine CTA color
   twitterHandle: '@eventpro',
   
