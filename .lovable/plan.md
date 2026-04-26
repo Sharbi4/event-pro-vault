@@ -1,126 +1,91 @@
-# StyleSeat-style booking flow for EventPro
+## Goal
 
-Restructure search, vendor results, and the customer bookings dashboard around the question: **"What do you need, where, when, for how many?"** — and make the booking lifecycle explicit (pending → approved → confirmed → in progress → completed / cancelled), with cancellation rules driven by the package policy and event time.
+Two upgrades to make the marketplace feel premium and food-driven:
 
-The current app already has most of the data plumbing (date/time/category/location filtering in `useBrowsePackages`, booking statuses in the DB, package cancellation policies, deposits). What's missing is: a **time** field in the homepage search, **vendor-grouped** results with package previews, an explicit **status-tab bookings page** with state-aware cards, and a **booking detail page**. Reminders mostly exist server-side; we'll round out the schedule.
+1. Make the search-result vendor card highly visual (food photo, logo overlay, package previews with thumbnails, availability badge).
+2. Replace the generic `HowItWorks` page with a premium pathway page titled **"Book or get booked, your way."** that serves both customers and Event Pros.
 
 ---
 
-## 1. Homepage search — add Time, rename CTA
+## Part 1 — Vendor Search Listing Card
 
-Update `src/components/home/HeroSection.tsx`:
-- Add a **Time** field next to Date (start time only, default "Any time"; selecting a time auto-sets a 3-hour window for filtering).
-- Reorder fields to: **Vendor Type · Location · Date · Time · Guests · Cuisine**.
-- Rename the search button label to **"Find available vendors"** (keep icon on mobile).
-- Pass `time` through to `/browse` as `start` / `end` URL params (already supported by the hook).
+**File:** `src/components/browse/BrowseVendorCard.tsx` (rewrite, no API changes needed — `BrowsePackage.images[]` and `vendor_avatar` already available).
 
-No new dependencies — `useBrowsePackages` already handles `startTime`/`endTime`.
+New card structure (desktop + mobile):
 
-## 2. Browse results — vendor-grouped cards
-
-Today `/browse` lists packages individually. Switch the default grid to a **vendor-grouped card** that surfaces the top 2–3 packages matching the search.
-
-- New component `src/components/browse/BrowseVendorCard.tsx` showing:
-  - Vendor cover image, business name, category, cuisine, city
-  - Rating + review count, Verified / Available badges
-  - "Available {date} at {time}" pill when date/time filters are set
-  - Up to 3 package previews (name · duration · "from $X")
-  - CTA **View availability** → vendor profile (`/eventpro/{username}`)
-- New helper `src/lib/groupPackagesByVendor.ts` to roll the existing `BrowsePackage[]` into vendors with their top-N matching packages (sorted by price asc, instant-book first).
-- Add a view toggle in `Browse.tsx`: **Vendors (default) · Packages · Map**. Keep existing `BrowsePackageCard` for the Packages view.
-
-When zero exact matches exist for the date/time, show a **Flexible alternatives** strip (already partially handled by `FlexibleDatesSection`) inline above results: "Available later that day · day before · day after · this weekend".
-
-## 3. Vendor profile — availability-aware package picker
-
-Light edits to `src/pages/ProProfile.tsx`:
-- Add an **Available dates & times** strip near the top (reads from `package_weekly_availability` + `package_availability` blocked dates; reuse logic from `useBrowsePackages`).
-- Each package card grows a **Book this package** CTA that routes into the existing checkout drawer (`SpatialDrawer`) pre-filled with the vendor + package + the date/time/guest count carried over from search params.
-
-No checkout-flow changes; we just deep-link with state.
-
-## 4. Customer Bookings dashboard — status tabs + state-aware cards
-
-Refactor the Bookings tab inside `src/pages/Dashboard.tsx` into a dedicated section with sub-tabs: **Pending · Upcoming · Past · Cancelled**.
-
-New helper `src/lib/bookingState.ts` derives a UI state from the booking record:
-
-```ts
-type BookingUiState =
-  | 'pending_vendor'        // status='pending'
-  | 'awaiting_payment'      // status='awaiting_payment' or approved & unpaid
-  | 'confirmed_cancellable' // confirmed, cancel window open
-  | 'confirmed_locked'      // confirmed, cancel window closed
-  | 'in_progress'           // now between event start & end
-  | 'completed'             // event end passed
-  | 'cancelled'             // status='cancelled' / 'declined'
+```text
+┌──────────────────────────────────────────┐
+│   [LARGE FOOD/HERO IMAGE  4:3]           │
+│   ┌────┐                       [Verified]│
+│   │logo│ ← avatar overlay      [Instant] │
+│   └────┘                                 │
+│                                          │
+│   Tia's Taco Truck       ⭐ 4.9 (82)     │
+│   Food Truck · Tacos · Phoenix           │
+│                                          │
+│   🟢 Available Sat, May 16 at 5:00 PM    │
+│                                          │
+│   ┌──┐ Taco Truck Pull-Up   from $250    │
+│   │🌮│ 3 hrs                              │
+│   ├──┤ Private Catering    from $18/pp   │
+│   │🌮│ 50 guests                          │
+│   └──┘                                   │
+│                                          │
+│   Pull-Up · Catering · Insured           │
+│   [ View availability → ]                │
+└──────────────────────────────────────────┘
 ```
 
-Cancellation window math reuses the package's `cancellation_policy` (Flexible / Standard / Strict — already defined in project knowledge): full-refund cutoff and event start are the gates. Once `now >= event_start`, the cancel button is hidden.
+Specifics:
+- Hero image = first available `images[0]` across the vendor's top packages; fallback = vendor avatar centered on a soft gradient with the category icon.
+- Logo overlay = circular avatar (56px) bottom-left of hero with white ring + soft shadow.
+- Trust pills (Verified / Instant) overlay top-right of hero.
+- Availability badge: green pill when date+time matched ("Available {EEE, MMM d} at {h:mm a}"), neutral pill when only date searched ("Available {EEE, MMM d}"), hidden when no search context.
+- Package preview rows: small 48px square thumbnail (package `images[0]` or food emoji per category), name (truncate), secondary line (duration/guests when present), right-aligned `from $X`. Show 3 on desktop, 2 on mobile (`hidden sm:flex` on the third).
+- Booking-type badges row: derived from package types (`pullup`, `catering`, `private`) + `Insured` if any package flag set.
+- CTA: full-width outline button **"View availability"** → `/vendor/{vendor_user_id}`.
+- Whole card uses existing `Card` primitive, `rounded-2xl`, hover lift, Vendibook orange accent on CTA hover.
 
-New component `src/components/dashboard/BookingCard.tsx` renders one of seven layouts based on `BookingUiState`, with the exact copy and actions from the spec:
-
-| State | Primary actions | Secondary |
-|---|---|---|
-| Pending vendor | Cancel request | Message vendor |
-| Awaiting payment | Pay now | Message vendor |
-| Confirmed (cancellable) | View details, Cancel | Message vendor |
-| Confirmed (locked) | View details | Message vendor (cancel disabled w/ reason tooltip) |
-| In progress | View details | Message vendor |
-| Completed | Leave review, Book again | View receipt |
-| Cancelled | Book again | View details |
-
-Tab routing rules:
-- **Pending** = `pending_vendor` + `awaiting_payment`
-- **Upcoming** = `confirmed_cancellable` + `confirmed_locked` + `in_progress`
-- **Past** = `completed`
-- **Cancelled** = `cancelled`
-
-Each card opens the booking detail page on tap.
-
-## 5. Booking detail page
-
-New route `/bookings/:id` → `src/pages/BookingDetail.tsx` showing: status banner, vendor block, date/time/location, package + add-ons + what's included, guest count, totals (deposit paid, balance due, refund status if cancelled), cancellation policy summary, **reminder timeline** (visualized list of upcoming reminder events), embedded message thread link, and receipt download. Wire into `App.tsx`.
-
-## 6. Reminders — fill in the schedule
-
-The codebase already has `send-booking-reminders` and `send-booking-confirmation` edge functions and a `payment_reminders` table. Two small changes:
-- Extend the reminder schedule to: confirmation, **7d**, **48h**, **24h**, **morning-of**, **post-event review request** for the customer; same plus **new request** + **mark complete / payout info** for the vendor.
-- Add an `email_kind` enum value per reminder so we don't double-send (track in `payment_reminders` or a new lightweight `booking_reminders` table — decide during implementation; the existing table already has `reminder_type`).
-- Cron stays the same; the function just iterates more windows.
-
-No SMS work in this pass.
-
-## 7. Cancellation enforcement
-
-- Server: tighten `cancel-booking` edge function (already exists) to reject when `now >= event_start_at` or when the cancellation window per policy has passed; return refund amount based on the policy bucket.
-- Client: `BookingCard` and detail page hide / disable the cancel button using the same rules (so UI matches the API).
+No DB/schema changes. No new hook calls.
 
 ---
 
-## Out of scope for this pass
+## Part 2 — "Book or get booked" pathway page
 
-- Vendor-side dashboard refactor (kept as-is; only customer side is restructured).
-- New custom cancellation policies — we stick with the three existing templates.
-- SMS reminders.
-- Vendor approve/decline UI changes (already exists in Vendor Dashboard).
+**File:** `src/pages/HowItWorks.tsx` (full rewrite). Nav label stays **"How it works"**; route stays `/how-it-works`.
+
+Sections:
+
+1. **Hero** — Headline "Book or get booked, your way." + subhead from spec. CTAs: `Find vendors` → `/browse`, `Become an Event Pro` → `/become-a-pro`.
+2. **Choose your path** — 2 large cards: "I'm planning an event" → `/browse`; "I'm an Event Pro" → `/become-a-pro`.
+3. **Three ways to bring food to your event** — 3 cards:
+   - Pull-Up Booking → `/browse?type=pullup`
+   - Catering Packages → `/browse?type=catering`
+   - Private Packages → `/browse?type=private` (copy clarifies message-based custom flow; no "Quote Request" wording)
+   - Each card: title, copy, "Best for" bullets, "Payment style" bullets, CTA.
+4. **From search to served** — 5-step horizontal/vertical timeline (Search → Compare → Book/Message → Track → Enjoy).
+5. **Turn your open calendar into bookings** — 6-step Event Pro journey + CTA "Become an Event Pro".
+6. **Built for real event bookings** — 6 compact trust cards (Availability search, Package booking, Private packages, Reminders, Cancellation rules, Reviews).
+7. **Where do you want to go?** — Two link columns:
+   - Customer: Search vendors, Food trucks, Mobile bartenders, Dessert vendors, Catering packages, Available this weekend (link to `/browse` with appropriate `?category=` / `?date=` query params).
+   - Event Pro: Become an Event Pro, Create a package (`/vendor-onboarding`), Set availability (`/vendor-dashboard?tab=availability`), Private packages (`/how-it-works#private`), Vendor dashboard (`/vendor-dashboard`).
+   - Disabled state styling for any route that doesn't exist yet.
+
+Design: clean white/neutral background, rounded cards, soft shadows, Vendibook orange CTA accent, mobile-first stacked layout, no walls of copy.
 
 ---
 
-## Files added
+## Technical notes
 
-- `src/components/browse/BrowseVendorCard.tsx`
-- `src/lib/groupPackagesByVendor.ts`
-- `src/lib/bookingState.ts`
-- `src/components/dashboard/BookingCard.tsx`
-- `src/pages/BookingDetail.tsx`
+- No backend, schema, or hook changes.
+- Reuses existing `BrowsePackage.images`, `vendor_avatar`, package `type` for booking-type derivation.
+- Adds a small helper `getCategoryEmoji(category)` inside `BrowseVendorCard.tsx` for image fallback (taco/cocktail/cake/etc.).
+- Keeps the existing `Layout`, `Card`, `Button`, `Badge` primitives — no new dependencies.
 
-## Files edited
+---
 
-- `src/components/home/HeroSection.tsx` — Time field, reorder, rename CTA
-- `src/pages/Browse.tsx` — Vendors / Packages / Map toggle, vendor-grouped grid
-- `src/pages/ProProfile.tsx` — Available dates strip, Book CTA deep-link
-- `src/pages/Dashboard.tsx` — Status sub-tabs inside Bookings, render `BookingCard`
-- `src/App.tsx` — `/bookings/:id` route
-- `supabase/functions/send-booking-reminders/index.ts` — extended schedule
-- `supabase/functions/cancel-booking/index.ts` — strict window + event-time guard
+## Acceptance criteria
+
+- Search results show food-forward cards with hero image + logo overlay + 2–3 package previews with thumbnails + availability badge + "View availability" CTA.
+- Mobile shows 2 package previews; desktop shows 3.
+- `/how-it-works` renders the new pathway page with all 7 sections, both audience CTAs working, and all internal links routed (or visibly disabled).
