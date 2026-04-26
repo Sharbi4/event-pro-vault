@@ -26,6 +26,8 @@ import { EventCountdown } from '@/components/booking/EventCountdown';
 import { BookingChecklist, generateBookingChecklist } from '@/components/booking/BookingChecklist';
 import { AddToCalendarButton } from '@/components/booking/AddToCalendarButton';
 import { BookingReceipt } from '@/components/booking/BookingReceipt';
+import { BookingCard } from '@/components/dashboard/BookingCard';
+import { deriveBookingState, getBookingTab } from '@/lib/bookingState';
 import { vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
