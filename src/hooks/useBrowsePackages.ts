@@ -396,10 +396,12 @@ export function useBrowsePackages() {
         );
       }
 
-      // Apply location filter using geocoding + service radius when available
+      // Apply location filter using geocoding + customer-controlled search radius
       if (filters.location) {
         if (filters.locationCoords) {
-          // Geocoded search: filter by service radius
+          const radius = filters.searchRadius || 25;
+          // Geocoded search: include vendors whose base is within the customer's
+          // chosen radius OR whose service area extends to the search location.
           filteredPackages = filteredPackages.filter(pkg => {
             // If Event Pro doesn't have coordinates, fall back to text matching
             if (pkg.vendor_base_lat === null || pkg.vendor_base_lng === null) {
@@ -409,15 +411,20 @@ export function useBrowsePackages() {
                      pkg.vendor_state?.toLowerCase().includes(locationLower) ||
                      pkg.vendor_formatted_address?.toLowerCase().includes(locationLower);
             }
-            
-            // Check if search location is within Event Pro's service radius
-            return isWithinServiceRadius(
+
+            const distance = getDistanceToVendor(
               pkg.vendor_base_lat,
               pkg.vendor_base_lng,
-              pkg.vendor_travel_radius || 50, // Default 50 mile radius
               filters.locationCoords!.lat,
               filters.locationCoords!.lng
             );
+            if (distance === null) return false;
+
+            // Vendor base within customer's search radius — primary match.
+            if (distance <= radius) return true;
+
+            // Otherwise allow vendors whose service area still reaches the point.
+            return distance <= (pkg.vendor_travel_radius || 50);
           });
         } else {
           // No geocoding available, fall back to text matching
