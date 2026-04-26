@@ -62,7 +62,7 @@ export default function Browse() {
   
   const [showFilters, setShowFilters] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'map'>('grid');
+  const [viewMode, setViewMode] = useState<'vendors' | 'grid' | 'map'>('vendors');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
 
