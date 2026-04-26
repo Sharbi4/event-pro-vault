@@ -516,6 +516,7 @@ export function PackageFormWizard({
 
     await onSubmit(submitData, availability);
     setLoading(false);
+    if (!initialData) clearDraft();
     onClose();
   };
 
