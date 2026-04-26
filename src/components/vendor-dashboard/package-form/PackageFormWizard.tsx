@@ -83,6 +83,17 @@ export interface PackageFormData {
   // Daily booking time settings
   default_start_time?: string;
   duration_minutes?: number;
+  // New: Pull-Up vs Catering model
+  package_kind: PackageKind | null;
+  cuisine_styles: string[];
+  best_for: string[];
+  setup_minutes: number;
+  cleanup_minutes: number;
+  buffer_before_minutes: number;
+  buffer_after_minutes: number;
+  minimum_notice_hours: number | null;
+  customer_questions: string[];
+  status: 'draft' | 'published' | 'paused' | 'archived';
 }
 
 interface PackageFormWizardProps {
