@@ -370,7 +370,6 @@ export default function Browse() {
                   <Map className="w-4 h-4" />
                   <span className="hidden sm:inline">Map</span>
                 </Button>
-                </Button>
               </div>
               
               <Button 
