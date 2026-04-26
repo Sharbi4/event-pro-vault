@@ -7,10 +7,10 @@ import { Vendor } from '@/types';
 import { packages } from '@/data/vendors';
 
 interface VendorCardProps {
-  Vendor: Vendor;
+  vendor: Vendor;
 }
 
-export function VendorCard({ Vendor }: VendorCardProps) {
+export function VendorCard({ vendor }: VendorCardProps) {
   const vendorPackages = packages.filter(p => p.vendorId === vendor.id);
   const lowestPrice = vendorPackages.length > 0 
     ? Math.min(...vendorPackages.map(p => p.price))

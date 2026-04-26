@@ -48,8 +48,8 @@ export default function PackageDetail() {
   const { toast } = useToast();
   
   const pkg = packages.find(p => p.id === id);
-  const Vendor = pkg ? vendors.find(v => v.id === pkg.vendorId) : null;
-  const vendorReviews = Vendor ? reviews.filter(r => r.vendorId === vendor.id).slice(0, 2) : [];
+  const vendor = pkg ? vendors.find(v => v.id === pkg.vendorId) : null;
+  const vendorReviews = vendor ? reviews.filter(r => r.vendorId === vendor.id).slice(0, 2) : [];
 
   // Fetch real package data from DB
   const [packageData, setPackageData] = useState<PackageData | null>(null);
@@ -98,13 +98,13 @@ export default function PackageDetail() {
     fetchPackageData();
   }, [id]);
 
-  // Fetch Vendor's blocked dates and recurring patterns
+  // Fetch vendor's blocked dates and recurring patterns
   useEffect(() => {
     const fetchAvailability = async () => {
-      if (!Vendor) return;
+      if (!vendor) return;
       
       setLoadingDates(true);
-      // Note: In production, you'd fetch by Vendor's user_id
+      // Note: In production, you'd fetch by vendor's user_id
       // For now, we fetch all blocked dates as a demo
       const [datesRes, recurringRes] = await Promise.all([
         supabase
@@ -127,7 +127,7 @@ export default function PackageDetail() {
     };
 
     fetchAvailability();
-  }, [Vendor]);
+  }, [vendor]);
 
   const blockedDateSet = new Set(
     blockedDates.map(b => format(new Date(b.date), 'yyyy-MM-dd'))
@@ -152,13 +152,13 @@ export default function PackageDetail() {
     }
   };
 
-  if (!pkg || !Vendor) {
+  if (!pkg || !vendor) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Package not found</h1>
           <Link to="/browse">
-            <Button variant="gradient">Browse Vendors</Button>
+            <Button variant="gradient">Browse vendors</Button>
           </Link>
         </div>
       </Layout>
@@ -218,10 +218,10 @@ export default function PackageDetail() {
       ? (paymentMethod === 'cash' ? 'cash_due' : 'pending')
       : 'awaiting_approval';
 
-    // Note: In production with real Vendor data, you would fetch the Vendor's user_id and email from the database
+    // Note: In production with real vendor data, you would fetch the vendor's user_id and email from the database
     const result = await createBooking({
       vendor_id: vendor.id,
-      vendor_user_id: null, // Would be Vendor's actual user_id in production
+      vendor_user_id: null, // Would be vendor's actual user_id in production
       package_id: pkg.id,
       event_date: format(eventDate, 'yyyy-MM-dd'),
       event_location: eventLocation.trim(),
@@ -247,15 +247,15 @@ export default function PackageDetail() {
         toast({
           title: "Booking confirmed!",
           description: paymentMethod === 'cash' 
-            ? "You'll pay the Vendor in cash at the event."
+            ? "You'll pay the vendor in cash at the event."
             : "Your booking has been confirmed."
         });
       } else {
         toast({
           title: "Request sent!",
           description: paymentMethod === 'stripe'
-            ? "You'll only be charged if the Vendor approves your request."
-            : "You'll be notified when the Vendor responds."
+            ? "You'll only be charged if the vendor approves your request."
+            : "You'll be notified when the vendor responds."
         });
       }
       // Redirect to dashboard to see booking
@@ -584,7 +584,7 @@ export default function PackageDetail() {
                             <span className="font-medium">Pay in cash at the event</span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            Pay the Vendor directly
+                            Pay the vendor directly
                           </p>
                         </Label>
                       </div>
@@ -612,7 +612,7 @@ export default function PackageDetail() {
                       <span className="font-medium text-foreground">Pay in cash at the event</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      You'll pay the Vendor directly
+                      You'll pay the vendor directly
                     </p>
                   </div>
                 )}
@@ -658,7 +658,7 @@ export default function PackageDetail() {
                   )}
                   {paymentMethod === 'cash' && (
                     <p className="text-xs text-muted-foreground">
-                      * You'll pay the Vendor directly at the event
+                      * You'll pay the vendor directly at the event
                     </p>
                   )}
                 </div>
@@ -692,7 +692,7 @@ export default function PackageDetail() {
                 </p>
                 {!isInstantBook && paymentMethod === 'stripe' && (
                   <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2">
-                    You'll only be charged if the Vendor approves your request.
+                    You'll only be charged if the vendor approves your request.
                   </p>
                 )}
               </Card>

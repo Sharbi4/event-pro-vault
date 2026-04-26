@@ -16,7 +16,7 @@ export function FeaturedPackages() {
   
   // Format mock packages to match the expected structure
   const mockFeaturedPackages = mockPackages.filter(p => p.featured).slice(0, 3).map(pkg => {
-    const Vendor = mockVendors.find(v => v.id === pkg.vendorId);
+    const vendor = mockVendors.find(v => v.id === pkg.vendorId);
     return {
       id: pkg.id,
       name: pkg.name,
@@ -28,7 +28,7 @@ export function FeaturedPackages() {
       cover_image_url: Vendor?.gallery?.[0] || null,
       category: null,
       vendor_user_id: pkg.vendorId,
-      vendor_name: Vendor?.name || 'Vendor',
+      vendor_name: Vendor?.name || 'vendor',
       vendor_avatar: null,
       vendor_city: Vendor?.location?.split(',')[0] || null,
     };

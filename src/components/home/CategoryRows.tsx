@@ -59,8 +59,8 @@ const categoryGroups = [
   },
 ];
 
-// Helper to get starting price for a Vendor
-const getVendorStartingPrice = (Vendor: Vendor): number => {
+// Helper to get starting price for a vendor
+const getVendorStartingPrice = (vendor: Vendor): number => {
   const vendorPackages = mockPackages.filter(p => p.vendorId === vendor.id);
   if (vendorPackages.length === 0) return 99;
   return Math.min(...vendorPackages.map(p => p.price));
@@ -260,7 +260,7 @@ function CategoryRow({ group }: CategoryRowProps) {
     );
   }
 
-  // Fallback to mock Vendors
+  // Fallback to mock vendors
   return (
     <div className="mb-10">
       <div className="flex items-center justify-between mb-4">
@@ -286,7 +286,7 @@ function CategoryRow({ group }: CategoryRowProps) {
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4">
-        {mockGroupVendors.map((Vendor) => (
+        {mockGroupVendors.map((vendor) => (
           <Link
             key={vendor.id}
             to={`/vendor/${vendor.id}`}
@@ -330,7 +330,7 @@ function CategoryRow({ group }: CategoryRowProps) {
                   <span className="line-clamp-1">{vendor.location}</span>
                 </div>
                 <p className="text-sm text-primary font-medium">
-                  From ${getVendorStartingPrice(Vendor)}/hr
+                  From ${getVendorStartingPrice(vendor)}/hr
                 </p>
               </div>
             </Card>

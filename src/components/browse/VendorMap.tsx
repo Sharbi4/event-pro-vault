@@ -4,7 +4,7 @@ import { Vendor } from '@/types';
 import { MapPin } from 'lucide-react';
 import { useGoogleMaps } from '@/contexts/GoogleMapsContext';
 
-// Vendor location coordinates (mock data based on their cities)
+// vendor location coordinates (mock data based on their cities)
 const vendorCoordinates: Record<string, { lat: number; lng: number }> = {
   'v1': { lat: 34.0522, lng: -118.2437 },   // Los Angeles
   'v2': { lat: 25.7617, lng: -80.1918 },    // Miami
@@ -45,12 +45,12 @@ const darkMapStyles = [
 ];
 
 interface VendorMapProps {
-  Vendors: Vendor[];
+  vendors: Vendor[];
   onVendorSelect?: (vendorId: string) => void;
   selectedVendorId?: string | null;
 }
 
-export function VendorMap({ Vendors, onVendorSelect, selectedVendorId }: VendorMapProps) {
+export function VendorMap({ vendors, onVendorSelect, selectedVendorId }: VendorMapProps) {
   const [activeMarker, setActiveMarker] = useState<string | null>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
 
@@ -75,7 +75,7 @@ export function VendorMap({ Vendors, onVendorSelect, selectedVendorId }: VendorM
     }
   };
 
-  // Pan to selected Vendor when it changes
+  // Pan to selected vendor when it changes
   if (selectedVendorId && map) {
     const coords = vendorCoordinates[selectedVendorId];
     if (coords) {
@@ -127,7 +127,7 @@ export function VendorMap({ Vendors, onVendorSelect, selectedVendorId }: VendorM
           fullscreenControl: true,
         }}
       >
-        {vendors.map(Vendor => {
+        {vendors.map(vendor => {
           const coords = vendorCoordinates[vendor.id];
           if (!coords) return null;
 

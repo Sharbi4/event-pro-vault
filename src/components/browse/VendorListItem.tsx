@@ -5,13 +5,13 @@ import { Vendor } from '@/types';
 import { Star, MapPin, Clock, Zap, ShieldCheck } from 'lucide-react';
 
 interface VendorListItemProps {
-  Vendor: Vendor;
+  vendor: Vendor;
   isSelected?: boolean;
   onHover?: () => void;
   onLeave?: () => void;
 }
 
-export function VendorListItem({ Vendor, isSelected, onHover, onLeave }: VendorListItemProps) {
+export function VendorListItem({ vendor, isSelected, onHover, onLeave }: VendorListItemProps) {
   return (
     <Link to={`/vendor/${vendor.id}`}>
       <Card 

@@ -10,11 +10,11 @@ import { TrustBadges, TopRatedBadge } from '@/components/badges/TrustBadges';
 export function FeaturedVendors() {
   const { data: dbVendors, isLoading } = useFeaturedVendors(4);
 
-  // Use database Vendors if available, fallback to mock data
+  // Use database vendors if available, fallback to mock data
   const hasDbVendors = dbVendors && dbVendors.length > 0;
   
-  // Format mock Vendors to match the expected structure
-  const mockFeaturedVendors = mockVendors.filter(v => v.featured).slice(0, 4).map(Vendor => ({
+  // Format mock vendors to match the expected structure
+  const mockFeaturedVendors = mockVendors.filter(v => v.featured).slice(0, 4).map(vendor => ({
     id: vendor.id,
     user_id: vendor.id,
     display_name: vendor.name,
@@ -62,7 +62,7 @@ export function FeaturedVendors() {
         <div className="flex items-end justify-between mb-12">
           <div>
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              Featured Vendors
+              Featured vendors
             </h2>
             <p className="text-muted-foreground max-w-xl">
               Top-rated professionals ready to make your event unforgettable
@@ -77,7 +77,7 @@ export function FeaturedVendors() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {displayVendors.map((Vendor, index) => (
+          {displayVendors.map((vendor, index) => (
             <Link key={vendor.id} to={`/pro/${vendor.user_id}`}>
               <Card 
                 variant="glow" 
@@ -88,7 +88,7 @@ export function FeaturedVendors() {
                   {vendor.cover_image_url ? (
                     <img
                       src={vendor.cover_image_url}
-                      alt={vendor.display_name || 'Vendor'}
+                      alt={vendor.display_name || 'vendor'}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
@@ -114,7 +114,7 @@ export function FeaturedVendors() {
                 </div>
                 <CardContent className="p-4">
                   <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
-                    {vendor.display_name || 'Vendor'}
+                    {vendor.display_name || 'vendor'}
                   </h3>
                   {vendor.categories?.[0] && (
                     <p className="text-sm text-muted-foreground mb-3">
@@ -147,7 +147,7 @@ export function FeaturedVendors() {
         <div className="mt-8 text-center md:hidden">
           <Link to="/browse">
             <Button variant="outline" className="gap-2">
-              View All Vendors
+              View All vendors
               <ChevronRight className="w-4 h-4" />
             </Button>
           </Link>

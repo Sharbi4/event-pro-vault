@@ -231,7 +231,7 @@ export default function Dashboard() {
 
       if (error) throw error;
 
-      toast.success('Conversation started! The Vendor will be notified.');
+      toast.success('Conversation started! The vendor will be notified.');
       
       // Navigate to messages tab
       navigate(`/dashboard?tab=messages`);
@@ -340,7 +340,7 @@ export default function Dashboard() {
           {hasVendorPackages && (
             <Button variant="outline" size="sm" onClick={() => navigate('/vendor-dashboard')} className="gap-2">
               <Users className="w-4 h-4" />
-              Vendor Dashboard
+              vendor Dashboard
             </Button>
           )}
           {profile?.is_published && profile?.is_vendor && (
@@ -352,7 +352,7 @@ export default function Dashboard() {
           {!hasVendorPackages && (
             <Button variant="gradient" size="sm" onClick={() => navigate('/eventpro-onboarding')} className="gap-2">
               <Star className="w-4 h-4" />
-              Become an Vendor
+              Become an vendor
             </Button>
           )}
         </div>
@@ -440,7 +440,7 @@ export default function Dashboard() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Package className="w-4 h-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold text-foreground">Custom offers from Vendors</h3>
+                <h3 className="text-sm font-semibold text-foreground">Custom offers from vendors</h3>
               </div>
               <PrivatePackagesList role="customer" />
             </div>
@@ -459,12 +459,12 @@ export default function Dashboard() {
                 </div>
                 <h3 className="font-semibold text-foreground text-sm mb-1">No bookings yet</h3>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Find and book amazing event Vendors
+                  Find and book amazing event vendors
                 </p>
                 <Link to="/browse">
                   <Button variant="gradient" size="sm" className="gap-1.5">
                     <Search className="w-3.5 h-3.5" />
-                    Browse Vendors
+                    Browse vendors
                   </Button>
                 </Link>
               </Card>
@@ -532,18 +532,18 @@ export default function Dashboard() {
                 </div>
                 <h3 className="font-semibold text-foreground text-sm mb-1">No favorites yet</h3>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Save Vendors to find them later
+                  Save vendors to find them later
                 </p>
                 <Link to="/browse">
                   <Button variant="gradient" size="sm" className="gap-1.5">
                     <Search className="w-3.5 h-3.5" />
-                    Browse Vendors
+                    Browse vendors
                   </Button>
                 </Link>
               </Card>
             ) : (
               <div className="grid gap-3">
-                {favoriteVendors.map(Vendor => (
+                {favoriteVendors.map(vendor => (
                   <Card key={vendor.id} variant="glow" className="p-3">
                     <div className="flex items-center gap-3">
                       <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
@@ -674,7 +674,7 @@ export default function Dashboard() {
             }}
             bookingId={bookingToReview.id}
             vendorUserId={bookingToReview.vendor_user_id}
-            vendorName={bookingToReview.vendor_display_name || 'Vendor'}
+            vendorName={bookingToReview.vendor_display_name || 'vendor'}
             packageId={bookingToReview.package_id}
             packageName={bookingToReview.package_name}
             eventDate={bookingToReview.event_date}

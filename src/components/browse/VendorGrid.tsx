@@ -6,13 +6,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 interface VendorGridProps {
-  Vendors: Vendor[];
+  vendors: Vendor[];
 }
 
-export function VendorGrid({ Vendors }: VendorGridProps) {
+export function VendorGrid({ vendors }: VendorGridProps) {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {vendors.map((Vendor, index) => (
+      {vendors.map((vendor, index) => (
         <Link
           key={vendor.id}
           to={`/vendor/${vendor.id}`}
@@ -69,7 +69,7 @@ export function VendorGrid({ Vendors }: VendorGridProps) {
                 </span>
               </div>
 
-              {/* Vendor Name */}
+              {/* vendor Name */}
               <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 mb-1">
                 {vendor.name}
               </h3>
