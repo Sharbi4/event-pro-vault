@@ -1,91 +1,69 @@
-# Replace Quote Requests with Private Packages
+## Goal
 
-Move all custom-order conversations into a structured, on-platform flow. Vendors create a **Private Package** inside a customer message thread; customer reviews and pays on EventPro. No more "Request a Quote" CTAs sending people offline.
+Redesign the EventPro homepage to feel like a premium, modern, app-style marketplace for booking mobile food & beverage vendors — Apple-simple, Airbnb-clear, StyleSeat-bookable, and visually craveable. Add an AI concierge that helps users figure out what to book, and a Flexible Dates section so they never hit a dead end.
 
-## Three booking types (final)
+## Scope
 
-| Type | Where it lives | Who creates it |
-|---|---|---|
-| **Pull-Up Booking** | Public package on vendor profile | Vendor (public listing) |
-| **Catering Package** | Public package on vendor profile | Vendor (public listing) |
-| **Private Package** | Inside a message thread, one-to-one | Vendor, after customer inquiry |
+Replace the current homepage composition (`src/pages/Index.tsx`) and rework `HeroSection`. Add new sections. Keep existing data hooks where possible. No DB schema changes for v1 (AI assistant is stateless).
 
-"Quote Request" is removed everywhere as a public CTA. Customers who need something custom get **"Ask about a private package"** which opens the messaging thread.
+## New homepage structure
 
-## Customer flow for custom orders
+1. **Hero + premium search module** (rewrite `HeroSection`)
+   - Large food-forward background imagery (warm, editorial)
+   - Headline: "Book food trucks, mobile bars, and dessert vendors for your next event."
+   - Subheadline as written in the brief
+   - Search card with: Date, Location, Vendor Type, Cuisine, Guest Count
+   - Primary CTA: "Search vendors"
+   - Secondary CTA: "Let AI help me choose" → opens AI Assistant drawer
+2. **Category + cuisine chips** under search (horizontal scroll on mobile) — vendor categories + cuisines as listed
+3. **AI Concierge strip** ("EventPro Assistant") with prompt chips ("Apartment event for 100", "Office lunch for 40", etc.)
+4. **Featured / Available this weekend** vendor cards (reuse `FeaturedPackages` data; restyle card with badges: Verified, Pull-Up, Catering, Private Package)
+5. **Flexible Dates** section: cards for "This weekend", "Tomorrow", "Friday night", "Sunday brunch", "Next available", "Within 3 days" — each routes into `/browse` with the right date filter
+6. **Browse by Occasion**: Apartment event, Office lunch, Birthday, Wedding, Graduation, Market/pop-up, School, Corporate, Neighborhood
+7. **Booking type education** — three cards: Pull-Up, Catering, Private Package (Private Package replaces any Quote Request copy)
+8. **Trust + ratings** compact row
+9. **Event Pro CTA** (reuse, refresh copy)
+10. **Final CTA** — "Find the right vendor for your next event."
 
-```text
-Customer views vendor profile
-        │
-        ▼
-"Ask about a private package"  ──►  Message thread opens
-        │
-        ▼
-Customer sends event details
-        │
-        ▼
-Vendor replies → clicks "Create Private Package" in thread
-        │
-        ▼
-Vendor fills form, sends → appears as a booking card in the thread
-        │
-        ▼
-Customer reviews → "Review & Book" → Stripe checkout
-        │
-        ▼
-Booking lands in both dashboards (status: paid → booked)
-```
+Sections to remove from current homepage: `CategoryRows`, `HowItWorks`, `Testimonials` (replaced by tighter Trust row).
 
-## Database changes
+## New components
 
-**New table `private_packages`** with all fields from the spec:
-package_name, description, event_date, start_time, end_time, location, guest_count, category, included_items (text[]), menu_details, service_duration, setup_time, base_price, per_person_price, add_ons (jsonb), travel_fee, deposit_amount, total_price, offer_expires_at, cancellation_policy, vendor_notes, customer_notes, status, plus vendor_user_id, customer_user_id, conversation_id, booking_id (nullable, set when paid).
+- `src/components/home/HeroSection.tsx` — rewritten with hero image, expanded search inputs, AI CTA
+- `src/components/home/AIConciergeStrip.tsx` — prompt chips + open assistant drawer
+- `src/components/home/AIConciergeDrawer.tsx` — Sheet with chat UI calling new edge function
+- `src/components/home/FlexibleDatesSection.tsx` — preset date-flex cards routing to `/browse`
+- `src/components/home/OccasionGrid.tsx` — occasion cards routing to `/browse` with cuisine/category preset
+- `src/components/home/BookingTypeCards.tsx` — Pull-Up / Catering / Private Package
+- `src/components/home/TrustRow.tsx` — compact trust strip
+- `src/components/home/FinalCTA.tsx`
 
-**Status values:** `draft` · `sent` · `viewed` · `accepted` · `paid` · `booked` · `expired` · `cancelled`
+Update: `src/pages/Index.tsx` to compose the new sections in the order above.
 
-**RLS:** Vendor and the specific customer in the thread can read/update; only the vendor can create; only the customer can accept; system updates status on payment via Stripe webhook.
+## AI concierge (edge function)
 
-**Booking type field:** Add `booking_type text` to `bookings` (`pull_up` · `catering` · `private_package`) with default `catering`. Backfill existing rows from `vendor_packages.category`/booking_mode. We keep the existing `booking_mode` column (INSTANT/REQUEST) — it's a separate concept (auto-confirm vs vendor-approval) and still useful for public packages.
+- `supabase/functions/event-concierge/index.ts` (verify_jwt = false)
+- Uses Lovable AI Gateway (`google/gemini-3-flash-preview`)
+- System prompt: classifies user intent into `{ category, booking_type, guest_count, cuisine?, suggested_filters }` via tool-calling (structured output) and returns a short friendly message + a "View matches" link → `/browse?...`
+- Streamed response rendered in drawer with markdown
+- Surface 429 / 402 errors as toasts
 
-**Messages:** Add `attached_private_package_id uuid` to `messages` so the package card renders inline.
+## Visual direction
 
-## Code changes
+- Crisp white base, generous whitespace, soft rounded cards, subtle shadows
+- Vendibook orange CTA accents (existing tokens)
+- Large food imagery on hero + occasion cards (use `/src/assets` if existing premium imagery is there; otherwise generate 4–6 hero/occasion images via Nano Banana into `src/assets/home/` during build)
+- Mobile-first, horizontally scrollable chip rows
 
-### Remove "Quote Request" surfaces
-- `RequestQuoteModal.tsx` — repurpose as **AskPrivatePackageModal** (opens/creates a conversation, sends an initial message with event brief)
-- `NoMatchesEmptyState.tsx` — change CTA to "Message a vendor"
-- `VendorProfile.tsx` (line 424–432) — replace "Request Custom Quote" with "Ask about a private package"
-- `LearnEventPros.tsx`, `HowItWorks.tsx` (home + page), `useMessageTemplates.ts` — copy updates
-- Package wizard `StepPricingTravel.tsx` / `PackageFormWizard.tsx` — remove the `custom_quote` pricing type. Public packages must have a price.
-- `BookingModal.tsx` — drop `custom_quote` branches.
-- `PackagePreview.tsx` — drop "Request a Quote" preview state.
+## Out of scope (v1)
 
-### New: Private Package system
-- **Vendor side (in messages)** — `CreatePrivatePackageDrawer.tsx` opened by a "Create Private Package" button in the thread header. Form covers all fields above. Save as draft or send.
-- **Message thread renderer** — when `attached_private_package_id` is set, render `PrivatePackageCard` (name, date/time, location, guests, total, deposit, includes, "Review & Book").
-- **Customer side (in messages)** — "Ask about a private package" button on thread header (also surfaced on vendor profile).
-- **Review & Book page** — `/private-package/:id` shows full details, calls existing `create-booking-checkout` edge function with `booking_type='private_package'`.
-- **Vendor dashboard** — new "Private Packages" tab listing Drafts / Sent / Accepted / Paid / Expired with quick actions (resend, cancel, duplicate).
-- **Customer dashboard** — Private Package offers section under Bookings (Pending offers / Accepted / Expired).
+- Persisting AI concierge conversations
+- New filter fields in `useBrowsePackages` beyond what the search bar already passes (guest count + cuisine will be passed via URL params; backend filtering for those can land in a follow-up if not already supported)
 
-### Edge function updates
-- `create-booking-checkout` — accept `private_package_id`, derive amount/deposit from the private package row, set `booking_type='private_package'`.
-- `stripe-webhook` — on successful payment for a private-package booking, set private_packages.status to `paid` then `booked`.
-- Daily expiry job (cron) — flip `sent`/`viewed` → `expired` after `offer_expires_at`.
+## Acceptance
 
-### Profile package section
-Order: **Pull-Up Bookings** → **Catering Packages** → "Need something custom?" CTA → **Ask about a private package**.
-
-## Acceptance criteria
-
-- No "Request a Quote" / "Custom Quote" copy or CTA anywhere public.
-- Vendor can create + send a Private Package from inside a message thread.
-- Customer sees the private package as a card in messages and can pay through Stripe.
-- Paid private packages appear in both dashboards with `booking_type=private_package`.
-- Existing public packages still work; `booking_mode` (INSTANT/REQUEST) preserved.
-
-## Out of scope (flag for later)
-
-- Counter-offers (customer editing the package). For v1 the customer accepts as-sent or asks for a revised one.
-- Vendor-initiated private packages without a prior customer inquiry.
-- Migrating any existing `custom_quote` packages — there are none in production data; we'll just disallow the type going forward.
+- Homepage matches the structure above and feels visual + uncluttered
+- Search above the fold works for date, location, type, cuisine, guest count
+- "Let AI help me choose" opens a working assistant that suggests categories and links into `/browse`
+- Flexible Dates and Occasion sections route into `/browse` with correct filters
+- No "Quote Request" wording — replaced with "Private Package" everywhere on the homepage
