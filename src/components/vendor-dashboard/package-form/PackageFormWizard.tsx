@@ -95,6 +95,17 @@ export interface PackageFormData {
   minimum_notice_hours: number | null;
   customer_questions: string[];
   status: 'draft' | 'published' | 'paused' | 'archived';
+  // Pull-Up specific
+  pull_up_pricing_model?: 'show_up_fee' | 'min_guarantee' | 'show_up_plus_min' | 'no_upfront' | null;
+  min_guarantee_amount?: number | null;
+  customer_requirements?: string | null;
+  // Catering specific
+  catering_pricing_model?: 'flat' | 'per_person' | 'base_plus_per_person' | null;
+  included_guests?: number | null;
+  additional_per_person?: number | null;
+  balance_due_timing?: 'before_event' | 'day_of_event' | 'after_event' | 'direct_to_vendor' | null;
+  dietary_options?: string[];
+  menu_items?: { id: string; name: string; description?: string; included: boolean; price?: number }[];
 }
 
 interface PackageFormWizardProps {
@@ -164,6 +175,15 @@ const defaultFormData: PackageFormData = {
   minimum_notice_hours: null,
   customer_questions: [],
   status: 'draft',
+  pull_up_pricing_model: null,
+  min_guarantee_amount: null,
+  customer_requirements: null,
+  catering_pricing_model: null,
+  included_guests: null,
+  additional_per_person: null,
+  balance_due_timing: 'before_event',
+  dietary_options: [],
+  menu_items: [],
 };
 
 export function PackageFormWizard({
