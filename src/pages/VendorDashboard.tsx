@@ -29,6 +29,7 @@ import { StripeConnectBanner } from '@/components/vendor-dashboard/StripeConnect
 import { ApprovalStatusBanner } from '@/components/shared/ApprovalStatusBanner';
 import { StripeSetupCard } from '@/components/shared/StripeSetupCard';
 import { VerificationCard } from '@/components/vendor-dashboard/VerificationCard';
+import { IdentityVerificationTimeline } from '@/components/vendor-dashboard/IdentityVerificationTimeline';
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
