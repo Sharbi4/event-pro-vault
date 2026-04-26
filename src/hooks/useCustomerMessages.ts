@@ -32,6 +32,7 @@ export interface CustomerMessage {
   is_read: boolean;
   read_at: string | null;
   created_at: string;
+  attached_private_package_id?: string | null;
 }
 
 export function useCustomerMessages() {
