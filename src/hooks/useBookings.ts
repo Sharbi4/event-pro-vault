@@ -179,10 +179,19 @@ export function useBookings() {
   };
 
   const createBooking = async (bookingData: CreateBookingInput): Promise<BookingData | null> => {
-    const isGuest = bookingData.is_guest || !user;
-    
+    // Always re-check the live session so we don't rely on stale React state
+    const { data: { session } } = await supabase.auth.getSession();
+    const authedUser = session?.user ?? user;
+    const isGuest = bookingData.is_guest || !authedUser;
+
+    // Resolve a customer email — required for guests, useful as fallback for everyone
+    const resolvedEmail =
+      bookingData.customer_email?.trim() ||
+      authedUser?.email ||
+      null;
+
     // For guest checkout, require customer_email
-    if (isGuest && !bookingData.customer_email) {
+    if (isGuest && !resolvedEmail) {
       toast({
         title: "Email required",
         description: "Please provide an email address for booking confirmation",
@@ -194,7 +203,8 @@ export function useBookings() {
     const { data, error } = await supabase
       .from('bookings')
       .insert({
-        user_id: isGuest ? null : user?.id, // null for guest checkouts
+        // Authenticated → must equal auth.uid(); guest → null
+        user_id: isGuest ? null : authedUser?.id ?? null,
         vendor_id: bookingData.vendor_id,
         vendor_user_id: bookingData.vendor_user_id || null,
         package_id: bookingData.package_id,
@@ -216,7 +226,7 @@ export function useBookings() {
         payment_status: bookingData.booking_mode === 'REQUEST' 
           ? 'awaiting_approval'
           : (bookingData.payment_method === 'cash' ? 'cash_due' : 'pending'),
-        customer_email: bookingData.customer_email || user?.email || null,
+        customer_email: resolvedEmail,
         // Time slot fields for cross-package availability
         start_time: bookingData.start_time || null,
         end_time: bookingData.end_time || null,
