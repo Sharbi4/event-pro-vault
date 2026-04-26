@@ -171,8 +171,7 @@ export function useFeaturedVendors(limit = 4) {
             avatar_url: profile.avatar_url,
             short_bio: profile.short_bio,
             primary_city: profile.primary_city,
-            is_verified: profile.stripe_account_status === 'active' && 
-                        profile.identity_verification_status === 'verified',
+            is_verified: profile.identity_verification_status === 'verified',
             categories: details?.service_categories || [],
             avg_rating: Math.round(avgRating * 10) / 10,
             review_count: stats.count,
@@ -374,8 +373,7 @@ export function useCategoryPackages(categoryIds: string[], limit = 6) {
             vendor_name: profile?.display_name || 'Event Pro',
             vendor_city: profile?.primary_city || null,
             avg_rating: Math.round(avgRating * 10) / 10,
-            is_verified: profile?.stripe_account_status === 'active' && 
-                        profile?.identity_verification_status === 'verified',
+            is_verified: profile?.identity_verification_status === 'verified',
             instant_book: pkg.instant_book || false,
           };
         })

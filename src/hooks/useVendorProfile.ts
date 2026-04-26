@@ -151,8 +151,7 @@ export function useVendorProfile(vendorUserId: string | undefined) {
           displayName: profileResult.data.display_name,
           shortBio: profileResult.data.short_bio,
           username: profileResult.data.username,
-          isVerified: profileResult.data.stripe_account_status === 'active' && 
-                      profileResult.data.identity_verification_status === 'verified',
+          isVerified: profileResult.data.identity_verification_status === 'verified',
           stripeAccountStatus: profileResult.data.stripe_account_status || 'not_started',
           identityVerificationStatus: profileResult.data.identity_verification_status || 'not_started'
         });
