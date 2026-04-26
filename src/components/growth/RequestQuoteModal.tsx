@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { serviceCategories } from '@/data/service-categories';
+import { LocationAutocomplete } from '@/components/browse/LocationAutocomplete';
 
 interface RequestQuoteModalProps {
   open: boolean;
@@ -179,14 +180,22 @@ export function RequestQuoteModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>City</Label>
-              <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" />
-            </div>
-            <div className="space-y-2">
-              <Label>State</Label>
-              <Input value={state} onChange={(e) => setState(e.target.value)} placeholder="State" maxLength={2} />
+          <div className="space-y-2">
+            <Label>Location</Label>
+            <div className="flex items-center px-3 py-2 rounded-md border border-input bg-background h-10">
+              <LocationAutocomplete
+                value={state ? `${city}, ${state}` : city}
+                onChange={(val) => {
+                  // Allow free typing; clear state if user edits manually
+                  setCity(val);
+                }}
+                onPlaceSelect={(place) => {
+                  setCity(place.city || place.formatted_address);
+                  if (place.state) setState(place.state);
+                }}
+                placeholder="City, State"
+                showGeolocation
+              />
             </div>
           </div>
 

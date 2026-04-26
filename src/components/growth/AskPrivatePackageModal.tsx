@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { setAuthIntent } from '@/lib/authIntent';
+import { LocationAutocomplete } from '@/components/browse/LocationAutocomplete';
 
 interface AskPrivatePackageModalProps {
   open: boolean;
@@ -214,11 +215,15 @@ export function AskPrivatePackageModal({
 
           <div className="space-y-2">
             <Label>Location</Label>
-            <Input
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="City, venue, or address"
-            />
+            <div className="flex items-center px-3 py-2 rounded-md border border-input bg-background h-10">
+              <LocationAutocomplete
+                value={location}
+                onChange={setLocation}
+                onPlaceSelect={(place) => setLocation(place.formatted_address)}
+                placeholder="City, venue, or address"
+                showGeolocation
+              />
+            </div>
           </div>
 
           <div className="space-y-2">

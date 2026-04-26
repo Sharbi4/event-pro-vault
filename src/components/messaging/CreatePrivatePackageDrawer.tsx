@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { LocationAutocomplete } from '@/components/browse/LocationAutocomplete';
 
 type PresetKey = 'small_party' | 'full_service' | 'late_night' | 'corporate' | 'brunch';
 
@@ -357,7 +358,14 @@ export function CreatePrivatePackageDrawer({
             </div>
             <div className="space-y-2">
               <Label htmlFor="loc">Location</Label>
-              <Input id="loc" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="City or address" />
+              <div className="flex items-center px-3 py-2 rounded-md border border-input bg-background h-10">
+                <LocationAutocomplete
+                  value={location}
+                  onChange={setLocation}
+                  placeholder="City or address"
+                  showGeolocation
+                />
+              </div>
             </div>
           </div>
 
