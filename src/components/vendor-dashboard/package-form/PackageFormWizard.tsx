@@ -899,6 +899,8 @@ export function PackageFormWizard({
               formData={formData}
               updateFormData={updateFormData}
               stripeConnected={stripeConnected}
+              onConnectStripe={handleConnectStripe}
+              connectingStripe={connectingStripe}
             />
           </div>
         );
