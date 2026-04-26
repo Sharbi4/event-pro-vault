@@ -238,10 +238,12 @@ export default function BookOrGetBooked() {
                 </div>
                 <div className="mt-6 flex flex-wrap items-center gap-3">
                   <Button asChild className="rounded-full">
-                    <Link to="/become-a-pro">Become an Event Pro <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
+                    <Link to={proEntry('packages')}>
+                      {user ? 'Create a package' : 'Become an Event Pro'} <ArrowRight className="ml-1.5 w-4 h-4" />
+                    </Link>
                   </Button>
-                  <Link to="/book-or-get-booked#booking-options" className="text-sm font-medium hover:underline">
-                    Learn how packages work
+                  <Link to={proEntry('availability')} className="text-sm font-medium hover:underline">
+                    Set your calendar
                   </Link>
                 </div>
               </div>
