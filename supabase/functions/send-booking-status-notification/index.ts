@@ -242,7 +242,7 @@ const handler = async (req: Request): Promise<Response> => {
               <div style="background: #f0fdf4; border: 2px solid #22c55e; border-radius: 8px; padding: 24px; margin: 24px 0;">
                 <p style="margin: 0 0 8px 0;"><strong>📅 Event Date:</strong> ${formattedDate}</p>
                 <p style="margin: 0 0 8px 0;"><strong>📍 Location:</strong> ${booking.event_location}</p>
-                <p style="margin: 0;"><strong>💰 You'll Receive:</strong> $${(booking.total_price * 0.871).toFixed(2)} (after 12.9% fee)</p>
+                <p style="margin: 0;"><strong>💰 Booking Total:</strong> $${booking.total_price.toFixed(2)} (your payout = total minus your platform commission, shown in your dashboard)</p>
               </div>
               <p style="text-align: center; color: #666;">📎 Calendar invite attached - add it to your calendar!</p>
               <center><a href="${baseUrl}/vendor-dashboard" style="display: inline-block; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin-top: 20px;">View in Dashboard →</a></center>
