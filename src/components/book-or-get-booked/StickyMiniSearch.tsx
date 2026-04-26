@@ -70,6 +70,12 @@ export function StickyMiniSearch({
     const params = new URLSearchParams();
     if (date) params.set('date', format(date, 'yyyy-MM-dd'));
     if (location) params.set('location', location);
+    if (locationCoords) {
+      params.set('lat', String(locationCoords.lat));
+      params.set('lng', String(locationCoords.lng));
+      if (locationCoords.city) params.set('city', locationCoords.city);
+      if (locationCoords.state) params.set('state', locationCoords.state);
+    }
     if (vendorType) params.set('category', vendorType);
     if (quick.instantBook) params.set('instantBook', '1');
     if (quick.verified) params.set('verified', '1');
