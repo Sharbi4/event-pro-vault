@@ -145,7 +145,7 @@ export function useBookings() {
     // Fetch packages
     const { data: packagesData } = await supabase
       .from('vendor_packages')
-      .select('id, name, cover_image_url')
+      .select('id, name, cover_image_url, cancellation_policy')
       .in('id', packageIds);
 
     // Fetch vendor profiles
@@ -167,6 +167,7 @@ export function useBookings() {
         ...booking,
         package_name: pkg?.name || 'Package',
         package_cover_image: pkg?.cover_image_url || null,
+        cancellation_policy: (pkg?.cancellation_policy as 'flexible' | 'standard' | 'strict' | undefined) || 'standard',
         vendor_display_name: vendorProfile?.display_name || 'Event Pro',
         vendor_avatar: vendorProfile?.avatar_url || null,
       } as BookingData;
