@@ -1,10 +1,13 @@
-import { useMemo } from 'react';
-import { Clock, AlertCircle, Info } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
+import { Clock, AlertCircle, Info, MessageCircle, ChevronRight } from 'lucide-react';
+import { addDays, format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useAvailableSlots } from '@/hooks/useAvailableSlots';
+import { supabase } from '@/integrations/supabase/client';
 import type { BookableSlot } from '@/lib/availabilityEngine';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 interface TimeSlotPickerProps {
   vendorUserId: string;
@@ -19,7 +22,19 @@ interface TimeSlotPickerProps {
   onTimeSelect: (time: string) => void;
   /** Optional: receive the full slot (with calendar block ISO window). */
   onSlotSelect?: (slot: BookableSlot) => void;
+  /** Optional: called when user picks a suggested alternative date. */
+  onAlternativeDate?: (date: Date) => void;
+  /** Optional: called when user clicks "Message vendor" in the empty state. */
+  onMessageVendor?: () => void;
   className?: string;
+}
+
+function endTimeFromStart(start: string, durationMinutes: number): string {
+  const [h, m] = start.split(':').map(Number);
+  const total = h * 60 + m + durationMinutes;
+  const eh = Math.floor((total % (24 * 60)) / 60);
+  const em = total % 60;
+  return `${String(eh).padStart(2, '0')}:${String(em).padStart(2, '0')}`;
 }
 
 function formatTimeDisplay(time: string): string {
@@ -55,6 +70,8 @@ export function TimeSlotPicker({
   selectedTime,
   onTimeSelect,
   onSlotSelect,
+  onAlternativeDate,
+  onMessageVendor,
   className,
 }: TimeSlotPickerProps) {
   const dateStr = useMemo(() => (selectedDate ? toYMD(selectedDate) : undefined), [selectedDate]);
@@ -77,6 +94,55 @@ export function TimeSlotPicker({
     onTimeSelect(slot.start);
     onSlotSelect?.(slot);
   };
+
+  // ─── Nearby-date suggestions (shown only when current date has 0 slots) ───
+  const [nextDates, setNextDates] = useState<Array<{ date: Date; firstStart: string }>>([]);
+  const [searchingAlt, setSearchingAlt] = useState(false);
+  const noSlots = !loading && !error && slots.length === 0 && Boolean(selectedDate);
+
+  useEffect(() => {
+    if (!noSlots || !vendorUserId || !selectedDate) {
+      setNextDates([]);
+      return;
+    }
+    let cancelled = false;
+    setSearchingAlt(true);
+
+    (async () => {
+      const found: Array<{ date: Date; firstStart: string }> = [];
+      // Probe the next 14 days forward; collect up to 3 with availability.
+      for (let i = 1; i <= 14 && found.length < 3; i++) {
+        const probe = addDays(selectedDate, i);
+        try {
+          const { data } = await supabase.functions.invoke('get-available-slots', {
+            body: {
+              vendor_user_id: vendorUserId,
+              package_id: packageId,
+              date: toYMD(probe),
+              mode,
+              duration_minutes: durationMinutes,
+              setup_minutes: setupMinutes,
+              breakdown_minutes: breakdownMinutes,
+              interval_minutes: intervalMinutes,
+            },
+          });
+          const probeSlots = (data?.slots as BookableSlot[]) ?? [];
+          if (probeSlots.length > 0) {
+            found.push({ date: probe, firstStart: probeSlots[0].start });
+          }
+        } catch {
+          // skip probe failures silently
+        }
+      }
+      if (!cancelled) {
+        setNextDates(found);
+        setSearchingAlt(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [noSlots, vendorUserId, packageId, dateStr, mode, durationMinutes, setupMinutes, breakdownMinutes, intervalMinutes]);
 
   if (loading) {
     return (
@@ -145,10 +211,78 @@ export function TimeSlotPicker({
         </div>
       )}
 
-      {!error && slots.length === 0 && (
-        <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          <span>No available {mode === 'DAILY' ? 'date' : 'time slots'} for this day. The Event Pro may be fully booked.</span>
+      {!error && noSlots && (
+        <div className="space-y-3 p-4 rounded-lg border border-border bg-muted/40">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-muted-foreground" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-foreground">
+                No times available for this date.
+              </p>
+              <p className="text-xs text-muted-foreground">
+                This package is booked for {selectedDate ? format(selectedDate, 'EEEE, MMM d') : 'that date'}, but there are nearby options.
+              </p>
+            </div>
+          </div>
+
+          {searchingAlt && (
+            <div className="grid grid-cols-3 gap-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Skeleton key={i} className="h-12 rounded-lg" />
+              ))}
+            </div>
+          )}
+
+          {!searchingAlt && nextDates.length > 0 && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium text-muted-foreground">Try a nearby date:</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                {nextDates.map(({ date, firstStart }) => (
+                  <button
+                    key={date.toISOString()}
+                    type="button"
+                    onClick={() => onAlternativeDate?.(date)}
+                    className="text-left p-2 rounded-lg border border-border hover:border-primary hover:bg-secondary transition-colors"
+                  >
+                    <div className="text-sm font-medium text-foreground">{format(date, 'EEE, MMM d')}</div>
+                    <div className="text-xs text-muted-foreground">from {formatTimeDisplay(firstStart)}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {!searchingAlt && nextDates.length === 0 && (
+            <p className="text-xs text-muted-foreground">
+              No openings in the next 14 days. Try messaging the Event Pro directly.
+            </p>
+          )}
+
+          {onMessageVendor && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={onMessageVendor}
+              className="w-full"
+            >
+              <MessageCircle className="w-4 h-4 mr-2" />
+              Message Event Pro
+            </Button>
+          )}
+        </div>
+      )}
+
+      {/* Selected event time preview */}
+      {!noSlots && selectedTime && mode !== 'DAILY' && (
+        <div className="flex items-center justify-between p-3 rounded-lg bg-primary/5 border border-primary/20">
+          <div className="flex items-center gap-2 text-sm">
+            <ChevronRight className="w-4 h-4 text-primary" />
+            <span className="text-muted-foreground">Your event time:</span>
+            <span className="font-medium text-foreground">
+              {formatTimeDisplay(selectedTime)} – {formatTimeDisplay(endTimeFromStart(selectedTime, durationMinutes))}
+            </span>
+          </div>
         </div>
       )}
 
