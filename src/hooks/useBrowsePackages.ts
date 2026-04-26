@@ -365,8 +365,7 @@ export function useBrowsePackages() {
             vendor_base_lat: vendorBaseLat,
             vendor_base_lng: vendorBaseLng,
             vendor_travel_radius: vendorTravelRadius,
-            is_verified: profile?.stripe_account_status === 'active' && 
-                        profile?.identity_verification_status === 'verified',
+            is_verified: profile?.identity_verification_status === 'verified',
             avg_rating: avgRating,
             review_count: reviewCount,
             distance_miles: distanceMiles
