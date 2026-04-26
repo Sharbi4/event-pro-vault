@@ -15,7 +15,7 @@ import {
   ChevronLeft, Zap, MapPin, AlertCircle, Star, CalendarIcon, Loader2,
   Banknote, CreditCard, ShieldCheck
 } from 'lucide-react';
-import { packages, Vendors, reviews } from '@/data/vendors';
+import { packages, vendors, reviews } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBookings } from '@/hooks/useBookings';

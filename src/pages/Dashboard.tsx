@@ -28,7 +28,7 @@ import { AddToCalendarButton } from '@/components/booking/AddToCalendarButton';
 import { BookingReceipt } from '@/components/booking/BookingReceipt';
 import { BookingCard } from '@/components/dashboard/BookingCard';
 import { deriveBookingState, getBookingTab } from '@/lib/bookingState';
-import { Vendors, packages } from '@/data/vendors';
+import { vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { toast } from 'sonner';
