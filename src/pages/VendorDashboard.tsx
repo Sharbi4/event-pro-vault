@@ -223,6 +223,13 @@ const VendorDashboard = () => {
                 <span className="text-[10px] font-medium">Earnings</span>
               </TabsTrigger>
               <TabsTrigger 
+                value="schedule" 
+                className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] data-[state=active]:bg-background"
+              >
+                <CalendarRange className="w-5 h-5" />
+                <span className="text-[10px] font-medium">Schedule</span>
+              </TabsTrigger>
+              <TabsTrigger 
                 value="bookings" 
                 className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] data-[state=active]:bg-background"
               >
