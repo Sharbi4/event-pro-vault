@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { CategoryCarousel } from '@/components/browse/CategoryCarousel';
 import { BrowsePackageCard } from '@/components/browse/BrowsePackageCard';
@@ -184,6 +184,16 @@ export default function Browse() {
   return (
     <Layout>
       <div className="min-h-screen bg-background pt-16 lg:pt-20">
+        {/* Education strip */}
+        <div className="border-b border-border/50 bg-secondary/40">
+          <div className="container mx-auto px-4 py-2.5 text-xs sm:text-sm text-muted-foreground flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center">
+            <span className="font-medium text-foreground">New to EventPro?</span>
+            <span>Book a pull-up, choose a catering package, or message for a private package.</span>
+            <Link to="/book-or-get-booked" className="font-medium text-foreground hover:underline">
+              Learn how →
+            </Link>
+          </div>
+        </div>
         {/* Search Modal */}
         <SearchModal
           open={searchModalOpen}

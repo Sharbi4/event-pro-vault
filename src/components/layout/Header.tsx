@@ -116,7 +116,7 @@ export function Header() {
 
   const navLinks = [
     { to: '/', label: 'Browse' },
-    { to: '/learn', label: 'Learn More' },
+    { to: '/book-or-get-booked', label: 'Book or Get Booked' },
   ];
 
   return (
@@ -392,16 +392,16 @@ export function Header() {
                     </Link>
                     
                     <Link 
-                      to="/learn" 
+                      to="/book-or-get-booked" 
                       className={`flex items-center gap-2 text-sm font-medium py-3 px-2 rounded-lg transition-colors ${
-                        location.pathname === '/learn' 
+                        location.pathname === '/book-or-get-booked' 
                           ? 'text-foreground bg-secondary' 
                           : 'text-muted-foreground hover:text-foreground hover:bg-secondary/50'
                       }`}
                       onClick={() => setMobileMenuOpen(false)}
                     >
                       <BookOpen className="w-4 h-4" />
-                      How It Works
+                      Book or Get Booked
                     </Link>
                     <Link 
                       to="/faq" 
