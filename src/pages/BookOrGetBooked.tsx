@@ -282,14 +282,14 @@ export default function BookOrGetBooked() {
                 Search by date, location, vendor type, cuisine, and guest count.
               </p>
               <Button asChild className="mt-5 rounded-full bg-orange-500 hover:bg-orange-600 text-white">
-                <Link to="/browse">Start searching <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
+                <Link to={browseHref}>Start searching <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
               </Button>
               <div className="mt-5 flex flex-wrap gap-2">
                 {[
                   ['Browse food trucks', '/browse?category=food-truck'],
                   ['Browse mobile bartenders', '/browse?category=mobile-bartender'],
                   ['Browse dessert vendors', '/browse?category=dessert'],
-                  ['Available this weekend', '/browse?timing=weekend'],
+                  ['Available this weekend', '/browse?q=weekend'],
                 ].map(([l, h]) => (
                   <Link key={l} to={h} className="text-xs px-3 py-1.5 rounded-full border border-border/70 hover:border-foreground transition-colors">
                     {l}
@@ -303,15 +303,18 @@ export default function BookOrGetBooked() {
                 Create your EventPro profile, add packages, and turn open calendar dates into paid bookings.
               </p>
               <Button asChild variant="secondary" className="mt-5 rounded-full">
-                <Link to="/become-a-pro">Become an Event Pro <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
+                <Link to={proEntry()}>
+                  {user ? 'Open vendor dashboard' : 'Become an Event Pro'} <ArrowRight className="ml-1.5 w-4 h-4" />
+                </Link>
               </Button>
               <div className="mt-5 flex flex-wrap gap-2">
-                {[
-                  ['Create profile', '/become-a-pro'],
-                  ['Add packages', '/vendor-dashboard?tab=packages'],
-                  ['Set calendar', '/vendor-dashboard?tab=calendar'],
-                  ['Learn about private packages', '/book-or-get-booked#booking-options'],
-                ].map(([l, h]) => (
+                {([
+                  [user ? 'Edit profile' : 'Create profile', user ? '/vendor-dashboard?tab=settings' : '/become-a-pro'],
+                  ['Add packages', proEntry('packages')],
+                  ['Set calendar', proEntry('availability')],
+                  ['Manage requests', proEntry('bookings')],
+                  ['Open messages', proEntry('messages')],
+                ] as Array<[string, string]>).map(([l, h]) => (
                   <Link key={l} to={h} className="text-xs px-3 py-1.5 rounded-full border border-background/30 hover:border-background transition-colors">
                     {l}
                   </Link>
