@@ -1,10 +1,13 @@
-import { useMemo } from 'react';
-import { Clock, AlertCircle, Info } from 'lucide-react';
+import { useMemo, useState, useEffect } from 'react';
+import { Clock, AlertCircle, Info, MessageCircle, ChevronRight } from 'lucide-react';
+import { addDays, format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useAvailableSlots } from '@/hooks/useAvailableSlots';
+import { supabase } from '@/integrations/supabase/client';
 import type { BookableSlot } from '@/lib/availabilityEngine';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
 
 interface TimeSlotPickerProps {
   vendorUserId: string;
