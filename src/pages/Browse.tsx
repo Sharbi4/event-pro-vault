@@ -459,6 +459,28 @@ export default function Browse() {
             </div>
           )}
 
+          {/* Vendor Grid (default — vendor-grouped, StyleSeat-style) */}
+          {!loading && packages.length > 0 && viewMode === 'vendors' && (() => {
+            const groups = groupPackagesByVendor(packages, 3);
+            return (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {groups.map((group, index) => (
+                  <div
+                    key={group.vendor_user_id}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${index * 0.03}s` }}
+                  >
+                    <BrowseVendorCard
+                      group={group}
+                      date={filters.date}
+                      startTime={filters.startTime}
+                    />
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+
           {/* Package Grid */}
           {!loading && packages.length > 0 && viewMode === 'grid' && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
