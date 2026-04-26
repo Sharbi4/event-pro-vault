@@ -35,7 +35,7 @@ export function useFeaturedPackages(limit = 6) {
   return useQuery({
     queryKey: ['featured-packages', limit],
     queryFn: async (): Promise<FeaturedPackage[]> => {
-      // Fetch active packages from verified Event Pros
+      // Fetch a larger pool so we can diversify by category & dedupe images
       const { data: packages, error } = await supabase
         .from('vendor_packages')
         .select(`
@@ -53,7 +53,7 @@ export function useFeaturedPackages(limit = 6) {
         .eq('is_active', true)
         .eq('is_published', true)
         .order('created_at', { ascending: false })
-        .limit(limit * 2); // Fetch more to filter by verified Event Pros
+        .limit(60); // pull a wide pool for diversification
 
       if (error) throw error;
       if (!packages?.length) return [];
@@ -77,8 +77,8 @@ export function useFeaturedPackages(limit = 6) {
       const profileMap = new Map(profiles.map(p => [p.user_id, p]));
       const detailsMap = new Map(vendorDetails?.map(d => [d.user_id, d]) || []);
 
-      // Filter packages to only verified Event Pros and enrich with Event Pro data
-      const enrichedPackages = packages
+      // Enrich with vendor data
+      const enriched = packages
         .filter(pkg => profileMap.has(pkg.user_id))
         .map(pkg => {
           const profile = profileMap.get(pkg.user_id);
@@ -98,10 +98,43 @@ export function useFeaturedPackages(limit = 6) {
             vendor_avatar: profile?.avatar_url || null,
             vendor_city: profile?.primary_city || null,
           };
-        })
-        .slice(0, limit);
+        });
 
-      return enrichedPackages;
+      // Dedupe by cover image (no two cards should share an image)
+      const seenImages = new Set<string>();
+      const seenVendors = new Set<string>();
+      const deduped = enriched.filter(p => {
+        const key = p.cover_image_url || `__no_img_${p.id}`;
+        if (seenImages.has(key)) return false;
+        // Soft-cap one package per vendor to add variety
+        if (seenVendors.has(p.vendor_user_id)) return false;
+        seenImages.add(key);
+        seenVendors.add(p.vendor_user_id);
+        return true;
+      });
+
+      // Round-robin across categories so the lineup feels diverse
+      const buckets = new Map<string, typeof deduped>();
+      for (const p of deduped) {
+        const cat = p.category || 'other';
+        if (!buckets.has(cat)) buckets.set(cat, []);
+        buckets.get(cat)!.push(p);
+      }
+      const result: typeof deduped = [];
+      let added = true;
+      while (result.length < limit && added) {
+        added = false;
+        for (const list of buckets.values()) {
+          if (result.length >= limit) break;
+          const next = list.shift();
+          if (next) {
+            result.push(next);
+            added = true;
+          }
+        }
+      }
+
+      return result;
     },
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
