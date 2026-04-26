@@ -10,6 +10,7 @@ import { BookingTypeCards } from '@/components/home/BookingTypeCards';
 import { TrustRow } from '@/components/home/TrustRow';
 import { VendorCTA } from '@/components/home/VendorCTA';
 import { FinalCTA } from '@/components/home/FinalCTA';
+import { CustomerJourneyStrip } from '@/components/book-or-get-booked/CustomerJourneyStrip';
 import { useSEO } from '@/hooks/useSEO';
 import { WebsiteJsonLd, OrganizationJsonLd } from '@/components/seo/JsonLd';
 import { generatePageSEO, SEO_CONFIG } from '@/lib/seoConfig';
@@ -34,6 +35,7 @@ const Index = () => {
       <FoodTruckPullUpStrip />
       <CategoryCuisineChips />
       <AIConciergeStrip />
+      <CustomerJourneyStrip compact title="From search to served" />
       <FeaturedPackages />
       <FlexibleDatesSection />
       <OccasionGrid />
