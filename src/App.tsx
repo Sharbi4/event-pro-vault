@@ -50,6 +50,7 @@ import BookingStatus from "./pages/BookingStatus";
 import PrivatePackageReview from "./pages/PrivatePackageReview";
 import ReferralRedirect from "./pages/ReferralRedirect";
 import { LegacyRedirect } from "./components/routing/LegacyRedirect";
+import Unsubscribe from "./pages/Unsubscribe";
 
 const queryClient = new QueryClient();
 
@@ -65,6 +66,7 @@ const App = () => (
             <Routes>
               {/* Search-first homepage */}
               <Route path="/" element={<Index />} />
+              <Route path="/unsubscribe" element={<Unsubscribe />} />
               {/* Legacy sentence-builder landing */}
               <Route path="/planner" element={<SentenceLanding />} />
               <Route path="/discover" element={<PackageDeck />} />
