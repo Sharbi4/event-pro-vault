@@ -35,6 +35,12 @@ interface SpatialDrawerProps {
     vendor_user_id?: string;
     payment_options?: string;
     vendor_email?: string | null; // Added for notifications
+    // Travel-fee inputs (all optional — quote degrades gracefully if missing)
+    vendor_lat?: number | null;
+    vendor_lng?: number | null;
+    travel_fee_per_mile?: number | null;
+    included_travel_miles?: number | null;
+    max_travel_miles?: number | null;
     vendor?: {
       display_name?: string;
       avatar_url?: string;
