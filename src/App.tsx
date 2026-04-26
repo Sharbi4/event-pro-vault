@@ -20,6 +20,7 @@ import PackageDetail from "./pages/PackageDetailNew";
 import ProProfile from "./pages/ProProfile";
 import BecomePro from "./pages/BecomePro";
 import HowItWorks from "./pages/HowItWorks";
+import BookOrGetBooked from "./pages/BookOrGetBooked";
 import Learn from "./pages/Learn";
 import LearnEventPros from "./pages/LearnEventPros";
 import FAQ from "./pages/FAQ";
@@ -78,7 +79,9 @@ const App = () => (
               <Route path="/eventpro/:username" element={<ProProfile />} />
               <Route path="/package/:id" element={<PackageDetail />} />
               <Route path="/become-a-pro" element={<BecomePro />} />
-              <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/how-it-works" element={<BookOrGetBooked />} />
+              <Route path="/book-or-get-booked" element={<BookOrGetBooked />} />
+              <Route path="/how-it-works-old" element={<HowItWorks />} />
               <Route path="/learn" element={<Learn />} />
               <Route path="/learn/event-pros" element={<LearnEventPros />} />
               <Route path="/faq" element={<FAQ />} />
