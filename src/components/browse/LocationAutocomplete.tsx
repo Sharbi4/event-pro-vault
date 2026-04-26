@@ -123,8 +123,19 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
           );
         } else {
           setIsGeolocating(false);
-          // Fallback without geocoding
-          onChange(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
+          // Google Geocoder unavailable — still emit canonical coords so the
+          // radius search works on lat/lng. Surface a friendly label instead
+          // of raw decimals.
+          const displayValue = `Near you (${latitude.toFixed(2)}, ${longitude.toFixed(2)})`;
+          onChange(displayValue);
+          if (onPlaceSelect) {
+            onPlaceSelect({
+              formatted_address: displayValue,
+              lat: latitude,
+              lng: longitude,
+            });
+          }
+          toast.success('Using your current location');
         }
       },
       (error) => {
