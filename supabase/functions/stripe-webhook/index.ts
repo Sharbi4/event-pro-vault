@@ -278,6 +278,17 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         updated_at: new Date().toISOString(),
       })
       .eq("id", metadata.booking_id);
+
+    if (metadata.private_package_id) {
+      await supabaseAdmin
+        .from("private_packages")
+        .update({
+          status: "paid",
+          paid_at: new Date().toISOString(),
+          booking_id: metadata.booking_id,
+        })
+        .eq("id", metadata.private_package_id);
+    }
   }
 }
 
