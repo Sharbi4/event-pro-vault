@@ -30,13 +30,13 @@ export default function BlogPost() {
   // Dynamic SEO for blog post
   useSEO({
     title: post?.title || 'Blog - EventPro',
-    description: post?.excerpt || 'Read the latest articles about event planning, Vendor tips, and industry insights.',
+    description: post?.excerpt || 'Read the latest articles about event planning, Event Pro tips, and industry insights.',
     canonical: post ? `https://event-pro-vault.lovable.app/blog/${post.slug}` : undefined,
     type: 'article',
     image: post?.cover_image_url || undefined,
     author: post?.author_name,
     publishedTime: post?.published_at || undefined,
-    keywords: post?.tags || ['event planning', 'Vendor tips', 'industry news'],
+    keywords: post?.tags || ['event planning', 'Event Pro tips', 'industry news'],
   });
 
   const handleCopyLink = async () => {
@@ -269,11 +269,11 @@ export default function BlogPost() {
             <Card className="p-8 bg-gradient-to-r from-primary/5 to-primary/10">
               <h3 className="text-xl font-bold mb-3">Ready to book your next event?</h3>
               <p className="text-muted-foreground mb-6">
-                Find the perfect Vendor for your upcoming celebration.
+                Find the perfect Event Pro for your upcoming celebration.
               </p>
               <Button asChild>
                 <Link to="/discover">
-                  Discover Vendors
+                  Discover Event Pros
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>

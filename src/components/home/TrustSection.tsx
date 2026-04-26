@@ -3,8 +3,8 @@ import { ShieldCheck, CreditCard, Star, Clock } from 'lucide-react';
 const trustItems = [
   {
     icon: ShieldCheck,
-    title: 'Verified Vendors',
-    description: 'Every Vendor is vetted for quality and reliability'
+    title: 'Verified Event Pros',
+    description: 'Every Event Pro is vetted for quality and reliability'
   },
   {
     icon: CreditCard,

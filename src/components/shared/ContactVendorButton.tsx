@@ -46,12 +46,12 @@ export function ContactVendorButton({
     // Check if user is logged in
     if (!user) {
       // Redirect to login with return URL
-      toast.info('Please sign in to contact this Vendor');
+      toast.info('Please sign in to contact this Event Pro');
       navigate('/auth?redirect=' + encodeURIComponent(window.location.pathname));
       return;
     }
 
-    // Don't allow Vendors to message themselves
+    // Don't allow Event Pros to message themselves
     if (user.id === vendorUserId) {
       toast.error("You can't message yourself");
       return;
@@ -60,7 +60,7 @@ export function ContactVendorButton({
     setIsCreating(true);
 
     try {
-      // Check if conversation already exists between this client and Vendor
+      // Check if conversation already exists between this client and Event Pro
       const { data: existingConvo } = await supabase
         .from('conversations')
         .select('id')

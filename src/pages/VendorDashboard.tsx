@@ -56,7 +56,7 @@ const VendorDashboard = () => {
 
   const { totalUnreadCount, getOrCreateConversationForBooking, setActiveConversationId } = useVendorMessages();
   const { unreadCount: notificationUnreadCount } = useRealtimeNotifications();
-  const { disputes } = useDisputes('Vendor');
+  const { disputes } = useDisputes('Event Pro');
   const pendingDisputeCount = disputes.filter(d => d.status === 'pending' && !d.vendor_responded_at).length;
   
   const [activeTab, setActiveTab] = useState(defaultTab);
@@ -388,7 +388,7 @@ const VendorDashboard = () => {
                 <Package className="w-4 h-4 text-muted-foreground" />
                 <h3 className="text-sm font-semibold">Private packages sent</h3>
               </div>
-              <PrivatePackagesList role="Vendor" />
+              <PrivatePackagesList role="Event Pro" />
             </div>
           </TabsContent>
 
@@ -515,7 +515,7 @@ const VendorDashboard = () => {
 
               {/* Stripe Payouts Setup - Detailed */}
               <StripeSetupCard 
-                variant="Vendor" 
+                variant="Event Pro" 
                 currentStatus={profile?.stripe_account_status}
                 onStatusChange={refetch}
               />

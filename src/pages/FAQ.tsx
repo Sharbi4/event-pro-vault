@@ -51,7 +51,7 @@ const categories: { id: FAQCategory; name: string; icon: React.ReactNode }[] = [
   { id: 'booking-packages', name: 'Booking Packages', icon: <ShoppingBag className="w-4 h-4" /> },
   { id: 'paying-fees', name: 'Paying & Fees', icon: <CreditCard className="w-4 h-4" /> },
   { id: 'cancellations', name: 'Cancellations & Refunds', icon: <RotateCcw className="w-4 h-4" /> },
-  { id: 'event-pros', name: 'Vendors', icon: <User className="w-4 h-4" /> },
+  { id: 'event-pros', name: 'Event Pros', icon: <User className="w-4 h-4" /> },
   { id: 'trust-safety', name: 'Trust & Safety', icon: <Shield className="w-4 h-4" /> },
   { id: 'account', name: 'Account & Profile', icon: <Settings className="w-4 h-4" /> },
   { id: 'support', name: 'Support', icon: <Headphones className="w-4 h-4" /> },
@@ -73,7 +73,7 @@ const faqData: FAQItem[] = [
   // Booking Packages
   {
     category: 'booking-packages',
-    question: 'What am I booking—an Vendor or a package?',
+    question: 'What am I booking—an Event Pro or a package?',
     answer: 'You\'re booking the package. Packages contain the pricing, duration, included items, and availability rules that determine whether it shows up in your search.',
   },
   {
@@ -84,23 +84,23 @@ const faqData: FAQItem[] = [
   {
     category: 'booking-packages',
     question: 'What information do I need to book a package?',
-    answer: 'Typically: your name, phone/email, event details, and the event address. If the Vendor has travel rules, we validate the address and include any travel pricing before you confirm.',
+    answer: 'Typically: your name, phone/email, event details, and the event address. If the Event Pro has travel rules, we validate the address and include any travel pricing before you confirm.',
   },
   {
     category: 'booking-packages',
     question: 'Can I pay online or in cash?',
-    answer: 'It depends on the package. Vendors can offer: Pay online (card), Pay in cash, or Both (you choose at checkout).',
+    answer: 'It depends on the package. Event Pros can offer: Pay online (card), Pay in cash, or Both (you choose at checkout).',
   },
   {
     category: 'booking-packages',
     question: 'What\'s the difference between Instant Book and Request to Book?',
-    answer: 'Instant Book confirms your booking immediately. Request to Book sends the Vendor a request to approve before it\'s confirmed.',
+    answer: 'Instant Book confirms your booking immediately. Request to Book sends the Event Pro a request to approve before it\'s confirmed.',
     hasTooltip: 'instant-book',
   },
   {
     category: 'booking-packages',
     question: 'When is my booking confirmed?',
-    answer: 'Instant Book confirms immediately. Request to Book confirms when the Vendor accepts your request.',
+    answer: 'Instant Book confirms immediately. Request to Book confirms when the Event Pro accepts your request.',
   },
   // Paying & Fees
   {
@@ -123,7 +123,7 @@ const faqData: FAQItem[] = [
   {
     category: 'paying-fees',
     question: 'What happens if I choose "Pay in cash"?',
-    answer: 'Your booking is confirmed (Instant Book) or requested (Request to Book) without online payment. You\'ll pay the Vendor directly at the event based on the package terms.',
+    answer: 'Your booking is confirmed (Instant Book) or requested (Request to Book) without online payment. You\'ll pay the Event Pro directly at the event based on the package terms.',
   },
   // Cancellations & Refunds
   {
@@ -139,7 +139,7 @@ const faqData: FAQItem[] = [
   {
     category: 'cancellations',
     question: 'Is there a deposit? Is it refundable?',
-    answer: 'Some packages require a deposit to reserve the date. Deposits are non-refundable by default, except: (1) If the Vendor cancels, your deposit is refunded in full. (2) Grace period: If you cancel within 1 hour of booking and your event is 7+ days away, your deposit will be refunded.',
+    answer: 'Some packages require a deposit to reserve the date. Deposits are non-refundable by default, except: (1) If the Event Pro cancels, your deposit is refunded in full. (2) Grace period: If you cancel within 1 hour of booking and your event is 7+ days away, your deposit will be refunded.',
     hasTooltip: 'deposit-refund',
   },
   {
@@ -150,12 +150,12 @@ const faqData: FAQItem[] = [
   {
     category: 'cancellations',
     question: 'Are platform fees refundable?',
-    answer: 'A platform fee (12.9%) is included in your total at checkout. If you cancel, the platform fee is not refunded. If the Vendor cancels, the platform fee is refunded.',
+    answer: 'A platform fee (12.9%) is included in your total at checkout. If you cancel, the platform fee is not refunded. If the Event Pro cancels, the platform fee is refunded.',
     hasTooltip: 'platform-fee-refund',
   },
   {
     category: 'cancellations',
-    question: 'When does the Vendor get paid?',
+    question: 'When does the Event Pro get paid?',
     answer: 'For online payments, funds are held and payouts are initiated 24 hours after the booking/event ends. This helps reduce disputes and confirms service completion.',
     hasTooltip: 'payout-timing',
   },
@@ -167,18 +167,18 @@ const faqData: FAQItem[] = [
   },
   {
     category: 'cancellations',
-    question: 'What if the Vendor cancels?',
-    answer: 'If the Vendor cancels, you\'ll receive a full refund for any online payment made (including deposit). The platform fee is refunded. You\'ll be notified immediately and can book another option.',
+    question: 'What if the Event Pro cancels?',
+    answer: 'If the Event Pro cancels, you\'ll receive a full refund for any online payment made (including deposit). The platform fee is refunded. You\'ll be notified immediately and can book another option.',
   },
   {
     category: 'cancellations',
-    question: 'Can Vendors set custom cancellation policies?',
+    question: 'Can Event Pros set custom cancellation policies?',
     answer: 'Not at launch. To keep things clear and consistent, EventPros uses standardized policy templates (Flexible, Standard, Strict). This helps customers compare options and reduces confusion.',
   },
   {
     category: 'cancellations',
     question: 'How do cash payments work with refunds?',
-    answer: 'If a package is marked Pay in cash, you pay the Vendor directly at the event. Refunds or deposits for cash bookings (if applicable) follow the same cancellation policy terms shown at booking time, but payment handling occurs directly between you and the Event Pro.',
+    answer: 'If a package is marked Pay in cash, you pay the Event Pro directly at the event. Refunds or deposits for cash bookings (if applicable) follow the same cancellation policy terms shown at booking time, but payment handling occurs directly between you and the Event Pro.',
     hasTooltip: 'cash-refunds',
   },
   {
@@ -186,11 +186,11 @@ const faqData: FAQItem[] = [
     question: 'What if there\'s a dispute?',
     answer: 'Contact support from your booking receipt page or dashboard. We\'ll review the details and help resolve it.',
   },
-  // Vendors
+  // Event Pros
   {
     category: 'event-pros',
-    question: 'How do I become an Vendor?',
-    answer: 'Click Create free profile, choose Vendor, sign in, and complete your profile. Then create packages and set availability per package.',
+    question: 'How do I become an Event Pro?',
+    answer: 'Click Create free profile, choose Event Pro, sign in, and complete your profile. Then create packages and set availability per package.',
   },
   {
     category: 'event-pros',
@@ -216,7 +216,7 @@ const faqData: FAQItem[] = [
   },
   {
     category: 'event-pros',
-    question: 'What fees do I pay as an Vendor?',
+    question: 'What fees do I pay as an Event Pro?',
     answer: 'A 12.9% platform commission is deducted from your earnings. This covers platform services, support, and secure payment processing.',
   },
   {
@@ -275,14 +275,14 @@ const popularQuestions = [
 const tooltipContent: Record<string, string> = {
   'availability-first': 'Results match your selected date/time—only what\'s actually available shows up.',
   'platform-fee': 'This fee supports payment processing, support, and marketplace operations.',
-  'platform-fee-refund': 'You keep the platform fee if you cancel. Vendor cancels = fee refunded.',
+  'platform-fee-refund': 'You keep the platform fee if you cancel. Event Pro cancels = fee refunded.',
   'payout-timing': 'Payouts are held until 24 hours after the event to allow for issue reporting.',
   'issue-reporting': 'Report issues promptly so we can review before funds are released.',
   'cash-refunds': 'Cash bookings are handled directly between you and the Event Pro.',
   'instant-book': 'Booking is confirmed immediately when it matches availability.',
-  'request-to-book': 'Booking confirms after the Vendor approves.',
+  'request-to-book': 'Booking confirms after the Event Pro approves.',
   'stripe': 'Stripe securely handles payouts and verification. We never store bank details.',
-  'deposit-refund': 'Cancel within 1 hour of booking + event 7+ days away = deposit refunded. Vendor cancels = always refunded.',
+  'deposit-refund': 'Cancel within 1 hour of booking + event 7+ days away = deposit refunded. Event Pro cancels = always refunded.',
 };
 
 export default function FAQ() {
@@ -299,7 +299,7 @@ export default function FAQ() {
     type: 'website',
     keywords: [
       'event booking FAQ',
-      'Vendor booking help',
+      'Event Pro booking help',
       'cancellation policy',
       'payment questions',
       'event pro help',
@@ -451,7 +451,7 @@ export default function FAQ() {
                 How Booking Works
               </h2>
               <p className="text-muted-foreground">
-                Four simple steps to book your perfect event Vendor
+                Four simple steps to book your perfect event Event Pro
               </p>
             </div>
 

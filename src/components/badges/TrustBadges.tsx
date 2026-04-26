@@ -112,7 +112,7 @@ export function TrustBadges({
           </TooltipTrigger>
           <TooltipContent>
             <p className="text-xs max-w-[220px]">
-              This Vendor completed optional identity verification through EventPro.
+              This Event Pro completed optional identity verification through EventPro.
             </p>
           </TooltipContent>
         </Tooltip>

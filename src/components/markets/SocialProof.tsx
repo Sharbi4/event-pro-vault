@@ -5,7 +5,7 @@ interface SocialProofProps {
   galleryImages?: { url: string; caption?: string }[];
 }
 
-// Note: Real testimonials will come from verified Vendor bookings in future
+// Note: Real testimonials will come from verified Event Pro bookings in future
 // For now, we only show the Photos section if gallery images exist
 
 export function SocialProof({ marketName, galleryImages = [] }: SocialProofProps) {

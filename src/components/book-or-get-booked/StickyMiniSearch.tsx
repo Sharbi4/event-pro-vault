@@ -27,7 +27,7 @@ interface Props {
 
 /**
  * Sticky mini-search bar that mirrors the Browse filters (date, location,
- * Vendor type, plus quick filters) and routes to /browse with the same
+ * Event Pro type, plus quick filters) and routes to /browse with the same
  * query-string contract Browse already understands.
  */
 export function StickyMiniSearch({
@@ -101,11 +101,11 @@ export function StickyMiniSearch({
         <div className="container mx-auto px-3 sm:px-4">
           <div className="bg-background/95 backdrop-blur border border-border rounded-2xl shadow-lg p-2 sm:p-2.5">
             <div className="flex items-center gap-2">
-              {/* Vendor type */}
+              {/* Event Pro type */}
               <div className="hidden md:block min-w-[160px]">
                 <Select value={vendorType} onValueChange={setVendorType}>
                   <SelectTrigger className="h-10 border-0 bg-secondary/50 hover:bg-secondary rounded-xl focus:ring-0">
-                    <SelectValue placeholder="Any Vendor" />
+                    <SelectValue placeholder="Any Event Pro" />
                   </SelectTrigger>
                   <SelectContent>
                     {serviceCategories.map((c) => (

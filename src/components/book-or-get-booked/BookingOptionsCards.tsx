@@ -7,15 +7,15 @@ const options = [
   {
     icon: Truck,
     label: 'Pull-Up Booking',
-    headline: 'Bring a Vendor to your location',
+    headline: 'Bring a Event Pro to your location',
     copy: 'Perfect for apartments, offices, breweries, schools, markets, neighborhoods, and pop-ups.',
     bullets: [
-      'Choose a Vendor',
+      'Choose a Event Pro',
       'Select your date and time',
       'Pay a show-up fee, minimum guarantee, or deposit if required',
       'Guests can pay individually on-site',
     ],
-    cta: { label: 'Find pull-up Vendors', href: '/browse?type=pull-up' },
+    cta: { label: 'Find pull-up Event Pros', href: '/browse?type=pull-up' },
     accent: 'from-orange-500/10 to-orange-500/0',
   },
   {
@@ -35,15 +35,15 @@ const options = [
   {
     icon: MailPlus,
     label: 'Private Packages',
-    headline: 'Need something custom? Message the Vendor',
+    headline: 'Need something custom? Message the Event Pro',
     copy: 'For custom menus, larger events, special timing, or mixed services.',
     bullets: [
-      'Message the Vendor through EventPro',
-      'The Vendor creates a private package',
+      'Message the Event Pro through EventPro',
+      'The Event Pro creates a private package',
       'You review and book it on-platform',
       'Your details stay organized in one place',
     ],
-    cta: { label: 'Message a Vendor', href: '/browse' },
+    cta: { label: 'Message a Event Pro', href: '/browse' },
     accent: 'from-rose-500/10 to-rose-500/0',
   },
 ];

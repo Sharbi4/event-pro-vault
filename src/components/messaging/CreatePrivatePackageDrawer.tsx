@@ -228,7 +228,7 @@ export function CreatePrivatePackageDrawer({
       const { error: msgError } = await supabase.from('messages').insert({
         conversation_id: conversationId,
         sender_user_id: user.id,
-        sender_type: 'Vendor',
+        sender_type: 'Event Pro',
         content: `📦 Sent a private package: ${packageName} — $${totalPrice.toFixed(2)}`,
         attached_private_package_id: pkg.id,
       });

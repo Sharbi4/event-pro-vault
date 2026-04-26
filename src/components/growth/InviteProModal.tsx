@@ -140,7 +140,7 @@ export function InviteProModal({ open, onOpenChange, category, city }: InvitePro
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share2 className="w-5 h-5" />
-            Invite an Vendor
+            Invite an Event Pro
           </DialogTitle>
           <DialogDescription>
             Know a photographer, food truck, DJ, or bartender? Invite them to list their packages.

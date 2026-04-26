@@ -12,12 +12,12 @@ export function Footer() {
             <Link to="/" className="inline-block mb-4">
               <img 
                 src={logo} 
-                alt="Vendor by Vendibook" 
+                alt="Event Pro by Vendibook" 
                 className="h-[72px] w-auto"
               />
             </Link>
             <p className="text-sm text-muted-foreground max-w-xs">
-              Book premium event Vendors in minutes. Trusted by thousands of hosts.
+              Book premium event Event Pros in minutes. Trusted by thousands of hosts.
             </p>
           </div>
 
@@ -27,7 +27,7 @@ export function Footer() {
             <ul className="space-y-3">
               <li>
                 <Link to="/browse" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Browse Vendors
+                  Browse Event Pros
                 </Link>
               </li>
               <li>
@@ -38,9 +38,9 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* For Vendors */}
+          {/* For Event Pros */}
           <div>
-            <h4 className="font-semibold text-foreground mb-4">For Vendors</h4>
+            <h4 className="font-semibold text-foreground mb-4">For Event Pros</h4>
             <ul className="space-y-3">
               <li>
                 <Link to="/become-a-pro" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
@@ -49,12 +49,12 @@ export function Footer() {
               </li>
               <li>
                 <Link to="/vendor-dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Vendor Dashboard
+                  Event Pro Dashboard
                 </Link>
               </li>
               <li>
                 <Link to="/vendor-terms" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-                  Vendor Terms
+                  Event Pro Terms
                 </Link>
               </li>
             </ul>

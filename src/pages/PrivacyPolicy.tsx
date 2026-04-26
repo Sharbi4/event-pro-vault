@@ -21,9 +21,9 @@ export default function PrivacyPolicy() {
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
               <li>Name, email address, and phone number</li>
               <li>Billing and payment information (processed securely via Stripe)</li>
-              <li>Profile photos and business information for Vendors</li>
+              <li>Profile photos and business information for Event Pros</li>
               <li>Event details and booking history</li>
-              <li>Communications between users and Vendors</li>
+              <li>Communications between users and Event Pros</li>
             </ul>
 
             <h3 className="text-lg font-medium text-foreground mt-4 mb-2">Automatically Collected Information</h3>
@@ -38,7 +38,7 @@ export default function PrivacyPolicy() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">3. How We Use Your Information</h2>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li>To facilitate bookings between customers and Vendors</li>
+              <li>To facilitate bookings between customers and Event Pros</li>
               <li>To process payments and manage transactions</li>
               <li>To communicate about bookings, updates, and promotions</li>
               <li>To improve our platform and user experience</li>

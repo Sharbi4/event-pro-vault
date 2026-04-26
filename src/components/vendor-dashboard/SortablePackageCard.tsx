@@ -92,7 +92,7 @@ export function SortablePackageCard({
     const shareUrl = `${window.location.origin}/package/${pkg.id}`;
     const shareData = {
       title: pkg.name,
-      text: `Check out ${pkg.name} on Vendor!`,
+      text: `Check out ${pkg.name} on Event Pro!`,
       url: shareUrl,
     };
 

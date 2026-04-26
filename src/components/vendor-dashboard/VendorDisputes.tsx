@@ -7,7 +7,7 @@ import { useDisputes } from '@/hooks/useDisputes';
 import { VendorDisputeCard } from '@/components/disputes/VendorDisputeCard';
 
 export function VendorDisputes() {
-  const { disputes, loading, processingId, refetch, respondToDispute } = useDisputes('Vendor');
+  const { disputes, loading, processingId, refetch, respondToDispute } = useDisputes('Event Pro');
 
   const pendingDisputes = disputes.filter(d => d.status === 'pending' && !d.vendor_responded_at);
   const inProgressDisputes = disputes.filter(d => 

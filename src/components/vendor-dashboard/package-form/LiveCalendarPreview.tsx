@@ -120,7 +120,7 @@ interface PreviewBodyProps {
   exampleBookings: string[];
 }
 
-type ViewMode = 'customer' | 'Vendor';
+type ViewMode = 'customer' | 'Event Pro';
 
 function PreviewBody({
   durationMinutes,
@@ -136,8 +136,8 @@ function PreviewBody({
   timelineHeight,
   exampleBookings,
 }: PreviewBodyProps) {
-  const [view, setView] = useState<ViewMode>('Vendor');
-  const showOuter = view === 'Vendor';
+  const [view, setView] = useState<ViewMode>('Event Pro');
+  const showOuter = view === 'Event Pro';
 
   return (
     <Card className="p-4 space-y-3 bg-muted/20">
@@ -171,11 +171,11 @@ function PreviewBody({
           <button
             type="button"
             role="tab"
-            aria-selected={view === 'Vendor'}
-            onClick={() => setView('Vendor')}
+            aria-selected={view === 'Event Pro'}
+            onClick={() => setView('Event Pro')}
             className={cn(
               'inline-flex items-center gap-1 px-3 py-1 rounded-full transition-all',
-              view === 'Vendor'
+              view === 'Event Pro'
                 ? 'bg-background text-foreground shadow-sm font-medium'
                 : 'text-muted-foreground hover:text-foreground'
             )}
@@ -250,7 +250,7 @@ function PreviewBody({
               );
             }
 
-            // Vendor view: full reserved block with inner service block.
+            // Event Pro view: full reserved block with inner service block.
             const top = Math.max(0, b.startMin * pxPerMin);
             const height = Math.max(0, (b.endMin - b.startMin) * pxPerMin);
             if (b.endMin < 0 || b.startMin > totalDayMinutes) return null;

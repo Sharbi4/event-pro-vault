@@ -4,14 +4,14 @@ export default function VendorTerms() {
   return (
     <Layout>
       <div className="container mx-auto px-4 py-12 lg:py-16 max-w-4xl">
-        <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">Vendor Terms & Conditions</h1>
+        <h1 className="text-3xl lg:text-4xl font-bold text-foreground mb-2">Event Pro Terms & Conditions</h1>
         <p className="text-muted-foreground mb-8">Last updated: January 27, 2025</p>
 
         <div className="prose prose-neutral dark:prose-invert max-w-none space-y-8">
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">1. Introduction</h2>
             <p className="text-muted-foreground leading-relaxed">
-              These Vendor Terms & Conditions ("Vendor Terms") govern your use of EventPro by Vendibook as a service provider. By registering as an Vendor, you agree to these terms in addition to our general Terms of Service.
+              These Event Pro Terms & Conditions ("Event Pro Terms") govern your use of EventPro by Vendibook as a service provider. By registering as an Event Pro, you agree to these terms in addition to our general Terms of Service.
             </p>
           </section>
 
@@ -66,7 +66,7 @@ export default function VendorTerms() {
 
             <h3 className="text-lg font-medium text-foreground mt-4 mb-2">Platform Fees</h3>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li>Platform fees (12.9%) are charged to customers, not Vendors</li>
+              <li>Platform fees (12.9%) are charged to customers, not Event Pros</li>
               <li>Stripe processing fees may apply to your payouts</li>
               <li>Premium subscriptions provide additional features for $25/month</li>
             </ul>
@@ -103,7 +103,7 @@ export default function VendorTerms() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">9. Account Suspension and Termination</h2>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              We may suspend or terminate your Vendor account for:
+              We may suspend or terminate your Event Pro account for:
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
               <li>Violation of these terms or our policies</li>
@@ -131,7 +131,7 @@ export default function VendorTerms() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">12. Contact Us</h2>
             <p className="text-muted-foreground leading-relaxed">
-              If you have questions about these Vendor Terms, please contact us at:
+              If you have questions about these Event Pro Terms, please contact us at:
             </p>
             <p className="text-muted-foreground mt-2">
               <strong>Email:</strong> <a href="mailto:support@vendibook.com" className="text-primary hover:underline">support@vendibook.com</a>

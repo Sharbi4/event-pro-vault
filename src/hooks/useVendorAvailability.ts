@@ -51,7 +51,7 @@ interface VendorAvailabilityData {
 
 /**
  * Hook to check vendor-wide availability across ALL packages.
- * Ensures that booking one package blocks the Vendor for that time slot
+ * Ensures that booking one package blocks the Event Pro for that time slot
  * across all their other packages.
  */
 export function useVendorAvailability(vendorUserId: string | undefined) {
@@ -68,7 +68,7 @@ export function useVendorAvailability(vendorUserId: string | undefined) {
     },
   });
 
-  // Fetch all Vendor data
+  // Fetch all Event Pro data
   useEffect(() => {
     if (!vendorUserId) {
       setLoading(false);
@@ -79,26 +79,26 @@ export function useVendorAvailability(vendorUserId: string | undefined) {
       setLoading(true);
       try {
         const [bookingsRes, packagesRes, weeklyRes, bufferRes] = await Promise.all([
-          // Get all active bookings for this Vendor
+          // Get all active bookings for this Event Pro
           supabase
             .from('bookings')
             .select('id, event_date, start_time, end_time, duration_minutes, setup_minutes, breakdown_minutes, package_id, status')
             .eq('vendor_user_id', vendorUserId)
             .in('status', ['confirmed', 'pending'])
             .order('event_date'),
-          // Get all Vendor packages with their duration settings
+          // Get all Event Pro packages with their duration settings
           supabase
             .from('vendor_packages')
             .select('id, name, duration_minutes, setup_time_minutes, breakdown_time_minutes, pricing_type')
             .eq('user_id', vendorUserId)
             .eq('is_active', true),
-          // Get Vendor's weekly availability
+          // Get Event Pro's weekly availability
           supabase
             .from('vendor_weekly_availability')
             .select('*')
             .eq('user_id', vendorUserId)
             .order('day_of_week'),
-          // Get Vendor's buffer settings
+          // Get Event Pro's buffer settings
           supabase
             .from('vendor_buffer_settings')
             .select('*')
@@ -148,7 +148,7 @@ export function useVendorAvailability(vendorUserId: string | undefined) {
 
         setData({ bookings, packages, weeklyAvailability, bufferSettings });
       } catch (error) {
-        console.error('Error fetching Vendor availability:', error);
+        console.error('Error fetching Event Pro availability:', error);
       } finally {
         setLoading(false);
       }

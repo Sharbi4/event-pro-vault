@@ -10,7 +10,7 @@ import { format, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear, is
 import { cn } from '@/lib/utils';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
-// Platform fee rate (12.9% commission on Vendor)
+// Platform fee rate (12.9% commission on Event Pro)
 const VENDOR_COMMISSION_RATE = 0.129;
 
 interface EarningsData {

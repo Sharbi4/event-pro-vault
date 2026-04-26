@@ -41,7 +41,7 @@ const features = [
 ];
 
 const stats = [
-  { value: '500+', label: 'Vendors' },
+  { value: '500+', label: 'Event Pros' },
   { value: '10K+', label: 'Bookings' },
   { value: '4.9', label: 'Avg Rating', icon: Star },
 ];
@@ -51,7 +51,7 @@ export default function AuthEventPro() {
   const { user, signIn, signUp, loading: authLoading } = useAuth();
   
   const [searchParams] = useSearchParams();
-  const [isSignUp, setIsSignUp] = useState(true); // Default to signup for Vendor flow
+  const [isSignUp, setIsSignUp] = useState(true); // Default to signup for Event Pro flow
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -179,7 +179,7 @@ export default function AuthEventPro() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left Side - Vendor Marketing */}
+      {/* Left Side - Event Pro Marketing */}
       <motion.div 
         className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-primary/5 via-background to-accent/5 relative overflow-hidden"
         initial={{ opacity: 0 }}
@@ -227,7 +227,7 @@ export default function AuthEventPro() {
             >
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
                 <Sparkles className="w-4 h-4" />
-                Become an Vendor
+                Become an Event Pro
               </div>
               <h2 className="text-4xl md:text-5xl font-bold text-foreground mb-4">
                 Turn your passion into profit
@@ -380,7 +380,7 @@ export default function AuthEventPro() {
               transition={{ type: "spring", stiffness: 300, delay: 0.2 }}
             >
               <Sparkles className="w-4 h-4" />
-              Become an Vendor
+              Become an Event Pro
             </motion.div>
           </motion.div>
 
@@ -406,7 +406,7 @@ export default function AuthEventPro() {
             >
               {isSignUp 
                 ? 'Start accepting bookings in minutes'
-                : 'Access your Vendor dashboard'
+                : 'Access your Event Pro dashboard'
               }
             </motion.p>
           </motion.div>

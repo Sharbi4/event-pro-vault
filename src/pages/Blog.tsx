@@ -18,9 +18,9 @@ import { BreadcrumbJsonLd } from '@/components/seo/JsonLd';
 const categories: { id: BlogCategory | 'all'; label: string; icon: React.ElementType }[] = [
   { id: 'all', label: 'All Posts', icon: BookOpen },
   { id: 'event-planning', label: 'Event Planning', icon: Calendar },
-  { id: 'vendor-tips', label: 'Vendor Success', icon: TrendingUp },
+  { id: 'vendor-tips', label: 'Event Pro Success', icon: TrendingUp },
   { id: 'industry-news', label: 'Industry News', icon: Sparkles },
-  { id: 'featured-vendors', label: 'Featured Vendors', icon: Users },
+  { id: 'featured-vendors', label: 'Featured Event Pros', icon: Users },
 ];
 
 export default function Blog() {
@@ -34,13 +34,13 @@ export default function Blog() {
 
   // SEO for Blog index
   useSEO({
-    title: 'Vendor Blog - Tips for Hosts & Vendors',
-    description: 'Expert tips for event planning, Vendor success strategies, and industry insights. Learn how to create unforgettable events.',
+    title: 'Event Pro Blog - Tips for Hosts & Event Pros',
+    description: 'Expert tips for event planning, Event Pro success strategies, and industry insights. Learn how to create unforgettable events.',
     canonical: 'https://event-pro-vault.lovable.app/blog',
     type: 'website',
     keywords: [
       'event planning tips',
-      'Vendor success',
+      'Event Pro success',
       'event industry news',
       'catering tips',
       'wedding planning',
@@ -63,13 +63,13 @@ export default function Blog() {
             <div className="max-w-3xl mx-auto text-center">
               <Badge variant="secondary" className="mb-4">
                 <Sparkles className="w-3 h-3 mr-1" />
-                Vendor Blog
+                Event Pro Blog
               </Badge>
               <h1 className="text-4xl lg:text-5xl font-bold font-display mb-4">
                 Insights for Event Success
               </h1>
               <p className="text-lg text-muted-foreground mb-8">
-                Expert tips for hosts planning unforgettable events and Vendors growing their business.
+                Expert tips for hosts planning unforgettable events and Event Pros growing their business.
               </p>
               
               {/* Search */}
@@ -222,11 +222,11 @@ export default function Blog() {
             <Card className="p-8 bg-gradient-to-r from-primary/5 to-primary/10">
               <h3 className="text-2xl font-bold mb-3">Want to be featured?</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Vendors with exceptional service and reviews may be featured in our blog.
+                Event Pros with exceptional service and reviews may be featured in our blog.
               </p>
               <Button asChild>
                 <Link to="/become-a-pro">
-                  Become an Vendor
+                  Become an Event Pro
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Link>
               </Button>

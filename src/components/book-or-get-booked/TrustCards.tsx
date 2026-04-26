@@ -1,13 +1,13 @@
 import { CalendarSearch, Images, CalendarClock, MessagesSquare, MailPlus, ShieldCheck, BellRing, Star } from 'lucide-react';
 
 const items = [
-  { icon: CalendarSearch, title: 'Availability-based search', copy: 'Customers search by date, time, location, guest count, and Vendor type.' },
-  { icon: Images, title: 'Visual Vendor cards', copy: 'Photos, ratings, package previews, cuisine style, and availability.' },
+  { icon: CalendarSearch, title: 'Availability-based search', copy: 'Customers search by date, time, location, guest count, and Event Pro type.' },
+  { icon: Images, title: 'Visual Event Pro cards', copy: 'Photos, ratings, package previews, cuisine style, and availability.' },
   { icon: CalendarClock, title: 'Smart calendar blocking', copy: 'Confirmed bookings, pending holds, setup, cleanup, and manual blocks.' },
   { icon: MessagesSquare, title: 'In-platform messaging', copy: 'Keep event details organized in one thread.' },
-  { icon: MailPlus, title: 'Private packages', copy: 'Vendors can send custom packages directly through messages.' },
-  { icon: ShieldCheck, title: 'Optional verification', copy: 'Verified Vendors get a trust badge that helps them stand out.' },
-  { icon: BellRing, title: 'Reminders', copy: 'Customers and Vendors receive reminders before the event.' },
+  { icon: MailPlus, title: 'Private packages', copy: 'Event Pros can send custom packages directly through messages.' },
+  { icon: ShieldCheck, title: 'Optional verification', copy: 'Verified Event Pros get a trust badge that helps them stand out.' },
+  { icon: BellRing, title: 'Reminders', copy: 'Customers and Event Pros receive reminders before the event.' },
   { icon: Star, title: 'Reviews', copy: 'Completed bookings can turn into ratings and repeat bookings.' },
 ];
 

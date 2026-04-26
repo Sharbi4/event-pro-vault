@@ -161,7 +161,7 @@ export function generateJsonLd(type: string, data: Record<string, unknown>): str
         '@type': 'WebSite',
         name: SITE_NAME,
         url: BASE_URL,
-        description: 'Book premium event Vendors in minutes. Find photographers, DJs, caterers, food trucks and more.',
+        description: 'Book premium event Event Pros in minutes. Find photographers, DJs, caterers, food trucks and more.',
         potentialAction: {
           '@type': 'SearchAction',
           target: {

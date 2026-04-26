@@ -32,7 +32,7 @@ interface CancellationDialogProps {
   isPaid: boolean;
   onSuccess?: () => void;
   cancellationPolicy?: CancellationPolicyType;
-  isVendorInitiated?: boolean; // If Vendor is cancelling, they can override policy
+  isVendorInitiated?: boolean; // If Event Pro is cancelling, they can override policy
 }
 
 export function CancellationDialog({
@@ -220,7 +220,7 @@ export function CancellationDialog({
                 </Label>
               </div>
 
-              {/* Vendor can override policy */}
+              {/* Event Pro can override policy */}
               {isVendorInitiated && (
                 <>
                   <div className="flex items-center space-x-3 p-3 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">

@@ -18,7 +18,7 @@ export interface BrowsePackage {
   images: string[];
   instant_book: boolean;
   is_active: boolean;
-  // Vendor info
+  // Event Pro info
   vendor_user_id: string;
   vendor_name: string;
   vendor_avatar: string | null;
@@ -102,7 +102,7 @@ export function useBrowsePackages() {
     setLoading(true);
 
     try {
-      // Fetch active packages from verified Vendors
+      // Fetch active packages from verified Event Pros
       let packagesQuery = supabase
         .from('vendor_packages')
         .select(`
@@ -157,13 +157,13 @@ export function useBrowsePackages() {
         return;
       }
 
-      // Get unique Vendor IDs
+      // Get unique Event Pro IDs
       const vendorIds = [...new Set(packagesData.map(p => p.user_id))];
 
       // Get unique package IDs
       const packageIds = packagesData.map(p => p.id);
 
-      // Fetch Vendor details, profiles, reviews, and PACKAGE-level availability in parallel
+      // Fetch Event Pro details, profiles, reviews, and PACKAGE-level availability in parallel
       const [vendorDetailsResult, profilesResult, reviewsResult, packageAvailabilityResult, packageWeeklyResult] = await Promise.all([
         supabase
           .from('vendor_details')
@@ -250,7 +250,7 @@ export function useBrowsePackages() {
             count: existing.count + 1
           });
         }
-        // By Vendor
+        // By Event Pro
         const vendorExisting = reviewsByVendor.get(review.vendor_user_id) || { total: 0, count: 0 };
         reviewsByVendor.set(review.vendor_user_id, {
           total: vendorExisting.total + review.rating,
@@ -264,7 +264,7 @@ export function useBrowsePackages() {
           const vendorDetails = vendorDetailsMap.get(pkg.user_id);
           const profile = profilesMap.get(pkg.user_id);
           
-          // Skip if Vendor is not active
+          // Skip if Event Pro is not active
           if (!profile) return null;
 
           // Skip if this specific package is blocked on selected date
@@ -306,7 +306,7 @@ export function useBrowsePackages() {
           const packageReviews = reviewsByPackage.get(pkg.id);
           const vendorReviews = reviewsByVendor.get(pkg.user_id);
 
-          // Use package rating if available, otherwise Vendor rating
+          // Use package rating if available, otherwise Event Pro rating
           const avgRating = packageReviews 
             ? packageReviews.total / packageReviews.count
             : vendorReviews 
@@ -323,13 +323,13 @@ export function useBrowsePackages() {
             ? locationParts.join(', ')
             : vendorDetails?.service_area || vendorDetails?.formatted_address || null;
 
-          // Get Vendor coordinates and travel radius
+          // Get Event Pro coordinates and travel radius
           const vendorBaseLat = vendorDetails?.base_location_lat ? Number(vendorDetails.base_location_lat) : null;
           const vendorBaseLng = vendorDetails?.base_location_lng ? Number(vendorDetails.base_location_lng) : null;
-          // Use package travel_radius if set, otherwise fall back to Vendor's travel_radius_miles
+          // Use package travel_radius if set, otherwise fall back to Event Pro's travel_radius_miles
           const vendorTravelRadius = pkg.travel_radius || vendorDetails?.travel_radius_miles || 50;
 
-          // Calculate distance if we have geocoded search location and Vendor coordinates
+          // Calculate distance if we have geocoded search location and Event Pro coordinates
           let distanceMiles: number | null = null;
           if (filters.locationCoords && vendorBaseLat !== null && vendorBaseLng !== null) {
             distanceMiles = getDistanceToVendor(
@@ -355,7 +355,7 @@ export function useBrowsePackages() {
             instant_book: pkg.instant_book || false,
             is_active: pkg.is_active,
             vendor_user_id: pkg.user_id,
-            vendor_name: vendorDetails?.business_name || profile?.full_name || 'Unknown Vendor',
+            vendor_name: vendorDetails?.business_name || profile?.full_name || 'Unknown Event Pro',
             vendor_avatar: profile?.avatar_url,
             vendor_location: vendorLocationDisplay,
             vendor_city: vendorDetails?.city || null,
@@ -390,7 +390,7 @@ export function useBrowsePackages() {
         if (filters.locationCoords) {
           // Geocoded search: filter by service radius
           filteredPackages = filteredPackages.filter(pkg => {
-            // If Vendor doesn't have coordinates, fall back to text matching
+            // If Event Pro doesn't have coordinates, fall back to text matching
             if (pkg.vendor_base_lat === null || pkg.vendor_base_lng === null) {
               const locationLower = filters.location.toLowerCase();
               return pkg.vendor_location?.toLowerCase().includes(locationLower) ||
@@ -399,7 +399,7 @@ export function useBrowsePackages() {
                      pkg.vendor_formatted_address?.toLowerCase().includes(locationLower);
             }
             
-            // Check if search location is within Vendor's service radius
+            // Check if search location is within Event Pro's service radius
             return isWithinServiceRadius(
               pkg.vendor_base_lat,
               pkg.vendor_base_lng,

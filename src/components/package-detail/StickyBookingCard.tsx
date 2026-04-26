@@ -246,7 +246,7 @@ export function StickyBookingCard({
       {/* Request mode notice */}
       {!isInstant && paymentMethod === 'stripe' && (
         <p className="text-xs text-muted-foreground mt-3 text-center">
-          You'll only be charged if the Vendor approves
+          You'll only be charged if the Event Pro approves
         </p>
       )}
     </Card>

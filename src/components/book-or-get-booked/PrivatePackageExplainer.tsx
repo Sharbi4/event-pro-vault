@@ -6,7 +6,7 @@ interface Props {
   ctaLabel?: string;
 }
 
-export function PrivatePackageExplainer({ href = '/browse', ctaLabel = 'Message a Vendor' }: Props) {
+export function PrivatePackageExplainer({ href = '/browse', ctaLabel = 'Message a Event Pro' }: Props) {
   return (
     <div className="rounded-2xl border border-border/60 bg-card p-5 sm:p-6">
       <div className="flex items-start gap-3">
@@ -19,7 +19,7 @@ export function PrivatePackageExplainer({ href = '/browse', ctaLabel = 'Message 
           </div>
           <h3 className="font-semibold">Need something custom? Message the vendor.</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Vendors can send a private package right inside the message thread, and you book it on-platform.
+            Event Pros can send a private package right inside the message thread, and you book it on-platform.
           </p>
           <Link to={href} className="mt-3 inline-flex items-center gap-1 text-sm font-medium hover:underline">
             {ctaLabel} <ArrowRight className="w-3.5 h-3.5" />

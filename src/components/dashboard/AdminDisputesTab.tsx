@@ -40,8 +40,8 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 const reasonLabels: Record<string, string> = {
-  no_show: 'Vendor did not show up',
-  late: 'Vendor was significantly late',
+  no_show: 'Event Pro did not show up',
+  late: 'Event Pro was significantly late',
   incomplete: 'Service was incomplete',
   quality: 'Quality issues',
   other: 'Other issue',
@@ -50,7 +50,7 @@ const reasonLabels: Record<string, string> = {
 const remedyLabels: Record<string, string> = {
   full_refund: 'Full Refund',
   partial_refund: 'Partial Refund',
-  vendor_paid: 'Pay Vendor',
+  vendor_paid: 'Pay Event Pro',
   credit: 'Account Credit',
   reschedule: 'Reschedule Service',
   denied: 'Deny Claim',
@@ -251,12 +251,12 @@ export function AdminDisputesTab() {
                 </div>
               )}
 
-              {/* Vendor's response */}
+              {/* Event Pro's response */}
               {dispute.vendor_response && (
                 <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
                   <Label className="text-sm text-blue-600 flex items-center gap-1">
                     <Building2 className="w-3 h-3" />
-                    Vendor's Response
+                    Event Pro's Response
                   </Label>
                   <p className="mt-1 text-sm">{dispute.vendor_response}</p>
                   {dispute.vendor_proposed_remedy && (
@@ -356,7 +356,7 @@ export function AdminDisputesTab() {
             <Card>
               <CardContent className="py-12 text-center">
                 <CheckCircle className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                <p className="text-muted-foreground">No disputes awaiting Vendor response</p>
+                <p className="text-muted-foreground">No disputes awaiting Event Pro response</p>
               </CardContent>
             </Card>
           ) : (
@@ -399,7 +399,7 @@ export function AdminDisputesTab() {
                 <p><strong>Issue:</strong> {reasonLabels[selectedDispute.reason]}</p>
                 <p><strong>Customer wants:</strong> {remedyLabels[selectedDispute.requested_remedy || ''] || 'Not specified'}</p>
                 {selectedDispute.vendor_proposed_remedy && (
-                  <p><strong>Vendor proposes:</strong> {selectedDispute.vendor_proposed_remedy}</p>
+                  <p><strong>Event Pro proposes:</strong> {selectedDispute.vendor_proposed_remedy}</p>
                 )}
               </div>
             )}

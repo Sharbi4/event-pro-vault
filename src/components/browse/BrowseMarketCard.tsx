@@ -13,21 +13,21 @@ interface BrowseMarketCardProps {
 const marketTypeColors: Record<string, string> = {
   'Farmers Market': 'bg-green-500/90 text-white',
   'Flea Market': 'bg-amber-500/90 text-white',
-  'Vendor Market': 'bg-blue-500/90 text-white',
+  'Event Pro Market': 'bg-blue-500/90 text-white',
   'Night Market': 'bg-purple-500/90 text-white',
   'Pop-up Event': 'bg-pink-500/90 text-white',
   'Food Truck Roundup': 'bg-orange-500/90 text-white',
-  'Festival Vendor Area': 'bg-red-500/90 text-white',
+  'Festival Event Pro Area': 'bg-red-500/90 text-white',
 };
 
 const marketTypeEmojis: Record<string, string> = {
   'Farmers Market': '🥬',
   'Flea Market': '🛍️',
-  'Vendor Market': '🏪',
+  'Event Pro Market': '🏪',
   'Night Market': '🌙',
   'Pop-up Event': '🎪',
   'Food Truck Roundup': '🚚',
-  'Festival Vendor Area': '🎉',
+  'Festival Event Pro Area': '🎉',
 };
 
 export function BrowseMarketCard({ market }: BrowseMarketCardProps) {
@@ -96,7 +96,7 @@ export function BrowseMarketCard({ market }: BrowseMarketCardProps) {
             {market.name}
           </h3>
           <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-            {market.description || market.crowdDescription || 'Local market space for Vendors'}
+            {market.description || market.crowdDescription || 'Local market space for Event Pros'}
           </p>
 
           {/* Stats */}

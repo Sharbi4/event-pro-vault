@@ -293,7 +293,7 @@ export default function PrivatePackageReview() {
 
             {isCustomer && isExpired && (
               <div className="rounded-lg bg-muted p-3 text-sm text-center text-muted-foreground">
-                This offer has expired. Message the Vendor for a new one.
+                This offer has expired. Message the Event Pro for a new one.
               </div>
             )}
 
@@ -305,7 +305,7 @@ export default function PrivatePackageReview() {
 
             {isVendor && (
               <div className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">
-                Vendor view — the customer can book and pay from this page.
+                Event Pro view — the customer can book and pay from this page.
               </div>
             )}
           </div>

@@ -160,7 +160,7 @@ export function BookingReceipt({ booking, trigger }: BookingReceiptProps) {
               </div>
               <div className="flex items-start gap-3">
                 <User className="w-4 h-4 text-muted-foreground mt-0.5" />
-                <p className="text-sm">{booking.vendor_display_name || 'Vendor'}</p>
+                <p className="text-sm">{booking.vendor_display_name || 'Event Pro'}</p>
               </div>
               <div className="flex items-start gap-3">
                 <Calendar className="w-4 h-4 text-muted-foreground mt-0.5" />

@@ -229,7 +229,7 @@ export function InventoryTab({
                           <div>
                             <div className="font-medium flex items-center gap-2">
                               {getVendorTypeIcon(booking.vendorType)}
-                              {booking.vendorName || 'Unnamed Vendor'}
+                              {booking.vendorName || 'Unnamed Event Pro'}
                             </div>
                             <div className="text-sm text-muted-foreground">
                               {booking.slotTypeName} • {booking.vendorCategory || 'Uncategorized'}
@@ -293,7 +293,7 @@ export function InventoryTab({
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {getVendorTypeIcon(selectedBooking.vendorType)}
-              {selectedBooking.vendorName || 'Vendor Details'}
+              {selectedBooking.vendorName || 'Event Pro Details'}
             </DialogTitle>
           </DialogHeader>
           
@@ -582,7 +582,7 @@ export function InventoryTab({
                             </p>
                             {hasBookings && (
                               <p className="text-xs mt-1">
-                                Click to view Vendor details
+                                Click to view Event Pro details
                               </p>
                             )}
                           </TooltipContent>

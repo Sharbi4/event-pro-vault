@@ -20,7 +20,7 @@ export interface PendingEventPro {
   approvalStatus: ApprovalStatus;
   approvalNotes: string | null;
   stripeAccountStatus: string | null;
-  // Vendor details
+  // Event Pro details
   businessName: string | null;
   businessDescription: string | null;
   serviceCategories: string[];
@@ -92,7 +92,7 @@ export function useAdminReview() {
       return;
     }
 
-    // Fetch Vendor details for each profile
+    // Fetch Event Pro details for each profile
     const userIds = profiles?.map(p => p.user_id) || [];
     const { data: vendorDetails } = await supabase
       .from('vendor_details')
@@ -187,7 +187,7 @@ export function useAdminReview() {
 
       if (error) throw error;
 
-      toast({ title: 'Vendor approved', description: 'The profile is now visible to the public.' });
+      toast({ title: 'Event Pro approved', description: 'The profile is now visible to the public.' });
       fetchPendingEventPros();
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });
@@ -212,7 +212,7 @@ export function useAdminReview() {
 
       if (error) throw error;
 
-      toast({ title: 'Vendor rejected', description: 'The profile has been rejected.' });
+      toast({ title: 'Event Pro rejected', description: 'The profile has been rejected.' });
       fetchPendingEventPros();
     } catch (err: any) {
       toast({ title: 'Error', description: err.message, variant: 'destructive' });

@@ -108,7 +108,7 @@ export function DepositRefundIndicator({
             <div className="pt-1 border-t border-border text-muted-foreground">
               <p className="font-medium mb-1">Deposit refund policy:</p>
               <ul className="list-disc list-inside space-y-0.5">
-                <li>Refundable if Vendor cancels</li>
+                <li>Refundable if Event Pro cancels</li>
                 <li>Refundable within 1 hour of booking if event is 7+ days away</li>
               </ul>
             </div>

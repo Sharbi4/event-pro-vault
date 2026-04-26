@@ -125,7 +125,7 @@ export function RequestQuoteModal({
             </div>
             <h3 className="text-xl font-semibold mb-2">Request Submitted!</h3>
             <p className="text-muted-foreground mb-6">
-              We'll notify you when a matching Vendor becomes available.
+              We'll notify you when a matching Event Pro becomes available.
             </p>
             <Button onClick={handleClose}>Done</Button>
           </div>

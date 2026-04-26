@@ -2,11 +2,11 @@ import { Link } from 'react-router-dom';
 import { Search, Eye, PackageCheck, LayoutDashboard, PartyPopper, ArrowRight } from 'lucide-react';
 
 const steps = [
-  { n: 1, icon: Search, title: 'Search your date', copy: 'Date, time, location, Vendor type, cuisine, guest count.', href: '/browse', link: 'Search availability' },
-  { n: 2, icon: Eye, title: 'Compare Vendors', copy: 'Photos, ratings, verified badges, package previews, pricing.', href: '/browse', link: 'Browse Vendors' },
+  { n: 1, icon: Search, title: 'Search your date', copy: 'Date, time, location, Event Pro type, cuisine, guest count.', href: '/browse', link: 'Search availability' },
+  { n: 2, icon: Eye, title: 'Compare Event Pros', copy: 'Photos, ratings, verified badges, package previews, pricing.', href: '/browse', link: 'Browse Event Pros' },
   { n: 3, icon: PackageCheck, title: 'Choose a package', copy: 'Pull-up, catering, or private package via message.', href: '/book-or-get-booked#booking-options', link: 'Booking options' },
   { n: 4, icon: LayoutDashboard, title: 'Keep it together', copy: 'Messages, reminders, payments, and event status in one place.', href: '/dashboard', link: 'View dashboard' },
-  { n: 5, icon: PartyPopper, title: 'Enjoy the event', copy: 'Your Vendor shows up ready to serve.', href: '/browse', link: 'Find Vendors' },
+  { n: 5, icon: PartyPopper, title: 'Enjoy the event', copy: 'Your Event Pro shows up ready to serve.', href: '/browse', link: 'Find Event Pros' },
 ];
 
 interface Props {

@@ -259,7 +259,7 @@ function ReviewCard({ review }: { review: VendorReviewData }) {
               </div>
             )}
 
-            {/* Vendor reply (or inline reply form for the Vendor) */}
+            {/* Event Pro reply (or inline reply form for the Event Pro) */}
             <VendorReplyArea review={review} />
 
             {/* Footer */}

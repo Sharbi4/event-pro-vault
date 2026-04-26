@@ -105,7 +105,7 @@ export function BookingCard({
         </Link>
       </div>
 
-      {/* Vendor + package */}
+      {/* Event Pro + package */}
       <div className="flex items-start gap-3 mb-3">
         <Avatar className="h-11 w-11 shrink-0">
           <AvatarImage src={booking.vendor_avatar ?? undefined} alt={booking.vendor_display_name} />
@@ -149,19 +149,19 @@ export function BookingCard({
             {booking.vendor_display_name} approved your booking.
           </p>
           <p className="text-muted-foreground mt-0.5">
-            Complete payment to confirm your event. Vendor availability is held briefly.
+            Complete payment to confirm your event. Event Pro availability is held briefly.
           </p>
         </div>
       )}
       {state === 'pending_vendor' && (
         <div className="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 mb-3 text-xs text-muted-foreground">
-          Waiting for Vendor to approve your request. You'll be notified by email and in-app.
+          Waiting for Event Pro to approve your request. You'll be notified by email and in-app.
         </div>
       )}
       {state === 'confirmed_locked' && (
         <div className="rounded-lg border border-border bg-secondary/40 p-3 mb-3 text-xs text-muted-foreground inline-flex items-start gap-2">
           <AlertCircle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
-          <span>This booking can no longer be cancelled online — the event is too close. Message your Vendor for any change requests.</span>
+          <span>This booking can no longer be cancelled online — the event is too close. Message your Event Pro for any change requests.</span>
         </div>
       )}
       {state === 'in_progress' && (
@@ -189,7 +189,7 @@ export function BookingCard({
           <>
             <Button size="sm" variant="outline" onClick={() => onMessage(booking)} disabled={isMessaging} className="rounded-full">
               {isMessaging ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <MessageCircle className="w-3.5 h-3.5 mr-1.5" />}
-              Message Vendor
+              Message Event Pro
             </Button>
             <Button size="sm" variant="ghost" onClick={() => onCancel(booking)} className="rounded-full text-destructive hover:text-destructive">
               <XCircle className="w-3.5 h-3.5 mr-1.5" />
@@ -206,7 +206,7 @@ export function BookingCard({
             </Button>
             <Button size="sm" variant="outline" onClick={() => onMessage(booking)} disabled={isMessaging} className="rounded-full">
               <MessageCircle className="w-3.5 h-3.5 mr-1.5" />
-              Message Vendor
+              Message Event Pro
             </Button>
           </>
         )}
@@ -218,7 +218,7 @@ export function BookingCard({
             </Button>
             <Button size="sm" variant="ghost" onClick={() => onMessage(booking)} disabled={isMessaging} className="rounded-full">
               <MessageCircle className="w-3.5 h-3.5 mr-1.5" />
-              Message Vendor
+              Message Event Pro
             </Button>
             {state === 'confirmed_cancellable' && (
               <Button size="sm" variant="ghost" onClick={() => onCancel(booking)} className="rounded-full text-destructive hover:text-destructive ml-auto">
@@ -236,7 +236,7 @@ export function BookingCard({
             </Button>
             <Button size="sm" variant="ghost" onClick={() => onMessage(booking)} disabled={isMessaging} className="rounded-full">
               <MessageCircle className="w-3.5 h-3.5 mr-1.5" />
-              Message Vendor
+              Message Event Pro
             </Button>
           </>
         )}

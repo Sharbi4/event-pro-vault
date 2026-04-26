@@ -18,7 +18,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">2. Description of Service</h2>
             <p className="text-muted-foreground leading-relaxed">
-              EventPro is a marketplace platform that connects event hosts ("Customers") with event service providers ("Vendors"). We facilitate bookings, payments, and communication between parties but do not directly provide event services.
+              EventPro is a marketplace platform that connects event hosts ("Customers") with event service providers ("Event Pros"). We facilitate bookings, payments, and communication between parties but do not directly provide event services.
             </p>
           </section>
 
@@ -37,13 +37,13 @@ export default function TermsOfService() {
             <h2 className="text-xl font-semibold text-foreground mb-4">4. Booking and Payments</h2>
             <h3 className="text-lg font-medium text-foreground mb-2">For Customers</h3>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li>Bookings are subject to Vendor availability and acceptance</li>
+              <li>Bookings are subject to Event Pro availability and acceptance</li>
               <li>Payment is required to confirm a booking</li>
               <li>A platform fee of 12.9% is added to all bookings</li>
-              <li>Cancellations are subject to the Vendor's cancellation policy</li>
+              <li>Cancellations are subject to the Event Pro's cancellation policy</li>
             </ul>
 
-            <h3 className="text-lg font-medium text-foreground mt-4 mb-2">For Vendors</h3>
+            <h3 className="text-lg font-medium text-foreground mt-4 mb-2">For Event Pros</h3>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
               <li>You must accurately represent your services and availability</li>
               <li>Payouts are processed 24 hours after service completion</li>
@@ -54,7 +54,7 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">5. Cancellations and Refunds</h2>
             <p className="text-muted-foreground leading-relaxed">
-              Cancellation and refund terms are determined by the Vendor's selected cancellation policy (Flexible, Standard, or Strict). Platform fees are non-refundable unless the Vendor cancels. See our Cancellation Policy for full details.
+              Cancellation and refund terms are determined by the Event Pro's selected cancellation policy (Flexible, Standard, or Strict). Platform fees are non-refundable unless the Event Pro cancels. See our Cancellation Policy for full details.
             </p>
           </section>
 

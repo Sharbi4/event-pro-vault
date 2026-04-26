@@ -329,7 +329,7 @@ export function MarketPayoutStatus({ variant = 'banner', onNavigateTab }: Market
                 <p className="text-muted-foreground">
                   {status === 'pending' 
                     ? 'Complete your Stripe setup to start receiving payouts.'
-                    : 'Connect your Stripe account to receive payouts from Vendor bookings.'}
+                    : 'Connect your Stripe account to receive payouts from Event Pro bookings.'}
                 </p>
                 {requirements.length > 0 && (
                   <div>

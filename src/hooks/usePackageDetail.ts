@@ -36,7 +36,7 @@ export interface PackageDetailData {
   deposit: number | null;
   // Daily booking defaults
   default_start_time: string | null;
-  // Vendor info
+  // Event Pro info
   vendor_user_id: string;
   vendor_name: string;
   vendor_avatar: string | null;
@@ -86,7 +86,7 @@ export function usePackageDetail(packageId: string | undefined) {
       setError(null);
 
       try {
-        // Fetch package with Vendor info
+        // Fetch package with Event Pro info
         const { data: pkg, error: pkgError } = await supabase
           .from('vendor_packages')
           .select('*')
@@ -100,7 +100,7 @@ export function usePackageDetail(packageId: string | undefined) {
           return;
         }
 
-        // Fetch Vendor details and profile in parallel
+        // Fetch Event Pro details and profile in parallel
         const [detailsResult, profileResult, reviewsResult] = await Promise.all([
           supabase
             .from('vendor_details')
@@ -121,7 +121,7 @@ export function usePackageDetail(packageId: string | undefined) {
         ]);
 
         if (!detailsResult.data || !profileResult.data) {
-          setError('Vendor not found');
+          setError('Event Pro not found');
           setLoading(false);
           return;
         }
@@ -191,9 +191,9 @@ export function usePackageDetail(packageId: string | undefined) {
           customer_requirements: pkg.customer_requirements,
           deposit: pkg.deposit ? Number(pkg.deposit) : null,
           default_start_time: (pkg as any).default_start_time || null,
-          // Vendor info
+          // Event Pro info
           vendor_user_id: pkg.user_id,
-          vendor_name: detailsResult.data.business_name || 'Unknown Vendor',
+          vendor_name: detailsResult.data.business_name || 'Unknown Event Pro',
           vendor_avatar: profileResult.data.avatar_url,
           vendor_display_name: profileResult.data.display_name,
           vendor_short_bio: profileResult.data.short_bio,

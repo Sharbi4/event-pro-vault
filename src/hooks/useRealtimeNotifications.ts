@@ -57,7 +57,7 @@ export function useRealtimeNotifications() {
   useEffect(() => {
     if (!user?.id) return;
 
-    // Channel for Vendor booking notifications
+    // Channel for Event Pro booking notifications
     const bookingsChannel = supabase
       .channel('user-booking-notifications')
       .on(
@@ -193,7 +193,7 @@ export function useRealtimeNotifications() {
       )
       .subscribe();
 
-    // Channel for new reviews (Vendors)
+    // Channel for new reviews (Event Pros)
     const reviewsChannel = supabase
       .channel('vendor-review-notifications')
       .on(

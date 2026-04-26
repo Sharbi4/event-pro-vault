@@ -32,7 +32,7 @@ export function InlineNewsletterCard() {
     
     toast({
       title: 'Subscribed!',
-      description: 'You\'ll receive updates on new Vendors and exclusive deals.',
+      description: 'You\'ll receive updates on new Event Pros and exclusive deals.',
     });
   };
 
@@ -46,7 +46,7 @@ export function InlineNewsletterCard() {
           You're on the list!
         </h3>
         <p className="text-sm text-muted-foreground">
-          We'll keep you updated with the best Vendors and deals.
+          We'll keep you updated with the best Event Pros and deals.
         </p>
       </div>
     );
@@ -65,7 +65,7 @@ export function InlineNewsletterCard() {
         </div>
         
         <h3 className="font-display text-lg font-semibold text-foreground mb-2">
-          Get notified about new Vendors
+          Get notified about new Event Pros
         </h3>
         
         <p className="text-sm text-muted-foreground mb-4">

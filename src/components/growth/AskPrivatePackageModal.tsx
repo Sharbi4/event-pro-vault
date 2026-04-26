@@ -25,8 +25,8 @@ interface AskPrivatePackageModalProps {
 
 /**
  * Customer-facing CTA replacing "Request a Quote".
- * Creates (or reuses) a conversation with the Vendor and posts an initial
- * inquiry message describing the event. The Vendor then replies with a
+ * Creates (or reuses) a conversation with the Event Pro and posts an initial
+ * inquiry message describing the event. The Event Pro then replies with a
  * Private Package the customer can review and book on EventPro.
  */
 export function AskPrivatePackageModal({
@@ -58,7 +58,7 @@ export function AskPrivatePackageModal({
     }
 
     if (!details.trim()) {
-      toast({ title: 'Tell the Vendor about your event', variant: 'destructive' });
+      toast({ title: 'Tell the Event Pro about your event', variant: 'destructive' });
       return;
     }
 
@@ -132,7 +132,7 @@ export function AskPrivatePackageModal({
         })
         .eq('id', conversationId);
 
-      // Notify Vendor (fire-and-forget)
+      // Notify Event Pro (fire-and-forget)
       supabase.functions
         .invoke('send-message-notification', {
           body: { conversationId, messageContent: lines, senderType: 'client' },
@@ -226,7 +226,7 @@ export function AskPrivatePackageModal({
             <Textarea
               value={details}
               onChange={(e) => setDetails(e.target.value)}
-              placeholder="Tell the Vendor about your event — menu ideas, vibe, budget range, anything important."
+              placeholder="Tell the Event Pro about your event — menu ideas, vibe, budget range, anything important."
               rows={5}
             />
           </div>
@@ -234,7 +234,7 @@ export function AskPrivatePackageModal({
           <div className="rounded-lg border border-border/60 bg-muted/30 p-3 text-xs text-muted-foreground flex gap-2">
             <MessageSquare className="w-4 h-4 shrink-0 mt-0.5" />
             <span>
-              Keep contact info inside EventPro. The Vendor will send a private package you can
+              Keep contact info inside EventPro. The Event Pro will send a private package you can
               accept and pay for here — that's how the booking gets protected.
             </span>
           </div>

@@ -187,7 +187,7 @@ export function StepSlotTypes({
             Slot Types
           </h2>
           <p className="text-sm text-muted-foreground">
-            Create different types of Vendor spaces you offer.
+            Create different types of Event Pro spaces you offer.
           </p>
         </div>
         <Button onClick={openCreateDialog} className="gap-2" disabled={!marketId}>
@@ -210,7 +210,7 @@ export function StepSlotTypes({
           <Store className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <h3 className="font-medium text-foreground mb-2">No slot types yet</h3>
           <p className="text-sm text-muted-foreground mb-4">
-            Create at least one slot type to define your Vendor spaces.
+            Create at least one slot type to define your Event Pro spaces.
           </p>
           <Button onClick={openCreateDialog} variant="outline" className="gap-2" disabled={!marketId}>
             <Plus className="w-4 h-4" />
@@ -417,7 +417,7 @@ export function StepSlotTypes({
 
             {/* Requirements */}
             <div className="space-y-2">
-              <Label>Vendor Requirements</Label>
+              <Label>Event Pro Requirements</Label>
               <div className="flex flex-wrap gap-2">
                 {REQUIREMENTS.map(req => (
                   <Badge

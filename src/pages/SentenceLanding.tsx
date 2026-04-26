@@ -235,7 +235,7 @@ export default function SentenceLanding() {
             <Link to="/" className="block transition-transform duration-200 hover:scale-105">
               <img 
                 src={logo} 
-                alt="Vendor" 
+                alt="Event Pro" 
                 className="h-32 md:h-40 w-auto drop-shadow-md"
               />
             </Link>
@@ -285,7 +285,7 @@ export default function SentenceLanding() {
                 className="hidden sm:inline-flex"
                 onClick={() => setProfileModalOpen(true)}
               >
-                Become an Vendor
+                Become an Event Pro
               </Button>
             )}
 
@@ -338,7 +338,7 @@ export default function SentenceLanding() {
                             {displayName || user.email?.split('@')[0] || 'Welcome'}
                           </p>
                           {isEventPro && (
-                            <p className="text-xs text-primary font-medium">Vendor</p>
+                            <p className="text-xs text-primary font-medium">Event Pro</p>
                           )}
                         </div>
                       </motion.div>
@@ -497,7 +497,7 @@ export default function SentenceLanding() {
                           }}
                         >
                           <PlusCircle className="w-4 h-4" />
-                          Become an Vendor
+                          Become an Event Pro
                         </button>
                       </motion.div>
                       

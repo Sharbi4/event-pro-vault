@@ -22,7 +22,7 @@ export default function CancellationPolicy() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-6">Cancellation Policies</h2>
             <p className="text-muted-foreground mb-6">
-              Vendors choose one of these policy templates per package:
+              Event Pros choose one of these policy templates per package:
             </p>
 
             <div className="grid gap-4">
@@ -116,7 +116,7 @@ export default function CancellationPolicy() {
               Some packages may require a deposit to reserve the date. <strong>Deposits are non-refundable by default</strong>, except:
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
-              <li>If the <strong>Vendor cancels</strong>, your deposit is refunded in full</li>
+              <li>If the <strong>Event Pro cancels</strong>, your deposit is refunded in full</li>
               <li><strong>Grace period:</strong> If you cancel within 1 hour of booking and your event is 7+ days away, your deposit will be refunded</li>
             </ul>
           </section>
@@ -132,15 +132,15 @@ export default function CancellationPolicy() {
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
               <li>If <strong>you cancel</strong>, the platform fee is <strong>not refunded</strong></li>
-              <li>If the <strong>Vendor cancels</strong>, the platform fee <strong>is refunded</strong></li>
+              <li>If the <strong>Event Pro cancels</strong>, the platform fee <strong>is refunded</strong></li>
             </ul>
           </section>
 
-          {/* Vendor Payouts */}
+          {/* Event Pro Payouts */}
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4 flex items-center gap-2">
               <Clock className="w-5 h-5" />
-              When Does the Vendor Get Paid?
+              When Does the Event Pro Get Paid?
             </h2>
             <p className="text-muted-foreground leading-relaxed">
               For online payments, funds are held and <strong>payouts are initiated 24 hours after the booking/event ends</strong>. 
@@ -157,11 +157,11 @@ export default function CancellationPolicy() {
             </p>
           </section>
 
-          {/* Vendor Cancels */}
+          {/* Event Pro Cancels */}
           <section>
-            <h2 className="text-xl font-semibold text-foreground mb-4">What If the Vendor Cancels?</h2>
+            <h2 className="text-xl font-semibold text-foreground mb-4">What If the Event Pro Cancels?</h2>
             <p className="text-muted-foreground leading-relaxed mb-4">
-              If the Vendor cancels:
+              If the Event Pro cancels:
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2">
               <li>You'll receive a <strong>full refund</strong> for any online payment made (including deposit)</li>
@@ -174,7 +174,7 @@ export default function CancellationPolicy() {
           <section>
             <h2 className="text-xl font-semibold text-foreground mb-4">Cash Payments</h2>
             <p className="text-muted-foreground leading-relaxed">
-              If a package is marked <strong>Pay in cash</strong>, you pay the Vendor directly at the event. 
+              If a package is marked <strong>Pay in cash</strong>, you pay the Event Pro directly at the event. 
               Refunds or deposits for cash bookings (if applicable) follow the same cancellation policy terms shown at booking time, 
               but payment handling occurs directly between you and the Event Pro.
             </p>

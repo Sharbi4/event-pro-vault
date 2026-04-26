@@ -78,7 +78,7 @@ export function Testimonials() {
 
                 {/* Review content */}
                 <p className="text-muted-foreground text-sm mb-4 line-clamp-4">
-                  {review.content || 'Great experience with this Vendor!'}
+                  {review.content || 'Great experience with this Event Pro!'}
                 </p>
 
                 {/* Reviewer info */}
@@ -115,7 +115,7 @@ export function Testimonials() {
                   )}
                 </div>
 
-                {/* Vendor attribution */}
+                {/* Event Pro attribution */}
                 <p className="text-xs text-muted-foreground mt-3">
                   Booked {review.vendor_name}
                 </p>

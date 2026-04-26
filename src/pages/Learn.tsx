@@ -54,10 +54,10 @@ const faqs = [
   },
   {
     q: 'What makes EventPro different?',
-    a: 'Availability-first search. You don\'t just find Vendors—you find packages that are actually available for your date and time.',
+    a: 'Availability-first search. You don\'t just find Event Pros—you find packages that are actually available for your date and time.',
   },
   {
-    q: 'How do I get started as an Vendor?',
+    q: 'How do I get started as an Event Pro?',
     a: 'Create your free profile, add your packages with pricing and availability, then publish when you\'re ready to receive bookings.',
   },
   {
@@ -91,11 +91,11 @@ export default function Learn() {
     canonical: seo.canonical,
     type: 'website',
     keywords: [
-      'how to book event Vendors',
-      'become event Vendor',
+      'how to book event Event Pros',
+      'become event Event Pro',
       'list event services',
       'event marketplace',
-      'Vendor booking platform',
+      'Event Pro booking platform',
       'event services marketplace',
     ],
   });
@@ -147,7 +147,7 @@ export default function Learn() {
                   size="lg"
                   onClick={handleListService}
                 >
-                  Become an Vendor
+                  Become an Event Pro
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
                 <Link to="/">
@@ -233,7 +233,7 @@ export default function Learn() {
           <div className="container mx-auto px-4">
             <div className="max-w-5xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-4">
-                Why Vendors choose EventPro
+                Why Event Pros choose EventPro
               </h2>
               <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
                 Turn your service into bookable packages with flexible pricing and booking options.
@@ -327,7 +327,7 @@ export default function Learn() {
               <div className="text-center mt-8">
                 <Link to="/learn/event-pros">
                   <Button variant="outline" className="gap-2">
-                    Learn more about becoming an Vendor
+                    Learn more about becoming an Event Pro
                     <ArrowRight className="w-4 h-4" />
                   </Button>
                 </Link>
@@ -425,7 +425,7 @@ export default function Learn() {
                 Ready to get booked?
               </h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Create your Vendor profile and start receiving bookings.
+                Create your Event Pro profile and start receiving bookings.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -434,7 +434,7 @@ export default function Learn() {
                   size="lg"
                   onClick={handleListService}
                 >
-                  Become an Vendor
+                  Become an Event Pro
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
                 <Link to="/">

@@ -136,7 +136,7 @@ export function AdminReviewTab() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Vendors Tab */}
+        {/* Event Pros Tab */}
         <TabsContent value="event-pros" className="mt-6">
           {pendingEventPros.length === 0 ? (
             <Card>

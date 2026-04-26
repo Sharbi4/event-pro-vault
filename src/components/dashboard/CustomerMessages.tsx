@@ -136,11 +136,11 @@ function ConversationList({
         <MessageCircle className="w-10 h-10 text-muted-foreground/30 mb-3" />
         <h3 className="font-medium text-sm text-muted-foreground">No messages yet</h3>
         <p className="text-xs text-muted-foreground mt-1">
-          Start a conversation from an Vendor's profile
+          Start a conversation from an Event Pro's profile
         </p>
         <Link to="/browse">
           <Button variant="outline" size="sm" className="mt-3">
-            Browse Vendors
+            Browse Event Pros
           </Button>
         </Link>
       </div>

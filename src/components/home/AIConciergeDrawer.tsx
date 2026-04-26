@@ -111,7 +111,7 @@ export function AIConciergeDrawer({ open, onOpenChange }: Props) {
             </div>
             <SheetTitle>EventPro Assistant</SheetTitle>
           </div>
-          <SheetDescription>Tell me about your event and I'll suggest the best Vendor type and packages.</SheetDescription>
+          <SheetDescription>Tell me about your event and I'll suggest the best Event Pro type and packages.</SheetDescription>
         </SheetHeader>
 
         <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
@@ -151,7 +151,7 @@ export function AIConciergeDrawer({ open, onOpenChange }: Props) {
           {messages.length > 0 && !loading && (
             <Button asChild variant="outline" className="w-full rounded-full">
               <Link to="/browse" onClick={() => onOpenChange(false)}>
-                View Vendor matches <ArrowRight className="w-4 h-4 ml-2" />
+                View Event Pro matches <ArrowRight className="w-4 h-4 ml-2" />
               </Link>
             </Button>
           )}

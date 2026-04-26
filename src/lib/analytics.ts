@@ -93,7 +93,7 @@ export function trackSignUp(method: 'email' | 'google' | 'magic_link') {
 }
 
 /**
- * Track when Vendor completes onboarding
+ * Track when Event Pro completes onboarding
  */
 export function trackVendorOnboarding(step: string) {
   trackEvent('vendor_onboarding', {
@@ -132,7 +132,7 @@ export function trackSearch(searchTerm: string, category?: string, location?: st
 }
 
 /**
- * Track lead generation (contact Vendor, message sent)
+ * Track lead generation (contact Event Pro, message sent)
  */
 export function trackGenerateLead(vendorId: string, vendorName: string, source: string) {
   trackEvent('generate_lead', {
@@ -146,7 +146,7 @@ export function trackGenerateLead(vendorId: string, vendorName: string, source: 
 /**
  * Track content share
  */
-export function trackShare(contentType: 'package' | 'Vendor' | 'blog', itemId: string, method: string) {
+export function trackShare(contentType: 'package' | 'Event Pro' | 'blog', itemId: string, method: string) {
   trackEvent('share', {
     content_type: contentType,
     item_id: itemId,

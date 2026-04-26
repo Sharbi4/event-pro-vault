@@ -50,8 +50,8 @@ const faqs = [
     a: 'The listing shows sold out for that date/time and highlights the next available opening.',
   },
   {
-    q: 'Can Vendors reserve multiple weeks?',
-    a: 'Yes. Vendors can reserve 4/8/12-week series in one checkout.',
+    q: 'Can Event Pros reserve multiple weeks?',
+    a: 'Yes. Event Pros can reserve 4/8/12-week series in one checkout.',
   },
 ];
 
@@ -67,7 +67,7 @@ export default function LearnMarkets() {
     description: seo.description,
     canonical: seo.canonical,
     type: 'website',
-    keywords: ['market manager', 'Vendor spots', 'farmers market booking', 'event space rental'],
+    keywords: ['market manager', 'Event Pro spots', 'farmers market booking', 'event space rental'],
   });
 
   const handleListMarket = () => {
@@ -104,11 +104,11 @@ export default function LearnMarkets() {
                 <span className="text-sm font-medium text-accent">For Markets</span>
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
-                Fill Vendor spots with real inventory—
+                Fill Event Pro spots with real inventory—
                 <span className="gradient-text">no back-and-forth.</span>
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Create slot types, post market days, and let Vendors reserve instantly. Show "spots left" to drive faster decisions.
+                Create slot types, post market days, and let Event Pros reserve instantly. Show "spots left" to drive faster decisions.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button 
@@ -212,7 +212,7 @@ export default function LearnMarkets() {
                   Create urgency automatically
                 </h2>
                 <p className="text-lg text-muted-foreground">
-                  Every market listing shows remaining spots and a progress bar so Vendors can act fast.
+                  Every market listing shows remaining spots and a progress bar so Event Pros can act fast.
                 </p>
               </div>
               
@@ -255,19 +255,19 @@ export default function LearnMarkets() {
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 <div>
                   <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 inline-flex items-center gap-2 flex-wrap">
-                    Let Vendors reserve their spot every week
+                    Let Event Pros reserve their spot every week
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="w-5 h-5 text-muted-foreground cursor-help shrink-0" />
                       </TooltipTrigger>
                       <TooltipContent className="max-w-xs">
                         <p className="font-semibold mb-1">Full series upfront</p>
-                        <p className="text-sm">Vendors pay once for the entire series. We reserve their spot for each week included.</p>
+                        <p className="text-sm">Event Pros pay once for the entire series. We reserve their spot for each week included.</p>
                       </TooltipContent>
                     </Tooltip>
                   </h2>
                   <p className="text-lg text-muted-foreground mb-4">
-                    Vendors can book a weekly series in one checkout—4, 8, or 12 weeks.
+                    Event Pros can book a weekly series in one checkout—4, 8, or 12 weeks.
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Choose a duration and we'll confirm availability for every week before checkout.
@@ -307,7 +307,7 @@ export default function LearnMarkets() {
                 Simple checkout. Faster payouts.
               </h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Vendors pay online and see the platform fee included in their total at checkout. Market manager payouts are initiated immediately after booking.
+                Event Pros pay online and see the platform fee included in their total at checkout. Market manager payouts are initiated immediately after booking.
               </p>
 
               <Card variant="gradient" className="p-6 max-w-xl mx-auto">
@@ -372,7 +372,7 @@ export default function LearnMarkets() {
                 Create your market listing—then add your first market day
               </h2>
               <p className="text-lg text-muted-foreground mb-8">
-                Slot types + inventory = instant Vendor reservations.
+                Slot types + inventory = instant Event Pro reservations.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center">

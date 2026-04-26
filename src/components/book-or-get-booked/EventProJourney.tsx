@@ -17,7 +17,7 @@ export function EventProJourney() {
       <div className="container mx-auto px-4">
         <div className="max-w-2xl mx-auto text-center mb-10 sm:mb-14">
           <div className="inline-block text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
-            For Vendors
+            For Event Pros
           </div>
           <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight">
             Turn open dates into paid bookings
@@ -45,7 +45,7 @@ export function EventProJourney() {
         </div>
         <div className="mt-10 text-center">
           <Button asChild size="lg" className="rounded-full bg-orange-500 hover:bg-orange-600 text-white">
-            <Link to="/become-a-pro">Become an Vendor</Link>
+            <Link to="/become-a-pro">Become an Event Pro</Link>
           </Button>
         </div>
       </div>
