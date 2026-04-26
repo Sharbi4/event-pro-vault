@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { VendorPackageCard } from '@/components/vendors/VendorPackageCard';
@@ -11,10 +12,11 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Star, MapPin, Zap, ShieldCheck, CheckCircle2,
   Calendar, MessageCircle, ChevronLeft, Share2, Heart,
-  Package, Award, TrendingUp, Globe, Building2
+  Package, Award, TrendingUp, Globe, Building2, Sparkles
 } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useVendorProfile } from '@/hooks/useVendorProfile';
+import { AskPrivatePackageModal } from '@/components/growth/AskPrivatePackageModal';
 
 export default function VendorProfile() {
   const { id } = useParams();
