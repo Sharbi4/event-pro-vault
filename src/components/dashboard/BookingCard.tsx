@@ -178,7 +178,7 @@ export function BookingCard({
       {/* Refund hint while cancellable */}
       {state === 'confirmed_cancellable' && (
         <div className="text-[11px] text-muted-foreground mb-3">
-          Cancellation policy: <span className="font-medium capitalize text-foreground">{policy}</span> ·
+          Cancellation policy: <span className="font-medium text-foreground">{CANCELLATION_RULES[policy].label}</span> ·
           {' '}{cancelStatus.refundPct === 100 ? 'Full refund available' : `${cancelStatus.refundPct}% refund window`}
         </div>
       )}

@@ -11,6 +11,7 @@ import SentenceLanding from "./pages/SentenceLanding";
 import Index from "./pages/Index";
 import PackageDeck from "./pages/PackageDeck";
 import BookingSuccess from "./pages/BookingSuccess";
+import BookingDetail from "./pages/BookingDetail";
 
 // Existing pages
 import Browse from "./pages/Browse";
@@ -67,6 +68,7 @@ const App = () => (
               
               {/* Booking Success */}
               <Route path="/booking-success" element={<BookingSuccess />} />
+              <Route path="/bookings/:id" element={<BookingDetail />} />
               
               {/* Legacy browse (still accessible) */}
               <Route path="/browse" element={<Browse />} />
