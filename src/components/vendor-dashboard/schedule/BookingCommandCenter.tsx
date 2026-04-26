@@ -62,6 +62,50 @@ export function BookingCommandCenter({ onMessageClient, onUpdateStatus }: Props)
     setAnchor(d => addDays(d, view === 'day' ? delta : delta * 7));
   };
 
+  const handleSendPaymentLink = async (b: any) => {
+    try {
+      toast({ title: 'Generating payment link…' });
+      const { data, error } = await supabase.functions.invoke('send-balance-payment-link', {
+        body: { booking_id: b.id },
+      });
+      if (error) throw error;
+      const url = (data as any)?.url;
+      if (!url) throw new Error('No checkout URL returned');
+      try { await navigator.clipboard.writeText(url); } catch {}
+      toast({
+        title: 'Payment link ready',
+        description: 'Link copied to clipboard. Send it to your customer to collect the balance.',
+      });
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } catch (e: any) {
+      toast({
+        title: 'Could not create payment link',
+        description: e?.message ?? String(e),
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleMarkPaidInPerson = async (b: any) => {
+    if (!confirm(`Mark balance of $${((b.final_amount ?? 0) / 100).toFixed(2)} as paid in person?`)) return;
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({
+          final_paid_at: new Date().toISOString(),
+          payment_status: 'paid',
+          payment_method: 'in_person',
+          lifecycle_status: 'confirmed',
+        })
+        .eq('id', b.id);
+      if (error) throw error;
+      toast({ title: 'Marked as paid in person', description: 'Balance settled. Booking confirmed.' });
+      refetch();
+    } catch (e: any) {
+      toast({ title: 'Failed to mark paid', description: e?.message ?? String(e), variant: 'destructive' });
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
