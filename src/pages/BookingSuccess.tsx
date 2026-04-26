@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, Calendar, MapPin, CreditCard, ArrowRight, Loader2, MessageCircle, CheckCircle } from 'lucide-react';
+import { Check, Calendar, MapPin, CreditCard, ArrowRight, Loader2, MessageCircle, CheckCircle, Wallet, Sparkles } from 'lucide-react';
 import { format, parseISO, addHours } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,12 @@ interface BookingDetails {
   payment_status: string;
   package_name?: string;
   vendor_name?: string;
+  vendor_user_id?: string;
 }
+
+// Mirrors supabase/functions/_shared/commission.ts
+const VENDOR_COMMISSION_PERCENT_FREE = 12.9;
+const VENDOR_COMMISSION_PERCENT_PREMIUM = 6;
 
 export default function BookingSuccess() {
   const navigate = useNavigate();
@@ -33,6 +38,8 @@ export default function BookingSuccess() {
   const [booking, setBooking] = useState<BookingDetails | null>(null);
   const [loading, setLoading] = useState(true);
   const [verified, setVerified] = useState(false);
+  const [viewerUserId, setViewerUserId] = useState<string | null>(null);
+  const [vendorTier, setVendorTier] = useState<{ tier: string | null; ends_at: string | null } | null>(null);
   
   // Fire confetti when booking is verified
   useConfettiOnMount(verified && !loading);
