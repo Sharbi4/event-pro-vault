@@ -89,6 +89,14 @@ export default function BookOrGetBooked() {
 
   return (
     <Layout>
+      {/* Sticky mini-search — appears after the hero search scrolls out */}
+      <StickyMiniSearch
+        revealAfterRef={heroSearchRef}
+        initialDate={date}
+        initialLocation={location}
+        initialVendorType={vendorType}
+      />
+
       {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-b from-orange-50/60 via-background to-background">
         <div className="container mx-auto px-4 pt-14 sm:pt-20 pb-12 sm:pb-16">
