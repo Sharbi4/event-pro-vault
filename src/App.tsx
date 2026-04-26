@@ -48,6 +48,7 @@ import CityCategory from "./pages/CityCategory";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import BookingStatus from "./pages/BookingStatus";
 import PrivatePackageReview from "./pages/PrivatePackageReview";
+import ReferralRedirect from "./pages/ReferralRedirect";
 import { LegacyRedirect } from "./components/routing/LegacyRedirect";
 
 const queryClient = new QueryClient();
@@ -110,6 +111,8 @@ const App = () => (
               {/* Booking Status Lookup */}
               <Route path="/booking-status" element={<BookingStatus />} />
               <Route path="/private-package/:id" element={<PrivatePackageReview />} />
+              {/* Referral / Share Kit redirect */}
+              <Route path="/r/:code" element={<ReferralRedirect />} />
               {/* SEO City/Category landing pages */}
               <Route path="/:citySlug/:categorySlug" element={<CityCategory />} />
 

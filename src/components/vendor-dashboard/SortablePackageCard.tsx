@@ -274,6 +274,12 @@ export function SortablePackageCard({
           </div>
         </div>
       </CardContent>
+      <ShareKitDialog
+        open={shareKitOpen}
+        onClose={() => setShareKitOpen(false)}
+        packageId={pkg.id}
+        packageName={pkg.name}
+      />
     </Card>
   );
 }
