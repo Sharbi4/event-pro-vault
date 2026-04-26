@@ -88,6 +88,8 @@ export interface VendorProfile {
   is_vendor: boolean | null;
   is_published: boolean | null;
   stripe_account_status: string | null;
+  identity_verification_status: string | null;
+  is_identity_verified: boolean | null;
   approval_status: string | null;
   approval_notes: string | null;
 }
