@@ -142,7 +142,7 @@ export default function ProProfile() {
       <LocalBusinessJsonLd
         data={{
           id: resolvedUserId || '',
-          name: profile.displayName || profile.businessName || 'Vendor',
+          name: profile.displayName || profile.businessName || 'Event Pro',
           description: profile.shortBio || profile.businessDescription || '',
           image: profile.avatarUrl || profile.coverImageUrl,
           city: profile.serviceArea || undefined,

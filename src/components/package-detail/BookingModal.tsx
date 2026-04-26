@@ -893,7 +893,7 @@ export function BookingModal({
                     <p className="text-sm text-muted-foreground">
                       {isInstant 
                         ? 'Your booking will be confirmed immediately'
-                        : 'The Vendor will review and respond to your request'
+                        : 'The Event Pro will review and respond to your request'
                       }
                     </p>
                   </div>
@@ -1104,7 +1104,7 @@ export function BookingModal({
                       "font-medium",
                       isWithinServiceArea ? "text-foreground" : "text-destructive"
                     )}>
-                      {Math.round(distanceMiles)} miles from Vendor
+                      {Math.round(distanceMiles)} miles from Event Pro
                     </p>
                     
                     {isWithinServiceArea ? (
@@ -1127,7 +1127,7 @@ export function BookingModal({
                     ) : (
                       <div className="space-y-2">
                         <p className="text-sm text-destructive">
-                          This location is outside the Vendor's service area ({maxTravelMiles} mi max)
+                          This location is outside the Event Pro's service area ({maxTravelMiles} mi max)
                         </p>
                         <p className="text-xs text-muted-foreground">
                           Please choose a different location or contact the Event Pro directly to discuss travel options.
