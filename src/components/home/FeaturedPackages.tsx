@@ -114,7 +114,7 @@ export function FeaturedPackages() {
         <div
           className="
             -mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2
-            scrollbar-none
+            scrollbar-hide
             md:mx-0 md:px-0 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:pb-0
           "
         >
@@ -234,7 +234,7 @@ export function FeaturedPackages() {
             <div
               className="
                 -mx-4 px-4 flex gap-3 overflow-x-auto snap-x snap-mandatory pb-2
-                scrollbar-none
+                scrollbar-hide
                 md:mx-0 md:px-0 md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:pb-0
               "
             >
