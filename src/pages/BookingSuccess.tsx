@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Check, Calendar, MapPin, CreditCard, ArrowRight, Loader2, MessageCircle, CheckCircle, Wallet, Sparkles } from 'lucide-react';
+import { Check, Calendar, MapPin, CreditCard, ArrowRight, Loader2, MessageCircle, CheckCircle, Wallet, Sparkles, FileDown } from 'lucide-react';
+import { generateBookingReceipt, buildReceiptNumber } from '@/lib/receipt/generateBookingReceipt';
+import { toast } from 'sonner';
 import { format, parseISO, addHours } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -23,6 +25,16 @@ interface BookingDetails {
   package_name?: string;
   vendor_name?: string;
   vendor_user_id?: string;
+  customer_name?: string | null;
+  customer_email?: string | null;
+  payment_method?: string | null;
+  deposit_paid_at?: string | null;
+  final_paid_at?: string | null;
+  stripe_payment_intent_id?: string | null;
+  stripe_deposit_payment_intent_id?: string | null;
+  stripe_checkout_session_id?: string | null;
+  platform_fee_amount?: number | null;
+  created_at?: string;
 }
 
 // Mirrors supabase/functions/_shared/commission.ts
@@ -103,6 +115,16 @@ export default function BookingSuccess() {
           vendor_user_id: bookingData.vendor_user_id,
           deposit_amount: bookingData.deposit_amount ? bookingData.deposit_amount / 100 : 0,
           final_amount: bookingData.final_amount ? bookingData.final_amount / 100 : 0,
+          customer_name: (bookingData as any).customer_name ?? null,
+          customer_email: (bookingData as any).customer_email ?? null,
+          payment_method: (bookingData as any).payment_method ?? null,
+          deposit_paid_at: (bookingData as any).deposit_paid_at ?? null,
+          final_paid_at: (bookingData as any).final_paid_at ?? null,
+          stripe_payment_intent_id: (bookingData as any).stripe_payment_intent_id ?? null,
+          stripe_deposit_payment_intent_id: (bookingData as any).stripe_deposit_payment_intent_id ?? null,
+          stripe_checkout_session_id: (bookingData as any).stripe_checkout_session_id ?? null,
+          platform_fee_amount: (bookingData as any).platform_fee_amount ?? null,
+          created_at: (bookingData as any).created_at,
         });
         setVerified(true);
       } catch (error) {
@@ -131,6 +153,55 @@ export default function BookingSuccess() {
   }, [booking, vendorTier]);
 
   const isVendorViewer = !!(viewerUserId && booking?.vendor_user_id && viewerUserId === booking.vendor_user_id);
+
+  const hasPaid = !!(
+    booking &&
+    (booking.deposit_paid_at ||
+      booking.final_paid_at ||
+      ['paid', 'deposit_paid', 'partially_paid', 'fully_paid'].includes(
+        (booking.payment_status || '').toLowerCase(),
+      ))
+  );
+
+  const [downloadingReceipt, setDownloadingReceipt] = useState(false);
+
+  const handleDownloadReceipt = async () => {
+    if (!booking) return;
+    try {
+      setDownloadingReceipt(true);
+      const issuedAt = new Date();
+      const receiptNumber = buildReceiptNumber(booking.id, issuedAt);
+      const doc = await generateBookingReceipt({
+        receiptNumber,
+        issuedAt,
+        bookingId: booking.id,
+        packageName: booking.package_name || 'Event Package',
+        vendorName: booking.vendor_name || 'Event Pro',
+        eventDate: parseISO(booking.event_date),
+        eventLocation: booking.event_location,
+        customerName: booking.customer_name,
+        customerEmail: booking.customer_email,
+        totalPrice: Number(booking.total_price) || 0,
+        depositAmount: booking.deposit_amount || 0,
+        finalAmount: booking.final_amount || 0,
+        platformFee: booking.platform_fee_amount ? booking.platform_fee_amount / 100 : null,
+        paymentMethod: booking.payment_method,
+        paymentStatus: booking.payment_status,
+        depositPaidAt: booking.deposit_paid_at ? new Date(booking.deposit_paid_at) : null,
+        finalPaidAt: booking.final_paid_at ? new Date(booking.final_paid_at) : null,
+        stripePaymentIntentId:
+          booking.stripe_deposit_payment_intent_id || booking.stripe_payment_intent_id,
+        stripeSessionId: booking.stripe_checkout_session_id,
+      });
+      doc.save(`${receiptNumber}.pdf`);
+      toast.success('Receipt downloaded');
+    } catch (e) {
+      console.error(e);
+      toast.error('Could not generate receipt. Please try again.');
+    } finally {
+      setDownloadingReceipt(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -387,6 +458,21 @@ export default function BookingSuccess() {
               View My Bookings
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
+            {hasPaid && (
+              <Button
+                variant="outline"
+                onClick={handleDownloadReceipt}
+                disabled={downloadingReceipt}
+                className="w-full h-12 text-base"
+              >
+                {downloadingReceipt ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <FileDown className="w-4 h-4 mr-2" />
+                )}
+                Download Receipt (PDF)
+              </Button>
+            )}
             <Button
               variant="outline"
               onClick={() => navigate('/discover')}
