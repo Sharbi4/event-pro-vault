@@ -8,6 +8,7 @@ import { PackageFormData } from './PackageFormWizard';
 interface Props {
   formData: PackageFormData;
   updateFormData: (updates: Partial<PackageFormData>) => void;
+  errors?: Record<string, string>;
 }
 
 type Model = NonNullable<PackageFormData['pull_up_pricing_model']>;
@@ -44,7 +45,7 @@ const MODELS: {
   },
 ];
 
-export function StepPullUpPricing({ formData, updateFormData }: Props) {
+export function StepPullUpPricing({ formData, updateFormData, errors }: Props) {
   const model = formData.pull_up_pricing_model;
 
   const setModel = (m: Model) => {
@@ -79,7 +80,8 @@ export function StepPullUpPricing({ formData, updateFormData }: Props) {
                 'hover:border-primary/60 hover:shadow-sm relative',
                 selected
                   ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                  : 'border-border bg-card'
+                  : 'border-border bg-card',
+                errors?.pull_up_pricing_model && !selected && 'border-destructive/40'
               )}
             >
               {selected && (
@@ -101,6 +103,9 @@ export function StepPullUpPricing({ formData, updateFormData }: Props) {
           );
         })}
       </div>
+      {errors?.pull_up_pricing_model && (
+        <p className="text-xs text-destructive -mt-2">{errors.pull_up_pricing_model}</p>
+      )}
 
       {/* Conditional fields */}
       {model && (
@@ -114,13 +119,21 @@ export function StepPullUpPricing({ formData, updateFormData }: Props) {
                   type="number"
                   min="0"
                   step="0.01"
-                  className="pl-8"
+                  className={cn(
+                    'pl-8',
+                    errors?.price && 'border-destructive focus-visible:ring-destructive'
+                  )}
                   placeholder="150"
+                  aria-invalid={!!errors?.price}
                   value={formData.price || ''}
                   onChange={(e) => updateFormData({ price: parseFloat(e.target.value) || 0 })}
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Flat fee customer pays for you to show up.</p>
+              {errors?.price ? (
+                <p className="text-xs text-destructive mt-1">{errors.price}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground mt-1">Flat fee customer pays for you to show up.</p>
+              )}
             </div>
           )}
 
@@ -133,17 +146,25 @@ export function StepPullUpPricing({ formData, updateFormData }: Props) {
                   type="number"
                   min="0"
                   step="1"
-                  className="pl-8"
+                  className={cn(
+                    'pl-8',
+                    errors?.min_guarantee_amount && 'border-destructive focus-visible:ring-destructive'
+                  )}
                   placeholder="750"
+                  aria-invalid={!!errors?.min_guarantee_amount}
                   value={formData.min_guarantee_amount ?? ''}
                   onChange={(e) =>
                     updateFormData({ min_guarantee_amount: parseInt(e.target.value) || null })
                   }
                 />
               </div>
-              <p className="text-xs text-muted-foreground mt-1">
-                If guest sales fall short, the host may be responsible for the difference.
-              </p>
+              {errors?.min_guarantee_amount ? (
+                <p className="text-xs text-destructive mt-1">{errors.min_guarantee_amount}</p>
+              ) : (
+                <p className="text-xs text-muted-foreground mt-1">
+                  If guest sales fall short, the host may be responsible for the difference.
+                </p>
+              )}
             </div>
           )}
 

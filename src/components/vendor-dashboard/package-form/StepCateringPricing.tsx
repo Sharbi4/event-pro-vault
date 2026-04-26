@@ -14,6 +14,7 @@ import { PackageFormData } from './PackageFormWizard';
 interface Props {
   formData: PackageFormData;
   updateFormData: (updates: Partial<PackageFormData>) => void;
+  errors?: Record<string, string>;
 }
 
 type Model = NonNullable<PackageFormData['catering_pricing_model']>;
@@ -51,7 +52,7 @@ const BALANCE_TIMING: { value: NonNullable<PackageFormData['balance_due_timing']
   { value: 'direct_to_vendor', label: 'Paid directly to vendor' },
 ];
 
-export function StepCateringPricing({ formData, updateFormData }: Props) {
+export function StepCateringPricing({ formData, updateFormData, errors }: Props) {
   const model = formData.catering_pricing_model;
 
   const setModel = (m: Model) => {
@@ -84,7 +85,8 @@ export function StepCateringPricing({ formData, updateFormData }: Props) {
                 'hover:border-primary/60 hover:shadow-sm',
                 selected
                   ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                  : 'border-border bg-card'
+                  : 'border-border bg-card',
+                errors?.catering_pricing_model && !selected && 'border-destructive/40'
               )}
             >
               {selected && (
@@ -106,6 +108,9 @@ export function StepCateringPricing({ formData, updateFormData }: Props) {
           );
         })}
       </div>
+      {errors?.catering_pricing_model && (
+        <p className="text-xs text-destructive -mt-2">{errors.catering_pricing_model}</p>
+      )}
 
       {model && (
         <div className="rounded-2xl border bg-card p-4 space-y-4">
@@ -116,18 +121,21 @@ export function StepCateringPricing({ formData, updateFormData }: Props) {
                 placeholder="850"
                 value={formData.price}
                 onChange={(v) => updateFormData({ price: v })}
+                error={errors?.price}
               />
               <NumberInput
                 label="Guests included"
                 placeholder="50"
                 value={formData.included_guests ?? undefined}
                 onChange={(v) => updateFormData({ included_guests: v ?? null })}
+                error={errors?.included_guests}
               />
               <PriceInput
                 label="Additional guest fee (optional)"
                 placeholder="0"
                 value={formData.additional_per_person ?? undefined}
                 onChange={(v) => updateFormData({ additional_per_person: v ?? null })}
+                error={errors?.additional_per_person}
               />
             </>
           )}
@@ -139,6 +147,7 @@ export function StepCateringPricing({ formData, updateFormData }: Props) {
                 placeholder="18"
                 value={formData.price}
                 onChange={(v) => updateFormData({ price: v })}
+                error={errors?.price}
               />
               <div className="grid grid-cols-2 gap-3">
                 <NumberInput
@@ -146,12 +155,14 @@ export function StepCateringPricing({ formData, updateFormData }: Props) {
                   placeholder="50"
                   value={formData.min_guests ?? undefined}
                   onChange={(v) => updateFormData({ min_guests: v })}
+                  error={errors?.min_guests}
                 />
                 <NumberInput
                   label="Max guests"
                   placeholder="200"
                   value={formData.max_guests ?? undefined}
                   onChange={(v) => updateFormData({ max_guests: v })}
+                  error={errors?.max_guests}
                 />
               </div>
               <PriceInput
@@ -170,24 +181,28 @@ export function StepCateringPricing({ formData, updateFormData }: Props) {
                 placeholder="600"
                 value={formData.price}
                 onChange={(v) => updateFormData({ price: v })}
+                error={errors?.price}
               />
               <NumberInput
                 label="Guests included in base"
                 placeholder="30"
                 value={formData.included_guests ?? undefined}
                 onChange={(v) => updateFormData({ included_guests: v ?? null })}
+                error={errors?.included_guests}
               />
               <PriceInput
                 label="Additional price per person"
                 placeholder="15"
                 value={formData.additional_per_person ?? undefined}
                 onChange={(v) => updateFormData({ additional_per_person: v ?? null })}
+                error={errors?.additional_per_person}
               />
               <NumberInput
                 label="Max guests"
                 placeholder="150"
                 value={formData.max_guests ?? undefined}
                 onChange={(v) => updateFormData({ max_guests: v })}
+                error={errors?.max_guests}
               />
             </>
           )}
@@ -274,11 +289,13 @@ function PriceInput({
   placeholder,
   value,
   onChange,
+  error,
 }: {
   label: string;
   placeholder?: string;
   value?: number;
   onChange: (v: number | undefined) => void;
+  error?: string;
 }) {
   return (
     <div>
@@ -289,15 +306,17 @@ function PriceInput({
           type="number"
           min="0"
           step="0.01"
-          className="pl-8"
+          className={cn('pl-8', error && 'border-destructive focus-visible:ring-destructive')}
           placeholder={placeholder}
           value={value ?? ''}
+          aria-invalid={!!error}
           onChange={(e) => {
             const v = parseFloat(e.target.value);
             onChange(isNaN(v) ? undefined : v);
           }}
         />
       </div>
+      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
   );
 }
@@ -307,11 +326,13 @@ function NumberInput({
   placeholder,
   value,
   onChange,
+  error,
 }: {
   label: string;
   placeholder?: string;
   value?: number;
   onChange: (v: number | undefined) => void;
+  error?: string;
 }) {
   return (
     <div>
@@ -320,14 +341,16 @@ function NumberInput({
         type="number"
         min="0"
         step="1"
-        className="mt-1"
+        className={cn('mt-1', error && 'border-destructive focus-visible:ring-destructive')}
         placeholder={placeholder}
         value={value ?? ''}
+        aria-invalid={!!error}
         onChange={(e) => {
           const v = parseInt(e.target.value);
           onChange(isNaN(v) ? undefined : v);
         }}
       />
+      {error && <p className="mt-1 text-xs text-destructive">{error}</p>}
     </div>
   );
 }
