@@ -523,6 +523,7 @@ export function useBrowsePackages() {
       endTime: null,
       location: '',
       locationCoords: null,
+      searchRadius: 25,
       instantBook: false,
       verified: false,
       onlinePaymentsOnly: false,
