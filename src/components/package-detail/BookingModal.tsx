@@ -190,7 +190,10 @@ export function BookingModal({
   const [itemQuantity, setItemQuantity] = useState(minUnits?.toString() || '1');
   const [notes, setNotes] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
-  const [guestName, setGuestName] = useState('');
+  // Customer contact (required for ALL bookings — name reaches the Event Pro,
+  // phone is for admin / customer service follow-up)
+  const [contactName, setContactName] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'cash'>(
     paymentOptions === 'CASH' ? 'cash' : initialPaymentMethod
   );
@@ -404,7 +407,10 @@ export function BookingModal({
   const validateDetailsStep = () => {
     const emailRequired = !user;
     const hasEmail = emailRequired ? !!guestEmail.trim() : true;
-    
+
+    // Name and phone are now required for every booking
+    if (!contactName.trim() || !contactPhone.trim()) return false;
+
     if (!eventType || !hasEmail) return false;
     
     // Require guest count for per_guest pricing
@@ -476,6 +482,15 @@ export function BookingModal({
       return;
     }
 
+    if (!contactName.trim() || !contactPhone.trim()) {
+      toast({
+        title: "Contact info required",
+        description: "Please provide your name and phone number so the Event Pro can reach you",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!eventDate || !addressLine1) {
       toast({
         title: "Missing information",
@@ -488,7 +503,8 @@ export function BookingModal({
     setSubmitting(true);
 
     const customerEmail = user?.email || guestEmail.trim();
-    const customerName = user?.email?.split('@')[0] || guestName.trim() || 'Guest';
+    const customerName = contactName.trim();
+    const customerPhone = contactPhone.trim();
 
     // Build unit type label based on pricing
     const getUnitTypeLabel = () => {
