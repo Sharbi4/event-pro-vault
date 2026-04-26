@@ -1,12 +1,13 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { format } from 'date-fns';
-import { ArrowLeft, Calendar, Loader2 } from 'lucide-react';
+import { ArrowLeft, Calendar, Loader2, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { MessageBubble } from './MessageBubble';
 import { MessageInput } from './MessageInput';
+import { CreatePrivatePackageDrawer } from '@/components/messaging/CreatePrivatePackageDrawer';
 import type { Conversation, Message } from '@/hooks/useVendorMessages';
 
 interface ChatThreadProps {
@@ -29,6 +30,7 @@ export function ChatThread({
   onMarkAsRead,
 }: ChatThreadProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [packageDrawerOpen, setPackageDrawerOpen] = useState(false);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -96,7 +98,25 @@ export function ChatThread({
             Booking
           </Badge>
         )}
+
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setPackageDrawerOpen(true)}
+          className="gap-1.5 shrink-0"
+        >
+          <Package className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Send package</span>
+        </Button>
       </div>
+
+      <CreatePrivatePackageDrawer
+        open={packageDrawerOpen}
+        onOpenChange={setPackageDrawerOpen}
+        conversationId={conversation.id}
+        customerUserId={conversation.client_user_id}
+        customerEmail={conversation.client_email}
+      />
 
       {/* Messages */}
       <ScrollArea ref={scrollRef} className="flex-1 p-4">

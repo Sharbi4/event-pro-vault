@@ -206,6 +206,23 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
     } else {
       logStep(`Booking ${metadata.booking_id} payment recorded`);
     }
+
+    // Mark private package as paid/booked if linked
+    if (metadata.private_package_id) {
+      const { error: ppError } = await supabaseAdmin
+        .from("private_packages")
+        .update({
+          status: "paid",
+          paid_at: new Date().toISOString(),
+          booking_id: metadata.booking_id,
+        })
+        .eq("id", metadata.private_package_id);
+      if (ppError) {
+        logStep("Error updating private_package", { error: ppError.message });
+      } else {
+        logStep(`Private package ${metadata.private_package_id} marked paid`);
+      }
+    }
   }
 }
 
@@ -261,6 +278,17 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         updated_at: new Date().toISOString(),
       })
       .eq("id", metadata.booking_id);
+
+    if (metadata.private_package_id) {
+      await supabaseAdmin
+        .from("private_packages")
+        .update({
+          status: "paid",
+          paid_at: new Date().toISOString(),
+          booking_id: metadata.booking_id,
+        })
+        .eq("id", metadata.private_package_id);
+    }
   }
 }
 

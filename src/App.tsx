@@ -44,6 +44,7 @@ import NotFound from "./pages/NotFound";
 import CityCategory from "./pages/CityCategory";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import BookingStatus from "./pages/BookingStatus";
+import PrivatePackageReview from "./pages/PrivatePackageReview";
 
 const queryClient = new QueryClient();
 
@@ -99,6 +100,7 @@ const App = () => (
               <Route path="/admin/analytics" element={<AdminAnalytics />} />
               {/* Booking Status Lookup */}
               <Route path="/booking-status" element={<BookingStatus />} />
+              <Route path="/private-package/:id" element={<PrivatePackageReview />} />
               {/* SEO City/Category landing pages */}
               <Route path="/:citySlug/:categorySlug" element={<CityCategory />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
