@@ -411,10 +411,12 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                 {eventDate && pkg.vendor_user_id && (
                   <TimeSlotPicker
                     vendorUserId={pkg.vendor_user_id}
+                    packageId={pkg.id}
                     selectedDate={eventDate}
                     durationMinutes={durationMinutes}
                     setupMinutes={setupMinutes}
                     breakdownMinutes={breakdownMinutes}
+                    mode={isHourly ? 'HOURLY' : 'DAILY'}
                     selectedTime={selectedTime}
                     onTimeSelect={setSelectedTime}
                   />
