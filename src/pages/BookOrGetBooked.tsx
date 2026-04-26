@@ -66,16 +66,30 @@ const proFAQs = [
 
 export default function BookOrGetBooked() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [date, setDate] = useState('');
   const [location, setLocation] = useState('');
   const [vendorType, setVendorType] = useState('');
 
-  const handleSearch = () => {
+  // Prefilled browse URL based on hero inputs (used by customer CTAs)
+  const browseHref = useMemo(() => {
     const params = new URLSearchParams();
     if (date) params.set('date', date);
     if (location) params.set('location', location);
     if (vendorType) params.set('category', vendorType);
-    navigate(`/browse?${params.toString()}`);
+    const qs = params.toString();
+    return qs ? `/browse?${qs}` : '/browse';
+  }, [date, location, vendorType]);
+
+  // Event Pro entry: signed-in users go straight to the right dashboard tab,
+  // anonymous users land in onboarding first.
+  const proEntry = (tab?: string) =>
+    user
+      ? `/vendor-dashboard${tab ? `?tab=${tab}` : ''}`
+      : `/become-a-pro${tab ? `?next=${encodeURIComponent('/vendor-dashboard?tab=' + tab)}` : ''}`;
+
+  const handleSearch = () => {
+    navigate(browseHref);
   };
 
   useEffect(() => {
