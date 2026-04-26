@@ -25,6 +25,16 @@ interface BookingDetails {
   package_name?: string;
   vendor_name?: string;
   vendor_user_id?: string;
+  customer_name?: string | null;
+  customer_email?: string | null;
+  payment_method?: string | null;
+  deposit_paid_at?: string | null;
+  final_paid_at?: string | null;
+  stripe_payment_intent_id?: string | null;
+  stripe_deposit_payment_intent_id?: string | null;
+  stripe_checkout_session_id?: string | null;
+  platform_fee_amount?: number | null;
+  created_at?: string;
 }
 
 // Mirrors supabase/functions/_shared/commission.ts
