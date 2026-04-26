@@ -7,6 +7,7 @@ export interface ReviewFormData {
   rating: number;
   title: string;
   content: string;
+  tags?: string[];
 }
 
 export interface ReviewSubmissionParams {
@@ -74,6 +75,7 @@ export function useReviewSubmission() {
         rating: formData.rating,
         title: formData.title.trim() || null,
         content: formData.content.trim() || null,
+        tags: formData.tags && formData.tags.length > 0 ? formData.tags : null,
         reviewer_name: params.reviewerName,
         reviewer_avatar: params.reviewerAvatar || null,
         event_date: params.eventDate || null,

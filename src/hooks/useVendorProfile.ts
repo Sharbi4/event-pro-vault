@@ -53,6 +53,10 @@ export interface VendorReviewData {
   helpful_count: number;
   created_at: string;
   package_id: string | null;
+  tags?: string[] | null;
+  vendor_reply?: string | null;
+  vendor_reply_at?: string | null;
+  vendor_user_id?: string;
 }
 
 export function useVendorProfile(vendorUserId: string | undefined) {

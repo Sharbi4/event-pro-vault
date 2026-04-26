@@ -1190,12 +1190,16 @@ export type Database = {
           id: string
           is_verified_booking: boolean | null
           package_id: string | null
+          photo_urls: string[] | null
           rating: number
           reviewer_avatar: string | null
           reviewer_name: string
           reviewer_user_id: string
+          tags: string[] | null
           title: string | null
           updated_at: string
+          vendor_reply: string | null
+          vendor_reply_at: string | null
           vendor_user_id: string
         }
         Insert: {
@@ -1208,12 +1212,16 @@ export type Database = {
           id?: string
           is_verified_booking?: boolean | null
           package_id?: string | null
+          photo_urls?: string[] | null
           rating: number
           reviewer_avatar?: string | null
           reviewer_name: string
           reviewer_user_id: string
+          tags?: string[] | null
           title?: string | null
           updated_at?: string
+          vendor_reply?: string | null
+          vendor_reply_at?: string | null
           vendor_user_id: string
         }
         Update: {
@@ -1226,12 +1234,16 @@ export type Database = {
           id?: string
           is_verified_booking?: boolean | null
           package_id?: string | null
+          photo_urls?: string[] | null
           rating?: number
           reviewer_avatar?: string | null
           reviewer_name?: string
           reviewer_user_id?: string
+          tags?: string[] | null
           title?: string | null
           updated_at?: string
+          vendor_reply?: string | null
+          vendor_reply_at?: string | null
           vendor_user_id?: string
         }
         Relationships: [
@@ -1763,6 +1775,7 @@ export type Database = {
         Row: {
           add_ons: Json | null
           additional_fees: Json | null
+          allow_in_person_balance: boolean
           available_days_override: number[] | null
           available_window_override: Json | null
           booking_mode: string
@@ -1774,6 +1787,7 @@ export type Database = {
           customer_requirements: string | null
           default_start_time: string | null
           deposit: number | null
+          deposit_percentage: number
           description: string | null
           duration_minutes: number | null
           fee_per_mile: number | null
@@ -1798,6 +1812,7 @@ export type Database = {
           min_units: number
           name: string
           overtime_rate: number | null
+          payment_mode: string
           payment_options: string
           pickup_only: boolean | null
           price: number
@@ -1817,6 +1832,7 @@ export type Database = {
         Insert: {
           add_ons?: Json | null
           additional_fees?: Json | null
+          allow_in_person_balance?: boolean
           available_days_override?: number[] | null
           available_window_override?: Json | null
           booking_mode?: string
@@ -1828,6 +1844,7 @@ export type Database = {
           customer_requirements?: string | null
           default_start_time?: string | null
           deposit?: number | null
+          deposit_percentage?: number
           description?: string | null
           duration_minutes?: number | null
           fee_per_mile?: number | null
@@ -1852,6 +1869,7 @@ export type Database = {
           min_units?: number
           name: string
           overtime_rate?: number | null
+          payment_mode?: string
           payment_options?: string
           pickup_only?: boolean | null
           price: number
@@ -1871,6 +1889,7 @@ export type Database = {
         Update: {
           add_ons?: Json | null
           additional_fees?: Json | null
+          allow_in_person_balance?: boolean
           available_days_override?: number[] | null
           available_window_override?: Json | null
           booking_mode?: string
@@ -1882,6 +1901,7 @@ export type Database = {
           customer_requirements?: string | null
           default_start_time?: string | null
           deposit?: number | null
+          deposit_percentage?: number
           description?: string | null
           duration_minutes?: number | null
           fee_per_mile?: number | null
@@ -1906,6 +1926,7 @@ export type Database = {
           min_units?: number
           name?: string
           overtime_rate?: number | null
+          payment_mode?: string
           payment_options?: string
           pickup_only?: boolean | null
           price?: number

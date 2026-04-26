@@ -73,6 +73,9 @@ export interface PackageFormData {
   // Booking & Payment settings
   booking_mode: BookingMode;
   payment_options: PaymentOptions;
+  payment_mode: 'full' | 'deposit';
+  deposit_percentage: number;
+  allow_in_person_balance: boolean;
   // Daily booking time settings
   default_start_time?: string;
   duration_minutes?: number;
@@ -128,6 +131,9 @@ const defaultFormData: PackageFormData = {
   blocked_dates: [],
   booking_mode: 'INSTANT',
   payment_options: 'ONLINE',
+  payment_mode: 'full',
+  deposit_percentage: 50,
+  allow_in_person_balance: false,
   default_start_time: undefined,
   duration_minutes: undefined,
 };
@@ -200,6 +206,9 @@ export function PackageFormWizard({
         blocked_dates: [],
         booking_mode: ((initialData as any).booking_mode as BookingMode) || 'INSTANT',
         payment_options: ((initialData as any).payment_options as PaymentOptions) || 'ONLINE',
+        payment_mode: ((initialData as any).payment_mode as 'full' | 'deposit') || 'full',
+        deposit_percentage: (initialData as any).deposit_percentage ?? 50,
+        allow_in_person_balance: (initialData as any).allow_in_person_balance ?? false,
         default_start_time: (initialData as any).default_start_time || undefined,
         duration_minutes: initialData.duration_minutes || undefined,
       });

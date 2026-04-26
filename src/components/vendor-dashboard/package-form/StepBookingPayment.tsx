@@ -258,6 +258,108 @@ export function StepBookingPayment({
         </Card>
       )}
 
+      {/* Payment Mode (Full vs Deposit) — only when online payments enabled */}
+      {needsStripe && (
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <Label className="text-base font-semibold">Payment Collection</Label>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            How much do you collect upfront when a customer books?
+          </p>
+
+          <RadioGroup
+            value={formData.payment_mode || 'full'}
+            onValueChange={(v) => updateFormData({ payment_mode: v as 'full' | 'deposit' })}
+            className="grid gap-3"
+          >
+            <label
+              htmlFor="pm-full"
+              className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
+                (formData.payment_mode || 'full') === 'full'
+                  ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                  : 'border-border hover:border-primary/50'
+              }`}
+            >
+              <RadioGroupItem value="full" id="pm-full" className="mt-1" />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-primary" />
+                  <span className="font-medium">Pay in full at booking</span>
+                  <Badge variant="secondary" className="text-xs">Default</Badge>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Customer pays 100% upfront. Simplest flow, fastest payout.
+                </p>
+              </div>
+            </label>
+
+            <label
+              htmlFor="pm-deposit"
+              className={`flex items-start gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
+                formData.payment_mode === 'deposit'
+                  ? 'border-primary bg-primary/5 ring-1 ring-primary'
+                  : 'border-border hover:border-primary/50'
+              }`}
+            >
+              <RadioGroupItem value="deposit" id="pm-deposit" className="mt-1" />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <Banknote className="w-4 h-4 text-primary" />
+                  <span className="font-medium">Deposit now, balance later</span>
+                </div>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Reserve the date with a deposit. Collect the balance closer to the event.
+                </p>
+
+                {formData.payment_mode === 'deposit' && (
+                  <div className="mt-3 space-y-3">
+                    <div>
+                      <Label className="text-xs text-muted-foreground">Deposit percentage</Label>
+                      <div className="flex items-center gap-2 mt-1">
+                        {[25, 50, 75].map((pct) => (
+                          <Button
+                            key={pct}
+                            type="button"
+                            size="sm"
+                            variant={(formData.deposit_percentage ?? 50) === pct ? 'default' : 'outline'}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              updateFormData({ deposit_percentage: pct });
+                            }}
+                          >
+                            {pct}%
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <label className="flex items-start gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={!!formData.allow_in_person_balance}
+                        onChange={(e) =>
+                          updateFormData({ allow_in_person_balance: e.target.checked })
+                        }
+                        className="mt-1"
+                      />
+                      <div>
+                        <div className="text-sm font-medium">
+                          Allow in-person balance collection
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          You can mark the remaining balance as paid in cash at the event.
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                )}
+              </div>
+            </label>
+          </RadioGroup>
+        </div>
+      )}
+
       {/* Cancellation Policy */}
       <div className="space-y-3">
         <div className="flex items-center gap-2">

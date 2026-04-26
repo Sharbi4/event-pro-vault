@@ -40,7 +40,23 @@ export function ReviewSubmissionForm({
     rating: 0,
     title: '',
     content: '',
+    tags: [],
   });
+
+  const REVIEW_TAGS = [
+    'On time', 'Professional', 'Great communication', 'Setup was smooth',
+    'Quality service', 'Above and beyond', 'Would book again', 'Easy to work with',
+  ];
+
+  const toggleTag = (tag: string) => {
+    setFormData((p) => {
+      const current = p.tags ?? [];
+      return {
+        ...p,
+        tags: current.includes(tag) ? current.filter((t) => t !== tag) : [...current, tag],
+      };
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,6 +172,30 @@ export function ReviewSubmissionForm({
               <p className="text-xs text-muted-foreground text-right">
                 {formData.content.length}/1000
               </p>
+            </div>
+
+            {/* Quick tags */}
+            <div className="space-y-2">
+              <Label>What stood out? <span className="text-muted-foreground">(optional)</span></Label>
+              <div className="flex flex-wrap gap-2">
+                {REVIEW_TAGS.map((tag) => {
+                  const active = (formData.tags ?? []).includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => toggleTag(tag)}
+                      className={`text-xs rounded-full px-3 py-1.5 border transition-all ${
+                        active
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-background text-muted-foreground border-border hover:border-primary/50'
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </motion.div>
         )}
