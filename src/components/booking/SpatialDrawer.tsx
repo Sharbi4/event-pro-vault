@@ -517,6 +517,45 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                   </div>
                 )}
 
+                {/* Travel fee preview (non-blocking) */}
+                {travelQuote.status !== 'idle' && (
+                  <div className="rounded-lg border border-border bg-muted/30 p-3 text-sm space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Travel fee</span>
+                      <span className="font-mono">
+                        {travelQuote.status === 'loading' && (
+                          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+                            <Loader2 className="w-3 h-3 animate-spin" />
+                            Calculating…
+                          </span>
+                        )}
+                        {travelQuote.status === 'ready' && (
+                          travelFee > 0
+                            ? `+$${travelFee.toLocaleString()}`
+                            : 'Included'
+                        )}
+                        {travelQuote.status === 'error' && (
+                          <span className="text-muted-foreground">—</span>
+                        )}
+                        {travelQuote.status === 'out_of_range' && (
+                          <span className="text-destructive">Out of range</span>
+                        )}
+                      </span>
+                    </div>
+                    {travelQuote.status === 'ready' && travelQuote.distanceMiles != null && (
+                      <p className="text-xs text-muted-foreground">
+                        {travelQuote.distanceMiles.toFixed(1)} mi from Event Pro
+                        {travelQuote.billableMiles && travelQuote.billableMiles > 0
+                          ? ` · ${travelQuote.billableMiles.toFixed(1)} billable mi`
+                          : ' · within free travel zone'}
+                      </p>
+                    )}
+                    {(travelQuote.status === 'error' || travelQuote.status === 'out_of_range') && travelQuote.error && (
+                      <p className="text-xs text-muted-foreground">{travelQuote.error}</p>
+                    )}
+                  </div>
+                )}
+
                 {/* Total */}
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Total</span>
