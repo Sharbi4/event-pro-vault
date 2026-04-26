@@ -5,11 +5,15 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Star, CheckCircle, ThumbsUp, ChevronDown, Filter } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { Star, CheckCircle, ThumbsUp, ChevronDown, Filter, MessageSquare, Loader2 } from 'lucide-react';
 import { VendorReviewData } from '@/hooks/useVendorProfile';
 import { VerifiedBookingBadge } from '@/components/badges/TrustBadges';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface ReviewsSectionProps {
   reviews: VendorReviewData[];
