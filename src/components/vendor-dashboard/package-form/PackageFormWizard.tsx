@@ -632,10 +632,8 @@ export function PackageFormWizard({
   const navigation = (
     <div
       className="
-        flex flex-col gap-2 pt-3 border-t bg-background
-        sticky bottom-0 left-0 right-0
+        flex flex-col gap-2 pt-3 border-t bg-background shrink-0
         -mx-4 sm:mx-0 px-4 sm:px-0 pb-[max(env(safe-area-inset-bottom),0.75rem)] sm:pb-3
-        z-10
       "
     >
       {showErrors && errorList.length > 0 && (
