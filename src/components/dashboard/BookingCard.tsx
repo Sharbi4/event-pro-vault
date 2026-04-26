@@ -124,12 +124,12 @@ export function BookingCard({
         <div className="flex items-center gap-2 text-muted-foreground">
           <Calendar className="w-3.5 h-3.5 shrink-0" />
           <span className="text-foreground">
-            {format(start, 'EEE, MMM d, yyyy')}
-            {booking.start_time && (
+            {!isNaN(start.getTime()) ? format(start, 'EEE, MMM d, yyyy') : 'Date TBD'}
+            {booking.start_time && !isNaN(start.getTime()) && (
               <>
                 {' · '}
                 {format(start, 'h:mm a')}
-                {booking.end_time ? `–${format(end, 'h:mm a')}` : ''}
+                {booking.end_time && !isNaN(end.getTime()) ? `–${format(end, 'h:mm a')}` : ''}
               </>
             )}
           </span>

@@ -54,18 +54,34 @@ interface ExtendedBooking extends BookingData {
   final_paid_at?: string | null;
 }
 
+/** Normalize a time string to HH:MM:SS. Returns null if unparseable. */
+function normalizeTime(t?: string | null): string | null {
+  if (!t) return null;
+  const m = String(t).match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  if (!m) return null;
+  const hh = m[1].padStart(2, '0');
+  return `${hh}:${m[2]}:${m[3] ?? '00'}`;
+}
+
+function buildDate(dateStr: string | null | undefined, time: string | null | undefined, fallbackTime = '12:00:00'): Date {
+  if (!dateStr) return new Date(NaN);
+  const t = normalizeTime(time) ?? fallbackTime;
+  const d = new Date(`${dateStr}T${t}`);
+  return isNaN(d.getTime()) ? new Date(NaN) : d;
+}
+
 /** Build a JS Date for the event start, using event_date + start_time when available. */
 export function getEventStart(b: BookingData): Date {
-  const dateStr = b.event_date; // yyyy-mm-dd
-  const t = b.start_time || '12:00';
-  return new Date(`${dateStr}T${t}:00`);
+  return buildDate(b.event_date, b.start_time);
 }
 
 export function getEventEnd(b: BookingData): Date {
   const start = getEventStart(b);
-  if (b.end_time) {
-    return new Date(`${b.event_date}T${b.end_time}:00`);
+  if (b.end_time && b.event_date) {
+    const d = buildDate(b.event_date, b.end_time);
+    if (!isNaN(d.getTime())) return d;
   }
+  if (isNaN(start.getTime())) return start;
   const dur = b.duration_minutes ?? 180;
   return new Date(start.getTime() + dur * 60_000);
 }
