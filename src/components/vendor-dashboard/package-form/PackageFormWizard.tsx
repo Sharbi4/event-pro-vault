@@ -564,7 +564,7 @@ export function PackageFormWizard({
 
   const stepValidation = validateStep(activeStep?.id);
   const stepErrors = showErrors ? stepValidation.errors : {};
-  const isStepValid = () => stepValidation.valid;
+  
 
   const progress = ((safeStepIndex + 1) / steps.length) * 100;
 
