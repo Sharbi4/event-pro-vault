@@ -101,7 +101,7 @@ serve(async (req) => {
       case "identity.verification_session.processing":
       case "identity.verification_session.canceled": {
         const session = event.data.object as Stripe.Identity.VerificationSession;
-        await handleIdentityVerificationUpdated(session);
+        await handleIdentityVerificationUpdated(session, event.id);
         break;
       }
 
