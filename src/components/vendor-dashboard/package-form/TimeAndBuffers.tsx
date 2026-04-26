@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/select';
 import { Clock } from 'lucide-react';
 import { CalendarBlockPreview } from './CalendarBlockPreview';
+import { LiveCalendarPreview } from './LiveCalendarPreview';
 
 interface TimeAndBuffersProps {
   durationMinutes?: number;
