@@ -9,7 +9,7 @@ import { useDisputes } from '@/hooks/useDisputes';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles, MessageCircle, Bell, AlertTriangle, CalendarRange } from 'lucide-react';
+import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles, MessageCircle, Bell, AlertTriangle, CalendarRange, Trophy } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { VendorOverview } from '@/components/vendor-dashboard/VendorOverview';
@@ -30,6 +30,7 @@ import { ApprovalStatusBanner } from '@/components/shared/ApprovalStatusBanner';
 import { StripeSetupCard } from '@/components/shared/StripeSetupCard';
 import { VerificationCard } from '@/components/vendor-dashboard/VerificationCard';
 import { IdentityVerificationTimeline } from '@/components/vendor-dashboard/IdentityVerificationTimeline';
+import { GamificationPanel } from '@/components/vendor-dashboard/GamificationPanel';
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -281,6 +282,13 @@ const VendorDashboard = () => {
                 <span className="text-[10px] font-medium">Availability</span>
               </TabsTrigger>
               <TabsTrigger 
+                value="rewards" 
+                className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] data-[state=active]:bg-background"
+              >
+                <Trophy className="w-5 h-5" />
+                <span className="text-[10px] font-medium">Rewards</span>
+              </TabsTrigger>
+              <TabsTrigger 
                 value="settings" 
                 className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] data-[state=active]:bg-background"
               >
@@ -291,7 +299,7 @@ const VendorDashboard = () => {
           </div>
 
           {/* Desktop Tab Bar */}
-          <TabsList className="hidden sm:inline-grid w-auto grid-cols-9">
+          <TabsList className="hidden sm:inline-grid w-auto grid-cols-10">
             <TabsTrigger value="overview" className="gap-2">
               <LayoutDashboard className="w-4 h-4" />
               Overview
@@ -333,6 +341,10 @@ const VendorDashboard = () => {
             <TabsTrigger value="availability" className="gap-2">
               <CalendarX className="w-4 h-4" />
               Availability
+            </TabsTrigger>
+            <TabsTrigger value="rewards" className="gap-2">
+              <Trophy className="w-4 h-4" />
+              Rewards
             </TabsTrigger>
             <TabsTrigger value="settings" className="gap-2">
               <Settings className="w-4 h-4" />
