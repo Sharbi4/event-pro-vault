@@ -26,6 +26,7 @@ import { PackageBasicsExtras } from './PackageBasicsExtras';
 import { TimeAndBuffers } from './TimeAndBuffers';
 import { CustomerQuestionsPicker } from './CustomerQuestionsPicker';
 import { PackagePreview } from './PackagePreview';
+import { PackageStatusSelector } from './PackageStatusSelector';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
