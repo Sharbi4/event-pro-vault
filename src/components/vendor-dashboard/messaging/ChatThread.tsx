@@ -98,7 +98,25 @@ export function ChatThread({
             Booking
           </Badge>
         )}
+
+        <Button
+          size="sm"
+          variant="outline"
+          onClick={() => setPackageDrawerOpen(true)}
+          className="gap-1.5 shrink-0"
+        >
+          <Package className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Send package</span>
+        </Button>
       </div>
+
+      <CreatePrivatePackageDrawer
+        open={packageDrawerOpen}
+        onOpenChange={setPackageDrawerOpen}
+        conversationId={conversation.id}
+        customerUserId={conversation.client_user_id}
+        customerEmail={conversation.client_email}
+      />
 
       {/* Messages */}
       <ScrollArea ref={scrollRef} className="flex-1 p-4">
