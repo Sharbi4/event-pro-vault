@@ -458,6 +458,21 @@ export default function BookingSuccess() {
               View My Bookings
               <ArrowRight className="w-4 h-4 ml-2" />
             </Button>
+            {hasPaid && (
+              <Button
+                variant="outline"
+                onClick={handleDownloadReceipt}
+                disabled={downloadingReceipt}
+                className="w-full h-12 text-base"
+              >
+                {downloadingReceipt ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <FileDown className="w-4 h-4 mr-2" />
+                )}
+                Download Receipt (PDF)
+              </Button>
+            )}
             <Button
               variant="outline"
               onClick={() => navigate('/discover')}
