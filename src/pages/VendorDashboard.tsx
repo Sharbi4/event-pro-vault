@@ -526,6 +526,9 @@ const VendorDashboard = () => {
                 status={profile?.identity_verification_status}
                 onStatusChange={refetch}
               />
+
+              {/* Webhook-driven verification status timeline */}
+              <IdentityVerificationTimeline />
             </div>
           </TabsContent>
         </Tabs>
