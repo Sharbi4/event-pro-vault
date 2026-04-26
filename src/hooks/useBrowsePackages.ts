@@ -472,6 +472,7 @@ export function useBrowsePackages() {
 
   // Auto-geocode the location string when set without coordinates (e.g. coming
   // from URL params or a typed entry without picking an autocomplete suggestion).
+  // Also clears stale coords when the user changes the text.
   useEffect(() => {
     const loc = filters.location?.trim();
     if (!loc) {
@@ -480,20 +481,33 @@ export function useBrowsePackages() {
       }
       return;
     }
-    // If we already have coords whose label matches the input, skip.
-    if (
-      filters.locationCoords &&
-      (filters.locationCoords.formattedAddress?.toLowerCase().includes(loc.toLowerCase()) ||
-        loc.toLowerCase().includes((filters.locationCoords.city || '').toLowerCase()))
-    ) {
-      return;
+
+    // If we already have coords whose canonical label matches the current text
+    // (city, "City, ST", or formatted address), don't refetch.
+    if (filters.locationCoords) {
+      const norm = loc.toLowerCase();
+      const city = (filters.locationCoords.city || '').toLowerCase();
+      const state = (filters.locationCoords.state || '').toLowerCase();
+      const formatted = (filters.locationCoords.formattedAddress || '').toLowerCase();
+      const cityState = city && state ? `${city}, ${state}` : '';
+      const matches =
+        norm === city ||
+        norm === cityState ||
+        norm === formatted ||
+        (city && norm.startsWith(city) && (!state || norm.includes(state)));
+      if (matches) return;
+      // Text diverged from coords — drop the stale coords before re-geocoding.
+      setFilters(prev => ({ ...prev, locationCoords: null }));
     }
+
     let cancelled = false;
     const t = setTimeout(async () => {
       const coords = await geocodeLocation(loc);
       if (!cancelled && coords) {
         setFilters(prev => ({ ...prev, locationCoords: coords }));
       }
+      // If geocoding fails (Google unavailable, no result), search continues
+      // with the text-fallback branch above — no error toast, no broken UX.
     }, 400);
     return () => {
       cancelled = true;
