@@ -64,7 +64,7 @@ export default function Browse() {
   
   const [showFilters, setShowFilters] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
-  const [viewMode, setViewMode] = useState<'Event Pros' | 'grid' | 'map'>('Event Pros');
+  const [viewMode, setViewMode] = useState<'list' | 'grid' | 'map'>('list');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -259,7 +259,7 @@ export default function Browse() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setViewMode(viewMode === 'map' ? 'Event Pros' : 'map')}
+                  onClick={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
                   className="h-9 gap-1.5"
                 >
                   {viewMode === 'map' ? <LayoutGrid className="w-3.5 h-3.5" /> : <Map className="w-3.5 h-3.5" />}
@@ -354,10 +354,10 @@ export default function Browse() {
               {/* View Toggle */}
               <div className="flex items-center border border-border rounded-lg overflow-hidden">
                 <Button
-                  variant={viewMode === 'Event Pros' ? 'default' : 'ghost'}
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
                   size="sm"
                   className="rounded-none gap-1.5"
-                  onClick={() => setViewMode('Event Pros')}
+                  onClick={() => setViewMode('list')}
                 >
                   <LayoutGrid className="w-4 h-4" />
                   <span className="hidden sm:inline">Event Pros</span>
@@ -470,7 +470,7 @@ export default function Browse() {
           )}
 
           {/* Event Pro Grid (default — vendor-grouped, StyleSeat-style) */}
-          {!loading && packages.length > 0 && viewMode === 'Event Pros' && (() => {
+          {!loading && packages.length > 0 && viewMode === 'list' && (() => {
             const groups = groupPackagesByVendor(packages, 3);
             return (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
