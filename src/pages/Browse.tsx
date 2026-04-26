@@ -86,12 +86,31 @@ export default function Browse() {
     const start = searchParams.get('start');
     const end = searchParams.get('end');
     const q = searchParams.get('q');
+    const lat = searchParams.get('lat');
+    const lng = searchParams.get('lng');
+    const city = searchParams.get('city');
+    const state = searchParams.get('state');
     if (cat) updateFilter('category', cat);
     if (loc) updateFilter('location', loc);
     if (dt) updateFilter('date', dt);
     if (start) updateFilter('startTime', start);
     if (end) updateFilter('endTime', end);
     if (q) updateFilter('search', q);
+    // If the hero/landing already resolved a Google Place, hydrate canonical
+    // coords directly so radius search can use lat/lng without re-geocoding.
+    if (lat && lng) {
+      const latNum = parseFloat(lat);
+      const lngNum = parseFloat(lng);
+      if (!Number.isNaN(latNum) && !Number.isNaN(lngNum)) {
+        updateFilter('locationCoords', {
+          lat: latNum,
+          lng: lngNum,
+          formattedAddress: loc || '',
+          city: city || undefined,
+          state: state || undefined,
+        });
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -110,6 +129,13 @@ export default function Browse() {
   const handleApplyFilters = (newFilters: {
     search: string;
     location: string;
+    locationCoords: {
+      lat: number;
+      lng: number;
+      city?: string;
+      state?: string;
+      formattedAddress?: string;
+    } | null;
     date: string | null;
     startTime: string | null;
     endTime: string | null;
@@ -122,6 +148,20 @@ export default function Browse() {
   }) => {
     updateFilter('search', newFilters.search);
     updateFilter('location', newFilters.location);
+    // Forward canonical Google Place coords so radius search uses lat/lng
+    // immediately, without waiting for the auto-geocode fallback.
+    if (newFilters.locationCoords) {
+      updateFilter('locationCoords', {
+        lat: newFilters.locationCoords.lat,
+        lng: newFilters.locationCoords.lng,
+        formattedAddress: newFilters.locationCoords.formattedAddress || newFilters.location,
+        city: newFilters.locationCoords.city,
+        state: newFilters.locationCoords.state,
+      });
+    } else if (!newFilters.location) {
+      // Cleared location → drop coords too.
+      updateFilter('locationCoords', null);
+    }
     updateFilter('date', newFilters.date);
     updateFilter('startTime', newFilters.startTime);
     updateFilter('endTime', newFilters.endTime);

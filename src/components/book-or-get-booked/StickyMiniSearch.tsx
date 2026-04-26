@@ -43,6 +43,9 @@ export function StickyMiniSearch({
   );
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [location, setLocation] = useState(initialLocation);
+  const [locationCoords, setLocationCoords] = useState<{
+    lat: number; lng: number; city?: string; state?: string;
+  } | null>(null);
   const [vendorType, setVendorType] = useState(initialVendorType);
   const [quick, setQuick] = useState<QuickFilters>({
     instantBook: false,
@@ -67,6 +70,12 @@ export function StickyMiniSearch({
     const params = new URLSearchParams();
     if (date) params.set('date', format(date, 'yyyy-MM-dd'));
     if (location) params.set('location', location);
+    if (locationCoords) {
+      params.set('lat', String(locationCoords.lat));
+      params.set('lng', String(locationCoords.lng));
+      if (locationCoords.city) params.set('city', locationCoords.city);
+      if (locationCoords.state) params.set('state', locationCoords.state);
+    }
     if (vendorType) params.set('category', vendorType);
     if (quick.instantBook) params.set('instantBook', '1');
     if (quick.verified) params.set('verified', '1');
@@ -123,7 +132,23 @@ export function StickyMiniSearch({
                 <div className="min-w-0 flex-1">
                   <LocationAutocomplete
                     value={location}
-                    onChange={setLocation}
+                    onChange={(v) => {
+                      setLocation(v);
+                      setLocationCoords(null);
+                    }}
+                    onPlaceSelect={(place) => {
+                      setLocation(
+                        place.city
+                          ? place.state ? `${place.city}, ${place.state}` : place.city
+                          : place.formatted_address
+                      );
+                      setLocationCoords({
+                        lat: place.lat,
+                        lng: place.lng,
+                        city: place.city,
+                        state: place.state,
+                      });
+                    }}
                     placeholder="City or ZIP"
                   />
                 </div>

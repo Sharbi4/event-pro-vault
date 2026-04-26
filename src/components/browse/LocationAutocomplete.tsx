@@ -38,7 +38,8 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const { isLoaded, apiKey } = useGoogleMaps();
+  const { isLoaded, loadError, apiKey } = useGoogleMaps();
+  const placesUnavailable = !apiKey || loadError;
 
   // Combine refs
   const setRefs = useCallback((node: HTMLDivElement | null) => {
@@ -122,8 +123,19 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
           );
         } else {
           setIsGeolocating(false);
-          // Fallback without geocoding
-          onChange(`${latitude.toFixed(2)}, ${longitude.toFixed(2)}`);
+          // Google Geocoder unavailable — still emit canonical coords so the
+          // radius search works on lat/lng. Surface a friendly label instead
+          // of raw decimals.
+          const displayValue = `Near you (${latitude.toFixed(2)}, ${longitude.toFixed(2)})`;
+          onChange(displayValue);
+          if (onPlaceSelect) {
+            onPlaceSelect({
+              formatted_address: displayValue,
+              lat: latitude,
+              lng: longitude,
+            });
+          }
+          toast.success('Using your current location');
         }
       },
       (error) => {
@@ -243,8 +255,11 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
     };
   }, []);
 
-  // If no API key, show basic input with geolocation
-  if (!apiKey) {
+  // If Places is not available (no API key OR script failed to load), render a
+  // plain text input so users can still type a city/zip. Geolocation works
+  // best-effort via the browser API and search falls back to text matching
+  // upstream — nothing breaks.
+  if (placesUnavailable) {
     return (
       <div ref={setRefs} className={cn("flex items-center gap-2", className)}>
         <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -253,15 +268,18 @@ export const LocationAutocomplete = forwardRef<HTMLDivElement, LocationAutocompl
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          autoComplete="address-level2"
+          aria-label="Location"
           className="bg-transparent text-foreground placeholder:text-muted-foreground focus:outline-none text-sm w-full"
         />
-        {showGeolocation && (
+        {showGeolocation && navigator.geolocation && (
           <button
             type="button"
             onClick={handleGeolocation}
             disabled={isGeolocating}
             className="p-1 rounded-full hover:bg-secondary/50 transition-colors text-muted-foreground hover:text-primary disabled:opacity-50"
             title="Use my location"
+            aria-label="Use my current location"
           >
             {isGeolocating ? (
               <Loader2 className="w-4 h-4 animate-spin" />

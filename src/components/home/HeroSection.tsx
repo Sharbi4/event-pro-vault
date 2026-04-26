@@ -47,6 +47,9 @@ export function HeroSection() {
   const navigate = useNavigate();
   const [vendorType, setVendorType] = useState('');
   const [location, setLocation] = useState('');
+  const [locationCoords, setLocationCoords] = useState<{
+    lat: number; lng: number; city?: string; state?: string;
+  } | null>(null);
   const [date, setDate] = useState<Date | undefined>();
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [time, setTime] = useState('');
@@ -59,6 +62,13 @@ export function HeroSection() {
     const params = new URLSearchParams();
     if (vendorType) params.set('category', vendorType);
     if (location) params.set('location', location);
+    // Forward canonical coords so /browse uses lat/lng radius search immediately.
+    if (locationCoords) {
+      params.set('lat', String(locationCoords.lat));
+      params.set('lng', String(locationCoords.lng));
+      if (locationCoords.city) params.set('city', locationCoords.city);
+      if (locationCoords.state) params.set('state', locationCoords.state);
+    }
     if (date) params.set('date', format(date, 'yyyy-MM-dd'));
     if (time) {
       params.set('start', time);
@@ -118,7 +128,25 @@ export function HeroSection() {
                   <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
                   <div className="min-w-0 flex-1">
                     <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Where</div>
-                    <LocationAutocomplete value={location} onChange={setLocation} placeholder="Anywhere" />
+                   <LocationAutocomplete
+                     value={location}
+                     onChange={(v) => {
+                       setLocation(v);
+                       // If user edits text manually, drop stale coords so radius
+                       // search re-resolves the new place.
+                       setLocationCoords(null);
+                     }}
+                     onPlaceSelect={(place) => {
+                       setLocation(place.city ? (place.state ? `${place.city}, ${place.state}` : place.city) : place.formatted_address);
+                       setLocationCoords({
+                         lat: place.lat,
+                         lng: place.lng,
+                         city: place.city,
+                         state: place.state,
+                       });
+                     }}
+                     placeholder="Anywhere"
+                   />
                   </div>
                 </div>
               </div>

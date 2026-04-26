@@ -16,6 +16,15 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { serviceCategories } from '@/data/service-categories';
 import { TimeRangePicker } from './TimeRangePicker';
+import { LocationAutocomplete } from './LocationAutocomplete';
+
+interface PlaceCoords {
+  lat: number;
+  lng: number;
+  city?: string;
+  state?: string;
+  formattedAddress?: string;
+}
 
 interface SearchModalProps {
   open: boolean;
@@ -36,6 +45,7 @@ interface SearchModalProps {
   onApplyFilters: (filters: {
     search: string;
     location: string;
+    locationCoords: PlaceCoords | null;
     date: string | null;
     startTime: string | null;
     endTime: string | null;
@@ -59,6 +69,7 @@ export function SearchModal({
   // Local state for the modal
   const [search, setSearch] = useState(initialFilters.search);
   const [location, setLocation] = useState(initialFilters.location);
+  const [locationCoords, setLocationCoords] = useState<PlaceCoords | null>(null);
   const [date, setDate] = useState<string | null>(initialFilters.date);
   const [startTime, setStartTime] = useState<string | null>(initialFilters.startTime);
   const [endTime, setEndTime] = useState<string | null>(initialFilters.endTime);
@@ -77,6 +88,7 @@ export function SearchModal({
     if (open) {
       setSearch(initialFilters.search);
       setLocation(initialFilters.location);
+      setLocationCoords(null);
       setDate(initialFilters.date);
       setStartTime(initialFilters.startTime);
       setEndTime(initialFilters.endTime);
@@ -117,6 +129,7 @@ export function SearchModal({
     onApplyFilters({
       search,
       location,
+      locationCoords,
       date,
       startTime,
       endTime,
@@ -133,6 +146,7 @@ export function SearchModal({
   const handleClear = () => {
     setSearch('');
     setLocation('');
+    setLocationCoords(null);
     setDate(null);
     setStartTime(null);
     setEndTime(null);
@@ -186,13 +200,28 @@ export function SearchModal({
                   />
                 </div>
                 
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Location (city, state)"
+                <div className="relative flex items-center gap-2 pl-3 h-12 bg-card border border-border rounded-md">
+                  <LocationAutocomplete
                     value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    className="pl-10 h-12 bg-card border-border"
+                    onChange={(v) => {
+                      setLocation(v);
+                      setLocationCoords(null);
+                    }}
+                    onPlaceSelect={(place) => {
+                      setLocation(
+                        place.city
+                          ? place.state ? `${place.city}, ${place.state}` : place.city
+                          : place.formatted_address
+                      );
+                      setLocationCoords({
+                        lat: place.lat,
+                        lng: place.lng,
+                        city: place.city,
+                        state: place.state,
+                        formattedAddress: place.formatted_address,
+                      });
+                    }}
+                    placeholder="Location (city, state)"
                   />
                 </div>
               </div>
