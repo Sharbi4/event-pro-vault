@@ -3,8 +3,7 @@ import {
   Body, Container, Head, Heading, Html, Preview, Section, Text, Hr,
 } from 'npm:@react-email/components@0.0.22'
 import type { TemplateEntry } from './registry.ts'
-
-const SITE_NAME = 'EventPros'
+import { BrandHeader, SITE_NAME, styles, formatDate, formatPrice } from './_brand.tsx'
 
 interface Props {
   customerName?: string
@@ -19,18 +18,6 @@ interface Props {
   bookingId?: string
 }
 
-const formatDate = (d?: string) => {
-  if (!d) return 'TBD'
-  try {
-    return new Date(d).toLocaleDateString('en-US', {
-      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
-    })
-  } catch { return d }
-}
-
-const formatPrice = (p?: number) =>
-  typeof p === 'number' ? `$${p.toFixed(2)}` : 'TBD'
-
 const BookingConfirmationEmail = ({
   customerName, vendorName, packageName, eventDate, eventLocation,
   units, unitType, totalPrice, paymentMethod, bookingId,
@@ -38,56 +25,57 @@ const BookingConfirmationEmail = ({
   <Html lang="en" dir="ltr">
     <Head />
     <Preview>Your booking with {vendorName ?? 'your Event Pro'} is confirmed</Preview>
-    <Body style={main}>
-      <Container style={container}>
-        <Heading style={h1}>You're booked! 🎉</Heading>
-        <Text style={text}>
+    <Body style={styles.main}>
+      <Container style={styles.container}>
+        <BrandHeader />
+        <Heading style={styles.h1}>You're booked! 🎉</Heading>
+        <Text style={styles.text}>
           Hi {customerName ?? 'there'}, your booking with{' '}
           <strong>{vendorName ?? 'your Event Pro'}</strong> is confirmed.
         </Text>
 
-        <Section style={card}>
-          <Text style={label}>Package</Text>
-          <Text style={value}>{packageName ?? 'Your package'}</Text>
+        <Section style={styles.card}>
+          <Text style={styles.label}>Package</Text>
+          <Text style={styles.value}>{packageName ?? 'Your package'}</Text>
 
-          <Hr style={hr} />
-          <Text style={label}>Event date</Text>
-          <Text style={value}>{formatDate(eventDate)}</Text>
+          <Hr style={styles.hr} />
+          <Text style={styles.label}>Event date</Text>
+          <Text style={styles.value}>{formatDate(eventDate)}</Text>
 
           {eventLocation && (
             <>
-              <Hr style={hr} />
-              <Text style={label}>Location</Text>
-              <Text style={value}>{eventLocation}</Text>
+              <Hr style={styles.hr} />
+              <Text style={styles.label}>Location</Text>
+              <Text style={styles.value}>{eventLocation}</Text>
             </>
           )}
 
           {units ? (
             <>
-              <Hr style={hr} />
-              <Text style={label}>Quantity</Text>
-              <Text style={value}>{units} {unitType ?? 'unit'}{units > 1 ? 's' : ''}</Text>
+              <Hr style={styles.hr} />
+              <Text style={styles.label}>Quantity</Text>
+              <Text style={styles.value}>{units} {unitType ?? 'unit'}{units > 1 ? 's' : ''}</Text>
             </>
           ) : null}
 
-          <Hr style={hr} />
-          <Text style={label}>Total</Text>
-          <Text style={valueLarge}>{formatPrice(totalPrice)}</Text>
+          <Hr style={styles.hr} />
+          <Text style={styles.label}>Total</Text>
+          <Text style={styles.valueLarge}>{formatPrice(totalPrice)}</Text>
 
           {paymentMethod === 'cash' && (
-            <Text style={muted}>Payment: cash, due at the event.</Text>
+            <Text style={styles.muted}>Payment: cash, due at the event.</Text>
           )}
         </Section>
 
-        <Text style={text}>
+        <Text style={styles.text}>
           You can chat with {vendorName ?? 'your Event Pro'} directly in the app
           to coordinate details. We'll send a reminder before your event.
         </Text>
 
         {bookingId && (
-          <Text style={footer}>Booking ref: {bookingId}</Text>
+          <Text style={styles.footer}>Booking ref: {bookingId}</Text>
         )}
-        <Text style={footer}>— The {SITE_NAME} Team</Text>
+        <Text style={styles.footer}>— The {SITE_NAME} Team</Text>
       </Container>
     </Body>
   </Html>
@@ -111,15 +99,3 @@ export const template = {
     bookingId: 'abc123',
   },
 } satisfies TemplateEntry
-
-const main = { backgroundColor: '#ffffff', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' }
-const container = { padding: '32px 24px', maxWidth: '560px', margin: '0 auto' }
-const h1 = { fontSize: '26px', fontWeight: 'bold' as const, color: '#0a0a0a', margin: '0 0 16px' }
-const text = { fontSize: '15px', color: '#3f3f46', lineHeight: '1.6', margin: '0 0 20px' }
-const card = { background: '#fafafa', border: '1px solid #e5e5e5', borderRadius: '12px', padding: '20px 24px', margin: '8px 0 24px' }
-const label = { fontSize: '12px', textTransform: 'uppercase' as const, letterSpacing: '0.04em', color: '#71717a', margin: '0 0 4px' }
-const value = { fontSize: '15px', color: '#0a0a0a', margin: '0 0 4px', fontWeight: 500 as const }
-const valueLarge = { fontSize: '20px', color: '#0a0a0a', margin: '0', fontWeight: 600 as const }
-const hr = { borderColor: '#e5e5e5', margin: '14px 0' }
-const muted = { fontSize: '13px', color: '#71717a', margin: '12px 0 0' }
-const footer = { fontSize: '12px', color: '#a1a1aa', margin: '6px 0 0' }
