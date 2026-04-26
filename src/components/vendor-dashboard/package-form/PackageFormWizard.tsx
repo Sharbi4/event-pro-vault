@@ -391,11 +391,47 @@ export function PackageFormWizard({
         menu_items: ((initialData as any).menu_items as any[]) || [],
       });
     } else {
-      setFormData(defaultFormData);
+      // No initial data → try to restore an in-progress draft (e.g. user left to connect Stripe)
+      let restored = false;
+      if (DRAFT_KEY && open) {
+        try {
+          const raw = localStorage.getItem(DRAFT_KEY);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed?.formData) {
+              setFormData({ ...defaultFormData, ...parsed.formData });
+              setCurrentStep(typeof parsed.currentStep === 'number' ? parsed.currentStep : 0);
+              restored = true;
+            }
+          }
+        } catch (_) { /* ignore corrupt draft */ }
+      }
+      if (!restored) {
+        setFormData(defaultFormData);
+        setCurrentStep(0);
+      }
     }
-    setCurrentStep(0);
+    if (initialData) setCurrentStep(0);
     setShowErrors(false);
+    setDraftHydrated(true);
   }, [initialData, open]);
+
+  // Persist in-progress new-package drafts so users can leave (e.g. for Stripe Connect) and return
+  useEffect(() => {
+    if (!open || !DRAFT_KEY || initialData || !draftHydrated) return;
+    try {
+      localStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({ formData, currentStep, savedAt: Date.now() })
+      );
+    } catch (_) { /* quota — ignore */ }
+  }, [formData, currentStep, open, DRAFT_KEY, initialData, draftHydrated]);
+
+  const clearDraft = () => {
+    if (DRAFT_KEY) {
+      try { localStorage.removeItem(DRAFT_KEY); } catch (_) { /* ignore */ }
+    }
+  };
 
   const updateFormData = (updates: Partial<PackageFormData>) => {
     setFormData(prev => ({ ...prev, ...updates }));
