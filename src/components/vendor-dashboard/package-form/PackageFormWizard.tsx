@@ -247,26 +247,82 @@ export function PackageFormWizard({
   initialData
 }: PackageFormWizardProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const DRAFT_KEY = user ? `package-wizard-draft:${user.id}` : null;
   const [currentStep, setCurrentStep] = useState(0);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<PackageFormData>(defaultFormData);
   const [stripeConnected, setStripeConnected] = useState(false);
+  const [connectingStripe, setConnectingStripe] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
+  const [draftHydrated, setDraftHydrated] = useState(false);
   const isMobile = useIsMobile();
 
-  // Check Stripe status on mount
+  // Check Stripe status (re-runs when window regains focus, e.g. after Stripe onboarding tab closes)
+  const checkStripeStatus = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from('profiles')
+      .select('stripe_account_status')
+      .eq('user_id', user.id)
+      .single();
+    setStripeConnected(data?.stripe_account_status === 'active');
+  };
+
   useEffect(() => {
-    const checkStripeStatus = async () => {
-      if (!user) return;
-      const { data } = await supabase
-        .from('profiles')
-        .select('stripe_account_status')
-        .eq('user_id', user.id)
-        .single();
-      setStripeConnected(data?.stripe_account_status === 'active');
-    };
     checkStripeStatus();
   }, [user]);
+
+  // Re-check Stripe status when user returns from Stripe onboarding tab
+  useEffect(() => {
+    if (!open) return;
+    const onFocus = () => checkStripeStatus();
+    window.addEventListener('focus', onFocus);
+    return () => window.removeEventListener('focus', onFocus);
+  }, [open, user]);
+
+  const handleConnectStripe = async () => {
+    const nav = prepareExternalNavigation();
+    setConnectingStripe(true);
+    try {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData.session?.access_token;
+      if (!accessToken) {
+        nav.cancel();
+        toast({ title: 'Sign in required', description: 'Please sign in to connect Stripe.' });
+        return;
+      }
+      const { data, error } = await supabase.functions.invoke('create-connect-account', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (error) throw error;
+      if (data?.url) {
+        if (nav.popupBlocked) {
+          await navigator.clipboard.writeText(data.url).catch(() => undefined);
+          toast({
+            title: 'Pop-up blocked',
+            description: 'Allow pop-ups, then click again. Link copied to clipboard.',
+          });
+        }
+        nav.open(data.url);
+        toast({
+          title: 'Finish Stripe setup in the new tab',
+          description: 'Your package draft is saved here. Return when done.',
+        });
+        return;
+      }
+      nav.cancel();
+    } catch (err) {
+      nav.cancel();
+      toast({
+        title: 'Failed to start Stripe setup',
+        description: err instanceof Error ? err.message : 'Please try again',
+        variant: 'destructive',
+      });
+    } finally {
+      setConnectingStripe(false);
+    }
+  };
 
   useEffect(() => {
     if (initialData) {
