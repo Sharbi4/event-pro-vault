@@ -289,7 +289,7 @@ const VendorDashboard = () => {
           </div>
 
           {/* Desktop Tab Bar */}
-          <TabsList className="hidden sm:inline-grid w-auto grid-cols-8">
+          <TabsList className="hidden sm:inline-grid w-auto grid-cols-9">
             <TabsTrigger value="overview" className="gap-2">
               <LayoutDashboard className="w-4 h-4" />
               Overview
@@ -297,6 +297,10 @@ const VendorDashboard = () => {
             <TabsTrigger value="earnings" className="gap-2">
               <Wallet className="w-4 h-4" />
               Earnings
+            </TabsTrigger>
+            <TabsTrigger value="schedule" className="gap-2">
+              <CalendarRange className="w-4 h-4" />
+              Schedule
             </TabsTrigger>
             <TabsTrigger value="bookings" className="gap-2">
               <Calendar className="w-4 h-4" />
