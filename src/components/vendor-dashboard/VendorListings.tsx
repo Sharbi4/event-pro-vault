@@ -82,7 +82,7 @@ export function VendorListings({
     if (!user) return;
 
     let packageId: string | null = null;
-    const wasAlreadyPublished = editingPackage?.status === 'published';
+    const wasAlreadyPublished = (editingPackage as any)?.status === 'published';
     const isPublishingNow = (data as any).status === 'published';
 
     if (editingPackage) {
