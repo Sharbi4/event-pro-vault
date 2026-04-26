@@ -115,6 +115,16 @@ export default function BookingSuccess() {
           vendor_user_id: bookingData.vendor_user_id,
           deposit_amount: bookingData.deposit_amount ? bookingData.deposit_amount / 100 : 0,
           final_amount: bookingData.final_amount ? bookingData.final_amount / 100 : 0,
+          customer_name: (bookingData as any).customer_name ?? null,
+          customer_email: (bookingData as any).customer_email ?? null,
+          payment_method: (bookingData as any).payment_method ?? null,
+          deposit_paid_at: (bookingData as any).deposit_paid_at ?? null,
+          final_paid_at: (bookingData as any).final_paid_at ?? null,
+          stripe_payment_intent_id: (bookingData as any).stripe_payment_intent_id ?? null,
+          stripe_deposit_payment_intent_id: (bookingData as any).stripe_deposit_payment_intent_id ?? null,
+          stripe_checkout_session_id: (bookingData as any).stripe_checkout_session_id ?? null,
+          platform_fee_amount: (bookingData as any).platform_fee_amount ?? null,
+          created_at: (bookingData as any).created_at,
         });
         setVerified(true);
       } catch (error) {
