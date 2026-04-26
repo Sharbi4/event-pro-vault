@@ -277,6 +277,42 @@ export function CreatePrivatePackageDrawer({
 
         <div className="space-y-5 py-6">
           <div className="space-y-2">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-primary" />
+              <Label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Quick templates
+              </Label>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {PRESETS.map((preset) => {
+                const Icon = preset.icon;
+                const active = appliedPreset === preset.key;
+                return (
+                  <button
+                    key={preset.key}
+                    type="button"
+                    onClick={() => applyPreset(preset)}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all',
+                      active
+                        ? 'bg-primary text-primary-foreground border-primary shadow-sm'
+                        : 'bg-background text-foreground border-border hover:border-primary/50 hover:bg-muted'
+                    )}
+                  >
+                    <Icon className="w-3 h-3" />
+                    {preset.label}
+                  </button>
+                );
+              })}
+            </div>
+            <p className="text-[11px] text-muted-foreground">
+              Pick a starting point — you can edit any field below before sending.
+            </p>
+          </div>
+
+          <Separator />
+
+          <div className="space-y-2">
             <Label htmlFor="pkg-name">Package name *</Label>
             <Input
               id="pkg-name"
