@@ -577,6 +577,25 @@ export function BookingModal({
 
         if (error) throw error;
 
+        // Structured error from edge function (200 with error code)
+        if (data?.error) {
+          trackBookingFailed({ packageId, errorCode: data.error, reason: data.message });
+          const allowsCash = paymentOptions === 'CASH' || paymentOptions === 'BOTH';
+          toast({
+            title: data.error === 'vendor_payments_not_setup'
+              ? "Online payments unavailable"
+              : "Payment setup issue",
+            description: allowsCash
+              ? `${data.message} We've kept your booking — you can pay in person at the event.`
+              : data.message,
+            variant: "destructive",
+          });
+          // Booking already created; show success screen so customer has confirmation
+          setSubmitting(false);
+          setSuccess(true);
+          return;
+        }
+
         if (data?.url) {
           // Track booking completion before redirect (Stripe will confirm)
           trackBookingCompleted({
@@ -588,14 +607,17 @@ export function BookingModal({
           window.location.href = data.url;
           return;
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Checkout error:', err);
-        trackBookingFailed({ packageId, errorCode: 'checkout_error', reason: 'Payment setup failed' });
+        trackBookingFailed({ packageId, errorCode: 'checkout_error', reason: err?.message || 'Payment setup failed' });
         toast({
           title: "Payment setup failed",
-          description: "Your booking was created but payment could not be processed. Please try again from your dashboard.",
+          description: "Your booking was created but payment could not be processed. Please try again from your dashboard, or contact the Event Pro to arrange payment.",
           variant: "destructive"
         });
+        setSubmitting(false);
+        setSuccess(true);
+        return;
       }
     } else {
       // Cash payment or request - track completion
