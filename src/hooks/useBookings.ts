@@ -210,6 +210,32 @@ export function useBookings() {
       return null;
     }
 
+    // Compute event + calendar-block timestamps so the vendor's master
+    // calendar reflects the booked window (service + setup + breakdown).
+    // Without these fields, get-available-slots will keep showing the slot
+    // as open and double-bookings can occur.
+    const setupMin = bookingData.setup_minutes || 0;
+    const breakdownMin = bookingData.breakdown_minutes || 0;
+    let eventStartAt: string | null = null;
+    let eventEndAt: string | null = null;
+    let calendarBlockStart: string | null = null;
+    let calendarBlockEnd: string | null = null;
+
+    if (bookingData.event_date && bookingData.start_time && bookingData.end_time) {
+      const start = new Date(`${bookingData.event_date}T${bookingData.start_time}`);
+      const end = new Date(`${bookingData.event_date}T${bookingData.end_time}`);
+      // Handle end < start (e.g. crosses midnight) by pushing end to next day
+      if (end.getTime() <= start.getTime()) {
+        end.setDate(end.getDate() + 1);
+      }
+      if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
+        eventStartAt = start.toISOString();
+        eventEndAt = end.toISOString();
+        calendarBlockStart = new Date(start.getTime() - setupMin * 60_000).toISOString();
+        calendarBlockEnd = new Date(end.getTime() + breakdownMin * 60_000).toISOString();
+      }
+    }
+
     const { data, error } = await supabase
       .from('bookings')
       .insert({
@@ -243,8 +269,13 @@ export function useBookings() {
         start_time: bookingData.start_time || null,
         end_time: bookingData.end_time || null,
         duration_minutes: bookingData.duration_minutes || 60,
-        setup_minutes: bookingData.setup_minutes || 0,
-        breakdown_minutes: bookingData.breakdown_minutes || 0,
+        setup_minutes: setupMin,
+        breakdown_minutes: breakdownMin,
+        // Master-calendar block: clears this window from vendor availability
+        event_start_at: eventStartAt,
+        event_end_at: eventEndAt,
+        calendar_block_start: calendarBlockStart,
+        calendar_block_end: calendarBlockEnd,
       })
       .select()
       .single();
