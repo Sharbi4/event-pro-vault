@@ -7,7 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-const PRO_PREMIUM_PRICE_ID = "price_1Ste2iA6Qt4pF0fM2FQAZOfo";
+const PRO_PREMIUM_PRICE_ID = "price_1TQL7ZBAOJJKi1jBShACQs3h";
 
 const logStep = (step: string, details?: any) => {
   const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
