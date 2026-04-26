@@ -1,91 +1,120 @@
 ## Goal
 
-Two upgrades to make the marketplace feel premium and food-driven:
+Make the vendor calendar the **single source of truth** for availability. Every package, private package, and booking checks the same vendor master calendar. Bookings carry a `calendar_block_*` window (event time + setup + cleanup + buffer) so overlap prevention is exact. Holds prevent double-booking during checkout/approval.
 
-1. Make the search-result vendor card highly visual (food photo, logo overlay, package previews with thumbnails, availability badge).
-2. Replace the generic `HowItWorks` page with a premium pathway page titled **"Book or get booked, your way."** that serves both customers and Event Pros.
-
----
-
-## Part 1 — Vendor Search Listing Card
-
-**File:** `src/components/browse/BrowseVendorCard.tsx` (rewrite, no API changes needed — `BrowsePackage.images[]` and `vendor_avatar` already available).
-
-New card structure (desktop + mobile):
-
-```text
-┌──────────────────────────────────────────┐
-│   [LARGE FOOD/HERO IMAGE  4:3]           │
-│   ┌────┐                       [Verified]│
-│   │logo│ ← avatar overlay      [Instant] │
-│   └────┘                                 │
-│                                          │
-│   Tia's Taco Truck       ⭐ 4.9 (82)     │
-│   Food Truck · Tacos · Phoenix           │
-│                                          │
-│   🟢 Available Sat, May 16 at 5:00 PM    │
-│                                          │
-│   ┌──┐ Taco Truck Pull-Up   from $250    │
-│   │🌮│ 3 hrs                              │
-│   ├──┤ Private Catering    from $18/pp   │
-│   │🌮│ 50 guests                          │
-│   └──┘                                   │
-│                                          │
-│   Pull-Up · Catering · Insured           │
-│   [ View availability → ]                │
-└──────────────────────────────────────────┘
-```
-
-Specifics:
-- Hero image = first available `images[0]` across the vendor's top packages; fallback = vendor avatar centered on a soft gradient with the category icon.
-- Logo overlay = circular avatar (56px) bottom-left of hero with white ring + soft shadow.
-- Trust pills (Verified / Instant) overlay top-right of hero.
-- Availability badge: green pill when date+time matched ("Available {EEE, MMM d} at {h:mm a}"), neutral pill when only date searched ("Available {EEE, MMM d}"), hidden when no search context.
-- Package preview rows: small 48px square thumbnail (package `images[0]` or food emoji per category), name (truncate), secondary line (duration/guests when present), right-aligned `from $X`. Show 3 on desktop, 2 on mobile (`hidden sm:flex` on the third).
-- Booking-type badges row: derived from package types (`pullup`, `catering`, `private`) + `Insured` if any package flag set.
-- CTA: full-width outline button **"View availability"** → `/vendor/{vendor_user_id}`.
-- Whole card uses existing `Card` primitive, `rounded-2xl`, hover lift, Vendibook orange accent on CTA hover.
-
-No DB/schema changes. No new hook calls.
+This is large. I'll deliver it in **3 phases** so each phase is shippable and testable on its own. You approve once; I'll execute all three in order.
 
 ---
 
-## Part 2 — "Book or get booked" pathway page
+## Phase 0 — What's already there (no rebuild)
 
-**File:** `src/pages/HowItWorks.tsx` (full rewrite). Nav label stays **"How it works"**; route stays `/how-it-works`.
-
-Sections:
-
-1. **Hero** — Headline "Book or get booked, your way." + subhead from spec. CTAs: `Find vendors` → `/browse`, `Become an Event Pro` → `/become-a-pro`.
-2. **Choose your path** — 2 large cards: "I'm planning an event" → `/browse`; "I'm an Event Pro" → `/become-a-pro`.
-3. **Three ways to bring food to your event** — 3 cards:
-   - Pull-Up Booking → `/browse?type=pullup`
-   - Catering Packages → `/browse?type=catering`
-   - Private Packages → `/browse?type=private` (copy clarifies message-based custom flow; no "Quote Request" wording)
-   - Each card: title, copy, "Best for" bullets, "Payment style" bullets, CTA.
-4. **From search to served** — 5-step horizontal/vertical timeline (Search → Compare → Book/Message → Track → Enjoy).
-5. **Turn your open calendar into bookings** — 6-step Event Pro journey + CTA "Become an Event Pro".
-6. **Built for real event bookings** — 6 compact trust cards (Availability search, Package booking, Private packages, Reminders, Cancellation rules, Reviews).
-7. **Where do you want to go?** — Two link columns:
-   - Customer: Search vendors, Food trucks, Mobile bartenders, Dessert vendors, Catering packages, Available this weekend (link to `/browse` with appropriate `?category=` / `?date=` query params).
-   - Event Pro: Become an Event Pro, Create a package (`/vendor-onboarding`), Set availability (`/vendor-dashboard?tab=availability`), Private packages (`/how-it-works#private`), Vendor dashboard (`/vendor-dashboard`).
-   - Disabled state styling for any route that doesn't exist yet.
-
-Design: clean white/neutral background, rounded cards, soft shadows, Vendibook orange CTA accent, mobile-first stacked layout, no walls of copy.
+- `vendor_availability` (blocked dates, full-day) ✅
+- `package_weekly_availability` (per-package weekly hours) — will be **migrated** to vendor-level
+- `vendor_buffer_settings` (default buffers, by-request flag) ✅
+- `vendor_packages` already has `duration_minutes`, `setup_time_minutes`, `breakdown_time_minutes`, `instant_book`, `booking_mode` ✅
+- `bookings` has `start_time`, `end_time`, `setup_minutes`, `breakdown_minutes` ✅
+- `private_packages` ✅
+- `useVendorAvailability` hook already cross-checks vendor-wide bookings ✅
 
 ---
 
-## Technical notes
+## Phase 1 — Schema upgrades (migration)
 
-- No backend, schema, or hook changes.
-- Reuses existing `BrowsePackage.images`, `vendor_avatar`, package `type` for booking-type derivation.
-- Adds a small helper `getCategoryEmoji(category)` inside `BrowseVendorCard.tsx` for image fallback (taco/cocktail/cake/etc.).
-- Keeps the existing `Layout`, `Card`, `Button`, `Badge` primitives — no new dependencies.
+**New tables**
+- `vendor_weekly_availability` — vendor-level master weekly hours, supports multiple windows/day.
+  Cols: `id, user_id, day_of_week (0–6), start_time, end_time, is_enabled, created_at, updated_at`. Unique on `(user_id, day_of_week, start_time)`.
+- `vendor_blocked_times` — partial-day blocks (vendor_availability is full-day only today). Cols: `id, user_id, block_start timestamptz, block_end timestamptz, reason, is_full_day, created_at, updated_at`. Index on `(user_id, block_start, block_end)`.
+- `calendar_holds` — temporary holds during checkout / pending vendor approval. Cols: `id, vendor_user_id, customer_user_id, package_id, booking_id, hold_start timestamptz, hold_end timestamptz, status text ('active'|'converted'|'released'|'expired'), expires_at timestamptz, source text ('checkout'|'vendor_approval'|'private_package'), created_at, updated_at`. Indexes on `(vendor_user_id, status, hold_start, hold_end)`, `(expires_at) where status='active'`. RLS: customer reads own; vendor reads own; insert/update via service role + own-user policies.
+
+**Column additions**
+- `bookings`: add `calendar_block_start timestamptz`, `calendar_block_end timestamptz`, `event_start_at timestamptz`, `event_end_at timestamptz`, `event_timezone text default 'America/New_York'`, `confirmed_at timestamptz`, `completed_at timestamptz`, `cancellation_deadline timestamptz`, `lifecycle_status text` (new taxonomy below — kept alongside existing `status` to avoid breaking checks/RLS).
+- `private_packages`: add `calendar_block_start timestamptz`, `calendar_block_end timestamptz`.
+- `vendor_buffer_settings`: add `minimum_notice_hours integer default 48`, `advance_booking_days integer default 180`, `vendor_approval_expires_hours integer default 48`.
+- `vendor_packages`: add `requires_vendor_approval boolean default false`, `max_bookings_per_day integer`, `available_days_override integer[]`, `available_window_override jsonb` — used by package-level overrides; falls back to vendor master when null.
+
+**Lifecycle status taxonomy** (new column `lifecycle_status` on bookings, populated by trigger from existing `status`):
+`draft | pending_vendor_approval | approved_payment_required | payment_pending | confirmed | in_progress | completed | cancelled_by_customer | cancelled_by_vendor | declined_by_vendor | expired | no_show | refunded`.
+Existing `status` stays put to keep current code working. Backfill rule: pending→pending_vendor_approval, approved+!paid→approved_payment_required, etc.
+
+**Validation triggers** (no CHECK constraints, per project guideline):
+- On `calendar_holds` insert: `expires_at > now()`, `hold_end > hold_start`.
+- On `vendor_weekly_availability` insert/update: `end_time > start_time`.
+- On `vendor_blocked_times` insert/update: `block_end > block_start`.
+- On `bookings` insert/update: if `calendar_block_*` set, `calendar_block_end > calendar_block_start`.
+
+**Backfill**
+- Copy `package_weekly_availability` rows to `vendor_weekly_availability` (DISTINCT on `user_id, day_of_week, start_time, end_time`). Keep the per-package table for backwards compatibility (used by override fields); read code switches to vendor table first.
+- Backfill `bookings.event_start_at/end_at` from `event_date + start_time/end_time` (vendor timezone where present).
+- Backfill `bookings.calendar_block_start/end` = event_start − setup_minutes, event_end + breakdown_minutes.
+- Backfill `bookings.lifecycle_status` from existing `status`.
+
+---
+
+## Phase 2 — Server logic (edge functions + RPC)
+
+**New edge functions**
+- `check-vendor-availability` — POST `{ vendor_user_id, package_id?, requested_start, requested_end, timezone? }` → returns `{ available: boolean, reason?, suggestions: [{ start, end, label }] }`. Single canonical availability check used by search, package detail, and checkout. Implements the 13-step rule from the spec, including overlap with bookings (any blocking lifecycle_status), active holds, vendor blocked times, vendor weekly windows, package overrides, min notice, advance window, max-per-day.
+- `create-booking-hold` — Called at checkout start and on pending-approval submit. Creates `calendar_holds` row (15 min for instant; vendor approval expiry hours for approval flow). Re-runs availability check inside a transaction to prevent race conditions.
+- `release-expired-holds` — Cron-scheduled (every 5 min) — flips active holds where `expires_at < now()` to `expired`. Same job also expires `bookings.lifecycle_status = pending_vendor_approval` past their deadline → `expired`.
+- `convert-hold-to-booking` — Called by Stripe webhook on successful payment: hold → `converted`, booking → `confirmed`, `confirmed_at = now()`, `cancellation_deadline` computed from policy.
+
+**Updates to existing edge functions**
+- `cancel-booking` / `process-refund`: on cancel of a future booking, set `lifecycle_status = cancelled_by_customer|vendor`, write `cancelled_at`, leave `calendar_block_*` in place but exclude `cancelled_*` / `declined_*` / `expired` from availability queries. Block cancel after `event_start_at`.
+- `send-event-reminders`: gate on `lifecycle_status = confirmed | in_progress`.
+
+**Race-condition strategy:** the create-booking-hold function does the overlap query and insert in one SQL statement using `INSERT ... WHERE NOT EXISTS (overlap)` so two simultaneous customers can't both succeed.
+
+---
+
+## Phase 3 — UI
+
+**Vendor dashboard — `Calendar` tab (rebuilt `VendorAvailability.tsx`)**
+- Sub-tabs: **Schedule** (weekly hours editor, multi-window per day) · **Blocked time** (full-day + time-range, optional reason, recurring) · **Booking rules** (min notice, advance window, default buffers, by-request toggle, default vendor-approval expiry) · **Calendar** (Day / Week / Month / List with color-coded events: pending=amber, confirmed=primary, blocked=gray, private package=violet, completed=muted). Click event → side panel with customer, package, time, location, status, message/approve/decline.
+
+**Package form — Booking rules section**
+- New inputs: `requires_vendor_approval`, `instant_book` (mutually exclusive UI), `max_bookings_per_day`, optional override toggles for available days / windows, plus existing duration/setup/breakdown.
+
+**Customer search & checkout**
+- `useBrowsePackages` calls `check-vendor-availability` for each candidate when date+time present; keeps current pre-filters as fast pass.
+- Package detail time-picker shows **only valid start times** for the chosen date (computed from vendor master + package length); if none, surfaces flexible alternatives ("Available at 7:30 PM instead", "Next available May 18", "Available this weekend").
+- Checkout calls `create-booking-hold` on entry; shows a 15-min countdown; on payment success the Stripe webhook converts the hold.
+
+**Customer bookings page**
+- Tabs already present (Pending / Upcoming / Past / Cancelled) — re-keyed off `lifecycle_status` and live `event_start_at`/`event_end_at`. New "Happening now" pill when between start/end. Cancel button hidden after `event_start_at`. Reschedule request stub: "Request change" opens a message draft to the vendor (full reschedule flow deferred — noted below).
+
+**Admin overrides** (admin tab additions)
+- View any vendor's calendar; release a hold; reopen / block time; force booking status change.
+
+---
+
+## Explicitly out-of-scope for this build (to keep it shippable)
+
+- Travel-time auto-buffering by distance (kept manual via vendor's setup/cleanup).
+- Full reschedule round-trip (we ship the request stub; full flow needs its own design pass).
+- True per-event timezone selection by the customer (we use vendor timezone as the event timezone for MVP, per spec).
+
+These will be filed as follow-ups after Phase 3 lands.
+
+---
+
+## Technical / risk notes
+
+- Keeping `bookings.status` alongside the new `lifecycle_status` avoids breaking the 7+ files and 2 edge functions that read `status` today; a trigger keeps them in sync.
+- `package_weekly_availability` stays so existing per-package overrides keep working; new vendor-master table is the primary read path.
+- All times stored as `timestamptz` in UTC; UI converts using vendor timezone (or `America/New_York` default) — matches what `markets`/`vendor_details` already do.
+- `release-expired-holds` runs via Supabase Cron (every 5 minutes) — if Cron isn't available in this Cloud env I'll fall back to expiring on read inside `check-vendor-availability` and on every hold-create call.
 
 ---
 
 ## Acceptance criteria
 
-- Search results show food-forward cards with hero image + logo overlay + 2–3 package previews with thumbnails + availability badge + "View availability" CTA.
-- Mobile shows 2 package previews; desktop shows 3.
-- `/how-it-works` renders the new pathway page with all 7 sections, both audience CTAs working, and all internal links routed (or visibly disabled).
+- One vendor master calendar; no separate per-package calendars in the read path.
+- Booking any package blocks the vendor's calendar for `setup + duration + cleanup + buffer`.
+- Search results only show vendors whose master calendar can actually fit the requested time.
+- When exact time is unavailable, results include flexible alternatives.
+- Checkout creates a 15-min hold; abandoning checkout releases the slot.
+- Vendor-approval requests create a soft hold; expiring at vendor-set hours.
+- Cancelling a future booking releases its calendar block (lifecycle_status excluded from availability query).
+- Vendor-approval-required bookings can't be paid until approved.
+- `event_start_at` past → no customer-side cancel; `event_end_at` past → moves to Completed automatically.
+- Private packages allocate against the same vendor calendar with `calendar_block_*`.
