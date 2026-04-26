@@ -36,6 +36,7 @@ import { savePackageAvailability } from '@/hooks/usePackageAvailability';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProSubscription } from '@/hooks/useProSubscription';
 import PremiumUpgradeModal from './PremiumUpgradeModal';
+import { ShareKitDialog } from '@/components/share-kit/ShareKitDialog';
 
 interface VendorListingsProps {
   packages: VendorPackage[];
@@ -58,6 +59,7 @@ export function VendorListings({
   const { packageLimit, tier, startCheckout, checkoutLoading } = useProSubscription();
   const [editingPackage, setEditingPackage] = useState<VendorPackage | null>(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [justPublished, setJustPublished] = useState<{ id: string; name: string } | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [packageToDelete, setPackageToDelete] = useState<VendorPackage | null>(null);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -80,6 +82,8 @@ export function VendorListings({
     if (!user) return;
 
     let packageId: string | null = null;
+    const wasAlreadyPublished = editingPackage?.status === 'published';
+    const isPublishingNow = (data as any).status === 'published';
 
     if (editingPackage) {
       await onUpdate(editingPackage.id, data);
@@ -109,6 +113,11 @@ export function VendorListings({
 
     setIsCreating(false);
     setEditingPackage(null);
+
+    // Trigger Share Kit overlay only on transition to "published"
+    if (packageId && isPublishingNow && !wasAlreadyPublished) {
+      setJustPublished({ id: packageId, name: (data as any).name || 'your new package' });
+    }
   };
 
   const sensors = useSensors(
