@@ -336,6 +336,7 @@ export function PackageFormWizard({
       setFormData(defaultFormData);
     }
     setCurrentStep(0);
+    setShowErrors(false);
   }, [initialData, open]);
 
   const updateFormData = (updates: Partial<PackageFormData>) => {
@@ -348,12 +349,19 @@ export function PackageFormWizard({
   const activeStep = steps[safeStepIndex];
 
   const handleNext = () => {
+    const result = validateStep(activeStep?.id);
+    if (!result.valid) {
+      setShowErrors(true);
+      return;
+    }
+    setShowErrors(false);
     if (safeStepIndex < steps.length - 1) {
       setCurrentStep(safeStepIndex + 1);
     }
   };
 
   const handleBack = () => {
+    setShowErrors(false);
     if (safeStepIndex > 0) {
       setCurrentStep(safeStepIndex - 1);
     }
