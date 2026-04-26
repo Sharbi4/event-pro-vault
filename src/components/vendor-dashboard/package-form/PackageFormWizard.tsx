@@ -238,6 +238,16 @@ export function PackageFormWizard({
         allow_in_person_balance: (initialData as any).allow_in_person_balance ?? false,
         default_start_time: (initialData as any).default_start_time || undefined,
         duration_minutes: initialData.duration_minutes || undefined,
+        package_kind: ((initialData as any).package_kind as PackageKind) ?? null,
+        cuisine_styles: ((initialData as any).cuisine_styles as string[]) || [],
+        best_for: ((initialData as any).best_for as string[]) || [],
+        setup_minutes: (initialData as any).setup_minutes ?? 0,
+        cleanup_minutes: (initialData as any).cleanup_minutes ?? 0,
+        buffer_before_minutes: (initialData as any).buffer_before_minutes ?? 0,
+        buffer_after_minutes: (initialData as any).buffer_after_minutes ?? 0,
+        minimum_notice_hours: (initialData as any).minimum_notice_hours ?? null,
+        customer_questions: ((initialData as any).customer_questions as string[]) || [],
+        status: ((initialData as any).status as PackageFormData['status']) || (initialData.is_active ? 'published' : 'draft'),
       });
     } else {
       setFormData(defaultFormData);
