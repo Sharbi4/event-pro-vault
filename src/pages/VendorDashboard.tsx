@@ -9,7 +9,7 @@ import { useDisputes } from '@/hooks/useDisputes';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles, MessageCircle, Bell, AlertTriangle } from 'lucide-react';
+import { Loader2, LayoutDashboard, Calendar, Package, Settings, CalendarX, Wallet, ExternalLink, User, ImageIcon, Sparkles, MessageCircle, Bell, AlertTriangle, CalendarRange } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { VendorOverview } from '@/components/vendor-dashboard/VendorOverview';
@@ -20,6 +20,7 @@ import { VendorEarnings } from '@/components/vendor-dashboard/VendorEarnings';
 import { VendorMessages } from '@/components/vendor-dashboard/VendorMessages';
 import { PrivatePackagesList } from '@/components/messaging/PrivatePackagesList';
 import { VendorDisputes } from '@/components/vendor-dashboard/VendorDisputes';
+import { BookingCommandCenter } from '@/components/vendor-dashboard/schedule/BookingCommandCenter';
 
 import { AvatarUpload } from '@/components/vendor-dashboard/AvatarUpload';
 import { CoverPhotoUpload } from '@/components/vendor-dashboard/CoverPhotoUpload';
@@ -222,6 +223,13 @@ const VendorDashboard = () => {
                 <span className="text-[10px] font-medium">Earnings</span>
               </TabsTrigger>
               <TabsTrigger 
+                value="schedule" 
+                className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] data-[state=active]:bg-background"
+              >
+                <CalendarRange className="w-5 h-5" />
+                <span className="text-[10px] font-medium">Schedule</span>
+              </TabsTrigger>
+              <TabsTrigger 
                 value="bookings" 
                 className="flex flex-col items-center gap-1 py-2 px-2 min-w-[56px] data-[state=active]:bg-background"
               >
@@ -281,7 +289,7 @@ const VendorDashboard = () => {
           </div>
 
           {/* Desktop Tab Bar */}
-          <TabsList className="hidden sm:inline-grid w-auto grid-cols-8">
+          <TabsList className="hidden sm:inline-grid w-auto grid-cols-9">
             <TabsTrigger value="overview" className="gap-2">
               <LayoutDashboard className="w-4 h-4" />
               Overview
@@ -289,6 +297,10 @@ const VendorDashboard = () => {
             <TabsTrigger value="earnings" className="gap-2">
               <Wallet className="w-4 h-4" />
               Earnings
+            </TabsTrigger>
+            <TabsTrigger value="schedule" className="gap-2">
+              <CalendarRange className="w-4 h-4" />
+              Schedule
             </TabsTrigger>
             <TabsTrigger value="bookings" className="gap-2">
               <Calendar className="w-4 h-4" />
@@ -355,6 +367,13 @@ const VendorDashboard = () => {
 
           <TabsContent value="earnings">
             <VendorEarnings bookings={bookings} />
+          </TabsContent>
+
+          <TabsContent value="schedule">
+            <BookingCommandCenter
+              onMessageClient={handleMessageClient}
+              onUpdateStatus={updateBookingStatus}
+            />
           </TabsContent>
 
           <TabsContent value="bookings" className="space-y-6">
