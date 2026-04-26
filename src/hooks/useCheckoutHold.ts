@@ -82,11 +82,12 @@ export function useCheckoutHold() {
       secondsRemaining: data.seconds_remaining,
       status: 'holding',
     });
-    startTimer(expiresAt);
+    startTimer(expiresAt, params.vendorUserId);
+    emitAvailabilityRefresh(params.vendorUserId);
     return { ok: true as const, holdId: data.hold_id, expiresAt };
   }, []);
 
-  const releaseHold = useCallback(async () => {
+  const releaseHold = useCallback(async (vendorUserId?: string) => {
     stopTimer();
     if (state.holdId) {
       await supabase
@@ -95,6 +96,7 @@ export function useCheckoutHold() {
         .eq('id', state.holdId);
     }
     setState({ holdId: null, expiresAt: null, secondsRemaining: 0, status: 'released' });
+    emitAvailabilityRefresh(vendorUserId);
   }, [state.holdId]);
 
   // Cleanup timer on unmount; do NOT auto-release (let it expire naturally so user can resume)
