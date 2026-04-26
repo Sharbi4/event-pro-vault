@@ -444,7 +444,17 @@ export function PackageFormWizard({
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Saving...
             </>
-          ) : initialData ? 'Save Changes' : 'Create Package'}
+          ) : (
+            (() => {
+              const labels: Record<typeof formData.status, string> = {
+                draft: initialData ? 'Save as draft' : 'Save draft',
+                published: initialData ? 'Save & publish' : 'Publish package',
+                paused: initialData ? 'Save & pause' : 'Save (paused)',
+                archived: 'Archive package',
+              };
+              return labels[formData.status];
+            })()
+          )}
         </Button>
       )}
     </div>
