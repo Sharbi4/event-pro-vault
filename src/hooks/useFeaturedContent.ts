@@ -11,6 +11,7 @@ interface FeaturedPackage {
   includes: string[];
   cover_image_url: string | null;
   category: string | null;
+  package_kind: string | null;
   vendor_user_id: string;
   vendor_name: string;
   vendor_avatar: string | null;
@@ -48,6 +49,7 @@ export function useFeaturedPackages(limit = 6) {
           includes,
           cover_image_url,
           category,
+          package_kind,
           user_id
         `)
         .eq('is_active', true)
