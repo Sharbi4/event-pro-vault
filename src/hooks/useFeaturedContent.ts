@@ -95,6 +95,7 @@ export function useFeaturedPackages(limit = 6) {
             includes: pkg.includes || [],
             cover_image_url: pkg.cover_image_url || details?.cover_image_url || null,
             category: pkg.category,
+            package_kind: (pkg as { package_kind?: string | null }).package_kind ?? null,
             vendor_user_id: pkg.user_id,
             vendor_name: profile?.display_name || 'Event Pro',
             vendor_avatar: profile?.avatar_url || null,
