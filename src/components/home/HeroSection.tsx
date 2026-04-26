@@ -86,11 +86,10 @@ export function HeroSection() {
       <div className="container mx-auto px-4 pt-16 md:pt-24 pb-12 md:pb-16 relative">
         <div className="max-w-3xl">
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold leading-[1.05] tracking-tight mb-4">
-            Book a food truck for{' '}
-            <span className="gradient-text">your next event.</span>
+            Get the party <span className="gradient-text">started.</span>
           </h1>
           <p className="text-base md:text-lg text-muted-foreground max-w-xl mb-8">
-            Real availability. Instant quotes. Pay online or in cash.
+            Book a food truck, mobile bar, dessert vendor, or caterer to pull up, serve, and make your event feel effortless.
           </p>
 
           {/* Premium search card */}
