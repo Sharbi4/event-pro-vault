@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { CategoryCarousel } from '@/components/browse/CategoryCarousel';
 import { BrowsePackageCard } from '@/components/browse/BrowsePackageCard';
