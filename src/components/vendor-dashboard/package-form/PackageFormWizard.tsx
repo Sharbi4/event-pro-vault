@@ -206,6 +206,9 @@ export function PackageFormWizard({
         blocked_dates: [],
         booking_mode: ((initialData as any).booking_mode as BookingMode) || 'INSTANT',
         payment_options: ((initialData as any).payment_options as PaymentOptions) || 'ONLINE',
+        payment_mode: ((initialData as any).payment_mode as 'full' | 'deposit') || 'full',
+        deposit_percentage: (initialData as any).deposit_percentage ?? 50,
+        allow_in_person_balance: (initialData as any).allow_in_person_balance ?? false,
         default_start_time: (initialData as any).default_start_time || undefined,
         duration_minutes: initialData.duration_minutes || undefined,
       });
