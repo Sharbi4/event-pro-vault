@@ -116,10 +116,24 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
     return `${displayHour}:${minute.toString().padStart(2, '0')} ${ampm}`;
   };
   
-  // Check payment options
+  // Check payment options + vendor's online payout readiness
   const paymentOptions = pkg.payment_options || 'ONLINE';
-  const canPayOnline = paymentOptions === 'ONLINE' || paymentOptions === 'BOTH';
+  const vendorPayoutsActive = pkg.vendor?.stripe_account_status === 'active';
+  // Online payment requires the vendor to have completed Stripe Connect
+  const canPayOnline =
+    (paymentOptions === 'ONLINE' || paymentOptions === 'BOTH') &&
+    vendorPayoutsActive;
   const canPayCash = paymentOptions === 'CASH' || paymentOptions === 'BOTH';
+  // True when the package is online-only but the vendor hasn't finished payouts
+  const onlineOnlyButNoPayouts =
+    paymentOptions === 'ONLINE' && !vendorPayoutsActive;
+
+  // Auto-fall back to cash when online is unavailable
+  useEffect(() => {
+    if (!canPayOnline && canPayCash && paymentMethod === 'stripe') {
+      setPaymentMethod('cash');
+    }
+  }, [canPayOnline, canPayCash, paymentMethod]);
 
   const handleSecure = async () => {
     // Validate inputs
@@ -475,6 +489,14 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
 
                 <div className="h-px bg-border" />
 
+                {/* Online-only / no payouts gate */}
+                {onlineOnlyButNoPayouts && (
+                  <div className="rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3 text-sm text-foreground">
+                    This Event Pro hasn't finished setting up online payments
+                    yet. Send them a message to arrange this booking directly.
+                  </div>
+                )}
+
                 {/* Total */}
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Total</span>
@@ -486,22 +508,24 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                 {/* CTA */}
                 <motion.button
                   onClick={handleSecure}
-                  disabled={isLoading}
+                  disabled={isLoading || onlineOnlyButNoPayouts}
                   className={cn(
                     "w-full py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2",
                     isInstant 
                       ? "shimmer-button" 
                       : "bg-foreground text-background",
-                    isLoading && "opacity-70 cursor-not-allowed"
+                    (isLoading || onlineOnlyButNoPayouts) && "opacity-70 cursor-not-allowed"
                   )}
-                  whileHover={!isLoading ? { scale: 1.01 } : {}}
-                  whileTap={!isLoading ? { scale: 0.99 } : {}}
+                  whileHover={!isLoading && !onlineOnlyButNoPayouts ? { scale: 1.01 } : {}}
+                  whileTap={!isLoading && !onlineOnlyButNoPayouts ? { scale: 0.99 } : {}}
                 >
                   {isLoading ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
                       Processing...
                     </>
+                  ) : onlineOnlyButNoPayouts ? (
+                    'Online payments unavailable'
                   ) : (
                     isInstant ? 'Secure This Date' : 'Send Booking Request'
                   )}

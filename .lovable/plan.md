@@ -1,35 +1,92 @@
-## Status
+# Optional Identity Verification — Trust Upgrade Model
 
-The edge function and shared engine you described already exist from the previous phase:
+Today, the public RLS policy for vendor profiles requires both `stripe_account_status = 'active'` AND `approval_status = 'approved'`. That makes Stripe Connect a hard gate for visibility, and identity verification is conflated into the same trust wall. We'll separate the two and reframe identity verification as an optional badge.
 
-- `supabase/functions/get-available-slots/index.ts` — POST endpoint that accepts `vendor_user_id`, `package_id`, `date`, optional `mode` (HOURLY/DAILY), `duration_minutes`, `setup_minutes`, `breakdown_minutes`, `interval_minutes`. It pulls weekly windows, recurring blocks, full-day blocks, partial-day blocks, active holds, and lifecycle-blocking bookings, then runs the engine.
-- `supabase/functions/_shared/availabilityEngine.ts` (mirrored at `src/lib/availabilityEngine.ts`) — `computeBookableSlots()` validates duration, setup, breakdown, buffers, minimum notice, advance window, and overlap for both HOURLY and DAILY modes.
-- `src/hooks/useAvailableSlots.ts` — React hook that calls the edge function.
+## Core rule changes
 
-What's missing: the customer-facing `TimeSlotPicker` still uses the legacy client-only `useVendorAvailability` hook, so server-validated slots are never shown.
+- **Stripe Identity** → optional. Never blocks publish, packages, bookings, messaging, payouts, or search visibility. Only controls the "Verified Event Pro" badge + filter + ranking boost.
+- **Stripe Connect / payout setup** → required only when a package uses online payment. Vendors offering only cash / in-person packages can publish and accept bookings without Connect.
+- **Admin approval** (`approval_status`) → still required to appear in public search (anti-spam).
 
-## What this plan does
+## Onboarding stepper (vendor)
 
-Wire the picker to the edge function so customers get server-validated bookable slots that respect package duration, setup/cleanup, buffers, min notice, blocks, holds, and active bookings — and toggle between HOURLY and DAILY modes.
+Reorder `src/pages/VendorOnboarding.tsx` and the `eventpro-onboarding` step components to:
 
-## Changes
+1. Business Basics
+2. Contact & Location
+3. Service Details
+4. Photos
+5. Packages
+6. Calendar
+7. **Payments** (Stripe Connect — skippable if vendor offers cash-only)
+8. **Optional Verification** (Stripe Identity — fully skippable, secondary CTA "Skip for now")
+9. Review & Publish
 
-1. **`src/components/booking/TimeSlotPicker.tsx`**
-   - Add props: `packageId?: string`, `mode?: 'HOURLY' | 'DAILY'` (default HOURLY), `intervalMinutes?: number` (default 30).
-   - Replace `useVendorAvailability` with `useAvailableSlots`.
-   - Render `slots[].start` (HH:MM) for HOURLY; render a single "Full day" card for DAILY.
-   - Pass the picked slot's `start` to `onTimeSelect` (preserve existing signature) and expose `blockStartISO`/`blockEndISO` via an optional `onSlotSelect(slot)` callback for parents that need the calendar block window.
-   - Loading skeleton + "no slots" empty state stay; remove the "booked slots" sidebar (server already excludes them).
+Step 7 copy: "Set up payouts — Connect your payout account so you can receive online payments."
+Step 8 copy: "Get verified — Verification is optional, but it helps customers book with confidence."
 
-2. **`src/components/booking/SpatialDrawer.tsx`**
-   - Pass `packageId` and `mode` (derived from the selected package's `pricing_type`/`type`) into `<TimeSlotPicker>`.
-   - When a slot is chosen, capture `blockStartISO`/`blockEndISO` for the downstream hold + booking insert so the lifecycle status and calendar block window are consistent with the engine.
+Publish CTA on Step 9 is enabled when required fields are complete (business name, category, phone, address, service area, profile photo, cover image, ≥1 published package, calendar availability). Identity verification is **not** in that checklist.
 
-3. **No DB or edge function changes** — the engine, function, and hook are already deployed.
+## Database changes (migration)
 
-## Acceptance
+Add to `profiles`:
+- `is_identity_verified boolean default false` (derived convenience flag, kept in sync)
+- `identity_verified_at timestamptz`
+- `trust_score integer default 0` (computed: base + verified bonus + rating bonus)
+- `online_payments_enabled boolean default true` (vendor toggle for whether their packages use Connect)
 
-- Selecting a date in checkout calls `get-available-slots` with the package's duration + buffers and shows only slots the engine returns.
-- DAILY-mode packages show one "Full day" option (or none if blocked).
-- Holds, in-progress bookings, and partial-day blocks all suppress overlapping slots.
-- Past-due slots inside the minimum-notice window are hidden.
+Update RLS policy `Public can view approved vendor profiles` on `profiles`:
+```
+((is_vendor = true) AND (approval_status = 'approved'))
+OR (auth.uid() = user_id)
+```
+(Drops the `stripe_account_status = 'active'` requirement — Connect is enforced at checkout time, not at visibility time.)
+
+Add similar relaxation to public `vendor_packages` visibility if it has the same gate (verify in migration).
+
+## UI: Verified badge
+
+New shared component `src/components/badges/VerifiedEventProBadge.tsx` (small + large variants):
+- Small: pill "Verified" with shield icon — used on `BrowseVendorCard`, `BrowsePackageCard`, `VendorListItem`, search results
+- Large: "Verified Event Pro" with tooltip "This Event Pro completed optional identity verification through EventPro." — used on public profile header
+
+Wire into existing `TrustBadges.tsx` `isVerified` prop (already plumbed) — verify all consumers pass `identity_verification_status === 'verified'`.
+
+## Vendor dashboard verification card
+
+New component `src/components/vendor-dashboard/VerificationCard.tsx`, shown in the Settings tab below `StripeSetupCard`:
+
+- **Not verified**: Title "Get the Verified Event Pro badge", body copy, primary "Get verified" → triggers Stripe Identity session, secondary "Maybe later" (dismiss for session).
+- **Processing**: "Verification in progress" with status pill.
+- **Verified**: Title "Verified Event Pro", body "Your profile has the Verified badge…", green check.
+- **Failed / requires_action**: Show retry CTA.
+
+## Search filter + ranking
+
+- Add "Verified only" toggle to `SearchModal.tsx` filters; pipe through `useBrowsePackages` query as `.eq('profiles.identity_verification_status', 'verified')` when active.
+- In `useBrowsePackages` ranking sort, add a small boost (e.g. +10 points) for verified vendors so they trend higher when scores tie.
+
+## Payments gating (online vs cash)
+
+In `SpatialDrawer.tsx` checkout flow, when the selected package's `payment_mode` requires online payment AND the vendor's `stripe_account_status !== 'active'`:
+- Block checkout with message "This Event Pro hasn't finished setting up online payments yet — reach out to message them directly."
+- Cash-only packages skip this check entirely.
+
+## Acceptance criteria
+
+- A vendor with `identity_verification_status = 'not_started'` can complete onboarding, publish, get bookings, and receive payouts (if Connect is set up).
+- A cash-only vendor with no Stripe Connect can publish and appear in search.
+- The "Verified Event Pro" badge only appears when `identity_verification_status === 'verified'`.
+- "Verified only" filter in search returns only verified vendors.
+- Onboarding step order matches the 9-step list above; Step 8 has a working "Skip for now".
+- Existing verified vendors retain their badge (no data backfill needed beyond the new derived flag).
+
+## Files touched
+
+**Migration**: new file under `supabase/migrations/` for the column adds + RLS policy update.
+
+**New**: `src/components/badges/VerifiedEventProBadge.tsx`, `src/components/vendor-dashboard/VerificationCard.tsx`.
+
+**Edited**: `src/pages/VendorOnboarding.tsx`, `src/components/eventpro-onboarding/StepPayout.tsx` (+ new `StepVerification.tsx`), `src/pages/VendorDashboard.tsx`, `src/hooks/useVendorProfile.ts`, `src/hooks/useBrowsePackages.ts`, `src/components/browse/SearchModal.tsx`, `src/components/booking/SpatialDrawer.tsx`, `src/components/badges/TrustBadges.tsx`, public profile page (vendor header).
+
+Approve and I'll implement in this order: migration → onboarding reorder → badge component → dashboard card → search filter/ranking → checkout gating.

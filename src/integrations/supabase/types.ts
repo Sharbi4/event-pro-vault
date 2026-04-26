@@ -1059,12 +1059,15 @@ export type Database = {
           id: string
           identity_verification_session_id: string | null
           identity_verification_status: string | null
+          identity_verified_at: string | null
           instagram_handle: string | null
+          is_identity_verified: boolean
           is_published: boolean | null
           is_vendor: boolean | null
           last_name: string | null
           onboarding_completed_at: string | null
           onboarding_step: string | null
+          online_payments_enabled: boolean
           phone: string | null
           primary_city: string | null
           profile_type: string | null
@@ -1073,6 +1076,7 @@ export type Database = {
           stripe_account_status: string | null
           subscription_ends_at: string | null
           subscription_tier: string | null
+          trust_score: number
           updated_at: string
           user_id: string
           username: string | null
@@ -1091,12 +1095,15 @@ export type Database = {
           id?: string
           identity_verification_session_id?: string | null
           identity_verification_status?: string | null
+          identity_verified_at?: string | null
           instagram_handle?: string | null
+          is_identity_verified?: boolean
           is_published?: boolean | null
           is_vendor?: boolean | null
           last_name?: string | null
           onboarding_completed_at?: string | null
           onboarding_step?: string | null
+          online_payments_enabled?: boolean
           phone?: string | null
           primary_city?: string | null
           profile_type?: string | null
@@ -1105,6 +1112,7 @@ export type Database = {
           stripe_account_status?: string | null
           subscription_ends_at?: string | null
           subscription_tier?: string | null
+          trust_score?: number
           updated_at?: string
           user_id: string
           username?: string | null
@@ -1123,12 +1131,15 @@ export type Database = {
           id?: string
           identity_verification_session_id?: string | null
           identity_verification_status?: string | null
+          identity_verified_at?: string | null
           instagram_handle?: string | null
+          is_identity_verified?: boolean
           is_published?: boolean | null
           is_vendor?: boolean | null
           last_name?: string | null
           onboarding_completed_at?: string | null
           onboarding_step?: string | null
+          online_payments_enabled?: boolean
           phone?: string | null
           primary_city?: string | null
           profile_type?: string | null
@@ -1137,6 +1148,7 @@ export type Database = {
           stripe_account_status?: string | null
           subscription_ends_at?: string | null
           subscription_tier?: string | null
+          trust_score?: number
           updated_at?: string
           user_id?: string
           username?: string | null

@@ -25,8 +25,10 @@ import {
   Star,
   Package,
   Plus,
-  AlertCircle
+  AlertCircle,
+  ShieldCheck
 } from 'lucide-react';
+import { prepareExternalNavigation as prepareIdentityNav } from '@/lib/externalNavigation';
 import { PackageFormWizard, PackageFormData } from '@/components/vendor-dashboard/package-form/PackageFormWizard';
 import { OnboardingPackageCard } from '@/components/onboarding/OnboardingPackageCard';
 import { VendorPackage } from '@/hooks/useVendorDashboard';
@@ -34,7 +36,7 @@ import { VendorPackage } from '@/hooks/useVendorDashboard';
 const MAX_PACKAGES = 15;
 
 type VendorType = 'event-pro' | 'market' | null;
-type OnboardingStep = 'welcome' | 'business-info' | 'packages' | 'connect' | 'connect-complete' | 'complete';
+type OnboardingStep = 'welcome' | 'business-info' | 'packages' | 'connect' | 'connect-complete' | 'verification' | 'complete';
 
 interface VendorFormData {
   businessName: string;
@@ -155,7 +157,7 @@ export default function VendorOnboarding() {
 
       setConnectStatus(data.status);
       if (data.status === 'active') {
-        setCurrentStep('complete');
+        setCurrentStep('verification');
         toast.success('Payment setup complete!');
       } else if (data.detailsSubmitted) {
         toast.info('Your account is being reviewed.');
@@ -363,12 +365,13 @@ export default function VendorOnboarding() {
     { id: 'welcome', label: 'Welcome', icon: Sparkles },
     { id: 'business-info', label: 'Business Info', icon: Building2 },
     { id: 'packages', label: 'Packages', icon: Package },
-    { id: 'connect', label: 'Payment Setup', icon: CreditCard },
+    { id: 'connect', label: 'Payments', icon: CreditCard },
+    { id: 'verification', label: 'Verify', icon: ShieldCheck },
     { id: 'complete', label: 'Complete', icon: CheckCircle2 },
   ];
 
   const getStepStatus = (stepId: string) => {
-    const stepOrder = ['welcome', 'business-info', 'packages', 'connect', 'complete'];
+    const stepOrder = ['welcome', 'business-info', 'packages', 'connect', 'verification', 'complete'];
     const currentIndex = stepOrder.indexOf(currentStep);
     const stepIndex = stepOrder.indexOf(stepId);
     
@@ -806,10 +809,11 @@ export default function VendorOnboarding() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <CreditCard className="w-5 h-5 text-primary" />
-                Payment Setup
+                Set up payouts
               </CardTitle>
               <CardDescription>
-                Set up your payment account to receive earnings from bookings
+                Connect your payout account so you can receive online payments
+                for bookings made through EventPro.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -841,7 +845,7 @@ export default function VendorOnboarding() {
                 variant="gradient"
               >
                 {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <CreditCard className="w-4 h-4 mr-2" />}
-                {connectStatus === 'pending' ? 'Continue Setup' : 'Set Up Payments'}
+                {connectStatus === 'pending' ? 'Continue Setup' : 'Connect payout account'}
               </Button>
 
               {connectStatus === 'pending_verification' && (
@@ -849,9 +853,96 @@ export default function VendorOnboarding() {
                   Check Status
                 </Button>
               )}
+
+              <Button
+                variant="ghost"
+                onClick={() => setCurrentStep('verification')}
+                className="w-full text-muted-foreground"
+              >
+                Skip for now — I only offer cash / pay-in-person
+              </Button>
+              <p className="text-xs text-center text-muted-foreground">
+                You can publish without payouts if every package is cash-only.
+                You'll need this set up before accepting online payments.
+              </p>
             </CardContent>
           </Card>
         )}
+
+        {currentStep === 'verification' && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-primary" />
+                Get verified
+              </CardTitle>
+              <CardDescription>
+                Verification is optional, but it helps customers book with
+                confidence. Verified Event Pros receive a badge on their profile
+                and search cards.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg p-4 space-y-2">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-primary" />
+                  <span className="text-sm font-medium">Verified Event Pro badge</span>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Verified Event Pros may appear more trustworthy to customers
+                  and can be filtered in search.
+                </p>
+              </div>
+
+              <Button
+                onClick={async () => {
+                  const nav = prepareIdentityNav();
+                  setLoading(true);
+                  try {
+                    const { data, error } = await supabase.functions.invoke(
+                      'create-identity-verification',
+                    );
+                    if (error) throw error;
+                    if (data?.url) {
+                      if (nav.popupBlocked) {
+                        await navigator.clipboard.writeText(data.url).catch(() => undefined);
+                        toast.error('Pop-up blocked — link copied to clipboard.');
+                      }
+                      nav.open(data.url);
+                      return;
+                    }
+                    nav.cancel();
+                  } catch (err) {
+                    nav.cancel();
+                    console.error('Identity verification failed', err);
+                    toast.error('Could not start verification. Please try again.');
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+                className="w-full"
+                variant="gradient"
+              >
+                {loading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
+                Verify my profile
+              </Button>
+
+              <Button
+                variant="ghost"
+                onClick={() => setCurrentStep('complete')}
+                className="w-full text-muted-foreground"
+              >
+                Skip for now
+              </Button>
+              <p className="text-xs text-center text-muted-foreground">
+                You can verify anytime from your dashboard. Verification doesn't
+                affect your ability to publish or get bookings.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
 
         {currentStep === 'complete' && (
           <Card className="text-center">

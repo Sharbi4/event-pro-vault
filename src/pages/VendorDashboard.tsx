@@ -28,6 +28,7 @@ import { ProfileQRCard } from '@/components/vendor-dashboard/ProfileQRCard';
 import { StripeConnectBanner } from '@/components/vendor-dashboard/StripeConnectBanner';
 import { ApprovalStatusBanner } from '@/components/shared/ApprovalStatusBanner';
 import { StripeSetupCard } from '@/components/shared/StripeSetupCard';
+import { VerificationCard } from '@/components/vendor-dashboard/VerificationCard';
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -516,6 +517,12 @@ const VendorDashboard = () => {
               <StripeSetupCard 
                 variant="vendor" 
                 currentStatus={profile?.stripe_account_status}
+                onStatusChange={refetch}
+              />
+
+              {/* Optional Identity Verification */}
+              <VerificationCard
+                status={profile?.identity_verification_status}
                 onStatusChange={refetch}
               />
             </div>

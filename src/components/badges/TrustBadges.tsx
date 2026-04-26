@@ -111,7 +111,9 @@ export function TrustBadges({
             </Badge>
           </TooltipTrigger>
           <TooltipContent>
-            <p className="text-xs">Identity verified + Stripe connected</p>
+            <p className="text-xs max-w-[220px]">
+              This Event Pro completed optional identity verification through EventPro.
+            </p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>
