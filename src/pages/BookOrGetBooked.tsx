@@ -171,6 +171,7 @@ export default function BookOrGetBooked() {
                 <Search className="w-4 h-4 mr-1.5" /> Search vendors
               </Button>
             </Card>
+            </div>
           </div>
         </div>
       </section>
