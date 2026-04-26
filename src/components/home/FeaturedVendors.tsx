@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Star, MapPin, ChevronRight, User } from 'lucide-react';
 import { useFeaturedVendors } from '@/hooks/useFeaturedContent';
-import { Vendors as mockVendors } from '@/data/vendors';
+import { vendors as mockVendors } from '@/data/vendors';
 import { TrustBadges, TopRatedBadge } from '@/components/badges/TrustBadges';
 
 export function FeaturedVendors() {

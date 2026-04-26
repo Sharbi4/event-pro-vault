@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronRight, Star, MapPin, Zap, ShieldCheck, Package } from 'lucide-react';
 import { categories } from '@/data/categories';
-import { Vendors as mockVendors, packages as mockPackages } from '@/data/vendors';
+import { vendors as mockVendors, packages as mockPackages } from '@/data/vendors';
 import { Vendor } from '@/types';
 import { useCategoryCounts, useCategoryPackages } from '@/hooks/useFeaturedContent';
 import {
