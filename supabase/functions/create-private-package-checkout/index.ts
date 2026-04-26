@@ -11,7 +11,9 @@ const corsHeaders = {
 const log = (step: string, details?: unknown) =>
   console.log(`[CREATE-PP-CHECKOUT] ${step}`, details ? JSON.stringify(details) : "");
 
-const VENDOR_COMMISSION_PERCENT = 12.9;
+// Free tier vendors: 12.9% commission. Premium tier vendors: 6% commission.
+const VENDOR_COMMISSION_PERCENT_FREE = 12.9;
+const VENDOR_COMMISSION_PERCENT_PREMIUM = 6;
 const BOOKER_SERVICE_FEE_PERCENT = 12.9;
 
 serve(async (req) => {
@@ -55,7 +57,7 @@ serve(async (req) => {
 
     const { data: vendorProfile, error: vErr } = await supabaseAdmin
       .from("profiles")
-      .select("stripe_account_id, stripe_account_status, full_name")
+      .select("stripe_account_id, stripe_account_status, full_name, subscription_tier, subscription_ends_at")
       .eq("user_id", pkg.vendor_user_id)
       .maybeSingle();
     if (vErr || !vendorProfile?.stripe_account_id) {
@@ -80,8 +82,12 @@ serve(async (req) => {
 
     const bookerServiceFeeCents = Math.round(depositCents * (BOOKER_SERVICE_FEE_PERCENT / 100));
     const customerPaysCents = depositCents + bookerServiceFeeCents;
-    const vendorCommissionCents = Math.round(depositCents * (VENDOR_COMMISSION_PERCENT / 100));
+    const isPremium = vendorProfile.subscription_tier === 'premium'
+      && (!vendorProfile.subscription_ends_at || new Date(vendorProfile.subscription_ends_at) > new Date());
+    const vendorCommissionPercent = isPremium ? VENDOR_COMMISSION_PERCENT_PREMIUM : VENDOR_COMMISSION_PERCENT_FREE;
+    const vendorCommissionCents = Math.round(depositCents * (vendorCommissionPercent / 100));
     const totalPlatformFeeCents = bookerServiceFeeCents + vendorCommissionCents;
+    log("Vendor commission tier", { tier: vendorProfile.subscription_tier, isPremium, vendorCommissionPercent });
 
     log("Amounts", {
       totalCents,

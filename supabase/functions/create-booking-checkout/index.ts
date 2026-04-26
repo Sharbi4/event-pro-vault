@@ -11,8 +11,10 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[CREATE-BOOKING-CHECKOUT] ${step}`, details ? JSON.stringify(details) : '');
 };
 
-// Fee structure: 12.9% from vendor (commission) + 12.9% from booker (service fee)
-const VENDOR_COMMISSION_PERCENT = 12.9;
+// Fee structure: vendor commission (tier-based) + 12.9% booker service fee
+// Free tier vendors: 12.9% commission. Premium tier vendors: 6% commission.
+const VENDOR_COMMISSION_PERCENT_FREE = 12.9;
+const VENDOR_COMMISSION_PERCENT_PREMIUM = 6;
 const BOOKER_SERVICE_FEE_PERCENT = 12.9;
 // Default deposit percentage
 const DEFAULT_DEPOSIT_PERCENT = 50;
@@ -51,7 +53,7 @@ serve(async (req) => {
     // Get vendor's Stripe Connect account
     const { data: vendorProfile, error: vendorError } = await supabaseClient
       .from('profiles')
-      .select('stripe_account_id, stripe_account_status, full_name')
+      .select('stripe_account_id, stripe_account_status, full_name, subscription_tier, subscription_ends_at')
       .eq('user_id', booking.vendor_user_id)
       .single();
 
@@ -114,10 +116,14 @@ serve(async (req) => {
     // Booker service fee (12.9% added to what customer pays)
     const bookerServiceFeeCents = Math.round(baseDepositCents * (BOOKER_SERVICE_FEE_PERCENT / 100));
     const customerPaysCents = baseDepositCents + bookerServiceFeeCents;
-    
-    // Vendor commission (12.9% deducted from vendor's portion)
-    const vendorCommissionCents = Math.round(baseDepositCents * (VENDOR_COMMISSION_PERCENT / 100));
-    
+
+    // Vendor commission — 6% if premium subscription is active, otherwise 12.9%
+    const isPremium = vendorProfile.subscription_tier === 'premium'
+      && (!vendorProfile.subscription_ends_at || new Date(vendorProfile.subscription_ends_at) > new Date());
+    const vendorCommissionPercent = isPremium ? VENDOR_COMMISSION_PERCENT_PREMIUM : VENDOR_COMMISSION_PERCENT_FREE;
+    const vendorCommissionCents = Math.round(baseDepositCents * (vendorCommissionPercent / 100));
+    logStep("Vendor commission tier", { tier: vendorProfile.subscription_tier, isPremium, vendorCommissionPercent });
+
     // Total platform revenue = booker fee + vendor commission
     const totalPlatformFeeCents = bookerServiceFeeCents + vendorCommissionCents;
 

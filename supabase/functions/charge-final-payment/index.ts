@@ -11,8 +11,10 @@ const logStep = (step: string, details?: unknown) => {
   console.log(`[CHARGE-FINAL-PAYMENT] ${step}`, details ? JSON.stringify(details) : '');
 };
 
-// Fee structure: 12.9% from vendor (commission) + 12.9% from booker (service fee)
-const VENDOR_COMMISSION_PERCENT = 12.9;
+// Fee structure: vendor commission (tier-based) + 12.9% booker service fee
+// Free tier vendors: 12.9% commission. Premium tier vendors: 6% commission.
+const VENDOR_COMMISSION_PERCENT_FREE = 12.9;
+const VENDOR_COMMISSION_PERCENT_PREMIUM = 6;
 const BOOKER_SERVICE_FEE_PERCENT = 12.9;
 
 serve(async (req) => {
@@ -79,12 +81,23 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
+    // Look up the vendor's subscription tier to determine commission rate
+    const { data: vendorProfile } = await supabaseClient
+      .from('profiles')
+      .select('subscription_tier, subscription_ends_at')
+      .eq('user_id', booking.vendor_user_id)
+      .single();
+    const isPremium = vendorProfile?.subscription_tier === 'premium'
+      && (!vendorProfile.subscription_ends_at || new Date(vendorProfile.subscription_ends_at) > new Date());
+    const vendorCommissionPercent = isPremium ? VENDOR_COMMISSION_PERCENT_PREMIUM : VENDOR_COMMISSION_PERCENT_FREE;
+    logStep("Vendor commission tier", { tier: vendorProfile?.subscription_tier, isPremium, vendorCommissionPercent });
+
     // The final_amount already includes the booker service fee from create-booking-checkout
     // We need to calculate vendor commission based on the base amount
     // Base amount = final_amount / (1 + BOOKER_SERVICE_FEE_PERCENT / 100)
     const baseFinalCents = Math.round(booking.final_amount / (1 + BOOKER_SERVICE_FEE_PERCENT / 100));
     const bookerServiceFeeCents = booking.final_amount - baseFinalCents;
-    const vendorCommissionCents = Math.round(baseFinalCents * (VENDOR_COMMISSION_PERCENT / 100));
+    const vendorCommissionCents = Math.round(baseFinalCents * (vendorCommissionPercent / 100));
     const totalPlatformFeeCents = bookerServiceFeeCents + vendorCommissionCents;
 
     logStep("Calculated final payment fees", {
