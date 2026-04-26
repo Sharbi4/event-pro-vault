@@ -15,7 +15,7 @@ const options = [
       'Pay a show-up fee, minimum guarantee, or deposit if required',
       'Guests can pay individually on-site',
     ],
-    cta: { label: 'Find pull-up vendors', href: '/browse?q=pull-up' },
+    cta: { label: 'Find pull-up vendors', href: '/browse?type=pull-up' },
     accent: 'from-orange-500/10 to-orange-500/0',
   },
   {
@@ -29,7 +29,7 @@ const options = [
       'Review price, menu, timing, and cancellation policy',
       'Request or book through EventPro',
     ],
-    cta: { label: 'Browse catering packages', href: '/browse?q=catering' },
+    cta: { label: 'Browse catering packages', href: '/browse?type=catering' },
     accent: 'from-amber-500/10 to-amber-500/0',
   },
   {
