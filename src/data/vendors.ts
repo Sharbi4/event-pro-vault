@@ -1,6 +1,6 @@
 import { Vendor, Package, Review } from '@/types';
 
-export const Vendors: Vendor[] = [
+export const vendors: Vendor[] = [
   {
     id: 'v1',
     name: 'Blaze & Grill Co.',
