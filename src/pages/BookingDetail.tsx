@@ -21,7 +21,7 @@ import {
   type CancellationPolicy,
 } from '@/lib/bookingState';
 import { CancellationDialog } from '@/components/shared/CancellationDialog';
-import { ReviewSubmissionDialog } from '@/components/reviews/ReviewSubmissionDialog';
+import { ReviewDialog } from '@/components/reviews/ReviewDialog';
 import type { BookingData } from '@/hooks/useBookings';
 
 interface FullBooking extends BookingData {
@@ -92,19 +92,22 @@ export default function BookingDetail() {
       }
 
       // Fetch package + vendor details for richer display
-      const [{ data: pkg }, { data: vendor }] = await Promise.all([
-        supabase.from('packages').select('id, name, cover_image_url, cancellation_policy, includes')
+      const [pkgRes, vendorRes] = await Promise.all([
+        supabase.from('vendor_packages')
+          .select('id, name, cover_image_url, cancellation_policy')
           .eq('id', bk.package_id).maybeSingle(),
         supabase.from('profiles')
           .select('user_id, display_name, avatar_url')
           .eq('user_id', bk.vendor_user_id || '').maybeSingle(),
       ]);
+      const pkg = (pkgRes.data ?? null) as { name?: string; cover_image_url?: string; cancellation_policy?: string } | null;
+      const vendor = (vendorRes.data ?? null) as { display_name?: string; avatar_url?: string } | null;
 
       const merged: FullBooking = {
         ...(bk as any),
         package_name: pkg?.name ?? bk.package_id,
         package_cover_image: pkg?.cover_image_url ?? undefined,
-        cancellation_policy: (pkg?.cancellation_policy as CancellationPolicy | undefined) ?? (bk.cancellation_policy as CancellationPolicy | undefined) ?? 'standard',
+        cancellation_policy: (pkg?.cancellation_policy as CancellationPolicy | undefined) ?? ((bk as any).cancellation_policy as CancellationPolicy | undefined) ?? 'standard',
         vendor_display_name: vendor?.display_name ?? 'Vendor',
         vendor_avatar: vendor?.avatar_url ?? undefined,
       };
@@ -458,15 +461,25 @@ export default function BookingDetail() {
       <CancellationDialog
         open={cancelOpen}
         onOpenChange={setCancelOpen}
-        booking={booking as any}
+        bookingId={booking.id}
         bookingType="booking"
+        totalPaid={totalPaid}
+        eventDate={booking.event_date}
+        isPaid={!!booking.deposit_paid_at || !!booking.final_paid_at}
+        cancellationPolicy={policy === 'custom' ? 'standard' : policy}
         onSuccess={() => navigate('/dashboard?tab=bookings')}
       />
-      <ReviewSubmissionDialog
+      <ReviewDialog
         open={reviewOpen}
         onOpenChange={setReviewOpen}
-        booking={booking as any}
-        onSuccess={() => setReviewOpen(false)}
+        bookingId={booking.id}
+        vendorUserId={booking.vendor_user_id ?? ''}
+        vendorName={booking.vendor_display_name ?? 'Vendor'}
+        packageId={booking.package_id}
+        packageName={booking.package_name}
+        eventDate={booking.event_date}
+        reviewerName={user?.user_metadata?.full_name ?? user?.email ?? 'Customer'}
+        reviewerAvatar={user?.user_metadata?.avatar_url}
       />
     </Layout>
   );
