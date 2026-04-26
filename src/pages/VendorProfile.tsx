@@ -474,8 +474,8 @@ export default function VendorProfile() {
         <AskPrivatePackageModal
           open={askOpen}
           onOpenChange={setAskOpen}
-          vendorUserId={profile.user_id}
-          vendorName={profile.display_name || profile.full_name || 'this vendor'}
+          vendorUserId={profile.userId}
+          vendorName={profile.displayName || profile.fullName || 'this vendor'}
         />
       )}
     </Layout>
