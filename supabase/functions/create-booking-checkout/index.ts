@@ -148,7 +148,11 @@ serve(async (req) => {
     // Calculate final amount customer will owe (base final + service fee)
     const finalCustomerPaysCents = baseFinalCents + Math.round(baseFinalCents * (BOOKER_SERVICE_FEE_PERCENT / 100));
 
-    // Create checkout session for deposit with Connect
+    const isRequestMode = (booking.booking_mode || 'INSTANT').toUpperCase() === 'REQUEST';
+    const refundNote = isRequestMode
+      ? ' Fully refundable if the Event Pro declines your request.'
+      : '';
+
     const session = await stripe.checkout.sessions.create({
       customer: customerId,
       customer_email: customerId ? undefined : customerEmail,
@@ -157,13 +161,13 @@ serve(async (req) => {
           price_data: {
             currency: 'usd',
             product_data: {
-              name: `Deposit - ${booking.event_location}`,
-              description: `${deposit_percentage}% deposit for event on ${new Date(booking.event_date).toLocaleDateString('en-US', {
+              name: `${isRequestMode ? 'Reserve' : 'Deposit'} - ${booking.event_location}`,
+              description: `${deposit_percentage}% ${isRequestMode ? 'reservation' : 'deposit'} for event on ${new Date(booking.event_date).toLocaleDateString('en-US', {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
-              })}. Includes ${BOOKER_SERVICE_FEE_PERCENT}% service fee. Remaining $${(finalCustomerPaysCents / 100).toFixed(2)} due on event day.`,
+              })}. Includes ${BOOKER_SERVICE_FEE_PERCENT}% service fee. Remaining $${(finalCustomerPaysCents / 100).toFixed(2)} due on event day.${refundNote}`,
             },
             unit_amount: customerPaysCents,
           },

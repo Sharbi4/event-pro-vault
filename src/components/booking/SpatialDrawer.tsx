@@ -226,36 +226,39 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
         return;
       }
 
-      // For Stripe payments with instant booking, create checkout session
-      if (paymentMethod === 'stripe' && isInstant && pkg.vendor?.stripe_account_status === 'active') {
+      // For ALL Stripe payments (instant or request), payment IS the booking.
+      // Customer pays upfront; for request mode the funds are held and refunded
+      // automatically if the vendor declines.
+      if (paymentMethod === 'stripe') {
         const { data, error } = await supabase.functions.invoke('create-booking-checkout', {
           body: { booking_id: booking.id }
         });
 
-        if (error) {
-          console.error('Checkout error:', error);
+        if (error || data?.error) {
+          console.error('Checkout error:', error || data?.error);
           toast({
-            title: "Payment setup failed",
-            description: "Booking created but payment could not be processed. The vendor will contact you.",
+            title: "Payment required to confirm",
+            description: data?.message || "We couldn't start the payment. Please try cash / pay-in-person, or try again.",
+            variant: "destructive",
           });
-          setBookingState('success');
+          setBookingState('error');
           return;
         }
 
         if (data?.url) {
-          // Redirect to Stripe Checkout
+          // Redirect to Stripe Checkout — booking is only "sent" once payment succeeds
           window.location.href = data.url;
           return;
         }
       }
 
-      // For cash payments or request mode, show success
+      // Cash / pay-in-person: booking goes straight to vendor
       setBookingState('success');
       toast({
         title: isInstant ? "Booking confirmed!" : "Request sent!",
-        description: isInstant 
-          ? "Your event is secured. Check your email for details."
-          : "The vendor will review your request and respond soon.",
+        description: isInstant
+          ? "Your event is secured. Pay the Event Pro at the event."
+          : "The Event Pro will review your request and respond soon.",
       });
 
       // Close drawer after delay
