@@ -772,57 +772,55 @@ export function BookingModal({
 
                 {effectivePricingType === 'hourly' && eventDate && dateAvailability?.available && (
                   <div className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          Start Time <span className="text-destructive">*</span>
-                        </label>
-                        <Input
-                          type="time"
-                          value={startTime}
-                          onChange={(e) => setStartTime(e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-foreground mb-2">
-                          End Time <span className="text-destructive">*</span>
-                        </label>
-                        <Input
-                          type="time"
-                          value={endTime}
-                          onChange={(e) => setEndTime(e.target.value)}
-                        />
-                      </div>
+                    {/* How many hours? */}
+                    <div>
+                      <label className="block text-sm font-medium text-foreground mb-2">
+                        How many hours? <span className="text-destructive">*</span>
+                      </label>
+                      <Select
+                        value={hourlyHours.toString()}
+                        onValueChange={(v) => setHourlyHours(parseInt(v))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 12 }).map((_, i) => {
+                            const h = Math.max(minHours || 1, 1) + i;
+                            return (
+                              <SelectItem key={h} value={h.toString()}>
+                                {h} hour{h > 1 ? 's' : ''}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                      {minHours && minHours > 1 && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Minimum {minHours} hours required for this package.
+                        </p>
+                      )}
                     </div>
 
-                    {availableHours && (
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Clock className="w-3 h-3" />
-                        Available: {availableHours.start.slice(0, 5)} – {availableHours.end.slice(0, 5)}
-                      </p>
-                    )}
-
-                    {/* Minimum hours validation */}
-                    {units < (minHours || 1) && (
-                      <p className="text-xs text-destructive flex items-center gap-1">
-                        <AlertCircle className="w-3 h-3" />
-                        Minimum {minHours || 1} hour{(minHours || 1) > 1 ? 's' : ''} required
-                      </p>
-                    )}
-
-                    {!timeAvailability?.available && (
-                      <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
-                        <p className="text-sm text-amber-600 dark:text-amber-400 flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4" />
-                          {timeAvailability?.reason || 'Selected time is outside available hours'}
-                        </p>
-                      </div>
-                    )}
+                    {/* StyleSeat-style available time blocks */}
+                    <TimeSlotPicker
+                      vendorUserId={vendorUserId}
+                      packageId={packageId}
+                      selectedDate={eventDate}
+                      durationMinutes={hourlyHours * 60}
+                      setupMinutes={setupTimeMinutes || 0}
+                      breakdownMinutes={0}
+                      mode="HOURLY"
+                      intervalMinutes={30}
+                      selectedTime={startTime}
+                      onTimeSelect={setStartTime}
+                      onAlternativeDate={(d) => setEventDate(d)}
+                    />
 
                     {/* Real-time price preview */}
                     <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
                       <p className="text-sm font-medium text-foreground">
-                        ${price}/hr × {units} hrs = <span className="text-primary">${(price * units).toFixed(2)}</span>
+                        ${price}/hr × {hourlyHours} hrs = <span className="text-primary">${(price * hourlyHours).toFixed(2)}</span>
                       </p>
                     </div>
                   </div>
