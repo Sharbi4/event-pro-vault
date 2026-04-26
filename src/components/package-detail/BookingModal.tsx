@@ -188,58 +188,10 @@ export function BookingModal({
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [zipCode, setZipCode] = useState('');
-  const [eventLat, setEventLat] = useState<number | null>(null);
-  const [eventLng, setEventLng] = useState<number | null>(null);
-  const [geocodingAddress, setGeocodingAddress] = useState(false);
-  const geocodeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   
   // Terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptCancellation, setAcceptCancellation] = useState(false);
-
-  // Geocode address when it changes (debounced)
-  useEffect(() => {
-    // Clear previous timeout
-    if (geocodeTimeoutRef.current) {
-      clearTimeout(geocodeTimeoutRef.current);
-    }
-
-    // Only geocode if we have enough address info
-    if (!addressLine1.trim() || !city.trim() || !state) {
-      setEventLat(null);
-      setEventLng(null);
-      return;
-    }
-
-    // Debounce geocoding by 800ms
-    geocodeTimeoutRef.current = setTimeout(async () => {
-      const fullAddr = `${addressLine1}, ${city}, ${state} ${zipCode}`.trim();
-      setGeocodingAddress(true);
-      
-      try {
-        const result = await geocodeLocation(fullAddr);
-        if (result) {
-          setEventLat(result.lat);
-          setEventLng(result.lng);
-        } else {
-          setEventLat(null);
-          setEventLng(null);
-        }
-      } catch (err) {
-        console.error('Geocoding failed:', err);
-        setEventLat(null);
-        setEventLng(null);
-      } finally {
-        setGeocodingAddress(false);
-      }
-    }, 800);
-
-    return () => {
-      if (geocodeTimeoutRef.current) {
-        clearTimeout(geocodeTimeoutRef.current);
-      }
-    };
-  }, [addressLine1, city, state, zipCode]);
 
   // Computed values
   const fullAddress = useMemo(() => {
@@ -247,26 +199,20 @@ export function BookingModal({
     return parts.join(', ');
   }, [addressLine1, city, state, zipCode]);
 
-  // Distance calculation
-  const distanceMiles = useMemo(() => {
-    if (!vendorBaseLat || !vendorBaseLng || !eventLat || !eventLng) {
-      return null;
-    }
-    return calculateDistance(vendorBaseLat, vendorBaseLng, eventLat, eventLng);
-  }, [vendorBaseLat, vendorBaseLng, eventLat, eventLng]);
-
-  // Travel fee calculation
-  const travelFee = useMemo(() => {
-    if (!distanceMiles || travelFeePerMile <= 0) return 0;
-    const chargeableMiles = Math.max(0, distanceMiles - includedTravelMiles);
-    return chargeableMiles * travelFeePerMile;
-  }, [distanceMiles, includedTravelMiles, travelFeePerMile]);
-
-  // Check if within service area
-  const isWithinServiceArea = useMemo(() => {
-    if (!distanceMiles) return true; // Unknown distance, allow
-    return distanceMiles <= maxTravelMiles;
-  }, [distanceMiles, maxTravelMiles]);
+  const hasAddressForQuote = !!addressLine1.trim() && !!city.trim() && !!state.trim() && !!zipCode.trim();
+  const travelQuote = useTravelFeeQuote({
+    addressString: hasAddressForQuote && !pickupOnly ? fullAddress : '',
+    vendorLat: vendorBaseLat,
+    vendorLng: vendorBaseLng,
+    includedMiles: includedTravelMiles,
+    feePerMile: travelFeePerMile,
+    maxTravelMiles,
+    enabled: !pickupOnly && hasAddressForQuote && vendorBaseLat != null && vendorBaseLng != null,
+  });
+  const distanceMiles = travelQuote.distanceMiles;
+  const travelFee = travelQuote.status === 'ready' ? travelQuote.fee : 0;
+  const isWithinServiceArea = travelQuote.status !== 'out_of_range';
+  const geocodingAddress = travelQuote.status === 'loading';
 
   // Availability status for selected date
   const dateAvailability = useMemo(() => {
