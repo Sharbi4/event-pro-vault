@@ -26,42 +26,97 @@ import { BrowseChips } from '@/components/book-or-get-booked/BrowseChips';
 
 
 const customerFAQs = [
+  // Pull-Up timing
   {
-    q: 'Can I book a food truck for an apartment event?',
-    a: 'Yes. Use Pull-Up Booking to bring a food truck, trailer, mobile bar, or dessert vendor to apartments, offices, neighborhoods, schools, breweries, and pop-ups.',
+    q: 'How long does a typical Pull-Up Booking last?',
+    a: 'Most Pull-Ups run 2–4 hours of active service. You pick the start time, and the vendor builds in setup and cleanup around it so guests get the full window you booked.',
   },
   {
-    q: 'What if I need something custom?',
-    a: 'Message the vendor through EventPro. They can send you a private package to review and book on the platform.',
+    q: 'How far in advance should I book a Pull-Up?',
+    a: 'For weekday lunches and small events, 1–2 weeks is usually fine. For weekend evenings, neighborhood events, or popular vendors, book 3–6 weeks ahead so your date is still open.',
   },
   {
-    q: 'Can I search by date and time?',
-    a: 'Yes. EventPro is built around availability, so you can search for vendors who can work your event date and time.',
+    q: 'Can I book back-to-back time slots or extend the service window?',
+    a: 'Yes. Choose the full start and end time when you book. If you need to extend after the event is confirmed, message the vendor — they can send an updated quote through EventPro.',
   },
   {
-    q: 'Do vendors have packages?',
-    a: 'Yes. Vendors can offer Pull-Up Bookings and Catering Packages. Some can also send Private Packages through messages.',
+    q: 'Can I book a Pull-Up for an apartment, office, or neighborhood event?',
+    a: 'Yes. Pull-Ups are designed for apartments, offices, breweries, schools, markets, neighborhoods, and pop-ups. Just make sure the location has space for the vehicle plus power and water if the package requires them.',
+  },
+
+  // Packages
+  {
+    q: 'What is the difference between a Pull-Up Booking and a Catering Package?',
+    a: 'A Pull-Up brings the vendor to your location to serve guests in a window of time — great when guests pay individually or you cover a show-up fee. A Catering Package is priced per guest with a set menu, staffing, and timing — great for weddings, birthdays, and corporate events.',
+  },
+  {
+    q: 'How is package pricing shown?',
+    a: 'Catering Packages show flat, per-person, or base + per-person pricing along with the deposit, balance due date, and what is included. Pull-Ups show a show-up fee, minimum guarantee, or no upfront depending on the vendor’s model.',
+  },
+  {
+    q: 'Can I see what is included before I book?',
+    a: 'Yes. Every package shows the menu, drinks, add-ons, staffing, timing, and cancellation policy on the package page so you know exactly what you are paying for before you confirm.',
+  },
+
+  // Private Packages
+  {
+    q: 'What is a Private Package?',
+    a: 'A Private Package is a custom offer a vendor sends you inside a message thread — for custom menus, larger guest counts, special timing, or mixed services that do not fit a public package.',
+  },
+  {
+    q: 'How do I request a Private Package?',
+    a: 'Open any vendor profile, send a message describing your event, and ask for a custom quote. The vendor builds the package on EventPro and sends it back for you to review and book on-platform.',
+  },
+  {
+    q: 'Is a Private Package booked the same way as a regular package?',
+    a: 'Yes. You review the price, menu, timing, and cancellation policy, then book and pay through EventPro — so deposits, payouts, refunds, and reminders all stay in one place.',
   },
 ];
 
 const proFAQs = [
+  // Pull-Up timing
   {
-    q: 'Can I publish without being verified?',
-    a: 'Yes. Verification is optional. Verified Event Pros get a badge that helps them stand out.',
+    q: 'How do I set the time window for a Pull-Up Booking?',
+    a: 'On your Pull-Up package, set the service window length and the earliest/latest times you will accept. EventPro automatically adds your setup and cleanup buffers to the calendar so you never get double-booked.',
   },
   {
-    q: 'Can I create different packages?',
-    a: 'Yes. You can create Pull-Up Bookings and Catering Packages, then send Private Packages inside message threads for custom needs.',
+    q: 'Can I limit how far in advance customers can book a Pull-Up?',
+    a: 'Yes. In your package rules you can set minimum lead time (e.g. 48 hours) and maximum advance booking (e.g. 6 months) so requests stay realistic.',
   },
   {
-    q: 'How does the calendar work?',
-    a: 'You manage one master calendar. EventPro blocks booked times, pending holds, setup, cleanup, and blocked dates so customers only see realistic availability.',
+    q: 'What happens if a Pull-Up overlaps with another booking?',
+    a: 'It will not. Your master calendar blocks confirmed bookings, pending holds, setup time, cleanup time, and travel buffers across every package, so customers only see slots you can actually serve.',
+  },
+
+  // Packages
+  {
+    q: 'What kinds of packages can I create?',
+    a: 'Two public types: Pull-Up Bookings (show-up fee, minimum guarantee, combined, or no upfront) and Catering Packages (flat, per-person, or base + per-person with deposit and balance terms). You can also send Private Packages inside messages.',
   },
   {
-    q: 'Can I receive payouts?',
-    a: 'Yes, if your payout setup is complete for online payments. Offline payment options can be handled based on your package settings.',
+    q: 'Do I have to publish all my packages publicly?',
+    a: 'No. You can keep some packages unlisted and only share them through Private Packages in message threads — useful for premium pricing, repeat clients, or special menus.',
+  },
+  {
+    q: 'Can I edit a package after it is published?',
+    a: 'Yes. You can update pricing, menu, photos, rules, and availability anytime. Existing confirmed bookings keep the terms they were booked under.',
+  },
+
+  // Private Packages
+  {
+    q: 'What is a Private Package and when should I use one?',
+    a: 'A Private Package is a custom offer you send inside a message thread. Use it for custom menus, larger guest counts, multi-day events, or anything that does not fit your public packages.',
+  },
+  {
+    q: 'How do customers pay for a Private Package?',
+    a: 'They book and pay through EventPro just like a public package. Deposits, balances, payouts, refunds, and cancellation policies all flow through the same system, so nothing happens off-platform.',
+  },
+  {
+    q: 'Will a Private Package show up on my public profile?',
+    a: 'No. Private Packages are visible only to the customer you sent them to. They do not appear in search results or on your public Event Pro profile.',
   },
 ];
+
 
 export default function BookOrGetBooked() {
   const navigate = useNavigate();
