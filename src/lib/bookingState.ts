@@ -126,13 +126,21 @@ export interface CancellationStatus {
   reason: string;
 }
 
-/** Decide whether the customer can still cancel and what refund tier applies. */
+/** Decide whether the customer can still cancel online and what refund tier applies. */
 export function getCancellationStatus(b: BookingData, now = new Date()): CancellationStatus {
   const start = getEventStart(b);
-  if (now >= start) {
+  if (!isNaN(start.getTime()) && now >= start) {
     return { canCancel: false, refundPct: 0, reason: 'Event has already started.' };
   }
   const policy = (b.cancellation_policy ?? 'standard') as CancellationPolicy;
+  // Custom policies must be handled manually with the vendor — never auto-allow.
+  if (policy === 'custom') {
+    return {
+      canCancel: false,
+      refundPct: 0,
+      reason: 'This booking uses a custom policy. Message your vendor to request cancellation.',
+    };
+  }
   const rule = CANCELLATION_RULES[policy];
   const hoursUntil = (start.getTime() - now.getTime()) / 3_600_000;
 
