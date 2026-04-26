@@ -304,8 +304,9 @@ export function useBookings() {
       });
     }
 
-    // Send email notification to Event Pro (fire and forget)
-    if (bookingData.vendor_email) {
+    // Send email notification to Event Pro (fire and forget) — cash only.
+    // Online payments notify the vendor via the Stripe webhook after capture.
+    if (!isOnlinePayment && bookingData.vendor_email) {
       supabase.functions.invoke('send-booking-notification', {
         body: {
           booking_id: data.id,
