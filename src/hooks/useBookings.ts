@@ -258,20 +258,28 @@ export function useBookings() {
       return null;
     }
 
-    toast({
-      title: "Booking submitted!",
-      description: isGuest 
-        ? "Check your email for booking confirmation details"
-        : "Your booking request has been sent to the Event Pro"
-    });
+    // For online (Stripe) bookings, the booking isn't "real" until payment
+    // succeeds — the Stripe checkout flow + webhook will send notifications.
+    // Only show the confirmation toast and emails immediately for cash bookings.
+    const isOnlinePayment = (bookingData.payment_method || 'stripe') === 'stripe';
+
+    if (!isOnlinePayment) {
+      toast({
+        title: "Booking submitted!",
+        description: isGuest
+          ? "Check your email for booking confirmation details"
+          : "Your booking request has been sent to the Event Pro"
+      });
+    }
 
     // Refetch to get enriched data
     if (!isGuest) {
       fetchBookings();
     }
 
-    // Send transactional email to the customer (fire and forget)
-    if (resolvedEmail) {
+    // Send transactional email to the customer (fire and forget) — cash only.
+    // Online payments trigger emails from the Stripe webhook after capture.
+    if (!isOnlinePayment && resolvedEmail) {
       const isRequestMode = bookingData.booking_mode === 'REQUEST';
       supabase.functions.invoke('send-transactional-email', {
         body: {
