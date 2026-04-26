@@ -208,7 +208,7 @@ export default function BookOrGetBooked() {
                 </div>
                 <div className="mt-6 flex flex-wrap items-center gap-3">
                   <Button asChild className="rounded-full bg-orange-500 hover:bg-orange-600 text-white">
-                    <Link to="/browse">Start booking <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
+                    <Link to={browseHref}>Start booking <ArrowRight className="ml-1.5 w-4 h-4" /></Link>
                   </Button>
                   <Link to="/browse?category=food-truck" className="text-sm font-medium hover:underline">
                     See food trucks near me
