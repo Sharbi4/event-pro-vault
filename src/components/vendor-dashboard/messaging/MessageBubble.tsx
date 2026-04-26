@@ -22,13 +22,18 @@ export function MessageBubble({ message, isVendor }: MessageBubbleProps) {
   // Mask contact info to keep transactions on platform
   const { maskedText, hasMaskedContent, maskedTypes } = maskContactInfo(message.content);
 
+  const attachedPackageId = message.attached_private_package_id;
+
   return (
     <div
       className={cn(
-        'flex w-full mb-3',
-        isOwnMessage ? 'justify-end' : 'justify-start'
+        'flex flex-col gap-2 w-full mb-3',
+        isOwnMessage ? 'items-end' : 'items-start'
       )}
     >
+      {attachedPackageId && (
+        <PrivatePackageCard packageId={attachedPackageId} isVendor={isVendor} />
+      )}
       <div
         className={cn(
           'max-w-[75%] rounded-2xl px-4 py-2.5',
