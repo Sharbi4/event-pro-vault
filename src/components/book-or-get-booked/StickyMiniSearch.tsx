@@ -43,6 +43,9 @@ export function StickyMiniSearch({
   );
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [location, setLocation] = useState(initialLocation);
+  const [locationCoords, setLocationCoords] = useState<{
+    lat: number; lng: number; city?: string; state?: string;
+  } | null>(null);
   const [vendorType, setVendorType] = useState(initialVendorType);
   const [quick, setQuick] = useState<QuickFilters>({
     instantBook: false,
