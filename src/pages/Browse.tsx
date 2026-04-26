@@ -441,7 +441,26 @@ export default function Browse() {
                 <CreditCard className={`w-3.5 h-3.5 ${filters.onlinePaymentsOnly ? '' : 'text-blue-500'}`} />
                 Pay Online
               </Button>
-              
+
+              {filters.location && (
+                <div className="flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
+                  <Select
+                    value={String(filters.searchRadius ?? 25)}
+                    onValueChange={(v) => updateFilter('searchRadius', Number(v))}
+                  >
+                    <SelectTrigger className="h-8 w-[120px] rounded-full text-xs">
+                      <SelectValue placeholder="Radius" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">Within 10 mi</SelectItem>
+                      <SelectItem value="25">Within 25 mi</SelectItem>
+                      <SelectItem value="50">Within 50 mi</SelectItem>
+                      <SelectItem value="100">Within 100 mi</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
               {activeFiltersCount > 0 && (
                 <Button 
                   variant="ghost" 
