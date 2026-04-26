@@ -62,7 +62,7 @@ interface BookingModalProps {
   maxTravelMiles?: number;
   includedTravelMiles?: number;
   travelFeePerMile?: number;
-  // Event Pro base location
+  // Vendor base location
   vendorBaseLat?: number;
   vendorBaseLng?: number;
   // Cancellation policy
@@ -439,11 +439,11 @@ export function BookingModal({
         if (!addressLine1.trim() || !city.trim() || !state.trim()) return false;
         // Block while geocoding
         if (geocodingAddress) return false;
-        // If we have Event Pro coordinates and event coordinates, check service area
+        // If we have Vendor coordinates and event coordinates, check service area
         if (vendorBaseLat && vendorBaseLng && eventLat && eventLng) {
           return isWithinServiceArea;
         }
-        // If Event Pro has no base coordinates, allow proceeding
+        // If Vendor has no base coordinates, allow proceeding
         return true;
       case 'payment':
         return true;
@@ -619,9 +619,9 @@ export function BookingModal({
           <p className="text-muted-foreground mb-6">
             {isInstant 
               ? paymentMethod === 'cash'
-                ? 'Your booking is confirmed. Remember to pay the Event Pro at the event.'
+                ? 'Your booking is confirmed. Remember to pay the Vendor at the event.'
                 : 'Your booking is confirmed. Check your email for details.'
-              : "You'll be notified when the Event Pro responds to your request."
+              : "You'll be notified when the Vendor responds to your request."
             }
           </p>
           <div className="flex flex-col gap-3">
@@ -868,7 +868,7 @@ export function BookingModal({
                     {effectivePricingType === 'custom_quote' && (
                       <div className="p-3 rounded-lg bg-muted/50 border">
                         <p className="text-sm text-muted-foreground">
-                          This package requires a custom quote. The Event Pro will provide pricing after reviewing your request.
+                          This package requires a custom quote. The Vendor will provide pricing after reviewing your request.
                         </p>
                       </div>
                     )}
@@ -893,7 +893,7 @@ export function BookingModal({
                     <p className="text-sm text-muted-foreground">
                       {isInstant 
                         ? 'Your booking will be confirmed immediately'
-                        : 'The Event Pro will review and respond to your request'
+                        : 'The Vendor will review and respond to your request'
                       }
                     </p>
                   </div>
@@ -1033,7 +1033,7 @@ export function BookingModal({
                   onChange={(e) => setGuestCount(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground mt-1">
-                  Helps the Event Pro prepare for your event
+                  Helps the Vendor prepare for your event
                 </p>
               </div>
             )}
@@ -1041,7 +1041,7 @@ export function BookingModal({
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">
                 <FileText className="w-4 h-4 inline mr-1" />
-                Notes for the Event Pro (optional)
+                Notes for the Vendor (optional)
               </label>
               <Textarea
                 placeholder="Any special requests or details..."
@@ -1104,7 +1104,7 @@ export function BookingModal({
                       "font-medium",
                       isWithinServiceArea ? "text-foreground" : "text-destructive"
                     )}>
-                      {Math.round(distanceMiles)} miles from Event Pro
+                      {Math.round(distanceMiles)} miles from Vendor
                     </p>
                     
                     {isWithinServiceArea ? (
@@ -1127,10 +1127,10 @@ export function BookingModal({
                     ) : (
                       <div className="space-y-2">
                         <p className="text-sm text-destructive">
-                          This location is outside the Event Pro's service area ({maxTravelMiles} mi max)
+                          This location is outside the Vendor's service area ({maxTravelMiles} mi max)
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          Please choose a different location or contact the Event Pro directly to discuss travel options.
+                          Please choose a different location or contact the Vendor directly to discuss travel options.
                         </p>
                       </div>
                     )}
@@ -1139,12 +1139,12 @@ export function BookingModal({
               </div>
             )}
 
-            {/* Event Pro has no base location warning */}
+            {/* Vendor has no base location warning */}
             {!geocodingAddress && addressLine1.trim() && city.trim() && state && !vendorBaseLat && (
               <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 border">
                 <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
                 <p className="text-sm text-muted-foreground">
-                  Travel distance cannot be calculated. Contact the Event Pro for travel fees if applicable.
+                  Travel distance cannot be calculated. Contact the Vendor for travel fees if applicable.
                 </p>
               </div>
             )}
@@ -1195,7 +1195,7 @@ export function BookingModal({
                     <span className="font-medium">Pay in cash at the event</span>
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Pay the Event Pro directly. No service fee.
+                    Pay the Vendor directly. No service fee.
                   </p>
                 </Label>
               </div>
@@ -1261,7 +1261,7 @@ export function BookingModal({
               {pickupOnly && (
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Location</span>
-                  <span className="font-medium text-foreground">Pickup from Event Pro</span>
+                  <span className="font-medium text-foreground">Pickup from Vendor</span>
                 </div>
               )}
               <div className="flex justify-between">
@@ -1294,7 +1294,7 @@ export function BookingModal({
               </div>
             )}
 
-            {/* Requirements from Event Pro */}
+            {/* Requirements from Vendor */}
             {((requirements && requirements.length > 0) || customerRequirements) && (
               <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-2">
                 <h4 className="font-semibold text-foreground flex items-center gap-2">
@@ -1391,8 +1391,8 @@ export function BookingModal({
               </div>
               <div className="text-xs text-muted-foreground space-y-1 pt-2 border-t border-border/50">
                 <p>• Deposits are non-refundable except within 1 hour of booking (if event is 7+ days away)</p>
-                <p>• Full refund including deposit if the Event Pro cancels</p>
-                <p>• Platform fee (12.9%) is non-refundable unless the Event Pro cancels</p>
+                <p>• Full refund including deposit if the Vendor cancels</p>
+                <p>• Platform fee (12.9%) is non-refundable unless the Vendor cancels</p>
               </div>
             </div>
 
@@ -1424,7 +1424,7 @@ export function BookingModal({
             {/* Request mode notice */}
             {!isInstant && paymentMethod === 'stripe' && (
               <p className="text-sm text-amber-600 dark:text-amber-400 p-3 rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800">
-                You'll only be charged if the Event Pro approves your request.
+                You'll only be charged if the Vendor approves your request.
               </p>
             )}
           </div>

@@ -1,6 +1,6 @@
-import { Event Pro, Package, Review } from '@/types';
+import { Vendor, Package, Review } from '@/types';
 
-export const Event Pros: Event Pro[] = [
+export const Vendors: Vendor[] = [
   {
     id: 'v1',
     name: 'Blaze & Grill Co.',
@@ -176,7 +176,7 @@ export const Event Pros: Event Pro[] = [
     instantBook: true,
     featured: true
   },
-  // Los Angeles Event Pros
+  // Los Angeles Vendors
   {
     id: 'v9',
     name: 'LA Lens Photography',
@@ -244,7 +244,7 @@ export const Event Pros: Event Pro[] = [
     instantBook: false,
     featured: true
   },
-  // Houston Event Pros
+  // Houston Vendors
   {
     id: 'v12',
     name: 'H-Town BBQ Kings',
@@ -310,7 +310,7 @@ export const Event Pros: Event Pro[] = [
     instantBook: true,
     featured: false
   },
-  // Atlanta Event Pros
+  // Atlanta Vendors
   {
     id: 'v15',
     name: 'Peach State Catering',
@@ -378,7 +378,7 @@ export const Event Pros: Event Pro[] = [
     instantBook: false,
     featured: true
   },
-  // Chicago Event Pros
+  // Chicago Vendors
   {
     id: 'v18',
     name: 'Windy City DJs',
@@ -727,7 +727,7 @@ export const packages: Package[] = [
       { id: 'a29', name: 'Engagement Session', price: 500 },
       { id: 'a30', name: 'Parent Albums (2)', price: 600 }
     ],
-    requirements: ['Event Pro meal for photographers'],
+    requirements: ['Vendor meal for photographers'],
     instantBook: false,
     featured: true
   },
@@ -955,7 +955,7 @@ export const packages: Package[] = [
       { id: 'a55', name: 'Drone Coverage', price: 400 },
       { id: 'a56', name: 'Same-Day Edit', price: 800 }
     ],
-    requirements: ['Event Pro meals', 'Timeline coordination'],
+    requirements: ['Vendor meals', 'Timeline coordination'],
     instantBook: false,
     featured: true
   },
@@ -1078,7 +1078,7 @@ export const packages: Package[] = [
       { id: 'a69', name: 'Engagement Session', price: 400 },
       { id: 'a70', name: 'Album Design', price: 600 }
     ],
-    requirements: ['Timeline meeting', 'Event Pro meals'],
+    requirements: ['Timeline meeting', 'Vendor meals'],
     instantBook: false,
     featured: true
   },

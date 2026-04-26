@@ -68,7 +68,7 @@ export default function BookingSuccess() {
           .eq('id', bookingData.package_id)
           .single();
 
-        // Fetch Event Pro name
+        // Fetch Vendor name
         const { data: vendorData } = await supabase
           .from('vendor_details')
           .select('business_name')
@@ -78,7 +78,7 @@ export default function BookingSuccess() {
         setBooking({
           ...bookingData,
           package_name: packageData?.name || 'Event Package',
-          vendor_name: vendorData?.business_name || 'Event Pro',
+          vendor_name: vendorData?.business_name || 'Vendor',
           deposit_amount: bookingData.deposit_amount ? bookingData.deposit_amount / 100 : 0,
           final_amount: bookingData.final_amount ? bookingData.final_amount / 100 : 0,
         });
@@ -113,7 +113,7 @@ export default function BookingSuccess() {
             We couldn't find your booking details.
           </p>
           <Button onClick={() => navigate('/discover')}>
-            Browse Event Pros
+            Browse Vendors
           </Button>
         </div>
       </div>
@@ -133,7 +133,7 @@ export default function BookingSuccess() {
       >
         <img 
           src={logo} 
-          alt="Event Pro by Vendibook" 
+          alt="Vendor by Vendibook" 
           className="h-12 md:h-[72px] w-auto"
         />
       </motion.div>
@@ -181,7 +181,7 @@ export default function BookingSuccess() {
             </div>
             
             <div>
-              <p className="text-sm text-muted-foreground">Event Pro</p>
+              <p className="text-sm text-muted-foreground">Vendor</p>
               <p className="font-medium">{booking.vendor_name}</p>
             </div>
 
@@ -266,11 +266,11 @@ export default function BookingSuccess() {
             <ol className="space-y-3 text-sm text-muted-foreground">
               <li className="flex items-start gap-3">
                 <CheckCircle className="w-5 h-5 text-primary flex-shrink-0" />
-                <span>Confirmation email sent to you and the Event Pro</span>
+                <span>Confirmation email sent to you and the Vendor</span>
               </li>
               <li className="flex items-start gap-3">
                 <MessageCircle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                <span>Event Pro will reach out to finalize event details</span>
+                <span>Vendor will reach out to finalize event details</span>
               </li>
               <li className="flex items-start gap-3">
                 <CreditCard className="w-5 h-5 text-muted-foreground flex-shrink-0" />
@@ -298,7 +298,7 @@ export default function BookingSuccess() {
               onClick={() => navigate('/discover')}
               className="w-full h-12 text-base"
             >
-              Browse More Event Pros
+              Browse More Vendors
             </Button>
           </motion.div>
         </motion.div>

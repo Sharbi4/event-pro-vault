@@ -26,13 +26,13 @@ import {
 const pathCards = [
   {
     title: "I'm planning an event",
-    copy: 'Search available Event Pros, compare packages, and book food experiences for your date.',
+    copy: 'Search available Vendors, compare packages, and book food experiences for your date.',
     cta: 'Start searching',
     href: '/browse',
     icon: Search,
   },
   {
-    title: "I'm an Event Pro",
+    title: "I'm an Vendor",
     copy: 'Create your profile, add packages, set availability, and get booked by customers nearby.',
     cta: 'Get booked',
     href: '/become-a-pro',
@@ -45,10 +45,10 @@ const bookingOptions = [
     title: 'Pull-Up Booking',
     icon: Truck,
     copy:
-      'Book a food truck, trailer, mobile bar, or dessert Event Pro to show up at your location. Perfect for apartments, offices, breweries, neighborhoods, schools, and community events.',
+      'Book a food truck, trailer, mobile bar, or dessert Vendor to show up at your location. Perfect for apartments, offices, breweries, neighborhoods, schools, and community events.',
     bestFor: ['Apartment events', 'Office lunches', 'Breweries', 'Markets', 'Neighborhood nights', 'School events'],
     payment: ['Host pays a show-up fee', 'Guests pay individually on-site', 'Optional minimum guarantee', 'Optional deposit'],
-    cta: 'Find pull-up Event Pros',
+    cta: 'Find pull-up Vendors',
     href: '/browse?type=pullup',
   },
   {
@@ -64,20 +64,20 @@ const bookingOptions = [
     title: 'Private Packages',
     icon: MailPlus,
     copy:
-      'Need something custom? Message a Event Pro through EventPro. They can create a private package just for your event and send it directly in your message thread.',
+      'Need something custom? Message a Vendor through EventPro. They can create a private package just for your event and send it directly in your message thread.',
     bestFor: ['Custom menus', 'Larger events', 'Mixed services', 'Special timing', 'Multi-item orders'],
-    payment: ['Event Pro creates custom package', 'Customer reviews details', 'Customer books and pays on-platform'],
-    cta: 'Message a Event Pro',
+    payment: ['Vendor creates custom package', 'Customer reviews details', 'Customer books and pays on-platform'],
+    cta: 'Message a Vendor',
     href: '/browse',
   },
 ];
 
 const customerJourney = [
-  { icon: Search, title: 'Search your date and time', copy: 'Find Event Pros available when you need them.' },
+  { icon: Search, title: 'Search your date and time', copy: 'Find Vendors available when you need them.' },
   { icon: PackageIcon, title: 'Compare packages', copy: 'See food style, pricing, photos, ratings, and what\'s included.' },
   { icon: MessageCircle, title: 'Book or message', copy: 'Choose a public package or ask for a private one.' },
   { icon: CalendarCheck, title: 'Track everything', copy: 'Event details, reminders, payments, and messages in one place.' },
-  { icon: Sparkles, title: 'Enjoy the event', copy: 'Your Event Pro shows up ready to serve.' },
+  { icon: Sparkles, title: 'Enjoy the event', copy: 'Your Vendor shows up ready to serve.' },
 ];
 
 const proJourney = [
@@ -91,28 +91,28 @@ const proJourney = [
 
 const trustCards = [
   { icon: Search, title: 'Availability-based search', copy: 'Customers search by date, time, location, guest count, and category.' },
-  { icon: PackageIcon, title: 'Package-based booking', copy: 'Event Pros list clear services customers can understand and book.' },
+  { icon: PackageIcon, title: 'Package-based booking', copy: 'Vendors list clear services customers can understand and book.' },
   { icon: MailPlus, title: 'Private packages', copy: 'Custom events stay organized inside messages and on-platform booking.' },
-  { icon: BellRing, title: 'Reminders', copy: 'Customers and Event Pros receive reminders before the event.' },
-  { icon: ShieldCheck, title: 'Cancellation rules', copy: 'Bookings follow clear windows based on event date and Event Pro policy.' },
+  { icon: BellRing, title: 'Reminders', copy: 'Customers and Vendors receive reminders before the event.' },
+  { icon: ShieldCheck, title: 'Cancellation rules', copy: 'Bookings follow clear windows based on event date and Vendor policy.' },
   { icon: Star, title: 'Ratings and reviews', copy: 'Customers can review completed bookings.' },
 ];
 
 const customerLinks = [
-  { label: 'Search Event Pros', href: '/browse' },
+  { label: 'Search Vendors', href: '/browse' },
   { label: 'Browse food trucks', href: '/browse?category=food-truck' },
   { label: 'Browse mobile bartenders', href: '/browse?category=bartender' },
-  { label: 'Browse dessert Event Pros', href: '/browse?category=dessert' },
+  { label: 'Browse dessert Vendors', href: '/browse?category=dessert' },
   { label: 'Browse catering packages', href: '/browse?type=catering' },
   { label: 'See available this weekend', href: '/browse?when=weekend' },
 ];
 
 const proLinks = [
-  { label: 'Become an Event Pro', href: '/become-a-pro' },
+  { label: 'Become an Vendor', href: '/become-a-pro' },
   { label: 'Create a package', href: '/vendor-onboarding' },
   { label: 'Set availability', href: '/vendor-dashboard' },
   { label: 'Learn about private packages', href: '#private-packages' },
-  { label: 'Event Pro dashboard', href: '/vendor-dashboard' },
+  { label: 'Vendor dashboard', href: '/vendor-dashboard' },
 ];
 
 export default function HowItWorks() {
@@ -127,19 +127,19 @@ export default function HowItWorks() {
             <span className="text-primary">your way.</span>
           </h1>
           <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-            EventPro helps customers find available mobile food Event Pros, compare packages, message
-            for custom needs, and book confidently. Event Pros can list services, manage
+            EventPro helps customers find available mobile food Vendors, compare packages, message
+            for custom needs, and book confidently. Vendors can list services, manage
             availability, send private packages, and turn open dates into paid bookings.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link to="/browse">
               <Button size="xl" className="gap-2 w-full sm:w-auto">
-                Find Event Pros <ArrowRight className="w-5 h-5" />
+                Find Vendors <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
             <Link to="/become-a-pro">
               <Button size="xl" variant="outline" className="w-full sm:w-auto">
-                Become an Event Pro
+                Become an Vendor
               </Button>
             </Link>
           </div>
@@ -259,11 +259,11 @@ export default function HowItWorks() {
         </div>
       </section>
 
-      {/* Event Pro journey */}
+      {/* Vendor journey */}
       <section className="py-16 lg:py-20 bg-secondary/20">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12 max-w-2xl mx-auto">
-            <Badge variant="secondary" className="mb-3">For Event Pros</Badge>
+            <Badge variant="secondary" className="mb-3">For Vendors</Badge>
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-3">
               Turn your open calendar into bookings
             </h2>
@@ -283,7 +283,7 @@ export default function HowItWorks() {
           <div className="text-center mt-10">
             <Link to="/become-a-pro">
               <Button size="lg" className="gap-2">
-                Become an Event Pro <ArrowRight className="w-4 h-4" />
+                Become an Vendor <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
           </div>
@@ -298,7 +298,7 @@ export default function HowItWorks() {
               Built for real event bookings
             </h2>
             <p className="text-muted-foreground">
-              The structure customers and Event Pros need to make events run smoothly.
+              The structure customers and Vendors need to make events run smoothly.
             </p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
@@ -348,7 +348,7 @@ export default function HowItWorks() {
                 <div className="w-10 h-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
                   <ChefHat className="w-5 h-5" />
                 </div>
-                <h3 className="font-display text-xl font-bold">For Event Pros</h3>
+                <h3 className="font-display text-xl font-bold">For Vendors</h3>
               </div>
               <ul className="space-y-2">
                 {proLinks.map((l) => (

@@ -50,7 +50,7 @@ export function ProfileTypeModal({ open, onOpenChange }: ProfileTypeModalProps) 
       <DialogContent className="sm:max-w-md p-0 gap-0 overflow-hidden max-h-[90vh] flex flex-col">
         <DialogHeader className="p-6 pb-3">
           <DialogTitle className="text-2xl font-bold text-center">
-            Become an Event Pro
+            Become an Vendor
           </DialogTitle>
           <p className="text-muted-foreground text-center text-sm mt-1">
             Start getting booked for events
@@ -65,7 +65,7 @@ export function ProfileTypeModal({ open, onOpenChange }: ProfileTypeModalProps) 
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="font-semibold text-foreground">Event Pro</h3>
+                <h3 className="font-semibold text-foreground">Vendor</h3>
                 <p className="text-xs text-muted-foreground">Services & Packages</p>
               </div>
             </div>

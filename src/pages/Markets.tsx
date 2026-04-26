@@ -52,7 +52,7 @@ export default function Markets() {
                   Flea Markets & Farmers Markets
                 </h1>
                 <p className="text-muted-foreground max-w-2xl">
-                  Find the perfect spot to showcase your products. Browse available Event Pro spaces at flea markets 
+                  Find the perfect spot to showcase your products. Browse available Vendor spaces at flea markets 
                   and farmers markets across the country.
                 </p>
               </div>

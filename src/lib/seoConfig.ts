@@ -27,7 +27,7 @@ export const SEO_CONFIG = {
     'cottage baker',
     'mobile coffee cart',
     'ice cream truck rental',
-    'food Event Pro booking',
+    'food Vendor booking',
   ],
 };
 
@@ -41,7 +41,7 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
     // Public pages
     home: {
       title: `${siteName} | Book Food Trucks, Caterers & Mobile Bartenders`,
-      description: 'Book food trucks, caterers, mobile bartenders, bakers and dessert Event Pros for your next event — search by date, time, and location.',
+      description: 'Book food trucks, caterers, mobile bartenders, bakers and dessert Vendors for your next event — search by date, time, and location.',
       canonical: baseUrl,
     },
     learn: {
@@ -50,19 +50,19 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
       canonical: `${baseUrl}/learn`,
     },
     learnEventPros: {
-      title: `For Event Pros — Get Booked Faster | ${siteName}`,
+      title: `For Vendors — Get Booked Faster | ${siteName}`,
       description: 'Create packages with real-time availability. Get discovered by date and time. Accept Instant Book or Request to Book. Secure payouts via Stripe.',
       canonical: `${baseUrl}/learn/event-pros`,
     },
     learnMarkets: {
-      title: `For Market Managers — Fill Event Pro Spots | ${siteName}`,
-      description: 'Create slot types, post market days, and let Event Pros reserve instantly. Show remaining spots to drive faster bookings.',
+      title: `For Market Managers — Fill Vendor Spots | ${siteName}`,
+      description: 'Create slot types, post market days, and let Vendors reserve instantly. Show remaining spots to drive faster bookings.',
       canonical: `${baseUrl}/learn/markets`,
     },
     browse: {
       title: dynamicData?.category
         ? `Book ${dynamicData.category} Near You | ${siteName}`
-        : `Find Food Trucks & Mobile Food Event Pros | ${siteName}`,
+        : `Find Food Trucks & Mobile Food Vendors | ${siteName}`,
       description: dynamicData?.category
         ? `Find available ${dynamicData.category} packages for your date and time. Compare pricing, travel range, and book online or pay in cash.`
         : 'Search food trucks, caterers, mobile bartenders, bakers and beverage carts by date, time, and location. Real-time availability.',
@@ -93,18 +93,18 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
       canonical: `${baseUrl}/contact`,
     },
     becomePro: {
-      title: `Become an Event Pro | ${siteName}`,
+      title: `Become an Vendor | ${siteName}`,
       description: 'Join thousands of event professionals. Create your profile, set availability, and start getting booked for events today. Free to list.',
       canonical: `${baseUrl}/become-a-pro`,
     },
     blog: {
       title: `Blog — Event Planning Tips & Insights | ${siteName}`,
-      description: 'Expert tips for planning events and growing your event business. Guides for bookers and Event Pros on the EventPro marketplace.',
+      description: 'Expert tips for planning events and growing your event business. Guides for bookers and Vendors on the EventPro marketplace.',
       canonical: `${baseUrl}/blog`,
     },
     markets: {
-      title: `Browse Markets & Event Pro Spots | ${siteName}`,
-      description: 'Find and reserve Event Pro spots at farmers markets, food truck rallies, craft fairs, and pop-up events. Real-time availability.',
+      title: `Browse Markets & Vendor Spots | ${siteName}`,
+      description: 'Find and reserve Vendor spots at farmers markets, food truck rallies, craft fairs, and pop-up events. Real-time availability.',
       canonical: `${baseUrl}/markets`,
     },
     
@@ -122,14 +122,14 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
       noIndex: true,
     },
     vendorDashboard: {
-      title: `Event Pro Dashboard | ${siteName}`,
+      title: `Vendor Dashboard | ${siteName}`,
       description: 'Manage your packages, availability, bookings, and payouts.',
       canonical: `${baseUrl}/vendor-dashboard`,
       noIndex: true,
     },
     onboarding: {
       title: `Complete Your Profile | ${siteName}`,
-      description: 'Finish setting up your Event Pro profile to start receiving bookings.',
+      description: 'Finish setting up your Vendor profile to start receiving bookings.',
       canonical: `${baseUrl}/eventpro-onboarding`,
       noIndex: true,
     },
@@ -180,11 +180,11 @@ export function generateProSEO(pro: {
   image?: string;
 }) {
   const { siteName } = SEO_CONFIG;
-  const name = pro.displayName || pro.businessName || 'Event Pro';
+  const name = pro.displayName || pro.businessName || 'Vendor';
   const cityPart = pro.city ? ` in ${pro.city}` : '';
   
   return {
-    title: `${name} | Event Pro${cityPart} | ${siteName}`,
+    title: `${name} | Vendor${cityPart} | ${siteName}`,
     description: pro.bio?.slice(0, 160) || `View packages from ${name}. Check availability, travel range, and book services for your date and time.`,
     image: pro.image || SEO_CONFIG.defaultImage,
     type: 'profile' as const,

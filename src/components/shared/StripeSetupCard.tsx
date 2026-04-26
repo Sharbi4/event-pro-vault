@@ -22,7 +22,7 @@ import { prepareExternalNavigation } from '@/lib/externalNavigation';
 export type StripeStatus = 'not_started' | 'pending' | 'pending_verification' | 'active';
 
 interface StripeSetupCardProps {
-  variant: 'Event Pro' | 'market';
+  variant: 'Vendor' | 'market';
   currentStatus?: string | null;
   onStatusChange?: () => void;
 }
@@ -75,11 +75,11 @@ export function StripeSetupCard({ variant, currentStatus, onStatusChange }: Stri
   const [detailsSubmitted, setDetailsSubmitted] = useState(false);
   const { toast } = useToast();
 
-  const checkStatusEndpoint = variant === 'Event Pro' 
+  const checkStatusEndpoint = variant === 'Vendor' 
     ? 'check-connect-status' 
     : 'check-market-connect-status';
   
-  const createAccountEndpoint = variant === 'Event Pro'
+  const createAccountEndpoint = variant === 'Vendor'
     ? 'create-connect-account'
     : 'create-market-connect-account';
 
@@ -275,7 +275,7 @@ export function StripeSetupCard({ variant, currentStatus, onStatusChange }: Stri
             <p className="text-sm text-muted-foreground">
               {status === 'active' 
                 ? 'Your Stripe account is connected and ready to receive payouts.'
-                : `Connect Stripe to receive ${variant === 'Event Pro' ? 'booking' : 'slot booking'} payments directly to your bank account.`
+                : `Connect Stripe to receive ${variant === 'Vendor' ? 'booking' : 'slot booking'} payments directly to your bank account.`
               }
             </p>
           </div>

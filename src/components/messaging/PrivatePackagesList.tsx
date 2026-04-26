@@ -27,7 +27,7 @@ interface PrivatePackageRow {
 }
 
 interface PrivatePackagesListProps {
-  role: 'Event Pro' | 'customer';
+  role: 'Vendor' | 'customer';
 }
 
 const STATUS_TONE: Record<string, string> = {
@@ -60,7 +60,7 @@ export function PrivatePackagesList({ role }: PrivatePackagesListProps) {
     let active = true;
     (async () => {
       setLoading(true);
-      const column = role === 'Event Pro' ? 'vendor_user_id' : 'customer_user_id';
+      const column = role === 'Vendor' ? 'vendor_user_id' : 'customer_user_id';
       const { data } = await supabase
         .from('private_packages')
         .select(
@@ -122,9 +122,9 @@ export function PrivatePackagesList({ role }: PrivatePackagesListProps) {
           <Inbox className="w-8 h-8 mx-auto text-muted-foreground mb-2" />
           <p className="text-sm font-medium">No private packages here</p>
           <p className="text-xs text-muted-foreground mt-1">
-            {role === 'Event Pro'
+            {role === 'Vendor'
               ? 'Create one from inside any message thread to send a custom offer.'
-              : 'When a Event Pro sends you a custom offer, it will show up here.'}
+              : 'When a Vendor sends you a custom offer, it will show up here.'}
           </p>
         </div>
       ) : (
@@ -165,7 +165,7 @@ export function PrivatePackagesList({ role }: PrivatePackagesListProps) {
                         {p.location}
                       </span>
                     )}
-                    {role === 'Event Pro' && p.customer_email && (
+                    {role === 'Vendor' && p.customer_email && (
                       <span className="truncate max-w-[200px]">to {p.customer_email}</span>
                     )}
                   </div>

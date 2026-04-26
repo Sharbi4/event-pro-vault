@@ -11,7 +11,7 @@ export interface Dispute {
   reason: string;
   description: string | null;
   status: 'pending' | 'vendor_response' | 'mediation' | 'resolved' | 'closed' | 'withdrawn';
-  filed_by_type: 'customer' | 'Event Pro';
+  filed_by_type: 'customer' | 'Vendor';
   evidence_urls: string[];
   requested_remedy: 'full_refund' | 'partial_refund' | 'credit' | 'reschedule' | 'other' | null;
   requested_remedy_details: string | null;
@@ -52,7 +52,7 @@ export interface Dispute {
   };
 }
 
-export function useDisputes(role: 'customer' | 'Event Pro' | 'admin') {
+export function useDisputes(role: 'customer' | 'Vendor' | 'admin') {
   const { user } = useAuth();
   const { toast } = useToast();
   const [disputes, setDisputes] = useState<Dispute[]>([]);
@@ -75,7 +75,7 @@ export function useDisputes(role: 'customer' | 'Event Pro' | 'admin') {
       // Filter based on role
       if (role === 'customer') {
         query = query.eq('reported_by_user_id', user.id);
-      } else if (role === 'Event Pro') {
+      } else if (role === 'Vendor') {
         query = query.eq('vendor_user_id', user.id);
       }
       // Admin sees all (no filter)
@@ -84,7 +84,7 @@ export function useDisputes(role: 'customer' | 'Event Pro' | 'admin') {
 
       if (error) throw error;
 
-      // Fetch profiles for reporters and Event Pros
+      // Fetch profiles for reporters and Vendors
       if (data && data.length > 0) {
         const reporterIds = [...new Set(data.map(d => d.reported_by_user_id))];
         const vendorIds = [...new Set(data.map(d => d.vendor_user_id))];
@@ -151,7 +151,7 @@ export function useDisputes(role: 'customer' | 'Event Pro' | 'admin') {
     };
   }, [user, fetchDisputes]);
 
-  // Event Pro responds to dispute
+  // Vendor responds to dispute
   const respondToDispute = async (
     disputeId: string,
     response: string,
@@ -170,12 +170,12 @@ export function useDisputes(role: 'customer' | 'Event Pro' | 'admin') {
       }
 
       if (accept) {
-        // Event Pro accepts the customer's requested remedy
+        // Vendor accepts the customer's requested remedy
         updateData.status = 'resolved';
         updateData.resolved_at = new Date().toISOString();
         updateData.resolution_outcome = disputes.find(d => d.id === disputeId)?.requested_remedy || 'full_refund';
       } else {
-        // Move to mediation if Event Pro disagrees
+        // Move to mediation if Vendor disagrees
         updateData.status = 'mediation';
         updateData.mediation_started_at = new Date().toISOString();
       }

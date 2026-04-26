@@ -302,11 +302,11 @@ export function useBrowseMarkets() {
   const marketTypes = [
     'Farmers Market',
     'Flea Market',
-    'Event Pro Market',
+    'Vendor Market',
     'Night Market',
     'Pop-up Event',
     'Food Truck Roundup',
-    'Festival Event Pro Area',
+    'Festival Vendor Area',
   ];
 
   return {

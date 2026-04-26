@@ -38,9 +38,9 @@ const CATEGORY_FAQS: Record<string, Array<{ q: string; a: string }>> = {
 };
 
 const DEFAULT_FAQS = [
-  { q: 'How does booking work?', a: 'Browse packages, select your date and details, and book instantly or request approval. You only pay after the Event Pro confirms.' },
+  { q: 'How does booking work?', a: 'Browse packages, select your date and details, and book instantly or request approval. You only pay after the Vendor confirms.' },
   { q: 'What if I need to cancel?', a: 'Each package has a cancellation policy (Flexible, Standard, or Strict) shown before booking. Refunds depend on how far in advance you cancel.' },
-  { q: 'Are the Event Pros verified?', a: 'All Event Pros complete our verification process and must connect a payment account before accepting bookings.' }
+  { q: 'Are the Vendors verified?', a: 'All Vendors complete our verification process and must connect a payment account before accepting bookings.' }
 ];
 
 function slugToTitle(slug: string): string {
@@ -121,7 +121,7 @@ export default function CityCategory() {
                 </Badge>
                 <div className="flex items-center gap-1 text-muted-foreground">
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span>Verified Event Pros</span>
+                  <span>Verified Vendors</span>
                 </div>
               </div>
             )}
@@ -143,7 +143,7 @@ export default function CityCategory() {
                   key={pkg.id}
                   pkg={{
                     ...pkg,
-                    vendorName: pkg.profiles?.display_name || 'Event Pro',
+                    vendorName: pkg.profiles?.display_name || 'Vendor',
                     vendorAvatar: pkg.profiles?.avatar_url,
                     city: pkg.vendor_details?.city,
                     state: pkg.vendor_details?.state

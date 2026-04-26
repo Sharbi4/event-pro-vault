@@ -267,7 +267,7 @@ export function NoMatchesEmptyState({
             <div className="flex items-start gap-2">
               <Checkbox id="consent" checked={consent} onCheckedChange={(c) => setConsent(c === true)} />
               <Label htmlFor="consent" className="text-sm text-muted-foreground leading-tight cursor-pointer">
-                I agree to receive updates about matching Event Pros and availability notifications.
+                I agree to receive updates about matching Vendors and availability notifications.
               </Label>
             </div>
 

@@ -15,7 +15,7 @@ import {
   ChevronLeft, Zap, MapPin, AlertCircle, Star, CalendarIcon, Loader2,
   Banknote, CreditCard, ShieldCheck
 } from 'lucide-react';
-import { packages, Event Pros, reviews } from '@/data/vendors';
+import { packages, Vendors, reviews } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBookings } from '@/hooks/useBookings';
@@ -48,8 +48,8 @@ export default function PackageDetail() {
   const { toast } = useToast();
   
   const pkg = packages.find(p => p.id === id);
-  const Event Pro = pkg ? vendors.find(v => v.id === pkg.vendorId) : null;
-  const vendorReviews = Event Pro ? reviews.filter(r => r.vendorId === vendor.id).slice(0, 2) : [];
+  const Vendor = pkg ? vendors.find(v => v.id === pkg.vendorId) : null;
+  const vendorReviews = Vendor ? reviews.filter(r => r.vendorId === vendor.id).slice(0, 2) : [];
 
   // Fetch real package data from DB
   const [packageData, setPackageData] = useState<PackageData | null>(null);
@@ -98,13 +98,13 @@ export default function PackageDetail() {
     fetchPackageData();
   }, [id]);
 
-  // Fetch Event Pro's blocked dates and recurring patterns
+  // Fetch Vendor's blocked dates and recurring patterns
   useEffect(() => {
     const fetchAvailability = async () => {
-      if (!Event Pro) return;
+      if (!Vendor) return;
       
       setLoadingDates(true);
-      // Note: In production, you'd fetch by Event Pro's user_id
+      // Note: In production, you'd fetch by Vendor's user_id
       // For now, we fetch all blocked dates as a demo
       const [datesRes, recurringRes] = await Promise.all([
         supabase
@@ -127,7 +127,7 @@ export default function PackageDetail() {
     };
 
     fetchAvailability();
-  }, [Event Pro]);
+  }, [Vendor]);
 
   const blockedDateSet = new Set(
     blockedDates.map(b => format(new Date(b.date), 'yyyy-MM-dd'))
@@ -152,13 +152,13 @@ export default function PackageDetail() {
     }
   };
 
-  if (!pkg || !Event Pro) {
+  if (!pkg || !Vendor) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Package not found</h1>
           <Link to="/browse">
-            <Button variant="gradient">Browse Event Pros</Button>
+            <Button variant="gradient">Browse Vendors</Button>
           </Link>
         </div>
       </Layout>
@@ -218,10 +218,10 @@ export default function PackageDetail() {
       ? (paymentMethod === 'cash' ? 'cash_due' : 'pending')
       : 'awaiting_approval';
 
-    // Note: In production with real Event Pro data, you would fetch the Event Pro's user_id and email from the database
+    // Note: In production with real Vendor data, you would fetch the Vendor's user_id and email from the database
     const result = await createBooking({
       vendor_id: vendor.id,
-      vendor_user_id: null, // Would be Event Pro's actual user_id in production
+      vendor_user_id: null, // Would be Vendor's actual user_id in production
       package_id: pkg.id,
       event_date: format(eventDate, 'yyyy-MM-dd'),
       event_location: eventLocation.trim(),
@@ -247,15 +247,15 @@ export default function PackageDetail() {
         toast({
           title: "Booking confirmed!",
           description: paymentMethod === 'cash' 
-            ? "You'll pay the Event Pro in cash at the event."
+            ? "You'll pay the Vendor in cash at the event."
             : "Your booking has been confirmed."
         });
       } else {
         toast({
           title: "Request sent!",
           description: paymentMethod === 'stripe'
-            ? "You'll only be charged if the Event Pro approves your request."
-            : "You'll be notified when the Event Pro responds."
+            ? "You'll only be charged if the Vendor approves your request."
+            : "You'll be notified when the Vendor responds."
         });
       }
       // Redirect to dashboard to see booking
@@ -584,7 +584,7 @@ export default function PackageDetail() {
                             <span className="font-medium">Pay in cash at the event</span>
                           </div>
                           <p className="text-xs text-muted-foreground mt-0.5">
-                            Pay the Event Pro directly
+                            Pay the Vendor directly
                           </p>
                         </Label>
                       </div>
@@ -612,7 +612,7 @@ export default function PackageDetail() {
                       <span className="font-medium text-foreground">Pay in cash at the event</span>
                     </div>
                     <p className="text-xs text-muted-foreground mt-1">
-                      You'll pay the Event Pro directly
+                      You'll pay the Vendor directly
                     </p>
                   </div>
                 )}
@@ -658,7 +658,7 @@ export default function PackageDetail() {
                   )}
                   {paymentMethod === 'cash' && (
                     <p className="text-xs text-muted-foreground">
-                      * You'll pay the Event Pro directly at the event
+                      * You'll pay the Vendor directly at the event
                     </p>
                   )}
                 </div>
@@ -692,7 +692,7 @@ export default function PackageDetail() {
                 </p>
                 {!isInstantBook && paymentMethod === 'stripe' && (
                   <p className="text-xs text-center text-amber-600 dark:text-amber-400 mt-2">
-                    You'll only be charged if the Event Pro approves your request.
+                    You'll only be charged if the Vendor approves your request.
                   </p>
                 )}
               </Card>

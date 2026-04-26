@@ -3,7 +3,7 @@
 //
 // Inputs are timezone-naive ISO strings + minute-of-day; the caller is
 // responsible for picking a consistent reference frame (we recommend UTC for
-// edge-function math and the Event Pro's local date for slot iteration).
+// edge-function math and the Vendor's local date for slot iteration).
 
 export type BookingMode = 'HOURLY' | 'DAILY';
 
@@ -14,7 +14,7 @@ export type BlockingLifecycle =
   | 'confirmed'
   | 'in_progress';
 
-/** Lifecycle statuses that consume Event Pro calendar capacity. */
+/** Lifecycle statuses that consume Vendor calendar capacity. */
 export const BLOCKING_LIFECYCLE_STATUSES: ReadonlySet<string> = new Set<BlockingLifecycle>([
   'pending_vendor_approval',
   'approved_payment_required',
@@ -112,7 +112,7 @@ function minToHM(min: number): string {
 }
 
 /** Build a Date in UTC from a YYYY-MM-DD + minute-of-day. We treat the date as
- *  a wall-clock anchor; downstream clients render in the Event Pro's tz. */
+ *  a wall-clock anchor; downstream clients render in the Vendor's tz. */
 function isoFromDateAndMin(date: string, minutes: number): string {
   const [y, mo, d] = date.split('-').map(Number);
   const dt = new Date(Date.UTC(y, mo - 1, d, 0, 0, 0, 0));

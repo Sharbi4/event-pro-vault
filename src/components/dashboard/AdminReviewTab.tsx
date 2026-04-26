@@ -122,7 +122,7 @@ export function AdminReviewTab() {
         <TabsList>
           <TabsTrigger value="event-pros" className="gap-2">
             <Sparkles className="w-4 h-4" />
-            Event Pros
+            Vendors
             {pendingEventPros.length > 0 && (
               <Badge variant="secondary" className="ml-1">{pendingEventPros.length}</Badge>
             )}
@@ -136,7 +136,7 @@ export function AdminReviewTab() {
           </TabsTrigger>
         </TabsList>
 
-        {/* Event Pros Tab */}
+        {/* Vendors Tab */}
         <TabsContent value="event-pros" className="mt-6">
           {pendingEventPros.length === 0 ? (
             <Card>

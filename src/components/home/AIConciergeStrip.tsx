@@ -28,7 +28,7 @@ export function AIConciergeStrip() {
                 Not sure what fits your event?
               </h2>
               <p className="text-muted-foreground max-w-xl">
-                Tell us what you're planning and we'll recommend the best Event Pro types and packages.
+                Tell us what you're planning and we'll recommend the best Vendor types and packages.
               </p>
             </div>
             <Button variant="gradient" size="lg" onClick={() => setOpen(true)} className="rounded-full shrink-0">

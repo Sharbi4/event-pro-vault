@@ -18,9 +18,9 @@ interface VerificationCardProps {
 }
 
 /**
- * Optional Stripe Identity verification card shown on the Event Pro Settings tab.
+ * Optional Stripe Identity verification card shown on the Vendor Settings tab.
  * Verification is NOT required to publish, get bookings, or receive payouts —
- * it only unlocks the "Verified Event Pro" trust badge.
+ * it only unlocks the "Verified Vendor" trust badge.
  */
 export function VerificationCard({
   status = 'not_started',
@@ -88,7 +88,7 @@ export function VerificationCard({
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold">Verified Event Pro</h3>
+              <h3 className="font-semibold">Verified Vendor</h3>
               <Badge variant="verified" className="text-[10px] gap-1">
                 <ShieldCheck className="w-3 h-3" />
                 Verified
@@ -150,7 +150,7 @@ export function VerificationCard({
             <h3 className="font-semibold mb-1">Verification needs attention</h3>
             <p className="text-sm text-muted-foreground mb-4">
               We couldn't complete your verification. Try again to unlock the
-              Verified Event Pro badge.
+              Verified Vendor badge.
             </p>
             <Button
               onClick={startVerification}
@@ -177,7 +177,7 @@ export function VerificationCard({
         </div>
         <div className="flex-1">
           <h3 className="font-semibold mb-1">
-            Get the Verified Event Pro badge
+            Get the Verified Vendor badge
           </h3>
           <p className="text-sm text-muted-foreground mb-4">
             Complete optional identity verification to add a trust badge to your

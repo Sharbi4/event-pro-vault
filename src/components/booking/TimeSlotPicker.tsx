@@ -148,7 +148,7 @@ export function TimeSlotPicker({
       {!error && slots.length === 0 && (
         <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
           <AlertCircle className="w-4 h-4 shrink-0" />
-          <span>No available {mode === 'DAILY' ? 'date' : 'time slots'} for this day. The Event Pro may be fully booked.</span>
+          <span>No available {mode === 'DAILY' ? 'date' : 'time slots'} for this day. The Vendor may be fully booked.</span>
         </div>
       )}
 

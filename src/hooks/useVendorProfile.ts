@@ -77,7 +77,7 @@ export function useVendorProfile(vendorUserId: string | undefined) {
       setError(null);
 
       try {
-        // Fetch Event Pro details and profile in parallel
+        // Fetch Vendor details and profile in parallel
         const [detailsResult, profileResult, packagesResult, reviewsResult] = await Promise.all([
           supabase
             .from('vendor_details')
@@ -108,7 +108,7 @@ export function useVendorProfile(vendorUserId: string | undefined) {
         if (reviewsResult.error) throw reviewsResult.error;
 
         if (!detailsResult.data || !profileResult.data) {
-          setError('Event Pro not found');
+          setError('Vendor not found');
           setLoading(false);
           return;
         }
@@ -160,7 +160,7 @@ export function useVendorProfile(vendorUserId: string | undefined) {
         setReviews(reviewsResult.data || []);
 
       } catch (err: any) {
-        console.error('Error fetching Event Pro profile:', err);
+        console.error('Error fetching Vendor profile:', err);
         setError(err.message);
       } finally {
         setLoading(false);

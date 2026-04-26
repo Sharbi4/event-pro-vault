@@ -81,7 +81,7 @@ export default function PremiumUpgradeModal({
                     <Sparkles className="w-6 h-6" />
                   </div>
                   <div>
-                    <h2 className="text-xl font-bold">Event Pro Premium</h2>
+                    <h2 className="text-xl font-bold">Vendor Premium</h2>
                     <p className="text-sm text-white/80">Unlock your full potential</p>
                   </div>
                 </div>

@@ -46,7 +46,7 @@ export default function PackageDetail() {
     image: packageSeo?.image,
     keywords: [
       packageData?.category || 'event service',
-      'book Event Pro',
+      'book Vendor',
       'event package',
       packageData?.vendor_display_name || packageData?.vendor_name || '',
       'book by availability',
@@ -143,7 +143,7 @@ export default function PackageDetail() {
           <ShareButton
             url={`/package/${id}`}
             title={packageData.name}
-            text={`Check out ${packageData.name} by ${packageData.vendor_display_name || packageData.vendor_name} on Event Pro!`}
+            text={`Check out ${packageData.name} by ${packageData.vendor_display_name || packageData.vendor_name} on Vendor!`}
           />
         </div>
 

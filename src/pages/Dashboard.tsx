@@ -28,7 +28,7 @@ import { AddToCalendarButton } from '@/components/booking/AddToCalendarButton';
 import { BookingReceipt } from '@/components/booking/BookingReceipt';
 import { BookingCard } from '@/components/dashboard/BookingCard';
 import { deriveBookingState, getBookingTab } from '@/lib/bookingState';
-import { Event Pros, packages } from '@/data/vendors';
+import { Vendors, packages } from '@/data/vendors';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { toast } from 'sonner';
@@ -231,7 +231,7 @@ export default function Dashboard() {
 
       if (error) throw error;
 
-      toast.success('Conversation started! The Event Pro will be notified.');
+      toast.success('Conversation started! The Vendor will be notified.');
       
       // Navigate to messages tab
       navigate(`/dashboard?tab=messages`);
@@ -340,7 +340,7 @@ export default function Dashboard() {
           {hasVendorPackages && (
             <Button variant="outline" size="sm" onClick={() => navigate('/vendor-dashboard')} className="gap-2">
               <Users className="w-4 h-4" />
-              Event Pro Dashboard
+              Vendor Dashboard
             </Button>
           )}
           {profile?.is_published && profile?.is_vendor && (
@@ -352,7 +352,7 @@ export default function Dashboard() {
           {!hasVendorPackages && (
             <Button variant="gradient" size="sm" onClick={() => navigate('/eventpro-onboarding')} className="gap-2">
               <Star className="w-4 h-4" />
-              Become an Event Pro
+              Become an Vendor
             </Button>
           )}
         </div>
@@ -440,7 +440,7 @@ export default function Dashboard() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Package className="w-4 h-4 text-muted-foreground" />
-                <h3 className="text-sm font-semibold text-foreground">Custom offers from Event Pros</h3>
+                <h3 className="text-sm font-semibold text-foreground">Custom offers from Vendors</h3>
               </div>
               <PrivatePackagesList role="customer" />
             </div>
@@ -459,12 +459,12 @@ export default function Dashboard() {
                 </div>
                 <h3 className="font-semibold text-foreground text-sm mb-1">No bookings yet</h3>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Find and book amazing event Event Pros
+                  Find and book amazing event Vendors
                 </p>
                 <Link to="/browse">
                   <Button variant="gradient" size="sm" className="gap-1.5">
                     <Search className="w-3.5 h-3.5" />
-                    Browse Event Pros
+                    Browse Vendors
                   </Button>
                 </Link>
               </Card>
@@ -532,18 +532,18 @@ export default function Dashboard() {
                 </div>
                 <h3 className="font-semibold text-foreground text-sm mb-1">No favorites yet</h3>
                 <p className="text-xs text-muted-foreground mb-3">
-                  Save Event Pros to find them later
+                  Save Vendors to find them later
                 </p>
                 <Link to="/browse">
                   <Button variant="gradient" size="sm" className="gap-1.5">
                     <Search className="w-3.5 h-3.5" />
-                    Browse Event Pros
+                    Browse Vendors
                   </Button>
                 </Link>
               </Card>
             ) : (
               <div className="grid gap-3">
-                {favoriteVendors.map(Event Pro => (
+                {favoriteVendors.map(Vendor => (
                   <Card key={vendor.id} variant="glow" className="p-3">
                     <div className="flex items-center gap-3">
                       <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
@@ -674,7 +674,7 @@ export default function Dashboard() {
             }}
             bookingId={bookingToReview.id}
             vendorUserId={bookingToReview.vendor_user_id}
-            vendorName={bookingToReview.vendor_display_name || 'Event Pro'}
+            vendorName={bookingToReview.vendor_display_name || 'Vendor'}
             packageId={bookingToReview.package_id}
             packageName={bookingToReview.package_name}
             eventDate={bookingToReview.event_date}

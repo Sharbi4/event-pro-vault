@@ -26,7 +26,7 @@ export function GlassInfoPane({
 }: GlassInfoPaneProps) {
   return (
     <div className="glass-panel rounded-2xl md:rounded-3xl p-6 md:p-8 space-y-6">
-      {/* Event Pro Info */}
+      {/* Vendor Info */}
       <div className="flex items-center gap-3">
         <Avatar className="w-10 h-10 border-2 border-white/20">
           <AvatarImage src={vendorAvatar} alt={vendorName} />

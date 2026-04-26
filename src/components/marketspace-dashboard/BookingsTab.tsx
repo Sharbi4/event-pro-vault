@@ -174,7 +174,7 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
 
   const exportBookings = () => {
     const csv = [
-      ['Date', 'Event Pro Name', 'Category', 'Slot Type', 'Status', 'Payment', 'Total'].join(','),
+      ['Date', 'Vendor Name', 'Category', 'Slot Type', 'Status', 'Payment', 'Total'].join(','),
       ...sortedBookings.map(b => [
         b.inventoryDate || '',
         b.vendorName || '',
@@ -247,7 +247,7 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="font-display text-xl font-bold text-foreground">Event Pro Reservations</h2>
+          <h2 className="font-display text-xl font-bold text-foreground">Vendor Reservations</h2>
           <p className="text-sm text-muted-foreground">
             {sortedBookings.length} booking{sortedBookings.length !== 1 ? 's' : ''} found
           </p>
@@ -263,7 +263,7 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder="Search by Event Pro name, email, category..."
+            placeholder="Search by Vendor name, email, category..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
@@ -300,7 +300,7 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
           <h3 className="font-medium text-foreground mb-2">No bookings found</h3>
           <p className="text-sm text-muted-foreground">
             {bookings.length === 0 
-              ? 'Event Pro reservations will appear here once you start receiving them.'
+              ? 'Vendor reservations will appear here once you start receiving them.'
               : 'Try adjusting your search or filters.'}
           </p>
         </Card>
@@ -332,11 +332,11 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
                   )}
                 </div>
 
-                {/* Event Pro Info */}
+                {/* Vendor Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1 flex-wrap">
                     <h3 className="font-semibold text-foreground">
-                      {booking.vendorName || 'Unknown Event Pro'}
+                      {booking.vendorName || 'Unknown Vendor'}
                     </h3>
                     {getStatusBadge(booking.status)}
                     {getPaymentBadge(booking.paymentStatus)}
@@ -447,7 +447,7 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
                         <DropdownMenuItem asChild>
                           <a href={`mailto:${booking.vendorEmail}`}>
                             <Mail className="w-4 h-4 mr-2" />
-                            Email Event Pro
+                            Email Vendor
                           </a>
                         </DropdownMenuItem>
                       )}
@@ -493,7 +493,7 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
             <Tabs defaultValue="details" className="mt-4">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="details">Details</TabsTrigger>
-                <TabsTrigger value="Event Pro">Event Pro Info</TabsTrigger>
+                <TabsTrigger value="Vendor">Vendor Info</TabsTrigger>
                 <TabsTrigger value="payment">Payment</TabsTrigger>
               </TabsList>
 
@@ -528,7 +528,7 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
                   </h4>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div>
-                      <span className="text-muted-foreground">Event Pro Type:</span>
+                      <span className="text-muted-foreground">Vendor Type:</span>
                       <p className="font-medium">{formatVendorType(selectedBooking.vendorType)}</p>
                     </div>
                     {selectedBooking.boothSize && (
@@ -615,14 +615,14 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
                 )}
               </TabsContent>
 
-              <TabsContent value="Event Pro" className="space-y-4 mt-4">
+              <TabsContent value="Vendor" className="space-y-4 mt-4">
                 <Card className="p-4">
                   <div className="flex items-center gap-3 mb-4">
                     <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
                       <User className="w-6 h-6 text-primary" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-lg">{selectedBooking.vendorName || 'Unknown Event Pro'}</h3>
+                      <h3 className="font-semibold text-lg">{selectedBooking.vendorName || 'Unknown Vendor'}</h3>
                       {selectedBooking.vendorCategory && (
                         <Badge variant="outline">{selectedBooking.vendorCategory}</Badge>
                       )}
@@ -656,7 +656,7 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
                     <Button variant="outline" className="flex-1 gap-2" asChild>
                       <a href={`mailto:${selectedBooking.vendorEmail}`}>
                         <Mail className="w-4 h-4" />
-                        Email Event Pro
+                        Email Vendor
                       </a>
                     </Button>
                   )}
@@ -664,7 +664,7 @@ export function BookingsTab({ bookings, slotTypes, updateBookingStatus }: Bookin
                     <Button variant="outline" className="flex-1 gap-2" asChild>
                       <a href={`tel:${selectedBooking.vendorPhone}`}>
                         <Phone className="w-4 h-4" />
-                        Call Event Pro
+                        Call Vendor
                       </a>
                     </Button>
                   )}

@@ -15,9 +15,9 @@ interface VerifiedEventProBadgeProps {
 }
 
 /**
- * "Verified Event Pro" trust badge.
- * Shown when a Event Pro has completed optional Stripe Identity verification.
- * Used on browse cards (sm), profile headers (md/lg), and Event Pro dashboards.
+ * "Verified Vendor" trust badge.
+ * Shown when a Vendor has completed optional Stripe Identity verification.
+ * Used on browse cards (sm), profile headers (md/lg), and Vendor dashboards.
  */
 export function VerifiedEventProBadge({
   size = 'sm',
@@ -29,7 +29,7 @@ export function VerifiedEventProBadge({
   const textSize =
     size === 'lg' ? 'text-xs' : size === 'md' ? 'text-[11px]' : 'text-[10px]';
   const label =
-    size === 'lg' ? 'Verified Event Pro' : showLabel ? 'Verified' : null;
+    size === 'lg' ? 'Verified Vendor' : showLabel ? 'Verified' : null;
 
   return (
     <TooltipProvider delayDuration={300}>
@@ -45,7 +45,7 @@ export function VerifiedEventProBadge({
         </TooltipTrigger>
         <TooltipContent>
           <p className="text-xs max-w-[220px]">
-            This Event Pro completed optional identity verification through
+            This Vendor completed optional identity verification through
             EventPro.
           </p>
         </TooltipContent>

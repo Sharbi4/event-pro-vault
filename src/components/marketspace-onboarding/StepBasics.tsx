@@ -21,11 +21,11 @@ interface StepBasicsProps {
 const MARKET_TYPES = [
   { value: 'farmers_market', label: 'Farmers Market' },
   { value: 'flea_market', label: 'Flea Market' },
-  { value: 'vendor_market', label: 'Event Pro Market' },
+  { value: 'vendor_market', label: 'Vendor Market' },
   { value: 'night_market', label: 'Night Market' },
   { value: 'popup_event', label: 'Pop-up Event' },
   { value: 'food_truck_roundup', label: 'Food Truck Roundup' },
-  { value: 'festival_vendor_area', label: 'Festival Event Pro Area' },
+  { value: 'festival_vendor_area', label: 'Festival Vendor Area' },
   { value: 'other', label: 'Other' },
 ];
 
@@ -74,7 +74,7 @@ export function StepBasics({ state, updateState }: StepBasicsProps) {
           Market Basics
         </h2>
         <p className="text-sm text-muted-foreground">
-          Tell Event Pros what your market is all about.
+          Tell Vendors what your market is all about.
         </p>
       </div>
 
@@ -126,7 +126,7 @@ export function StepBasics({ state, updateState }: StepBasicsProps) {
           id="description"
           value={state.description}
           onChange={(e) => updateState('description', e.target.value)}
-          placeholder="What can Event Pros expect at your market?"
+          placeholder="What can Vendors expect at your market?"
           rows={4}
         />
       </div>
@@ -144,7 +144,7 @@ export function StepBasics({ state, updateState }: StepBasicsProps) {
           rows={2}
         />
         <p className="text-xs text-muted-foreground">
-          Help Event Pros understand who they'll be selling to
+          Help Vendors understand who they'll be selling to
         </p>
       </div>
 

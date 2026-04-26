@@ -360,10 +360,10 @@ export default function MarketDetail() {
                   </div>
                 )}
 
-                {/* Event Pro Categories */}
+                {/* Vendor Categories */}
                 {market.categoriesAllowed.length > 0 && (
                   <div>
-                    <p className="text-sm font-medium text-foreground mb-2">Event Pro Categories Allowed</p>
+                    <p className="text-sm font-medium text-foreground mb-2">Vendor Categories Allowed</p>
                     <div className="flex flex-wrap gap-1.5">
                       {market.categoriesAllowed.map(cat => (
                         <Badge key={cat} variant="secondary" className="text-xs">

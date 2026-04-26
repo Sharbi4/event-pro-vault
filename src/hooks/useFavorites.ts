@@ -63,7 +63,7 @@ export function useFavorites() {
         setFavorites(prev => prev.filter(id => id !== vendorId));
         toast({
           title: "Removed from favorites",
-          description: "Event Pro removed from your favorites"
+          description: "Vendor removed from your favorites"
         });
       }
     } else {
@@ -81,7 +81,7 @@ export function useFavorites() {
         setFavorites(prev => [...prev, vendorId]);
         toast({
           title: "Added to favorites",
-          description: "Event Pro saved to your favorites"
+          description: "Vendor saved to your favorites"
         });
       }
     }

@@ -139,7 +139,7 @@ export function useBookings() {
       return;
     }
 
-    // Get unique package IDs and Event Pro user IDs
+    // Get unique package IDs and Vendor user IDs
     const packageIds = [...new Set(bookingsData.map(b => b.package_id).filter(Boolean))];
     const vendorUserIds = [...new Set(bookingsData.map(b => b.vendor_user_id).filter(Boolean))];
 
@@ -149,7 +149,7 @@ export function useBookings() {
       .select('id, name, cover_image_url, cancellation_policy')
       .in('id', packageIds);
 
-    // Fetch Event Pro profiles
+    // Fetch Vendor profiles
     const { data: profilesData } = await supabase
       .from('profiles')
       .select('user_id, display_name, avatar_url')
@@ -169,7 +169,7 @@ export function useBookings() {
         package_name: pkg?.name || 'Package',
         package_cover_image: pkg?.cover_image_url || null,
         cancellation_policy: (pkg?.cancellation_policy as 'flexible' | 'standard' | 'strict' | 'custom' | undefined) || 'standard',
-        vendor_display_name: vendorProfile?.display_name || 'Event Pro',
+        vendor_display_name: vendorProfile?.display_name || 'Vendor',
         vendor_avatar: vendorProfile?.avatar_url || null,
       } as BookingData;
     });
@@ -240,7 +240,7 @@ export function useBookings() {
       title: "Booking submitted!",
       description: isGuest 
         ? "Check your email for booking confirmation details"
-        : "Your booking request has been sent to the Event Pro"
+        : "Your booking request has been sent to the Vendor"
     });
 
     // Refetch to get enriched data
@@ -248,13 +248,13 @@ export function useBookings() {
       fetchBookings();
     }
 
-    // Send email notification to Event Pro (fire and forget)
+    // Send email notification to Vendor (fire and forget)
     if (bookingData.vendor_email) {
       supabase.functions.invoke('send-booking-notification', {
         body: {
           booking_id: data.id,
           vendor_email: bookingData.vendor_email,
-          vendor_name: bookingData.vendor_name || 'Event Pro',
+          vendor_name: bookingData.vendor_name || 'Vendor',
           customer_name: bookingData.customer_name || user?.email?.split('@')[0] || 'Customer',
           customer_email: bookingData.customer_email || user?.email,
           package_name: bookingData.package_name || 'Package',
@@ -269,9 +269,9 @@ export function useBookings() {
         }
       }).then(({ error: emailError }) => {
         if (emailError) {
-          console.error('Failed to send Event Pro notification email:', emailError);
+          console.error('Failed to send Vendor notification email:', emailError);
         } else {
-          console.log('Event Pro notification email sent successfully');
+          console.log('Vendor notification email sent successfully');
         }
       });
     }

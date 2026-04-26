@@ -35,7 +35,7 @@ interface AccountTypeOption {
 const accountTypes: AccountTypeOption[] = [
   {
     type: 'EVENT_PRO',
-    title: 'Event Pro',
+    title: 'Vendor',
     subtitle: 'Bookable services & packages',
     description: 'Perfect for DJs, photographers, caterers, florists, and other event service providers who offer packages and services.',
     features: [
@@ -51,13 +51,13 @@ const accountTypes: AccountTypeOption[] = [
   {
     type: 'MARKET_SPACE',
     title: 'Market Space',
-    subtitle: 'Event Pro slots & booth rentals',
-    description: 'Ideal for farmers markets, flea markets, pop-up events, and festivals looking to rent out Event Pro spaces.',
+    subtitle: 'Vendor slots & booth rentals',
+    description: 'Ideal for farmers markets, flea markets, pop-up events, and festivals looking to rent out Vendor spaces.',
     features: [
       'List your market or event venue',
       'Create different slot types & sizes',
       'Manage slot inventory by date',
-      'Accept Event Pro reservations'
+      'Accept Vendor reservations'
     ],
     icon: <Store className="w-8 h-8" />,
     route: '/marketspace-onboarding'

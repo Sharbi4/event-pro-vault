@@ -3,14 +3,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Star, MapPin, Clock, Zap, ShieldCheck } from 'lucide-react';
-import { Event Pro } from '@/types';
+import { Vendor } from '@/types';
 import { packages } from '@/data/vendors';
 
 interface VendorCardProps {
-  Event Pro: Event Pro;
+  Vendor: Vendor;
 }
 
-export function VendorCard({ Event Pro }: VendorCardProps) {
+export function VendorCard({ Vendor }: VendorCardProps) {
   const vendorPackages = packages.filter(p => p.vendorId === vendor.id);
   const lowestPrice = vendorPackages.length > 0 
     ? Math.min(...vendorPackages.map(p => p.price))

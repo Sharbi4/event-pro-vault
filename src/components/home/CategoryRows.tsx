@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronRight, Star, MapPin, Zap, ShieldCheck, Package } from 'lucide-react';
 import { categories } from '@/data/categories';
-import { Event Pros as mockVendors, packages as mockPackages } from '@/data/vendors';
-import { Event Pro } from '@/types';
+import { Vendors as mockVendors, packages as mockPackages } from '@/data/vendors';
+import { Vendor } from '@/types';
 import { useCategoryCounts, useCategoryPackages } from '@/hooks/useFeaturedContent';
 import {
   Truck, UtensilsCrossed, ChefHat, Wine, Coffee, IceCream, Store, Cake
@@ -59,8 +59,8 @@ const categoryGroups = [
   },
 ];
 
-// Helper to get starting price for a Event Pro
-const getVendorStartingPrice = (Event Pro: Event Pro): number => {
+// Helper to get starting price for a Vendor
+const getVendorStartingPrice = (Vendor: Vendor): number => {
   const vendorPackages = mockPackages.filter(p => p.vendorId === vendor.id);
   if (vendorPackages.length === 0) return 99;
   return Math.min(...vendorPackages.map(p => p.price));
@@ -260,7 +260,7 @@ function CategoryRow({ group }: CategoryRowProps) {
     );
   }
 
-  // Fallback to mock Event Pros
+  // Fallback to mock Vendors
   return (
     <div className="mb-10">
       <div className="flex items-center justify-between mb-4">
@@ -286,7 +286,7 @@ function CategoryRow({ group }: CategoryRowProps) {
       </div>
 
       <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4">
-        {mockGroupVendors.map((Event Pro) => (
+        {mockGroupVendors.map((Vendor) => (
           <Link
             key={vendor.id}
             to={`/vendor/${vendor.id}`}
@@ -330,7 +330,7 @@ function CategoryRow({ group }: CategoryRowProps) {
                   <span className="line-clamp-1">{vendor.location}</span>
                 </div>
                 <p className="text-sm text-primary font-medium">
-                  From ${getVendorStartingPrice(Event Pro)}/hr
+                  From ${getVendorStartingPrice(Vendor)}/hr
                 </p>
               </div>
             </Card>

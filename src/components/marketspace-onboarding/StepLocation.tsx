@@ -165,7 +165,7 @@ export function StepLocation({ state, updateState }: StepLocationProps) {
             max={240}
           />
           <p className="text-xs text-muted-foreground">
-            How early can Event Pros arrive to set up?
+            How early can Vendors arrive to set up?
           </p>
         </div>
 

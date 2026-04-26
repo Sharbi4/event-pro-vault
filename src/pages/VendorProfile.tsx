@@ -58,12 +58,12 @@ export default function VendorProfile() {
             <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
               <Building2 className="w-10 h-10 text-muted-foreground" />
             </div>
-            <h1 className="text-2xl font-bold text-foreground mb-4">Event Pro not found</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-4">Vendor not found</h1>
             <p className="text-muted-foreground mb-6">
-              This Event Pro profile doesn't exist or is not available.
+              This Vendor profile doesn't exist or is not available.
             </p>
             <Link to="/browse">
-              <Button variant="gradient">Browse Event Pros</Button>
+              <Button variant="gradient">Browse Vendors</Button>
             </Link>
           </div>
         </div>
@@ -71,7 +71,7 @@ export default function VendorProfile() {
     );
   }
 
-  // Get cover image - prefer Event Pro's custom cover, fallback to first package image
+  // Get cover image - prefer Vendor's custom cover, fallback to first package image
   const coverImage = profile.coverImageUrl || packages[0]?.images?.[0];
 
   // Get initials for avatar fallback
@@ -288,7 +288,7 @@ export default function VendorProfile() {
                     <Package className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
                     <h3 className="font-semibold text-foreground mb-2">No packages yet</h3>
                     <p className="text-muted-foreground text-sm">
-                      This Event Pro hasn't added any packages yet.
+                      This Vendor hasn't added any packages yet.
                     </p>
                   </Card>
                 )}
@@ -361,7 +361,7 @@ export default function VendorProfile() {
                     <Star className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
                     <h3 className="font-semibold text-foreground mb-2">No reviews yet</h3>
                     <p className="text-muted-foreground text-sm">
-                      Be the first to review this Event Pro!
+                      Be the first to review this Vendor!
                     </p>
                   </Card>
                 )}
@@ -475,7 +475,7 @@ export default function VendorProfile() {
           open={askOpen}
           onOpenChange={setAskOpen}
           vendorUserId={profile.userId}
-          vendorName={profile.displayName || profile.fullName || 'this Event Pro'}
+          vendorName={profile.displayName || profile.fullName || 'this Vendor'}
         />
       )}
     </Layout>

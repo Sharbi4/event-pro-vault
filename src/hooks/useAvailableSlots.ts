@@ -24,7 +24,7 @@ interface Result {
 export const AVAILABILITY_REFRESH_EVENT = 'eventpro:availability-refresh';
 
 /**
- * Notify all mounted useAvailableSlots hooks (optionally scoped to a Event Pro)
+ * Notify all mounted useAvailableSlots hooks (optionally scoped to a Vendor)
  * to refetch immediately. Call this after creating/releasing a hold or booking.
  */
 export function emitAvailabilityRefresh(vendorUserId?: string) {
@@ -36,7 +36,7 @@ export function emitAvailabilityRefresh(vendorUserId?: string) {
 
 /**
  * Fetches bookable slots from the canonical `get-available-slots` edge function.
- * Auto-refreshes when calendar_holds or bookings change for this Event Pro (realtime),
+ * Auto-refreshes when calendar_holds or bookings change for this Vendor (realtime),
  * and when a manual `emitAvailabilityRefresh` event fires.
  */
 export function useAvailableSlots(args: Args): Result {
@@ -82,7 +82,7 @@ export function useAvailableSlots(args: Args): Result {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [enabled, vendorUserId, packageId, date, args.mode, args.durationMinutes, args.setupMinutes, args.breakdownMinutes, args.intervalMinutes, tick]);
 
-  // Realtime: refetch when holds/bookings change for this Event Pro
+  // Realtime: refetch when holds/bookings change for this Vendor
   useEffect(() => {
     if (!enabled || !vendorUserId) return;
 

@@ -96,7 +96,7 @@ export function ReviewSubmissionForm({
         </motion.div>
         <h3 className="text-lg font-semibold mb-2">Thank You!</h3>
         <p className="text-muted-foreground text-sm">
-          Your review helps others find great Event Pros
+          Your review helps others find great Vendors
         </p>
       </motion.div>
     );
@@ -161,7 +161,7 @@ export function ReviewSubmissionForm({
               </Label>
               <Textarea
                 id="review-content"
-                placeholder="Share details about your event and the Event Pro's service..."
+                placeholder="Share details about your event and the Vendor's service..."
                 value={formData.content}
                 onChange={(e) =>
                   setFormData((prev) => ({ ...prev, content: e.target.value }))

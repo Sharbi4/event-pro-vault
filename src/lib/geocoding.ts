@@ -94,7 +94,7 @@ export async function geocodeLocation(
 }
 
 /**
- * Check if a Event Pro can service a location based on their base location and travel radius
+ * Check if a Vendor can service a location based on their base location and travel radius
  */
 export function isWithinServiceRadius(
   vendorLat: number,
@@ -108,8 +108,8 @@ export function isWithinServiceRadius(
 }
 
 /**
- * Get the distance from a Event Pro to a target location
- * Returns null if Event Pro doesn't have coordinates
+ * Get the distance from a Vendor to a target location
+ * Returns null if Vendor doesn't have coordinates
  */
 export function getDistanceToVendor(
   vendorLat: number | null,

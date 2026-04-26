@@ -42,7 +42,7 @@ export function Header() {
         return;
       }
       
-      // Check if user is a Event Pro or customer and get unread counts accordingly
+      // Check if user is a Vendor or customer and get unread counts accordingly
       const { data: vendorConversations } = await supabase
         .from('conversations')
         .select('vendor_unread_count')
@@ -108,7 +108,7 @@ export function Header() {
     if (user) {
       navigate('/eventpro-onboarding');
     } else {
-      // Use dedicated Event Pro auth page
+      // Use dedicated Vendor auth page
       navigate('/auth/pro');
     }
   };
@@ -136,7 +136,7 @@ export function Header() {
             <Link to="/" className="shrink-0">
               <img 
                 src={logo} 
-                alt="Event Pro by Vendibook" 
+                alt="Vendor by Vendibook" 
                 className={`w-auto transition-all duration-300 ${isScrolled ? 'h-28 lg:h-32' : 'h-32 lg:h-36'}`}
               />
             </Link>
@@ -184,7 +184,7 @@ export function Header() {
                   className="hidden sm:inline-flex"
                   onClick={() => setProfileModalOpen(true)}
                 >
-                  Become an Event Pro
+                  Become an Vendor
                 </Button>
               )}
               <button
@@ -220,7 +220,7 @@ export function Header() {
                           {displayName || user.email?.split('@')[0] || 'Welcome'}
                         </p>
                         {isEventPro && (
-                          <p className="text-xs text-primary font-medium">Event Pro</p>
+                          <p className="text-xs text-primary font-medium">Vendor</p>
                         )}
                       </div>
                     </div>
@@ -373,7 +373,7 @@ export function Header() {
                       }}
                     >
                       <PlusCircle className="w-4 h-4" />
-                      Become an Event Pro
+                      Become an Vendor
                     </button>
                     
                     <div className="h-px bg-border my-2" />

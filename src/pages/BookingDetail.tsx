@@ -93,7 +93,7 @@ export default function BookingDetail() {
         return;
       }
 
-      // Fetch package + Event Pro details for richer display
+      // Fetch package + Vendor details for richer display
       const [pkgRes, vendorRes] = await Promise.all([
         supabase.from('vendor_packages')
           .select('id, name, cover_image_url, cancellation_policy')
@@ -103,15 +103,15 @@ export default function BookingDetail() {
           .eq('user_id', bk.vendor_user_id || '').maybeSingle(),
       ]);
       const pkg = (pkgRes.data ?? null) as { name?: string; cover_image_url?: string; cancellation_policy?: string } | null;
-      const Event Pro = (vendorRes.data ?? null) as { display_name?: string; avatar_url?: string } | null;
+      const Vendor = (vendorRes.data ?? null) as { display_name?: string; avatar_url?: string } | null;
 
       const merged: FullBooking = {
         ...(bk as any),
         package_name: pkg?.name ?? bk.package_id,
         package_cover_image: pkg?.cover_image_url ?? undefined,
         cancellation_policy: (pkg?.cancellation_policy as CancellationPolicy | undefined) ?? ((bk as any).cancellation_policy as CancellationPolicy | undefined) ?? 'standard',
-        vendor_display_name: Event Pro?.display_name ?? 'Event Pro',
-        vendor_avatar: Event Pro?.avatar_url ?? undefined,
+        vendor_display_name: Vendor?.display_name ?? 'Vendor',
+        vendor_avatar: Vendor?.avatar_url ?? undefined,
       };
       setBooking(merged);
       setLoading(false);
@@ -123,7 +123,7 @@ export default function BookingDetail() {
     if (!booking || !user) return;
     setMessaging(true);
     try {
-      // Find or create conversation with this Event Pro
+      // Find or create conversation with this Vendor
       const { data: existing } = await supabase
         .from('conversations')
         .select('id')
@@ -263,7 +263,7 @@ export default function BookingDetail() {
 
             <div className="flex flex-wrap gap-2">
               <Button size="sm" variant="outline" onClick={handleMessageVendor} disabled={messaging} className="rounded-full">
-                <MessageCircle className="w-4 h-4 mr-1.5" /> Message Event Pro
+                <MessageCircle className="w-4 h-4 mr-1.5" /> Message Vendor
               </Button>
               {state === 'awaiting_payment' && (
                 <Button size="sm" variant="gradient" onClick={handlePayNow} disabled={paying} className="rounded-full">
@@ -286,7 +286,7 @@ export default function BookingDetail() {
           {state === 'confirmed_locked' && (
             <div className="mt-4 rounded-lg border border-border bg-secondary/40 p-3 text-sm text-muted-foreground inline-flex items-start gap-2">
               <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
-              <span>The cancellation window has closed. Message your Event Pro for any change requests.</span>
+              <span>The cancellation window has closed. Message your Vendor for any change requests.</span>
             </div>
           )}
           {state === 'in_progress' && (
@@ -568,7 +568,7 @@ export default function BookingDetail() {
                   <div>
                     <div className="font-medium">Cancellation window has closed</div>
                     <div className="text-xs text-muted-foreground mt-0.5">
-                      {cancelStatus.reason} Message your Event Pro for change requests.
+                      {cancelStatus.reason} Message your Vendor for change requests.
                     </div>
                   </div>
                 </div>
@@ -580,7 +580,7 @@ export default function BookingDetail() {
                   <div>
                     <div className="font-medium">Custom policy</div>
                     <div className="text-xs text-muted-foreground mt-0.5">
-                      This booking uses a custom cancellation policy. Message your Event Pro to request changes or a refund.
+                      This booking uses a custom cancellation policy. Message your Vendor to request changes or a refund.
                     </div>
                   </div>
                 </div>
@@ -642,7 +642,7 @@ export default function BookingDetail() {
         onOpenChange={setReviewOpen}
         bookingId={booking.id}
         vendorUserId={booking.vendor_user_id ?? ''}
-        vendorName={booking.vendor_display_name ?? 'Event Pro'}
+        vendorName={booking.vendor_display_name ?? 'Vendor'}
         packageId={booking.package_id}
         packageName={booking.package_name}
         eventDate={booking.event_date}

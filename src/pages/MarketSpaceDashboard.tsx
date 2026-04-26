@@ -132,7 +132,7 @@ export default function MarketSpaceDashboard() {
 
       if (error) throw error;
 
-      toast({ title: 'Market published!', description: 'Event Pros can now find and book your market.' });
+      toast({ title: 'Market published!', description: 'Vendors can now find and book your market.' });
       refresh();
     } catch (error) {
       console.error('Error publishing market:', error);
@@ -191,7 +191,7 @@ export default function MarketSpaceDashboard() {
               {hasVendorPackages && (
                 <Button variant="outline" onClick={() => navigate('/vendor-dashboard')} className="gap-2">
                   <Users className="w-4 h-4" />
-                  Event Pro Dashboard
+                  Vendor Dashboard
                 </Button>
               )}
               {market.isPublished && (
@@ -230,7 +230,7 @@ export default function MarketSpaceDashboard() {
                 <div className="flex-1">
                   <p className="font-medium text-amber-600">Your market is not published yet</p>
                   <p className="text-sm text-amber-600/80">
-                    Add slot types and inventory, then publish to start accepting Event Pro reservations.
+                    Add slot types and inventory, then publish to start accepting Vendor reservations.
                   </p>
                 </div>
               </div>
@@ -381,7 +381,7 @@ export default function MarketSpaceDashboard() {
           </DialogHeader>
           <div className="py-4">
             <p className="text-sm text-muted-foreground">
-              Your market will be visible to Event Pros and they can book slots, but payments will be held until you complete your Stripe Connect setup.
+              Your market will be visible to Vendors and they can book slots, but payments will be held until you complete your Stripe Connect setup.
             </p>
           </div>
           <DialogFooter className="flex-col sm:flex-row gap-2">

@@ -16,7 +16,7 @@ interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message, isVendor }: MessageBubbleProps) {
-  const isFromVendor = message.sender_type === 'Event Pro';
+  const isFromVendor = message.sender_type === 'Vendor';
   const isOwnMessage = isVendor ? isFromVendor : !isFromVendor;
 
   // Mask contact info to keep transactions on platform

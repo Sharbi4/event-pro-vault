@@ -29,8 +29,8 @@ interface ReportIssueDialogProps {
 }
 
 const issueTypes = [
-  { value: 'no_show', label: 'Event Pro did not show up', description: 'The Event Pro never arrived for the event' },
-  { value: 'late', label: 'Event Pro was significantly late', description: 'Arrived more than 30 minutes late' },
+  { value: 'no_show', label: 'Vendor did not show up', description: 'The Vendor never arrived for the event' },
+  { value: 'late', label: 'Vendor was significantly late', description: 'Arrived more than 30 minutes late' },
   { value: 'incomplete', label: 'Service was incomplete', description: 'Not all agreed services were provided' },
   { value: 'quality', label: 'Quality issues', description: 'Service did not meet expectations' },
   { value: 'other', label: 'Other issue', description: 'Something else went wrong' },
@@ -156,7 +156,7 @@ export function ReportIssueDialog({
 
       toast({
         title: 'Dispute Filed',
-        description: 'The Event Pro has 48 hours to respond. Our team will review if needed.',
+        description: 'The Vendor has 48 hours to respond. Our team will review if needed.',
       });
 
       onSuccess?.();
@@ -354,7 +354,7 @@ export function ReportIssueDialog({
                       <p><strong>What happens next:</strong></p>
                       <ul className="list-disc list-inside space-y-0.5">
                         <li>Payouts are held pending resolution</li>
-                        <li>The Event Pro has 48 hours to respond</li>
+                        <li>The Vendor has 48 hours to respond</li>
                         <li>If no agreement, our team mediates within 7 days</li>
                       </ul>
                     </div>

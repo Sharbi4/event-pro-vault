@@ -259,7 +259,7 @@ function ReviewCard({ review }: { review: VendorReviewData }) {
               </div>
             )}
 
-            {/* Event Pro reply (or inline reply form for the Event Pro) */}
+            {/* Vendor reply (or inline reply form for the Vendor) */}
             <VendorReplyArea review={review} />
 
             {/* Footer */}
@@ -297,7 +297,7 @@ function VendorReplyArea({ review }: { review: VendorReviewData }) {
       <div className="mt-3 ml-2 border-l-2 border-primary/40 pl-3 py-2 bg-primary/5 rounded-r-md">
         <div className="flex items-center gap-2 text-xs font-medium text-primary mb-1">
           <MessageSquare className="w-3 h-3" />
-          Response from Event Pro
+          Response from Vendor
           {savedAt && (
             <span className="text-muted-foreground font-normal">
               · {formatDistanceToNow(new Date(savedAt), { addSuffix: true })}

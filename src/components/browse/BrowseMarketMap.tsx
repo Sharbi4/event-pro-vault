@@ -38,11 +38,11 @@ const darkMapStyles = [
 const marketTypeConfig: Record<string, { emoji: string; color: string }> = {
   'Farmers Market': { emoji: '🥬', color: '#22c55e' },
   'Flea Market': { emoji: '🛍️', color: '#f59e0b' },
-  'Event Pro Market': { emoji: '🏪', color: '#3b82f6' },
+  'Vendor Market': { emoji: '🏪', color: '#3b82f6' },
   'Night Market': { emoji: '🌙', color: '#8b5cf6' },
   'Pop-up Event': { emoji: '🎪', color: '#ec4899' },
   'Food Truck Roundup': { emoji: '🚚', color: '#f97316' },
-  'Festival Event Pro Area': { emoji: '🎉', color: '#ef4444' },
+  'Festival Vendor Area': { emoji: '🎉', color: '#ef4444' },
 };
 
 interface BrowseMarketMapProps {
@@ -267,7 +267,7 @@ export function BrowseMarketMap({ markets, onMarketSelect, selectedMarketId }: B
           </div>
           <div className="flex items-center gap-1.5">
             <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#3b82f6' }} />
-            <span className="text-muted-foreground">Event Pro</span>
+            <span className="text-muted-foreground">Vendor</span>
           </div>
         </div>
       </div>

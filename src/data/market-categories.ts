@@ -6,7 +6,7 @@ export const marketCategories: Category[] = [
     id: 'farmers-markets',
     name: 'Farmers Markets',
     icon: 'Leaf',
-    description: 'Fresh produce Event Pro spaces',
+    description: 'Fresh produce Vendor spaces',
     count: 38,
     featured: true
   },
@@ -14,7 +14,7 @@ export const marketCategories: Category[] = [
     id: 'flea-markets',
     name: 'Flea Markets',
     icon: 'Store',
-    description: 'Rent Event Pro spots & booths',
+    description: 'Rent Vendor spots & booths',
     count: 45,
     featured: true
   },
@@ -37,7 +37,7 @@ export const marketCategories: Category[] = [
     id: 'festivals',
     name: 'Festivals',
     icon: 'PartyPopper',
-    description: 'Festival Event Pro opportunities',
+    description: 'Festival Vendor opportunities',
     count: 34
   },
   {
@@ -51,7 +51,7 @@ export const marketCategories: Category[] = [
     id: 'food-halls',
     name: 'Food Halls',
     icon: 'UtensilsCrossed',
-    description: 'Indoor food Event Pro spaces',
+    description: 'Indoor food Vendor spaces',
     count: 18
   },
   {

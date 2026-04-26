@@ -30,7 +30,7 @@ export function HowItWorks() {
             How It Works
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
-            Book your perfect Event Pro in three simple steps
+            Book your perfect Vendor in three simple steps
           </p>
         </div>
 

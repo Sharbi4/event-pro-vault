@@ -76,7 +76,7 @@ export function BookingStepper({
   const [isRecurring, setIsRecurring] = useState(false);
   const [recurringDuration, setRecurringDuration] = useState<RecurringDuration>('4-weeks');
   
-  // Event Pro info
+  // Vendor info
   const [vendorName, setVendorName] = useState('');
   const [vendorEmail, setVendorEmail] = useState('');
   const [vendorPhone, setVendorPhone] = useState('');
@@ -567,7 +567,7 @@ export function BookingStepper({
               </CardContent>
             </Card>
             
-            {/* Event Pro Info */}
+            {/* Vendor Info */}
             <Card variant="glass">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base">Your Information</CardTitle>

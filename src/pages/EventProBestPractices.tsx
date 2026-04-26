@@ -154,7 +154,7 @@ export default function EventProBestPractices() {
               <Sparkles className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold font-display">Event Pro Best Practices</h1>
+              <h1 className="text-2xl font-bold font-display">Vendor Best Practices</h1>
               <p className="text-muted-foreground">Learn how to succeed and get more bookings</p>
             </div>
           </div>

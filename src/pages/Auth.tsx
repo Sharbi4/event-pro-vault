@@ -21,7 +21,7 @@ const passwordSchema = z.string().min(6, 'Password must be at least 6 characters
 const features = [
   {
     icon: Sparkles,
-    title: 'Become an Event Pro',
+    title: 'Become an Vendor',
     description: 'Create packages, set your availability, and start getting booked.',
   },
   {
@@ -472,7 +472,7 @@ export default function Auth() {
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Sparkles className="w-4 h-4 text-primary" />
               </div>
-              <span className="text-muted-foreground">Become an Event Pro</span>
+              <span className="text-muted-foreground">Become an Vendor</span>
             </div>
             <div className="flex items-center gap-3 text-sm">
               <div className="w-8 h-8 rounded-lg bg-trust/10 flex items-center justify-center">

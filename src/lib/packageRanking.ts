@@ -9,7 +9,7 @@ const RANKING_WEIGHTS = {
   HIGH_RATING: 20,      // Good rating weight (4.0+)
   REVIEW_COUNT: 0.5,    // Per review (capped)
   INSTANT_BOOK: 15,     // Instant book preference
-  VERIFIED: 10,         // Verified Event Pro
+  VERIFIED: 10,         // Verified Vendor
   DISTANCE_PENALTY: -2, // Per mile (when location search)
 };
 

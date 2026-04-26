@@ -49,7 +49,7 @@ const BALANCE_TIMING: { value: NonNullable<PackageFormData['balance_due_timing']
   { value: 'before_event', label: 'Before event' },
   { value: 'day_of_event', label: 'Day of event' },
   { value: 'after_event', label: 'After event' },
-  { value: 'direct_to_vendor', label: 'Paid directly to Event Pro' },
+  { value: 'direct_to_vendor', label: 'Paid directly to Vendor' },
 ];
 
 export function StepCateringPricing({ formData, updateFormData, errors }: Props) {

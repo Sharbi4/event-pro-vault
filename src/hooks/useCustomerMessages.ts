@@ -18,7 +18,7 @@ export interface CustomerConversation {
   status: string;
   created_at: string;
   updated_at: string;
-  // Joined Event Pro profile data
+  // Joined Vendor profile data
   vendor_name?: string;
   vendor_avatar?: string;
 }
@@ -27,7 +27,7 @@ export interface CustomerMessage {
   id: string;
   conversation_id: string;
   sender_user_id: string | null;
-  sender_type: 'Event Pro' | 'client';
+  sender_type: 'Vendor' | 'client';
   content: string;
   is_read: boolean;
   read_at: string | null;
@@ -54,7 +54,7 @@ export function useCustomerMessages() {
 
       if (error) throw error;
 
-      // Fetch Event Pro profiles for each conversation
+      // Fetch Vendor profiles for each conversation
       const vendorIds = [...new Set(data.map(c => c.vendor_user_id))];
       const { data: vendorProfiles } = await supabase
         .from('profiles')
@@ -69,7 +69,7 @@ export function useCustomerMessages() {
         ...conv,
         vendor_name: vendorMap.get(conv.vendor_user_id)?.display_name || 
                      vendorMap.get(conv.vendor_user_id)?.full_name || 
-                     'Event Pro',
+                     'Vendor',
         vendor_avatar: vendorMap.get(conv.vendor_user_id)?.avatar_url,
       })) as CustomerConversation[];
     },
@@ -195,7 +195,7 @@ export function useCustomerMessages() {
         })
         .eq('id', conversationId);
 
-      // Send email notification to Event Pro (fire and forget)
+      // Send email notification to Vendor (fire and forget)
       try {
         await supabase.functions.invoke('send-message-notification', {
           body: {
@@ -231,7 +231,7 @@ export function useCustomerMessages() {
         .from('messages')
         .update({ is_read: true, read_at: new Date().toISOString() })
         .eq('conversation_id', conversationId)
-        .eq('sender_type', 'Event Pro')
+        .eq('sender_type', 'Vendor')
         .eq('is_read', false);
 
       // Reset client unread count

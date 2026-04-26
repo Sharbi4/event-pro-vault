@@ -98,7 +98,7 @@ export default function VendorOnboarding() {
         .eq('user_id', user.id)
         .single();
 
-      // Check Event Pro details
+      // Check Vendor details
       const { data: vendorDetails } = await supabase
         .from('vendor_details')
         .select('*')
@@ -175,7 +175,7 @@ export default function VendorOnboarding() {
     setLoading(true);
 
     try {
-      // Upsert Event Pro details
+      // Upsert Vendor details
       const { error } = await supabase
         .from('vendor_details')
         .upsert({
@@ -395,7 +395,7 @@ export default function VendorOnboarding() {
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="text-center mb-8">
           <h1 className="font-display text-3xl md:text-4xl font-bold mb-2">
-            Become a <span className="gradient-text">Event Pro</span>
+            Become a <span className="gradient-text">Vendor</span>
           </h1>
           <p className="text-muted-foreground">
             Complete these steps to start listing your services
@@ -440,7 +440,7 @@ export default function VendorOnboarding() {
             <div className="text-center space-y-4">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
                 <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-primary">Join the Event Pros Network</span>
+                <span className="text-sm font-medium text-primary">Join the Vendors Network</span>
               </div>
               <h2 className="font-display text-2xl md:text-3xl font-bold">
                 What best describes you?
@@ -452,7 +452,7 @@ export default function VendorOnboarding() {
 
             {/* Selection Cards */}
             <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-              {/* Event Pro Card */}
+              {/* Vendor Card */}
               <button
                 onClick={() => handleVendorTypeSelect('event-pro')}
                 className={`group relative overflow-hidden rounded-2xl p-8 text-left transition-all duration-300 ${
@@ -481,7 +481,7 @@ export default function VendorOnboarding() {
 
                   {/* Content */}
                   <div className="space-y-2">
-                    <h3 className="font-display text-xl font-bold">Event Pro</h3>
+                    <h3 className="font-display text-xl font-bold">Vendor</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
                       DJs, photographers, caterers, entertainers, and other service providers who bring events to life
                     </p>
@@ -536,7 +536,7 @@ export default function VendorOnboarding() {
                   <div className="space-y-2">
                     <h3 className="font-display text-xl font-bold">Market</h3>
                     <p className="text-muted-foreground text-sm leading-relaxed">
-                      Venues, festivals, and event organizers looking to host and manage multiple Event Pros
+                      Venues, festivals, and event organizers looking to host and manage multiple Vendors
                     </p>
                   </div>
 
@@ -548,11 +548,11 @@ export default function VendorOnboarding() {
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Star className="w-4 h-4 text-accent" />
-                      <span>Attract Event Pros to your events</span>
+                      <span>Attract Vendors to your events</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Star className="w-4 h-4 text-accent" />
-                      <span>Manage Event Pro applications</span>
+                      <span>Manage Vendor applications</span>
                     </div>
                   </div>
                 </div>
@@ -878,7 +878,7 @@ export default function VendorOnboarding() {
               </CardTitle>
               <CardDescription>
                 Verification is optional, but it helps customers book with
-                confidence. Verified Event Pros receive a badge on their profile
+                confidence. Verified Vendors receive a badge on their profile
                 and search cards.
               </CardDescription>
             </CardHeader>
@@ -886,10 +886,10 @@ export default function VendorOnboarding() {
               <div className="bg-gradient-to-br from-primary/5 to-accent/5 rounded-lg p-4 space-y-2">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">Verified Event Pro badge</span>
+                  <span className="text-sm font-medium">Verified Vendor badge</span>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Verified Event Pros may appear more trustworthy to customers
+                  Verified Vendors may appear more trustworthy to customers
                   and can be filtered in search.
                 </p>
               </div>
@@ -960,7 +960,7 @@ export default function VendorOnboarding() {
               </div>
               <h2 className="text-2xl font-bold mb-2">You're all set!</h2>
               <p className="text-muted-foreground mb-6">
-                Your Event Pro account is ready. Start creating your first service listing.
+                Your Vendor account is ready. Start creating your first service listing.
               </p>
               <div className="flex gap-4 justify-center">
                 <Button onClick={() => navigate('/dashboard')} variant="outline">

@@ -94,7 +94,7 @@ export function DeckCard({ package: pkg, isActive, onSecure, eventDate }: DeckCa
 
       <motion.div className="relative z-10 w-full md:w-auto md:max-w-xl p-6 md:p-12 pb-24 md:pb-12" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2, duration: 0.5 }}>
         <GlassInfoPane
-          vendorName={pkg.vendor_name || 'Event Pro'}
+          vendorName={pkg.vendor_name || 'Vendor'}
           vendorAvatar={pkg.vendor_avatar || undefined}
           isVerified={pkg.is_verified}
           packageName={pkg.name}

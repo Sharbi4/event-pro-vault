@@ -4,17 +4,17 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Star, MapPin, ChevronRight, User } from 'lucide-react';
 import { useFeaturedVendors } from '@/hooks/useFeaturedContent';
-import { Event Pros as mockVendors } from '@/data/vendors';
+import { Vendors as mockVendors } from '@/data/vendors';
 import { TrustBadges, TopRatedBadge } from '@/components/badges/TrustBadges';
 
 export function FeaturedVendors() {
   const { data: dbVendors, isLoading } = useFeaturedVendors(4);
 
-  // Use database Event Pros if available, fallback to mock data
+  // Use database Vendors if available, fallback to mock data
   const hasDbVendors = dbVendors && dbVendors.length > 0;
   
-  // Format mock Event Pros to match the expected structure
-  const mockFeaturedVendors = mockVendors.filter(v => v.featured).slice(0, 4).map(Event Pro => ({
+  // Format mock Vendors to match the expected structure
+  const mockFeaturedVendors = mockVendors.filter(v => v.featured).slice(0, 4).map(Vendor => ({
     id: vendor.id,
     user_id: vendor.id,
     display_name: vendor.name,
@@ -62,7 +62,7 @@ export function FeaturedVendors() {
         <div className="flex items-end justify-between mb-12">
           <div>
             <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">
-              Featured Event Pros
+              Featured Vendors
             </h2>
             <p className="text-muted-foreground max-w-xl">
               Top-rated professionals ready to make your event unforgettable
@@ -77,7 +77,7 @@ export function FeaturedVendors() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {displayVendors.map((Event Pro, index) => (
+          {displayVendors.map((Vendor, index) => (
             <Link key={vendor.id} to={`/pro/${vendor.user_id}`}>
               <Card 
                 variant="glow" 
@@ -88,7 +88,7 @@ export function FeaturedVendors() {
                   {vendor.cover_image_url ? (
                     <img
                       src={vendor.cover_image_url}
-                      alt={vendor.display_name || 'Event Pro'}
+                      alt={vendor.display_name || 'Vendor'}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />
                   ) : (
@@ -114,7 +114,7 @@ export function FeaturedVendors() {
                 </div>
                 <CardContent className="p-4">
                   <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
-                    {vendor.display_name || 'Event Pro'}
+                    {vendor.display_name || 'Vendor'}
                   </h3>
                   {vendor.categories?.[0] && (
                     <p className="text-sm text-muted-foreground mb-3">
@@ -147,7 +147,7 @@ export function FeaturedVendors() {
         <div className="mt-8 text-center md:hidden">
           <Link to="/browse">
             <Button variant="outline" className="gap-2">
-              View All Event Pros
+              View All Vendors
               <ChevronRight className="w-4 h-4" />
             </Button>
           </Link>

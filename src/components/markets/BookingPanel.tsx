@@ -157,7 +157,7 @@ export function BookingPanel({
             ) : null}
           </div>
 
-          {/* Event Pro Info Form */}
+          {/* Vendor Info Form */}
           {canBook && (
             <div className="space-y-3 mb-4">
               <div>

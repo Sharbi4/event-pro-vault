@@ -99,7 +99,7 @@ const examplePackages = [
     rating: 4.9,
     reviews: 34,
     icon: Users,
-    includes: ['Venue coordination', 'Event Pro management', 'Day-of coordination'],
+    includes: ['Venue coordination', 'Vendor management', 'Day-of coordination'],
     badge: 'Request Quote',
     badgeColor: 'bg-secondary text-secondary-foreground',
   },
@@ -174,7 +174,7 @@ export default function LearnEventPros() {
     description: seo.description,
     canonical: seo.canonical,
     type: 'website',
-    keywords: ['become event Event Pro', 'list event services', 'event pro signup', 'Event Pro registration'],
+    keywords: ['become event Vendor', 'list event services', 'event pro signup', 'Vendor registration'],
   });
 
   const handleListService = () => {
@@ -226,7 +226,7 @@ export default function LearnEventPros() {
             <Breadcrumbs 
               items={[
                 { label: 'Learn', href: '/learn' },
-                { label: 'For Event Pros' }
+                { label: 'For Vendors' }
               ]} 
               className="mb-6"
             />
@@ -234,7 +234,7 @@ export default function LearnEventPros() {
             <div className="max-w-3xl mx-auto text-center">
               <div className="inline-flex items-center gap-2 bg-primary/10 px-4 py-2 rounded-full mb-6">
                 <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-sm font-medium text-primary">For Event Pros</span>
+                <span className="text-sm font-medium text-primary">For Vendors</span>
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 leading-tight">
                 Get booked faster with packages that match{' '}
@@ -249,7 +249,7 @@ export default function LearnEventPros() {
                   size="lg"
                   onClick={handleListService}
                 >
-                  Create your Event Pro profile
+                  Create your Vendor profile
                   <ArrowRight className="w-4 h-4 ml-1" />
                 </Button>
                 <Button 
@@ -541,7 +541,7 @@ export default function LearnEventPros() {
           <div className="container mx-auto px-4">
             <div className="max-w-2xl mx-auto">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground text-center mb-8">
-                Event Pro FAQs
+                Vendor FAQs
               </h2>
               
               <Accordion type="single" collapsible className="w-full">

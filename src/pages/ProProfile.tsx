@@ -58,7 +58,7 @@ export default function ProProfile() {
 
   const loading = profileLoading || resolvingUsername;
 
-  // Dynamic SEO for Event Pro profile pages
+  // Dynamic SEO for Vendor profile pages
   const proSeo = profile ? generateProSEO({
     displayName: profile.displayName,
     businessName: profile.businessName,
@@ -68,8 +68,8 @@ export default function ProProfile() {
   }) : null;
 
   useSEO({
-    title: proSeo?.title || 'Event Pro Profile | EventPro by Vendibook',
-    description: proSeo?.description || 'View packages, reviews, and book this Event Pro for your next event.',
+    title: proSeo?.title || 'Vendor Profile | EventPro by Vendibook',
+    description: proSeo?.description || 'View packages, reviews, and book this Vendor for your next event.',
     canonical: resolvedUserId ? `${SEO_CONFIG.baseUrl}/pro/${resolvedUserId}` : undefined,
     type: 'profile',
     image: proSeo?.image,
@@ -77,7 +77,7 @@ export default function ProProfile() {
       profile?.displayName || '',
       ...(profile?.serviceCategories || []),
       'event pro',
-      'book Event Pro',
+      'book Vendor',
       profile?.serviceArea || '',
       'event services marketplace',
     ].filter(Boolean),
@@ -115,7 +115,7 @@ export default function ProProfile() {
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-4">Pro not found</h1>
             <p className="text-muted-foreground mb-6">
-              This Event Pro profile doesn't exist or is not available.
+              This Vendor profile doesn't exist or is not available.
             </p>
             <Link to="/">
               <Button variant="gradient">Browse Packages</Button>
@@ -138,11 +138,11 @@ export default function ProProfile() {
 
   return (
     <Layout>
-      {/* Event Pro Structured Data */}
+      {/* Vendor Structured Data */}
       <LocalBusinessJsonLd
         data={{
           id: resolvedUserId || '',
-          name: profile.displayName || profile.businessName || 'Event Pro',
+          name: profile.displayName || profile.businessName || 'Vendor',
           description: profile.shortBio || profile.businessDescription || '',
           image: profile.avatarUrl || profile.coverImageUrl,
           city: profile.serviceArea || undefined,
@@ -155,7 +155,7 @@ export default function ProProfile() {
         items={[
           { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
           { name: 'Browse', url: 'https://event-pro-vault.lovable.app/browse' },
-          { name: profile.displayName || profile.businessName || 'Event Pro', url: `https://event-pro-vault.lovable.app/pro/${resolvedUserId}` },
+          { name: profile.displayName || profile.businessName || 'Vendor', url: `https://event-pro-vault.lovable.app/pro/${resolvedUserId}` },
         ]}
       />
       
@@ -172,13 +172,13 @@ export default function ProProfile() {
           <div className="flex items-center gap-2">
             <ContactVendorButton
               vendorUserId={resolvedUserId!}
-              vendorName={profile.displayName || profile.businessName || 'Event Pro'}
+              vendorName={profile.displayName || profile.businessName || 'Vendor'}
               variant="gradient"
             />
             <ShareButton
               url={profile.username ? `/eventpro/${profile.username}` : `/pro/${resolvedUserId}`}
-              title={profile.displayName || profile.businessName || 'Event Pro'}
-              text={`Check out ${profile.displayName || profile.businessName} on Event Pro!`}
+              title={profile.displayName || profile.businessName || 'Vendor'}
+              text={`Check out ${profile.displayName || profile.businessName} on Vendor!`}
             />
           </div>
         </div>
@@ -365,7 +365,7 @@ export default function ProProfile() {
               <Package className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
               <h3 className="font-semibold text-foreground mb-2">No packages yet</h3>
               <p className="text-muted-foreground text-sm">
-                This Event Pro hasn't added any packages yet.
+                This Vendor hasn't added any packages yet.
               </p>
             </Card>
           )}
