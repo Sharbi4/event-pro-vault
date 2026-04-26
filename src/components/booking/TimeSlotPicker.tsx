@@ -22,7 +22,19 @@ interface TimeSlotPickerProps {
   onTimeSelect: (time: string) => void;
   /** Optional: receive the full slot (with calendar block ISO window). */
   onSlotSelect?: (slot: BookableSlot) => void;
+  /** Optional: called when user picks a suggested alternative date. */
+  onAlternativeDate?: (date: Date) => void;
+  /** Optional: called when user clicks "Message vendor" in the empty state. */
+  onMessageVendor?: () => void;
   className?: string;
+}
+
+function endTimeFromStart(start: string, durationMinutes: number): string {
+  const [h, m] = start.split(':').map(Number);
+  const total = h * 60 + m + durationMinutes;
+  const eh = Math.floor((total % (24 * 60)) / 60);
+  const em = total % 60;
+  return `${String(eh).padStart(2, '0')}:${String(em).padStart(2, '0')}`;
 }
 
 function formatTimeDisplay(time: string): string {
