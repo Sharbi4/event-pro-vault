@@ -159,10 +159,14 @@ async function handleAccountUpdated(account: Stripe.Account) {
 }
 
 // Handle Stripe Identity verification status changes
-async function handleIdentityVerificationUpdated(session: Stripe.Identity.VerificationSession) {
+async function handleIdentityVerificationUpdated(
+  session: Stripe.Identity.VerificationSession,
+  eventId?: string,
+) {
   logStep("Identity verification updated", {
     sessionId: session.id,
     status: session.status,
+    eventId,
   });
 
   const userId = session.metadata?.user_id;
@@ -189,6 +193,24 @@ async function handleIdentityVerificationUpdated(session: Stripe.Identity.Verifi
     logStep("Error updating identity status from webhook", { error: error.message });
   } else {
     logStep("Identity status synced via webhook", { userId, newStatus });
+  }
+
+  // Append to verification timeline (deduped by stripe_event_id)
+  const { error: evtError } = await supabaseAdmin
+    .from("identity_verification_events")
+    .insert({
+      user_id: userId,
+      session_id: session.id,
+      status: newStatus,
+      stripe_event_id: eventId ?? null,
+      metadata: {
+        last_error: session.last_error ?? null,
+        verified_outputs: session.verified_outputs ?? null,
+      },
+    });
+
+  if (evtError && !evtError.message?.includes("duplicate")) {
+    logStep("Error appending identity verification event", { error: evtError.message });
   }
 }
 
