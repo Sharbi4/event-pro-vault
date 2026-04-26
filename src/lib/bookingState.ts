@@ -10,21 +10,28 @@ export type BookingUiState =
   | 'completed'
   | 'cancelled';
 
-export type CancellationPolicy = 'flexible' | 'standard' | 'strict';
+// DB stores 'flexible' | 'standard' | 'strict' | 'custom'.
+// UI labels: Flexible / Moderate / Strict / Custom (Standard is shown as "Moderate").
+export type CancellationPolicy = 'flexible' | 'standard' | 'strict' | 'custom';
 
 export interface CancellationRule {
   policy: CancellationPolicy;
+  /** Display label shown to customers and vendors */
+  label: string;
   /** hours before event_start where a full refund is still possible */
   fullRefundHours: number;
   /** hours before event_start where a partial 50% refund applies */
   partialRefundHours: number;
   partialRefundPct: number;
   description: string;
+  /** True if the policy says deposits are kept once the booking is made */
+  depositNonRefundable?: boolean;
 }
 
 export const CANCELLATION_RULES: Record<CancellationPolicy, CancellationRule> = {
   flexible: {
     policy: 'flexible',
+    label: 'Flexible',
     fullRefundHours: 48,
     partialRefundHours: 24,
     partialRefundPct: 50,
@@ -32,6 +39,7 @@ export const CANCELLATION_RULES: Record<CancellationPolicy, CancellationRule> = 
   },
   standard: {
     policy: 'standard',
+    label: 'Moderate',
     fullRefundHours: 24 * 7,
     partialRefundHours: 72,
     partialRefundPct: 50,
@@ -39,10 +47,20 @@ export const CANCELLATION_RULES: Record<CancellationPolicy, CancellationRule> = 
   },
   strict: {
     policy: 'strict',
+    label: 'Strict',
     fullRefundHours: 24 * 14,
     partialRefundHours: 24 * 7,
     partialRefundPct: 50,
-    description: 'Full refund up to 14 days before · 50% within 7–14 days · No refund inside 7 days',
+    description: 'Deposit non-refundable after booking · Full balance refund up to 14 days before · 50% within 7–14 days · No refund inside 7 days',
+    depositNonRefundable: true,
+  },
+  custom: {
+    policy: 'custom',
+    label: 'Custom',
+    fullRefundHours: 0,
+    partialRefundHours: 0,
+    partialRefundPct: 0,
+    description: 'Custom policy — see vendor terms for full details.',
   },
 };
 
