@@ -118,7 +118,7 @@ export function StickyMiniSearch({
               </div>
 
               {/* Location */}
-              <div className="flex-1 min-w-0 flex items-center gap-2 px-3 h-10 rounded-xl bg-secdary/50 bg-secondary/50 hover:bg-secondary transition-colors">
+              <div className="flex-1 min-w-0 flex items-center gap-2 px-3 h-10 rounded-xl bg-secondary/50 hover:bg-secondary transition-colors">
                 <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
                 <div className="min-w-0 flex-1">
                   <LocationAutocomplete
