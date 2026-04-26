@@ -21,6 +21,7 @@ import { AskPrivatePackageModal } from '@/components/growth/AskPrivatePackageMod
 export default function VendorProfile() {
   const { id } = useParams();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const [askOpen, setAskOpen] = useState(false);
   const { 
     profile, 
     packages, 
