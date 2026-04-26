@@ -25,8 +25,10 @@ import {
   Star,
   Package,
   Plus,
-  AlertCircle
+  AlertCircle,
+  ShieldCheck
 } from 'lucide-react';
+import { prepareExternalNavigation as prepareIdentityNav } from '@/lib/externalNavigation';
 import { PackageFormWizard, PackageFormData } from '@/components/vendor-dashboard/package-form/PackageFormWizard';
 import { OnboardingPackageCard } from '@/components/onboarding/OnboardingPackageCard';
 import { VendorPackage } from '@/hooks/useVendorDashboard';
@@ -34,7 +36,7 @@ import { VendorPackage } from '@/hooks/useVendorDashboard';
 const MAX_PACKAGES = 15;
 
 type VendorType = 'event-pro' | 'market' | null;
-type OnboardingStep = 'welcome' | 'business-info' | 'packages' | 'connect' | 'connect-complete' | 'complete';
+type OnboardingStep = 'welcome' | 'business-info' | 'packages' | 'connect' | 'connect-complete' | 'verification' | 'complete';
 
 interface VendorFormData {
   businessName: string;
@@ -155,7 +157,7 @@ export default function VendorOnboarding() {
 
       setConnectStatus(data.status);
       if (data.status === 'active') {
-        setCurrentStep('complete');
+        setCurrentStep('verification');
         toast.success('Payment setup complete!');
       } else if (data.detailsSubmitted) {
         toast.info('Your account is being reviewed.');
@@ -363,12 +365,13 @@ export default function VendorOnboarding() {
     { id: 'welcome', label: 'Welcome', icon: Sparkles },
     { id: 'business-info', label: 'Business Info', icon: Building2 },
     { id: 'packages', label: 'Packages', icon: Package },
-    { id: 'connect', label: 'Payment Setup', icon: CreditCard },
+    { id: 'connect', label: 'Payments', icon: CreditCard },
+    { id: 'verification', label: 'Verify', icon: ShieldCheck },
     { id: 'complete', label: 'Complete', icon: CheckCircle2 },
   ];
 
   const getStepStatus = (stepId: string) => {
-    const stepOrder = ['welcome', 'business-info', 'packages', 'connect', 'complete'];
+    const stepOrder = ['welcome', 'business-info', 'packages', 'connect', 'verification', 'complete'];
     const currentIndex = stepOrder.indexOf(currentStep);
     const stepIndex = stepOrder.indexOf(stepId);
     
