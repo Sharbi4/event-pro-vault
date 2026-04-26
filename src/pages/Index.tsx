@@ -1,19 +1,21 @@
 import { Layout } from '@/components/layout/Layout';
 import { HeroSection } from '@/components/home/HeroSection';
-import { CategoryRows } from '@/components/home/CategoryRows';
-import { TrustSection } from '@/components/home/TrustSection';
-import { HowItWorks } from '@/components/home/HowItWorks';
-import { FeaturedVendors } from '@/components/home/FeaturedVendors';
+import { CategoryCuisineChips } from '@/components/home/CategoryCuisineChips';
+import { AIConciergeStrip } from '@/components/home/AIConciergeStrip';
 import { FeaturedPackages } from '@/components/home/FeaturedPackages';
-import { Testimonials } from '@/components/home/Testimonials';
+import { FlexibleDatesSection } from '@/components/home/FlexibleDatesSection';
+import { OccasionGrid } from '@/components/home/OccasionGrid';
+import { BookingTypeCards } from '@/components/home/BookingTypeCards';
+import { TrustRow } from '@/components/home/TrustRow';
 import { VendorCTA } from '@/components/home/VendorCTA';
+import { FinalCTA } from '@/components/home/FinalCTA';
 import { useSEO } from '@/hooks/useSEO';
 import { WebsiteJsonLd, OrganizationJsonLd } from '@/components/seo/JsonLd';
 import { generatePageSEO, SEO_CONFIG } from '@/lib/seoConfig';
 
 const Index = () => {
   const seo = generatePageSEO('home');
-  
+
   useSEO({
     title: seo.title,
     description: seo.description,
@@ -24,18 +26,19 @@ const Index = () => {
 
   return (
     <Layout>
-      {/* Structured Data */}
       <WebsiteJsonLd />
       <OrganizationJsonLd />
-      
+
       <HeroSection />
-      <CategoryRows />
-      <TrustSection />
-      <HowItWorks />
-      <FeaturedVendors />
+      <CategoryCuisineChips />
+      <AIConciergeStrip />
       <FeaturedPackages />
-      <Testimonials />
+      <FlexibleDatesSection />
+      <OccasionGrid />
+      <BookingTypeCards />
+      <TrustRow />
       <VendorCTA />
+      <FinalCTA />
     </Layout>
   );
 };
