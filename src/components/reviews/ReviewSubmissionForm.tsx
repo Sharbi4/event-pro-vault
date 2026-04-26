@@ -40,7 +40,23 @@ export function ReviewSubmissionForm({
     rating: 0,
     title: '',
     content: '',
+    tags: [],
   });
+
+  const REVIEW_TAGS = [
+    'On time', 'Professional', 'Great communication', 'Setup was smooth',
+    'Quality service', 'Above and beyond', 'Would book again', 'Easy to work with',
+  ];
+
+  const toggleTag = (tag: string) => {
+    setFormData((p) => {
+      const current = p.tags ?? [];
+      return {
+        ...p,
+        tags: current.includes(tag) ? current.filter((t) => t !== tag) : [...current, tag],
+      };
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
