@@ -129,6 +129,13 @@ export default function Browse() {
   const handleApplyFilters = (newFilters: {
     search: string;
     location: string;
+    locationCoords: {
+      lat: number;
+      lng: number;
+      city?: string;
+      state?: string;
+      formattedAddress?: string;
+    } | null;
     date: string | null;
     startTime: string | null;
     endTime: string | null;
@@ -141,6 +148,20 @@ export default function Browse() {
   }) => {
     updateFilter('search', newFilters.search);
     updateFilter('location', newFilters.location);
+    // Forward canonical Google Place coords so radius search uses lat/lng
+    // immediately, without waiting for the auto-geocode fallback.
+    if (newFilters.locationCoords) {
+      updateFilter('locationCoords', {
+        lat: newFilters.locationCoords.lat,
+        lng: newFilters.locationCoords.lng,
+        formattedAddress: newFilters.locationCoords.formattedAddress || newFilters.location,
+        city: newFilters.locationCoords.city,
+        state: newFilters.locationCoords.state,
+      });
+    } else if (!newFilters.location) {
+      // Cleared location → drop coords too.
+      updateFilter('locationCoords', null);
+    }
     updateFilter('date', newFilters.date);
     updateFilter('startTime', newFilters.startTime);
     updateFilter('endTime', newFilters.endTime);
