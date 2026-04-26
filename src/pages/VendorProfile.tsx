@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { VendorPackageCard } from '@/components/vendors/VendorPackageCard';
@@ -11,14 +12,16 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { 
   Star, MapPin, Zap, ShieldCheck, CheckCircle2,
   Calendar, MessageCircle, ChevronLeft, Share2, Heart,
-  Package, Award, TrendingUp, Globe, Building2
+  Package, Award, TrendingUp, Globe, Building2, Sparkles
 } from 'lucide-react';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useVendorProfile } from '@/hooks/useVendorProfile';
+import { AskPrivatePackageModal } from '@/components/growth/AskPrivatePackageModal';
 
 export default function VendorProfile() {
   const { id } = useParams();
   const { isFavorite, toggleFavorite } = useFavorites();
+  const [askOpen, setAskOpen] = useState(false);
   const { 
     profile, 
     packages, 
@@ -421,15 +424,20 @@ export default function VendorProfile() {
                   Quick Book
                 </h3>
                 <p className="text-sm text-muted-foreground mb-6">
-                  Choose a package above or request a custom quote
+                  Choose a package above, or ask for a private package built for your event.
                 </p>
                 <Button variant="gradient" size="lg" className="w-full mb-3">
                   <Calendar className="w-4 h-4 mr-2" />
                   Check Availability
                 </Button>
-                <Button variant="outline" size="lg" className="w-full">
-                  <MessageCircle className="w-4 h-4 mr-2" />
-                  Request Custom Quote
+                <Button
+                  variant="outline"
+                  size="lg"
+                  className="w-full"
+                  onClick={() => setAskOpen(true)}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Ask about a private package
                 </Button>
               </Card>
 
@@ -462,6 +470,14 @@ export default function VendorProfile() {
       </div>
 
       <div className="h-20" />
+      {profile && (
+        <AskPrivatePackageModal
+          open={askOpen}
+          onOpenChange={setAskOpen}
+          vendorUserId={profile.userId}
+          vendorName={profile.displayName || profile.fullName || 'this vendor'}
+        />
+      )}
     </Layout>
   );
 }

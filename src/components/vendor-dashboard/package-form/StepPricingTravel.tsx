@@ -66,7 +66,7 @@ const durationOptions = [
 
 export function StepPricingTravel({ formData, updateFormData }: StepPricingTravelProps) {
   const pricingType = formData.pricing_type || 'hourly';
-  const isCustomQuote = pricingType === 'custom_quote';
+  const isCustomQuote = false;
   const showOvertimeRate = pricingType === 'hourly' || pricingType === 'daily';
 
   // Get price label and suffix based on pricing type
@@ -138,7 +138,7 @@ export function StepPricingTravel({ formData, updateFormData }: StepPricingTrave
       // Also update the legacy type field for compatibility
       type: type === 'hourly' ? 'HOURLY' : 'DAILY',
       // Disable instant book for custom quote
-      instant_book: type === 'custom_quote' ? false : formData.instant_book,
+      instant_book: formData.instant_book,
     });
   };
 

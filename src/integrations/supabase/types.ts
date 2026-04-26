@@ -149,6 +149,7 @@ export type Database = {
           address_line1: string | null
           address_line2: string | null
           booking_mode: string | null
+          booking_type: string
           breakdown_minutes: number | null
           created_at: string
           customer_email: string | null
@@ -171,6 +172,7 @@ export type Database = {
           payment_method: string | null
           payment_status: string | null
           platform_fee_amount: number | null
+          private_package_id: string | null
           setup_minutes: number | null
           start_time: string | null
           status: string
@@ -191,6 +193,7 @@ export type Database = {
           address_line1?: string | null
           address_line2?: string | null
           booking_mode?: string | null
+          booking_type?: string
           breakdown_minutes?: number | null
           created_at?: string
           customer_email?: string | null
@@ -213,6 +216,7 @@ export type Database = {
           payment_method?: string | null
           payment_status?: string | null
           platform_fee_amount?: number | null
+          private_package_id?: string | null
           setup_minutes?: number | null
           start_time?: string | null
           status?: string
@@ -233,6 +237,7 @@ export type Database = {
           address_line1?: string | null
           address_line2?: string | null
           booking_mode?: string | null
+          booking_type?: string
           breakdown_minutes?: number | null
           created_at?: string
           customer_email?: string | null
@@ -255,6 +260,7 @@ export type Database = {
           payment_method?: string | null
           payment_status?: string | null
           platform_fee_amount?: number | null
+          private_package_id?: string | null
           setup_minutes?: number | null
           start_time?: string | null
           status?: string
@@ -668,6 +674,7 @@ export type Database = {
       }
       messages: {
         Row: {
+          attached_private_package_id: string | null
           content: string
           conversation_id: string
           created_at: string
@@ -678,6 +685,7 @@ export type Database = {
           sender_user_id: string | null
         }
         Insert: {
+          attached_private_package_id?: string | null
           content: string
           conversation_id: string
           created_at?: string
@@ -688,6 +696,7 @@ export type Database = {
           sender_user_id?: string | null
         }
         Update: {
+          attached_private_package_id?: string | null
           content?: string
           conversation_id?: string
           created_at?: string
@@ -813,6 +822,141 @@ export type Database = {
           id?: string
           reminder_type?: string
           sent_at?: string
+        }
+        Relationships: []
+      }
+      private_packages: {
+        Row: {
+          accepted_at: string | null
+          add_ons: Json | null
+          address_line1: string | null
+          address_line2: string | null
+          base_price: number
+          booking_id: string | null
+          breakdown_time_minutes: number | null
+          cancellation_policy: string | null
+          cancelled_at: string | null
+          category: string | null
+          conversation_id: string | null
+          created_at: string
+          customer_email: string | null
+          customer_notes: string | null
+          customer_user_id: string | null
+          deposit_amount: number | null
+          description: string | null
+          end_time: string | null
+          event_city: string | null
+          event_date: string | null
+          event_state: string | null
+          event_zip: string | null
+          guest_count: number | null
+          id: string
+          included_items: string[] | null
+          location: string | null
+          menu_details: string | null
+          offer_expires_at: string | null
+          package_name: string
+          paid_at: string | null
+          per_person_price: number | null
+          sent_at: string | null
+          service_duration_minutes: number | null
+          setup_time_minutes: number | null
+          start_time: string | null
+          status: string
+          total_price: number
+          travel_fee: number | null
+          updated_at: string
+          vendor_notes: string | null
+          vendor_user_id: string
+          viewed_at: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          add_ons?: Json | null
+          address_line1?: string | null
+          address_line2?: string | null
+          base_price?: number
+          booking_id?: string | null
+          breakdown_time_minutes?: number | null
+          cancellation_policy?: string | null
+          cancelled_at?: string | null
+          category?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_notes?: string | null
+          customer_user_id?: string | null
+          deposit_amount?: number | null
+          description?: string | null
+          end_time?: string | null
+          event_city?: string | null
+          event_date?: string | null
+          event_state?: string | null
+          event_zip?: string | null
+          guest_count?: number | null
+          id?: string
+          included_items?: string[] | null
+          location?: string | null
+          menu_details?: string | null
+          offer_expires_at?: string | null
+          package_name: string
+          paid_at?: string | null
+          per_person_price?: number | null
+          sent_at?: string | null
+          service_duration_minutes?: number | null
+          setup_time_minutes?: number | null
+          start_time?: string | null
+          status?: string
+          total_price?: number
+          travel_fee?: number | null
+          updated_at?: string
+          vendor_notes?: string | null
+          vendor_user_id: string
+          viewed_at?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          add_ons?: Json | null
+          address_line1?: string | null
+          address_line2?: string | null
+          base_price?: number
+          booking_id?: string | null
+          breakdown_time_minutes?: number | null
+          cancellation_policy?: string | null
+          cancelled_at?: string | null
+          category?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          customer_email?: string | null
+          customer_notes?: string | null
+          customer_user_id?: string | null
+          deposit_amount?: number | null
+          description?: string | null
+          end_time?: string | null
+          event_city?: string | null
+          event_date?: string | null
+          event_state?: string | null
+          event_zip?: string | null
+          guest_count?: number | null
+          id?: string
+          included_items?: string[] | null
+          location?: string | null
+          menu_details?: string | null
+          offer_expires_at?: string | null
+          package_name?: string
+          paid_at?: string | null
+          per_person_price?: number | null
+          sent_at?: string | null
+          service_duration_minutes?: number | null
+          setup_time_minutes?: number | null
+          start_time?: string | null
+          status?: string
+          total_price?: number
+          travel_fee?: number | null
+          updated_at?: string
+          vendor_notes?: string | null
+          vendor_user_id?: string
+          viewed_at?: string | null
         }
         Relationships: []
       }

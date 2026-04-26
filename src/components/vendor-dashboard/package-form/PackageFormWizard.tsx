@@ -26,7 +26,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
-export type PricingType = 'hourly' | 'daily' | 'flat' | 'per_guest' | 'per_item' | 'custom_quote';
+export type PricingType = 'hourly' | 'daily' | 'flat' | 'per_guest' | 'per_item';
 
 export interface AdditionalFee {
   id: string;
@@ -270,8 +270,6 @@ export function PackageFormWizard({
       case 0:
         return formData.name.trim().length > 0 && formData.category.length > 0;
       case 1:
-        // Custom quote doesn't require price
-        if (formData.pricing_type === 'custom_quote') return true;
         return formData.price > 0;
       case 3:
         // Booking step: if online payment selected, require Stripe
