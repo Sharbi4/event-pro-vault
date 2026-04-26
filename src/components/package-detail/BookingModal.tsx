@@ -190,7 +190,10 @@ export function BookingModal({
   const [itemQuantity, setItemQuantity] = useState(minUnits?.toString() || '1');
   const [notes, setNotes] = useState('');
   const [guestEmail, setGuestEmail] = useState('');
-  const [guestName, setGuestName] = useState('');
+  // Customer contact (required for ALL bookings — name reaches the Event Pro,
+  // phone is for admin / customer service follow-up)
+  const [contactName, setContactName] = useState('');
+  const [contactPhone, setContactPhone] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'cash'>(
     paymentOptions === 'CASH' ? 'cash' : initialPaymentMethod
   );
@@ -404,7 +407,10 @@ export function BookingModal({
   const validateDetailsStep = () => {
     const emailRequired = !user;
     const hasEmail = emailRequired ? !!guestEmail.trim() : true;
-    
+
+    // Name and phone are now required for every booking
+    if (!contactName.trim() || !contactPhone.trim()) return false;
+
     if (!eventType || !hasEmail) return false;
     
     // Require guest count for per_guest pricing
@@ -476,6 +482,15 @@ export function BookingModal({
       return;
     }
 
+    if (!contactName.trim() || !contactPhone.trim()) {
+      toast({
+        title: "Contact info required",
+        description: "Please provide your name and phone number so the Event Pro can reach you",
+        variant: "destructive"
+      });
+      return;
+    }
+
     if (!eventDate || !addressLine1) {
       toast({
         title: "Missing information",
@@ -488,7 +503,8 @@ export function BookingModal({
     setSubmitting(true);
 
     const customerEmail = user?.email || guestEmail.trim();
-    const customerName = user?.email?.split('@')[0] || guestName.trim() || 'Guest';
+    const customerName = contactName.trim();
+    const customerPhone = contactPhone.trim();
 
     // Build unit type label based on pricing
     const getUnitTypeLabel = () => {
@@ -533,6 +549,7 @@ export function BookingModal({
       vendor_name: vendorName,
       customer_name: customerName,
       customer_email: customerEmail,
+      customer_phone: customerPhone,
       package_name: packageName,
       unit_type: getUnitTypeLabel(),
       start_time: effectivePricingType === 'hourly' ? startTime : (startTime || null),
@@ -906,38 +923,56 @@ export function BookingModal({
       case 'details':
         return (
           <div className="space-y-6">
-            {/* Guest checkout fields */}
+            {/* Guest-only email field */}
             {!user && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    <Mail className="w-4 h-4 inline mr-1" />
-                    Your Email <span className="text-destructive">*</span>
-                  </label>
-                  <Input
-                    type="email"
-                    placeholder="Enter your email for confirmation"
-                    value={guestEmail}
-                    onChange={(e) => setGuestEmail(e.target.value)}
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    We'll send your booking confirmation here
-                  </p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    <User className="w-4 h-4 inline mr-1" />
-                    Your Name (optional)
-                  </label>
-                  <Input
-                    placeholder="Enter your name"
-                    value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
-                  />
-                </div>
-              </>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  <Mail className="w-4 h-4 inline mr-1" />
+                  Your Email <span className="text-destructive">*</span>
+                </label>
+                <Input
+                  type="email"
+                  placeholder="Enter your email for confirmation"
+                  value={guestEmail}
+                  onChange={(e) => setGuestEmail(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  We'll send your booking confirmation here
+                </p>
+              </div>
             )}
+
+            {/* Contact info — required for everyone */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  <User className="w-4 h-4 inline mr-1" />
+                  Full Name <span className="text-destructive">*</span>
+                </label>
+                <Input
+                  placeholder="Jane Doe"
+                  value={contactName}
+                  onChange={(e) => setContactName(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Shared with the Event Pro
+                </p>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-foreground mb-2">
+                  Phone Number <span className="text-destructive">*</span>
+                </label>
+                <Input
+                  type="tel"
+                  placeholder="(555) 123-4567"
+                  value={contactPhone}
+                  onChange={(e) => setContactPhone(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  For event-day coordination & support
+                </p>
+              </div>
+            </div>
 
             <div>
               <label className="block text-sm font-medium text-foreground mb-2">

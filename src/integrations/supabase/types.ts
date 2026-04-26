@@ -159,6 +159,8 @@ export type Database = {
           confirmed_at: string | null
           created_at: string
           customer_email: string | null
+          customer_name: string | null
+          customer_phone: string | null
           deposit_amount: number | null
           deposit_paid_at: string | null
           deposit_percentage: number | null
@@ -213,6 +215,8 @@ export type Database = {
           confirmed_at?: string | null
           created_at?: string
           customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           deposit_amount?: number | null
           deposit_paid_at?: string | null
           deposit_percentage?: number | null
@@ -267,6 +271,8 @@ export type Database = {
           confirmed_at?: string | null
           created_at?: string
           customer_email?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
           deposit_amount?: number | null
           deposit_paid_at?: string | null
           deposit_percentage?: number | null
