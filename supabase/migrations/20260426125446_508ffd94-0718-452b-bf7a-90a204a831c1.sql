@@ -1,0 +1,1 @@
+UPDATE public.vendor_packages SET cover_image_url='https://images.unsplash.com/photo-1544148103-0773bf10d330?w=1200&q=80' WHERE id='037d826e-37a0-4c42-9b8c-b0399ab6ca66';
