@@ -270,6 +270,79 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
       logStep("Error updating booking", { error: error.message });
     } else {
       logStep(`Booking ${metadata.booking_id} payment recorded`);
+
+      // Payment succeeded — NOW notify the vendor and customer.
+      // (We deliberately suppressed these on initial booking insert so unpaid
+      // online bookings never reach the vendor inbox.)
+      if (metadata.payment_type !== "final") {
+        try {
+          const { data: bookingRow } = await supabaseAdmin
+            .from("bookings")
+            .select("*")
+            .eq("id", metadata.booking_id)
+            .single();
+
+          if (bookingRow) {
+            // Vendor profile for email
+            const { data: vendorProfile } = await supabaseAdmin
+              .from("profiles")
+              .select("email, full_name, display_name")
+              .eq("user_id", bookingRow.vendor_user_id)
+              .single();
+
+            const vendorEmail = vendorProfile?.email;
+            const vendorName = vendorProfile?.display_name || vendorProfile?.full_name || "Event Pro";
+            const isRequest = (bookingRow.booking_mode || "INSTANT").toUpperCase() === "REQUEST";
+
+            // Notify vendor (booking is now in their inbox, paid)
+            if (vendorEmail) {
+              supabaseAdmin.functions.invoke("send-booking-notification", {
+                body: {
+                  booking_id: bookingRow.id,
+                  vendor_email: vendorEmail,
+                  vendor_name: vendorName,
+                  customer_name: bookingRow.customer_name || "Customer",
+                  customer_email: bookingRow.customer_email,
+                  package_name: bookingRow.package_id,
+                  event_date: bookingRow.event_date,
+                  event_location: bookingRow.event_location,
+                  units: bookingRow.units,
+                  unit_type: "unit",
+                  total_price: bookingRow.total_price,
+                  add_ons: bookingRow.add_ons || [],
+                  notes: bookingRow.notes,
+                  cancellation_policy: "standard",
+                },
+              }).catch((e) => logStep("Vendor notify failed", { error: String(e) }));
+            }
+
+            // Notify customer
+            if (bookingRow.customer_email) {
+              supabaseAdmin.functions.invoke("send-transactional-email", {
+                body: {
+                  templateName: isRequest ? "booking-request-received" : "booking-confirmation",
+                  recipientEmail: bookingRow.customer_email,
+                  idempotencyKey: `booking-paid-${bookingRow.id}`,
+                  templateData: {
+                    customerName: bookingRow.customer_name || "there",
+                    vendorName,
+                    packageName: bookingRow.package_id,
+                    eventDate: bookingRow.event_date,
+                    eventLocation: bookingRow.event_location,
+                    units: bookingRow.units,
+                    unitType: "unit",
+                    totalPrice: bookingRow.total_price,
+                    paymentMethod: "stripe",
+                    bookingId: bookingRow.id,
+                  },
+                },
+              }).catch((e) => logStep("Customer notify failed", { error: String(e) }));
+            }
+          }
+        } catch (notifyErr) {
+          logStep("Post-payment notification error", { error: String(notifyErr) });
+        }
+      }
     }
 
     // Mark private package as paid/booked if linked
