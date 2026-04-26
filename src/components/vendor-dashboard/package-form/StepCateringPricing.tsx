@@ -85,7 +85,8 @@ export function StepCateringPricing({ formData, updateFormData, errors }: Props)
                 'hover:border-primary/60 hover:shadow-sm',
                 selected
                   ? 'border-primary bg-primary/5 ring-1 ring-primary'
-                  : 'border-border bg-card'
+                  : 'border-border bg-card',
+                errors?.catering_pricing_model && !selected && 'border-destructive/40'
               )}
             >
               {selected && (
@@ -107,6 +108,9 @@ export function StepCateringPricing({ formData, updateFormData, errors }: Props)
           );
         })}
       </div>
+      {errors?.catering_pricing_model && (
+        <p className="text-xs text-destructive -mt-2">{errors.catering_pricing_model}</p>
+      )}
 
       {model && (
         <div className="rounded-2xl border bg-card p-4 space-y-4">
