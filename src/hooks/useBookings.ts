@@ -142,7 +142,7 @@ export function useBookings() {
     }
 
     // Hide unpaid online Instant-Book bookings (ghosts from abandoned checkout).
-    const visibleBookings = filterVisibleBookings(bookingsData as any);
+    const visibleBookings = (bookingsData as any[]).filter(isBookingVisible);
     if (visibleBookings.length === 0) {
       setBookings([]);
       setLoading(false);
