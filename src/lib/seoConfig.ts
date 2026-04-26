@@ -40,8 +40,8 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
   const pages: Record<string, { title: string; description: string; canonical: string; noIndex?: boolean }> = {
     // Public pages
     home: {
-      title: `${siteName} | Book Available Event Services`,
-      description: 'Search and book available event packages—food trucks, photographers, DJs, bartenders, rentals and more—by date, time, and location.',
+      title: `${siteName} | Book Food Trucks, Caterers & Mobile Bartenders`,
+      description: 'Book food trucks, caterers, mobile bartenders, bakers and dessert vendors for your next event — search by date, time, and location.',
       canonical: baseUrl,
     },
     learn: {
@@ -60,12 +60,12 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
       canonical: `${baseUrl}/learn/markets`,
     },
     browse: {
-      title: dynamicData?.category 
+      title: dynamicData?.category
         ? `Book ${dynamicData.category} Near You | ${siteName}`
-        : `Find Available Event Services | ${siteName}`,
+        : `Find Food Trucks & Mobile Food Vendors | ${siteName}`,
       description: dynamicData?.category
         ? `Find available ${dynamicData.category} packages for your date and time. Compare pricing, travel range, and book online or pay in cash.`
-        : 'Search event services by date, time, and location. Book photographers, DJs, caterers, food trucks, and more with real-time availability.',
+        : 'Search food trucks, caterers, mobile bartenders, bakers and beverage carts by date, time, and location. Real-time availability.',
       canonical: `${baseUrl}/browse`,
     },
     discover: {
