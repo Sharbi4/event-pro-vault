@@ -464,6 +464,37 @@ export function useBrowsePackages() {
     fetchPackages();
   }, [fetchPackages]);
 
+  // Auto-geocode the location string when set without coordinates (e.g. coming
+  // from URL params or a typed entry without picking an autocomplete suggestion).
+  useEffect(() => {
+    const loc = filters.location?.trim();
+    if (!loc) {
+      if (filters.locationCoords) {
+        setFilters(prev => ({ ...prev, locationCoords: null }));
+      }
+      return;
+    }
+    // If we already have coords whose label matches the input, skip.
+    if (
+      filters.locationCoords &&
+      (filters.locationCoords.formattedAddress?.toLowerCase().includes(loc.toLowerCase()) ||
+        loc.toLowerCase().includes((filters.locationCoords.city || '').toLowerCase()))
+    ) {
+      return;
+    }
+    let cancelled = false;
+    const t = setTimeout(async () => {
+      const coords = await geocodeLocation(loc);
+      if (!cancelled && coords) {
+        setFilters(prev => ({ ...prev, locationCoords: coords }));
+      }
+    }, 400);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [filters.location, filters.locationCoords]);
+
   // Track if we've shown the realtime toast to avoid spamming
   const hasShownRealtimeToast = useRef(false);
 
