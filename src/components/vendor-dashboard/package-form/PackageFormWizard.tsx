@@ -26,6 +26,7 @@ import { PackageBasicsExtras } from './PackageBasicsExtras';
 import { TimeAndBuffers } from './TimeAndBuffers';
 import { CustomerQuestionsPicker } from './CustomerQuestionsPicker';
 import { PackagePreview } from './PackagePreview';
+import { PackageStatusSelector } from './PackageStatusSelector';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -443,7 +444,17 @@ export function PackageFormWizard({
               <Loader2 className="w-4 h-4 mr-2 animate-spin" />
               Saving...
             </>
-          ) : initialData ? 'Save Changes' : 'Create Package'}
+          ) : (
+            (() => {
+              const labels: Record<typeof formData.status, string> = {
+                draft: initialData ? 'Save as draft' : 'Save draft',
+                published: initialData ? 'Save & publish' : 'Publish package',
+                paused: initialData ? 'Save & pause' : 'Save (paused)',
+                archived: 'Archive package',
+              };
+              return labels[formData.status];
+            })()
+          )}
         </Button>
       )}
     </div>
@@ -517,7 +528,14 @@ export function PackageFormWizard({
         />
       )}
       {currentStep === 8 && (
-        <PackagePreview formData={formData} />
+        <div className="space-y-6">
+          <PackagePreview formData={formData} />
+          <PackageStatusSelector
+            value={formData.status}
+            onChange={(status) => updateFormData({ status })}
+            isNew={!initialData}
+          />
+        </div>
       )}
     </div>
   );
