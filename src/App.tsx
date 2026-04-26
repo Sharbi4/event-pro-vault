@@ -44,6 +44,7 @@ import NotFound from "./pages/NotFound";
 import CityCategory from "./pages/CityCategory";
 import AdminAnalytics from "./pages/AdminAnalytics";
 import BookingStatus from "./pages/BookingStatus";
+import PrivatePackageReview from "./pages/PrivatePackageReview";
 
 const queryClient = new QueryClient();
 
