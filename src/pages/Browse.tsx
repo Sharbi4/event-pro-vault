@@ -16,8 +16,10 @@ import {
   SlidersHorizontal, X, Star, Zap, 
   ShieldCheck, LayoutGrid, Search, MapPin,
   CalendarDays, Package, Map, Sparkles,
-  Clock, MapPinOff, ChevronDown, CreditCard, ArrowUpDown
+  Clock, MapPinOff, ChevronDown, CreditCard, ArrowUpDown,
+  Share2, Check
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { serviceCategories } from '@/data/service-categories';
 import { useBrowsePackages, SortOption } from '@/hooks/useBrowsePackages';
 import { getSortOptions } from '@/lib/packageRanking';

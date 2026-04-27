@@ -1,55 +1,59 @@
 ## Goal
 
-Extend the Browse → URL write-back so a refresh restores the **full** search state, not just text/location/date. Today only `q`, `location`, `category`, `date`, `start`, `end`, `lat`, `lng`, `city`, `state` round-trip through the URL.
+Add a "Copy share link" button to the Browse page header that copies the current URL — which already includes lat/lng + every persisted filter via the existing URL write-back — to the clipboard.
 
-## Filters to add to URL round-trip
+## Why this is small
 
-From the existing `BrowseFilters` shape in `useBrowsePackages.ts`, plus `sortBy`:
-
-| URL param | Filter field | Notes |
-|---|---|---|
-| `radius` | `searchRadius` | omit when default `25` |
-| `minRating` | `minRating` | numeric (e.g. `4.5`) |
-| `minPrice` | `minPrice` | numeric |
-| `maxPrice` | `maxPrice` | numeric |
-| `instantBook` | `instantBook` | `1` when true |
-| `verified` | `verified` | `1` when true |
-| `onlinePay` | `onlinePaymentsOnly` | `1` when true |
-| `sort` | `sortBy` | omit when `recommended` |
-
-### Filters the user mentioned that don't exist yet
-
-- **Response time** — no `responseTime` filter currently exists in `BrowseFilters`. Not in scope for URL persistence until the filter itself ships. Flagged for a follow-up.
-- **Hourly / daily toggle** — no `pricingType` filter exists; `type` is a per-package field but there's no UI toggle wired into filters. Flagged for a follow-up.
-
-If you want those two added now, say so and I'll include both the filter state + UI control + URL persistence in the same pass.
+Browse already syncs all filter state (`q`, `location`, `lat`, `lng`, `city`, `state`, `category`, `date`, `start`, `end`, `radius`, `minRating`, `minPrice`, `maxPrice`, `instantBook`, `verified`, `onlinePay`, `sort`) into `searchParams` via the write effect. So the share URL is just `window.location.href`.
 
 ## Implementation
 
 **File:** `src/pages/Browse.tsx`
 
-1. **Read effect (initial hydration)** — extend the mount-time `useEffect` (currently lines ~82–115) to also parse `radius`, `minRating`, `minPrice`, `maxPrice`, `instantBook`, `verified`, `onlinePay`, `sort` from `searchParams` and call `updateFilter` / `setSortBy` for each present value. Validate numeric params with `parseFloat` + `Number.isFinite` before applying. Validate `sort` against the allowed `SortOption` union.
+1. Add `Share2` and `Check` to the existing `lucide-react` import. Add `import { toast } from 'sonner'`.
 
-2. **Write effect (filters → URL)** — extend the sync `useEffect` (currently lines ~119–157) with a small helper that sets boolean params as `'1'` (or deletes when false) and numeric params as their string form (or deletes when null/default). Add `searchRadius`, `minRating`, `minPrice`, `maxPrice`, `instantBook`, `verified`, `onlinePaymentsOnly`, and `sortBy` to the dependency array.
+2. Add local state: `const [copied, setCopied] = useState(false)`.
 
-3. **Default elision** — to keep URLs clean:
-   - `radius` only written when `searchRadius !== 25`
-   - `sort` only written when `sortBy !== 'recommended'`
-   - booleans only written when `true`
-   - numerics only written when not `null`
+3. Add handler:
+   ```tsx
+   const handleCopyShareLink = async () => {
+     const url = window.location.href;
+     try {
+       await navigator.clipboard.writeText(url);
+     } catch {
+       // Fallback for older browsers / insecure contexts
+       const ta = document.createElement('textarea');
+       ta.value = url;
+       ta.style.position = 'fixed';
+       ta.style.opacity = '0';
+       document.body.appendChild(ta);
+       ta.select();
+       try { document.execCommand('copy'); } catch {}
+       document.body.removeChild(ta);
+     }
+     setCopied(true);
+     toast.success('Share link copied');
+     setTimeout(() => setCopied(false), 2000);
+   };
+   ```
 
-4. **Outbound search modules** — `StickyMiniSearch.tsx` already forwards `instantBook`, `verified`, and `minRating` (as `instantBook=1`, `verified=1`, `minRating=4.5`). Align param names so Browse reads what the mini-search writes (it already uses the same names; no change needed there). No edits required to `SearchModal`/`HeroSection` for this task — they don't set these filters at entry time.
+4. Render the button in the existing quick-actions row (next to the Map/Clear buttons, around line 393 in the sticky header):
+   ```tsx
+   <Button
+     variant="outline"
+     size="sm"
+     onClick={handleCopyShareLink}
+     className="h-9 gap-1.5"
+     aria-label="Copy share link"
+   >
+     {copied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+     <span className="hidden sm:inline">{copied ? 'Copied' : 'Share'}</span>
+   </Button>
+   ```
 
 ## Acceptance
 
-- Toggle Instant Book → URL shows `instantBook=1`. Refresh → still on. Untoggle → param removed.
-- Adjust radius slider to 50 → URL shows `radius=50`. Refresh → slider at 50, results unchanged. Reset to 25 → param removed.
-- Set Min Rating 4.5, Min Price 100, Max Price 500 → all three params persist and restore on refresh.
-- Change Sort to `nearest` → `sort=nearest` in URL; refresh keeps sort. Switch back to Recommended → param removed.
-- Combined state (location + coords + category + radius + rating + price + sort) all restore together after refresh.
-
-## Out of scope
-
-- Adding a Response Time filter (no current state field).
-- Adding an Hourly / Daily pricing toggle (no current state field).
-- Changing how filters are applied (no logic changes in `useBrowsePackages.ts`).
+- Apply filters (location with coords, category, radius, rating, price, sort, etc.) → click Share → clipboard contains the exact current URL with all params.
+- Toast confirms "Share link copied"; button briefly shows a check icon and "Copied" label.
+- Pasting the URL into a new tab restores the same filter state via the existing read-effect hydration.
+- Works on browsers without `navigator.clipboard` via the textarea fallback.
