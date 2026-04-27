@@ -111,6 +111,29 @@ export default function Browse() {
         });
       }
     }
+
+    // Hydrate remaining filters: radius, rating, price range, toggles, sort.
+    const parseNum = (v: string | null): number | null => {
+      if (v === null) return null;
+      const n = parseFloat(v);
+      return Number.isFinite(n) ? n : null;
+    };
+    const radius = parseNum(searchParams.get('radius'));
+    if (radius !== null && radius > 0) updateFilter('searchRadius', radius);
+    const minRating = parseNum(searchParams.get('minRating'));
+    if (minRating !== null) updateFilter('minRating', minRating);
+    const minPrice = parseNum(searchParams.get('minPrice'));
+    if (minPrice !== null) updateFilter('minPrice', minPrice);
+    const maxPrice = parseNum(searchParams.get('maxPrice'));
+    if (maxPrice !== null) updateFilter('maxPrice', maxPrice);
+    if (searchParams.get('instantBook') === '1') updateFilter('instantBook', true);
+    if (searchParams.get('verified') === '1') updateFilter('verified', true);
+    if (searchParams.get('onlinePay') === '1') updateFilter('onlinePaymentsOnly', true);
+    const sort = searchParams.get('sort');
+    const validSorts: SortOption[] = ['recommended', 'price_low', 'price_high', 'top_rated', 'nearest'];
+    if (sort && (validSorts as string[]).includes(sort)) {
+      setSortBy(sort as SortOption);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -121,6 +144,17 @@ export default function Browse() {
     const setOrDelete = (key: string, value: string | null | undefined) => {
       if (value) next.set(key, value);
       else next.delete(key);
+    };
+    const setBool = (key: string, on: boolean) => {
+      if (on) next.set(key, '1');
+      else next.delete(key);
+    };
+    const setNum = (key: string, value: number | null | undefined) => {
+      if (value !== null && value !== undefined && Number.isFinite(value)) {
+        next.set(key, String(value));
+      } else {
+        next.delete(key);
+      }
     };
     setOrDelete('q', filters.search || null);
     setOrDelete('location', filters.location || null);
@@ -139,6 +173,18 @@ export default function Browse() {
       next.delete('city');
       next.delete('state');
     }
+    // Radius only when non-default (25)
+    setNum('radius', filters.searchRadius !== 25 ? filters.searchRadius : null);
+    setNum('minRating', filters.minRating);
+    setNum('minPrice', filters.minPrice);
+    setNum('maxPrice', filters.maxPrice);
+    setBool('instantBook', !!filters.instantBook);
+    setBool('verified', !!filters.verified);
+    setBool('onlinePay', !!filters.onlinePaymentsOnly);
+    // Sort only when non-default
+    if (sortBy && sortBy !== 'recommended') next.set('sort', sortBy);
+    else next.delete('sort');
+
     const currentStr = searchParams.toString();
     const nextStr = next.toString();
     if (currentStr !== nextStr) {
@@ -152,6 +198,14 @@ export default function Browse() {
     filters.startTime,
     filters.endTime,
     filters.locationCoords,
+    filters.searchRadius,
+    filters.minRating,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.instantBook,
+    filters.verified,
+    filters.onlinePaymentsOnly,
+    sortBy,
     searchParams,
     setSearchParams,
   ]);
