@@ -16,8 +16,10 @@ import {
   SlidersHorizontal, X, Star, Zap, 
   ShieldCheck, LayoutGrid, Search, MapPin,
   CalendarDays, Package, Map, Sparkles,
-  Clock, MapPinOff, ChevronDown, CreditCard, ArrowUpDown
+  Clock, MapPinOff, ChevronDown, CreditCard, ArrowUpDown,
+  Share2, Check
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { serviceCategories } from '@/data/service-categories';
 import { useBrowsePackages, SortOption } from '@/hooks/useBrowsePackages';
 import { getSortOptions } from '@/lib/packageRanking';
@@ -67,6 +69,26 @@ export default function Browse() {
   const [viewMode, setViewMode] = useState<'list' | 'grid' | 'map'>('list');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyShareLink = async () => {
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch {}
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    toast.success('Share link copied');
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // Track scroll position to collapse header
   useEffect(() => {
@@ -400,7 +422,19 @@ export default function Browse() {
                   {viewMode === 'map' ? <LayoutGrid className="w-3.5 h-3.5" /> : <Map className="w-3.5 h-3.5" />}
                   <span className="hidden sm:inline">{viewMode === 'map' ? 'List' : 'Map'}</span>
                 </Button>
-                
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyShareLink}
+                  className="h-9 gap-1.5"
+                  aria-label="Copy share link"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline">{copied ? 'Copied' : 'Share'}</span>
+                </Button>
+
+
                 {activeFiltersCount > 0 && (
                   <Button
                     variant="ghost"
