@@ -69,6 +69,26 @@ export default function Browse() {
   const [viewMode, setViewMode] = useState<'list' | 'grid' | 'map'>('list');
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyShareLink = async () => {
+    const url = window.location.href;
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      ta.style.position = 'fixed';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand('copy'); } catch {}
+      document.body.removeChild(ta);
+    }
+    setCopied(true);
+    toast.success('Share link copied');
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   // Track scroll position to collapse header
   useEffect(() => {
