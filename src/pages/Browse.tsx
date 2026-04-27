@@ -422,7 +422,19 @@ export default function Browse() {
                   {viewMode === 'map' ? <LayoutGrid className="w-3.5 h-3.5" /> : <Map className="w-3.5 h-3.5" />}
                   <span className="hidden sm:inline">{viewMode === 'map' ? 'List' : 'Map'}</span>
                 </Button>
-                
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCopyShareLink}
+                  className="h-9 gap-1.5"
+                  aria-label="Copy share link"
+                >
+                  {copied ? <Check className="w-3.5 h-3.5" /> : <Share2 className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline">{copied ? 'Copied' : 'Share'}</span>
+                </Button>
+
+
                 {activeFiltersCount > 0 && (
                   <Button
                     variant="ghost"
