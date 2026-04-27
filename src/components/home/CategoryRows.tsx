@@ -23,7 +23,9 @@ const iconMap: Record<string, React.ElementType> = {
   Cake,
 };
 
-// Food-first category groups
+// Food-first category groups. `link` uses the human-readable category name
+// because Browse filters via `ilike('category', '%name%')` against
+// vendor_packages.category, not the slug id.
 const categoryGroups = [
   {
     id: 'food-trucks',
@@ -31,7 +33,7 @@ const categoryGroups = [
     subtitle: 'Mobile kitchens for any event, big or small',
     categoryIds: ['food-trucks'],
     icon: Truck,
-    link: '/browse?category=food-trucks',
+    link: `/browse?category=${encodeURIComponent('Food Trucks')}`,
   },
   {
     id: 'catering',
@@ -39,7 +41,7 @@ const categoryGroups = [
     subtitle: 'Full-service catering and personalized chef experiences',
     categoryIds: ['catering', 'private-chefs', 'food-popup'],
     icon: UtensilsCrossed,
-    link: '/browse?category=catering',
+    link: `/browse?category=${encodeURIComponent('Catering')}`,
   },
   {
     id: 'bar',
@@ -47,7 +49,7 @@ const categoryGroups = [
     subtitle: 'Bartenders, bar carts, and mobile coffee',
     categoryIds: ['bartending', 'coffee-beverage'],
     icon: Wine,
-    link: '/browse?category=bartending',
+    link: `/browse?category=${encodeURIComponent('Mobile Bartending')}`,
   },
   {
     id: 'sweets',
@@ -55,7 +57,7 @@ const categoryGroups = [
     subtitle: 'Cottage bakers, cake artists, and ice cream',
     categoryIds: ['desserts', 'ice-cream'],
     icon: Cake,
-    link: '/browse?category=desserts',
+    link: `/browse?category=${encodeURIComponent('Desserts & Bakers')}`,
   },
 ];
 
@@ -80,7 +82,7 @@ function CategoryPill({
   
   return (
     <Link
-      to={`/browse?category=${category.id}`}
+      to={`/browse?category=${encodeURIComponent(category.name)}`}
       className="flex-shrink-0"
     >
       <div className="flex items-center gap-2 px-4 py-2.5 bg-card border border-border rounded-full hover:border-primary/50 hover:bg-secondary/50 transition-all group">

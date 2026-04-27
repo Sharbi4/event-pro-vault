@@ -34,7 +34,7 @@ export function CategoryGrid() {
           {categories.map((category, index) => {
             const IconComponent = iconMap[category.icon];
             return (
-              <Link key={category.id} to={`/browse?category=${category.id}`}>
+              <Link key={category.id} to={`/browse?category=${encodeURIComponent(category.name)}`}>
                 <Card 
                   variant="glow" 
                   className={`p-6 text-center group cursor-pointer animate-fade-in relative ${category.featured ? 'ring-2 ring-primary/50' : ''}`}
