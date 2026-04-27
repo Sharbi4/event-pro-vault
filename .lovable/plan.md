@@ -1,100 +1,55 @@
-# Create Package Flow — Pull-Up vs Catering
+## Goal
 
-Restructure the existing 7-step package wizard so vendors first choose a package type (Pull-Up Booking or Catering Package), then see fields and pricing models tailored to that type. Add Private Package education, smarter time/calendar logic, customer questions, and a duplicate action.
+Extend the Browse → URL write-back so a refresh restores the **full** search state, not just text/location/date. Today only `q`, `location`, `category`, `date`, `start`, `end`, `lat`, `lng`, `city`, `state` round-trip through the URL.
 
-## New step order
+## Filters to add to URL round-trip
 
-```
-1. Package Type     ← NEW first step
-2. Basics
-3. Pricing          (cards change per type)
-4. Time & Calendar  (adds setup/cleanup/buffers visualization)
-5. Photos & Details
-6. Booking Rules    (adds customer questions)
-7. Review & Publish
-```
+From the existing `BrowseFilters` shape in `useBrowsePackages.ts`, plus `sortBy`:
 
-## Step-by-step changes
+| URL param | Filter field | Notes |
+|---|---|---|
+| `radius` | `searchRadius` | omit when default `25` |
+| `minRating` | `minRating` | numeric (e.g. `4.5`) |
+| `minPrice` | `minPrice` | numeric |
+| `maxPrice` | `maxPrice` | numeric |
+| `instantBook` | `instantBook` | `1` when true |
+| `verified` | `verified` | `1` when true |
+| `onlinePay` | `onlinePaymentsOnly` | `1` when true |
+| `sort` | `sortBy` | omit when `recommended` |
 
-**Step 1 — Package Type (new)**
-Two big cards: Pull-Up Booking, Catering Package. Education note below cards: "Need to build something custom for a customer? You'll be able to create Private Packages from your message threads." Selection drives the rest of the wizard.
+### Filters the user mentioned that don't exist yet
 
-**Step 2 — Basics**
-Add: cuisine/style multi-select, Best For multi-select (apartment event, office lunch, wedding, etc.), guest-count range. Keep name/description/category. Show smart name suggestions chips based on the vendor's category.
+- **Response time** — no `responseTime` filter currently exists in `BrowseFilters`. Not in scope for URL persistence until the filter itself ships. Flagged for a follow-up.
+- **Hourly / daily toggle** — no `pricingType` filter exists; `type` is a per-package field but there's no UI toggle wired into filters. Flagged for a follow-up.
 
-**Step 3 — Pricing (type-driven)**
-- Pull-Up: 4 cards — Show-up fee, Minimum guarantee, Show-up + minimum, No upfront fee.
-- Catering: 3 cards — Flat package price, Per-person, Base + per-person.
-- Both: deposit block (None / % / Flat / Full upfront) and balance-due timing (Before / Day-of / After / Direct to vendor).
+If you want those two added now, say so and I'll include both the filter state + UI control + URL persistence in the same pass.
 
-**Step 4 — Time & Calendar**
-Fields: service duration, setup, cleanup, buffer before, buffer after, minimum notice (with "Use calendar default"), and a per-package availability override toggle. Add a visual showing "Customer sees X–Y / Your calendar blocks A–B" computed live.
+## Implementation
 
-**Step 5 — Photos & Details**
-Require ≥1 photo (already supported). Keep What's Included, Add-Ons. Add menu items list and dietary options.
+**File:** `src/pages/Browse.tsx`
 
-**Step 6 — Booking Rules**
-Default to "Review requests first" (was Instant). Cancellation policy (Flexible/Moderate/Strict). Travel radius/fee/max. Customer questions multi-select drawn from a category-aware library (general, bartender, baker).
+1. **Read effect (initial hydration)** — extend the mount-time `useEffect` (currently lines ~82–115) to also parse `radius`, `minRating`, `minPrice`, `maxPrice`, `instantBook`, `verified`, `onlinePay`, `sort` from `searchParams` and call `updateFilter` / `setSortBy` for each present value. Validate numeric params with `parseFloat` + `Number.isFinite` before applying. Validate `sort` against the allowed `SortOption` union.
 
-**Step 7 — Review & Publish**
-Tweak the existing PackagePreview to reflect the new fields. Buttons: Save as Draft, Publish Package. If profile is unpublished, show "Save package and continue profile setup."
+2. **Write effect (filters → URL)** — extend the sync `useEffect` (currently lines ~119–157) with a small helper that sets boolean params as `'1'` (or deletes when false) and numeric params as their string form (or deletes when null/default). Add `searchRadius`, `minRating`, `minPrice`, `maxPrice`, `instantBook`, `verified`, `onlinePaymentsOnly`, and `sortBy` to the dependency array.
 
-## Vendor package dashboard
+3. **Default elision** — to keep URLs clean:
+   - `radius` only written when `searchRadius !== 25`
+   - `sort` only written when `sortBy !== 'recommended'`
+   - booleans only written when `true`
+   - numerics only written when not `null`
 
-Each package card gains a Duplicate action (clones the row with name " (Copy)" and status `draft`). Status chips: draft / published / paused / archived already supported via `is_active` plus a new `status` field.
+4. **Outbound search modules** — `StickyMiniSearch.tsx` already forwards `instantBook`, `verified`, and `minRating` (as `instantBook=1`, `verified=1`, `minRating=4.5`). Align param names so Browse reads what the mini-search writes (it already uses the same names; no change needed there). No edits required to `SearchModal`/`HeroSection` for this task — they don't set these filters at entry time.
 
-## Database changes
+## Acceptance
 
-Add columns to `vendor_packages`:
-- `package_kind text` — `pull_up` or `catering`
-- `pull_up_pricing_model text` — `show_up_fee | min_guarantee | show_up_plus_min | no_upfront`
-- `catering_pricing_model text` — `flat | per_person | base_plus_per_person`
-- `min_guarantee_amount integer`
-- `included_guests integer`
-- `additional_per_person integer`
-- `cuisine_styles text[]`
-- `best_for text[]`
-- `setup_minutes integer default 0`
-- `cleanup_minutes integer default 0`
-- `buffer_before_minutes integer default 0`
-- `buffer_after_minutes integer default 0`
-- `minimum_notice_hours integer` (null = use calendar default)
-- `balance_due_timing text`
-- `menu_items jsonb default '[]'`
-- `dietary_options text[]`
-- `customer_questions text[]`
-- `status text default 'draft'` (draft/published/paused/archived)
+- Toggle Instant Book → URL shows `instantBook=1`. Refresh → still on. Untoggle → param removed.
+- Adjust radius slider to 50 → URL shows `radius=50`. Refresh → slider at 50, results unchanged. Reset to 25 → param removed.
+- Set Min Rating 4.5, Min Price 100, Max Price 500 → all three params persist and restore on refresh.
+- Change Sort to `nearest` → `sort=nearest` in URL; refresh keeps sort. Switch back to Recommended → param removed.
+- Combined state (location + coords + category + radius + rating + price + sort) all restore together after refresh.
 
-Existing booking flow continues to read `price`, `pricing_type`, `deposit_percentage`, etc.; new fields are additive and backward-compatible.
+## Out of scope
 
-## Files to add/edit
-
-New:
-- `src/components/vendor-dashboard/package-form/StepPackageType.tsx`
-- `src/components/vendor-dashboard/package-form/PullUpPricingCards.tsx`
-- `src/components/vendor-dashboard/package-form/CateringPricingCards.tsx`
-- `src/components/vendor-dashboard/package-form/CalendarBlockPreview.tsx`
-- `src/components/vendor-dashboard/package-form/CustomerQuestionsPicker.tsx`
-
-Edit:
-- `PackageFormWizard.tsx` — insert type step at index 0, gate visible steps by type, update STEPS array, default `booking_mode` to `REQUEST`.
-- `StepBasicInfo.tsx` — add cuisine/best-for/guest-range, smart name chips.
-- `StepPricingTravel.tsx` — split into pricing-only; render the type-specific cards. Keep travel fields on Booking Rules step.
-- `StepInclusions.tsx` — add menu items + dietary options.
-- `StepAvailability.tsx` → `StepTimeCalendar.tsx` — add setup/cleanup/buffers + live calendar-block preview.
-- `StepBookingPayment.tsx` — rename to Booking Rules; add customer questions; default to Request.
-- `PackagePreview.tsx` — render new fields.
-- `useVendorDashboard.ts` — extend `VendorPackage` type, add `duplicatePackage()`.
-- Vendor packages list view — add Duplicate button.
-
-Single migration adds the columns above with safe defaults so existing packages keep working.
-
-## Acceptance criteria
-
-- First step forces a Pull-Up vs Catering choice; no Quote Request option.
-- Pricing UI swaps based on chosen type.
-- Time step shows a live "customer sees vs calendar blocks" visualization.
-- Default booking mode is Request, with Instant as opt-in.
-- Customer questions persist on the package and surface to customers at booking.
-- Vendors can save a draft, publish, pause, archive, or duplicate any package.
-- Existing packages continue to load and remain bookable without re-editing.
+- Adding a Response Time filter (no current state field).
+- Adding an Hourly / Daily pricing toggle (no current state field).
+- Changing how filters are applied (no logic changes in `useBrowsePackages.ts`).
