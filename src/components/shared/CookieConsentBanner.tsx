@@ -34,14 +34,13 @@ export function CookieConsentBanner() {
   return (
     <AnimatePresence>
       <motion.div
-        initial={{ y: 100, opacity: 0 }}
+        initial={{ y: 40, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        exit={{ y: 100, opacity: 0 }}
+        exit={{ y: 40, opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="fixed bottom-0 left-0 right-0 z-[100] p-4 md:p-6"
+        className="fixed bottom-4 right-4 left-4 sm:left-auto z-[100] sm:max-w-sm"
       >
-        <div className="container mx-auto max-w-4xl">
-          <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
+        <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
             {/* Main Banner */}
             <AnimatePresence mode="wait">
               {!showSettings ? (
@@ -50,26 +49,25 @@ export function CookieConsentBanner() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="p-4 md:p-6"
+                  className="p-4"
                 >
-                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4">
-                    <div className="flex-shrink-0 p-3 bg-primary/10 rounded-xl">
-                      <Cookie className="w-6 h-6 text-primary" />
-                    </div>
-                    
-                    <div className="flex-1">
-                      <h3 className="font-semibold text-foreground mb-1">We value your privacy</h3>
-                      <p className="text-sm text-muted-foreground">
-                        We use cookies to enhance your browsing experience, analyze site traffic, and personalize content. 
-                        Read our{' '}
-                        <Link to="/privacy" className="text-primary hover:underline">
-                          Privacy Policy
-                        </Link>{' '}
-                        to learn more.
-                      </p>
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className="flex-shrink-0 p-2 bg-primary/10 rounded-lg">
+                        <Cookie className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-foreground text-sm mb-1">We value your privacy</h3>
+                        <p className="text-xs text-muted-foreground">
+                          We use cookies to enhance your experience.{' '}
+                          <Link to="/privacy" className="text-primary hover:underline">
+                            Privacy Policy
+                          </Link>
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full md:w-auto">
+                    <div className="flex flex-col gap-2">
                       <Button
                         variant="ghost"
                         size="sm"
