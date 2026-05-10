@@ -634,9 +634,20 @@ export function BookingModal({
       event_state: pickupOnly ? '' : state,
       event_zip: pickupOnly ? '' : zipCode,
       units: units,
-      add_ons: [],
-      total_price: subtotalWithTravel, // Base + travel, platform fee added at checkout
-      notes: notes || null,
+      add_ons: configExtras.addOnLines.map(l => l.name),
+      total_price: subtotalWithTravel, // Base + travel + extras, platform fee added at checkout
+      notes: (() => {
+        const qaLines = Object.entries(config.questionAnswers)
+          .filter(([_, v]) => v && v.trim())
+          .map(([q, v]) => `Q: ${q}\nA: ${v}`)
+          .join('\n\n');
+        const userNotes = notes?.trim() || '';
+        return [userNotes, qaLines].filter(Boolean).join('\n\n---\n\n') || null;
+      })(),
+      selected_variation_id: config.selectedVariationId,
+      fulfillment_type: config.fulfillmentType,
+      selected_add_ons: configExtras.addOnLines,
+      selected_menu_items: configExtras.menuLines,
       payment_method: paymentMethod,
       booking_mode: bookingMode,
       vendor_name: vendorName,
@@ -998,6 +1009,20 @@ export function BookingModal({
               </>
             )}
           </div>
+        );
+
+      case 'configure':
+        return (
+          <BookingConfigureStep
+            variations={variations}
+            fulfillmentOptions={fulfillmentOptions}
+            fulfillmentPricing={fulfillmentPricing}
+            addOns={addOnsRich}
+            menuItems={menuItemsProp}
+            customerQuestions={customerQuestions}
+            state={config}
+            onChange={setConfig}
+          />
         );
 
       case 'details':
