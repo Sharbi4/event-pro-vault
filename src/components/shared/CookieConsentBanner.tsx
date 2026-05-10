@@ -189,8 +189,7 @@ export function CookieConsentBanner() {
                   </div>
                 </motion.div>
               )}
-            </AnimatePresence>
-          </div>
+          </AnimatePresence>
         </div>
       </motion.div>
     </AnimatePresence>
