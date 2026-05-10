@@ -33,6 +33,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { TimeSlotPicker } from '@/components/booking/TimeSlotPicker';
 import { trackBookingStarted, trackBookingCompleted, trackBookingFailed } from '@/lib/trackingAnalytics';
 import { geocodeLocation } from '@/lib/geocoding';
+import { BookingConfigureStep, computeConfigExtras, type BookingConfigState } from './BookingConfigureStep';
 
 type PricingType = 'hourly' | 'daily' | 'flat' | 'per_guest' | 'per_item' | 'custom_quote';
 
@@ -164,6 +165,12 @@ export function BookingModal({
   setupTimeMinutes,
   defaultStartTime,
   pickupOnly = false,
+  variations = [],
+  fulfillmentOptions = [],
+  fulfillmentPricing = {},
+  addOnsRich = [],
+  menuItems: menuItemsProp = [],
+  customerQuestions = [],
 }: BookingModalProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
