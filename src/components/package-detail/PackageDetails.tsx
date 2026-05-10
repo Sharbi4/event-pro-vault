@@ -231,6 +231,67 @@ export function PackageDetails({
           </AccordionItem>
         )}
 
+        {/* Menu items */}
+        {menuItems.length > 0 && (
+          <AccordionItem value="menu" className="border-b">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline">
+              <div className="flex items-center gap-2">
+                <Utensils className="w-5 h-5 text-primary" />
+                <span className="font-semibold">Menu</span>
+                <Badge variant="secondary" className="text-xs">{menuItems.length}</Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <div className="space-y-2">
+                {menuItems.map((m, i) => (
+                  <div key={m.id || i} className="flex items-start justify-between gap-3 py-2 border-b border-border last:border-0">
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-foreground">{m.name}</div>
+                      {m.description && (
+                        <p className="text-xs text-muted-foreground mt-0.5">{m.description}</p>
+                      )}
+                      {(m.min_quantity || m.max_quantity) && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {m.min_quantity ? `min ${m.min_quantity}` : ''}
+                          {m.min_quantity && m.max_quantity ? ' • ' : ''}
+                          {m.max_quantity ? `max ${m.max_quantity}` : ''}
+                        </p>
+                      )}
+                    </div>
+                    <span className="font-semibold text-primary shrink-0">${m.price.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* Customer questions */}
+        {customerQuestions.length > 0 && (
+          <AccordionItem value="questions" className="border-b">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-primary" />
+                <span className="font-semibold">Questions From The Event Pro</span>
+                <Badge variant="secondary" className="text-xs">{customerQuestions.length}</Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <p className="text-xs text-muted-foreground mb-2">
+                You'll answer these in the booking flow.
+              </p>
+              <ul className="space-y-2">
+                {customerQuestions.map((q, i) => (
+                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                    <span className="text-primary shrink-0">{i + 1}.</span>
+                    <span>{q}</span>
+                  </li>
+                ))}
+              </ul>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
         {/* Setup & Breakdown */}
         {(setupTimeMinutes || breakdownTimeMinutes) && (
           <AccordionItem value="setup" className="border-b">
