@@ -102,7 +102,87 @@ export function PackageDetails({
 
   return (
     <Card className="p-0 overflow-hidden">
-      <Accordion type="multiple" defaultValue={['includes', 'add-ons']} className="w-full">
+      <Accordion
+        type="multiple"
+        defaultValue={['variations', 'fulfillment', 'includes', 'add-ons', 'menu', 'questions']}
+        className="w-full"
+      >
+        {/* Variations / tiers */}
+        {variations.length > 0 && (
+          <AccordionItem value="variations" className="border-b">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline">
+              <div className="flex items-center gap-2">
+                <Layers className="w-5 h-5 text-primary" />
+                <span className="font-semibold">Package Options</span>
+                <Badge variant="secondary" className="text-xs">{variations.length}</Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {variations.map((v) => (
+                  <div key={v.id} className="p-4 rounded-lg border bg-background">
+                    <div className="flex items-baseline justify-between gap-2 mb-1">
+                      <span className="font-semibold text-foreground">{v.name}</span>
+                      <span className="font-bold text-primary">${v.price.toFixed(2)}</span>
+                    </div>
+                    {v.description && (
+                      <p className="text-sm text-muted-foreground mb-2">{v.description}</p>
+                    )}
+                    {v.includes.length > 0 && (
+                      <ul className="space-y-1 text-sm text-muted-foreground">
+                        {v.includes.map((it, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <Check className="w-3 h-3 text-primary mt-1 shrink-0" />
+                            <span>{it}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {(v.min_guests || v.max_guests) && (
+                      <Badge variant="secondary" className="mt-2 text-xs">
+                        {v.min_guests || 1}–{v.max_guests || '∞'} guests
+                      </Badge>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* Fulfillment options */}
+        {fulfillmentOptions.length > 0 && (
+          <AccordionItem value="fulfillment" className="border-b">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline">
+              <div className="flex items-center gap-2">
+                <Truck className="w-5 h-5 text-primary" />
+                <span className="font-semibold">Service Styles</span>
+                <Badge variant="secondary" className="text-xs">{fulfillmentOptions.length}</Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <div className="flex flex-wrap gap-2">
+                {fulfillmentOptions.map((opt) => {
+                  const meta = FULFILLMENT_META[opt] || { label: opt, icon: PackageIcon };
+                  const Icon = meta.icon;
+                  const surcharge = fulfillmentPricing[opt] || 0;
+                  return (
+                    <div key={opt} className="flex items-center gap-2 px-3 py-2 rounded-full border bg-background">
+                      <Icon className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium">{meta.label}</span>
+                      {surcharge !== 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          {surcharge > 0 ? `+ $${surcharge}` : `– $${Math.abs(surcharge)}`}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
         {/* What's Included */}
         {includes.length > 0 && (
           <AccordionItem value="includes" className="border-b">
