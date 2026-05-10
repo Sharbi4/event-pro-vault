@@ -525,6 +525,12 @@ export function BookingModal({
         if (!dateAvailability?.available) return false;
         if (effectivePricingType === 'hourly' && !timeAvailability?.available) return false;
         return true;
+      case 'configure':
+        // Require variation pick if variations exist
+        if (variations.length > 0 && !config.selectedVariationId) return false;
+        // Require fulfillment pick if multiple options
+        if (fulfillmentOptions.length > 1 && !config.fulfillmentType) return false;
+        return true;
       case 'details':
         return validateDetailsStep();
       case 'address':
