@@ -1,6 +1,29 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+export interface PackageVariation {
+  id: string;
+  name: string;
+  description: string | null;
+  price: number;
+  min_guests: number | null;
+  max_guests: number | null;
+  duration_minutes: number | null;
+  includes: string[];
+  is_default: boolean;
+  sort_order: number;
+}
+
+export interface MenuItem {
+  id?: string;
+  name: string;
+  description?: string | null;
+  price: number;
+  category?: string | null;
+  min_quantity?: number | null;
+  max_quantity?: number | null;
+}
+
 export interface PackageDetailData {
   id: string;
   name: string;
@@ -36,6 +59,13 @@ export interface PackageDetailData {
   deposit: number | null;
   // Daily booking defaults
   default_start_time: string | null;
+  // NEW: variations / fulfillment / menu / questions
+  package_kind: string | null;
+  variations: PackageVariation[];
+  fulfillment_options: string[];
+  fulfillment_pricing: Record<string, number>;
+  menu_items: MenuItem[];
+  customer_questions: string[];
   // Event Pro info
   vendor_user_id: string;
   vendor_name: string;
@@ -100,8 +130,8 @@ export function usePackageDetail(packageId: string | undefined) {
           return;
         }
 
-        // Fetch Event Pro details and profile in parallel
-        const [detailsResult, profileResult, reviewsResult] = await Promise.all([
+        // Fetch Event Pro details, profile, reviews, and variations in parallel
+        const [detailsResult, profileResult, reviewsResult, variationsResult] = await Promise.all([
           supabase
             .from('vendor_details')
             .select('*')
@@ -117,7 +147,12 @@ export function usePackageDetail(packageId: string | undefined) {
             .select('*')
             .eq('package_id', packageId)
             .order('created_at', { ascending: false })
-            .limit(10)
+            .limit(10),
+          supabase
+            .from('package_variations' as any)
+            .select('*')
+            .eq('package_id', packageId)
+            .order('sort_order', { ascending: true })
         ]);
 
         if (!detailsResult.data || !profileResult.data) {
@@ -136,17 +171,17 @@ export function usePackageDetail(packageId: string | undefined) {
         let addOns: { id: string; name: string; price: number }[] = [];
         if (pkg.add_ons) {
           if (Array.isArray(pkg.add_ons)) {
-            addOns = (pkg.add_ons as any[]).map(a => ({
-              id: String(a?.id || ''),
+            addOns = (pkg.add_ons as any[]).map((a, i) => ({
+              id: String(a?.id || `addon-${i}`),
               name: String(a?.name || ''),
               price: Number(a?.price || 0)
             }));
           } else if (typeof pkg.add_ons === 'string') {
             try {
               const parsed = JSON.parse(pkg.add_ons);
-              addOns = Array.isArray(parsed) 
-                ? parsed.map((a: any) => ({
-                    id: String(a?.id || ''),
+              addOns = Array.isArray(parsed)
+                ? parsed.map((a: any, i: number) => ({
+                    id: String(a?.id || `addon-${i}`),
                     name: String(a?.name || ''),
                     price: Number(a?.price || 0)
                   }))
@@ -156,6 +191,51 @@ export function usePackageDetail(packageId: string | undefined) {
             }
           }
         }
+
+        // Parse menu_items
+        let menuItems: MenuItem[] = [];
+        const rawMenu = (pkg as any).menu_items;
+        if (Array.isArray(rawMenu)) {
+          menuItems = rawMenu.map((m: any, i: number) => ({
+            id: String(m?.id || `menu-${i}`),
+            name: String(m?.name || ''),
+            description: m?.description ?? null,
+            price: Number(m?.price || 0),
+            category: m?.category ?? null,
+            min_quantity: m?.min_quantity ?? null,
+            max_quantity: m?.max_quantity ?? null,
+          }));
+        }
+
+        // Variations
+        const variations: PackageVariation[] = (variationsResult.data as any[] | null || []).map(v => ({
+          id: v.id,
+          name: v.name,
+          description: v.description,
+          price: Number(v.price || 0),
+          min_guests: v.min_guests,
+          max_guests: v.max_guests,
+          duration_minutes: v.duration_minutes,
+          includes: v.includes || [],
+          is_default: !!v.is_default,
+          sort_order: v.sort_order ?? 0,
+        }));
+
+        // Fulfillment options
+        const fulfillmentOptions: string[] = Array.isArray((pkg as any).fulfillment_options)
+          ? (pkg as any).fulfillment_options
+          : [];
+        const fulfillmentPricingRaw = (pkg as any).fulfillment_pricing;
+        const fulfillmentPricing: Record<string, number> =
+          fulfillmentPricingRaw && typeof fulfillmentPricingRaw === 'object' && !Array.isArray(fulfillmentPricingRaw)
+            ? Object.fromEntries(
+                Object.entries(fulfillmentPricingRaw).map(([k, v]) => [k, Number(v) || 0])
+              )
+            : {};
+
+        const customerQuestions: string[] = Array.isArray((pkg as any).customer_questions)
+          ? (pkg as any).customer_questions.filter((q: any) => typeof q === 'string' && q.trim())
+          : [];
 
         setPackageData({
           id: pkg.id,
@@ -189,11 +269,16 @@ export function usePackageDetail(packageId: string | undefined) {
           payment_options: (pkg.payment_options as 'ONLINE' | 'CASH' | 'BOTH') || 'ONLINE',
           cancellation_policy: pkg.cancellation_policy,
           customer_requirements: pkg.customer_requirements,
-          // Prefer the new `deposit_percentage` field; fall back to legacy `deposit`
           deposit: (pkg as any).deposit_percentage != null
             ? Number((pkg as any).deposit_percentage)
             : (pkg.deposit != null ? Number(pkg.deposit) : null),
           default_start_time: (pkg as any).default_start_time || null,
+          package_kind: (pkg as any).package_kind || null,
+          variations,
+          fulfillment_options: fulfillmentOptions,
+          fulfillment_pricing: fulfillmentPricing,
+          menu_items: menuItems,
+          customer_questions: customerQuestions,
           // Event Pro info
           vendor_user_id: pkg.user_id,
           vendor_name: detailsResult.data.business_name || 'Unknown Event Pro',
@@ -209,7 +294,6 @@ export function usePackageDetail(packageId: string | undefined) {
           vendor_base_lng: detailsResult.data.base_location_lng ? Number(detailsResult.data.base_location_lng) : null,
           vendor_travel_radius: detailsResult.data.travel_radius_miles,
           is_verified: profileResult.data.stripe_account_status === 'active',
-          // Rating info
           avg_rating: avgRating,
           review_count: allReviews.length
         });
