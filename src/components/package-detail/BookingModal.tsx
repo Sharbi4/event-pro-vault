@@ -81,10 +81,18 @@ interface BookingModalProps {
   defaultStartTime?: string;
   // Pickup only (no travel)
   pickupOnly?: boolean;
+  // NEW: configurable selections
+  variations?: import('@/hooks/usePackageDetail').PackageVariation[];
+  fulfillmentOptions?: string[];
+  fulfillmentPricing?: Record<string, number>;
+  addOnsRich?: { id: string; name: string; price: number }[];
+  menuItems?: import('@/hooks/usePackageDetail').MenuItem[];
+  customerQuestions?: string[];
 }
 
 const STEPS = [
   { id: 'date', title: 'Date & Time' },
+  { id: 'configure', title: 'Configure' },
   { id: 'details', title: 'Event Details' },
   { id: 'address', title: 'Address' },
   { id: 'payment', title: 'Payment' },
