@@ -6,15 +6,23 @@ import {
 } from '@/components/ui/accordion';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Check, Plus, AlertCircle, Truck, Clock, 
-  FileText, Star, Timer, Shield, ShieldCheck, ShieldAlert 
+import {
+  Check, Plus, AlertCircle, Truck, Clock,
+  FileText, Star, Timer, Shield, ShieldCheck, ShieldAlert,
+  Layers, Utensils, MessageSquare, Home, Store, Package as PackageIcon
 } from 'lucide-react';
 import { ServiceAreaMap } from './ServiceAreaMap';
-import { 
-  CancellationPolicyType, 
-  CANCELLATION_POLICIES 
+import {
+  CancellationPolicyType,
+  CANCELLATION_POLICIES
 } from '@/lib/cancellationPolicies';
+import type { PackageVariation, MenuItem } from '@/hooks/usePackageDetail';
+
+const FULFILLMENT_META: Record<string, { label: string; icon: any }> = {
+  on_site: { label: 'On-site service', icon: Home },
+  delivery: { label: 'Delivery', icon: Truck },
+  pickup: { label: 'Pickup', icon: Store },
+};
 
 interface PackageDetailsProps {
   includes: string[];
@@ -33,6 +41,11 @@ interface PackageDetailsProps {
   vendorBaseLat: number | null;
   vendorBaseLng: number | null;
   vendorName?: string;
+  variations?: PackageVariation[];
+  fulfillmentOptions?: string[];
+  fulfillmentPricing?: Record<string, number>;
+  menuItems?: MenuItem[];
+  customerQuestions?: string[];
 }
 
 export function PackageDetails({
@@ -51,7 +64,12 @@ export function PackageDetails({
   reviewCount,
   vendorBaseLat,
   vendorBaseLng,
-  vendorName
+  vendorName,
+  variations = [],
+  fulfillmentOptions = [],
+  fulfillmentPricing = {},
+  menuItems = [],
+  customerQuestions = [],
 }: PackageDetailsProps) {
   const policyType = (cancellationPolicy as CancellationPolicyType) || 'standard';
   const policy = CANCELLATION_POLICIES[policyType] || CANCELLATION_POLICIES.standard;
