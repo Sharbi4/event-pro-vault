@@ -393,10 +393,19 @@ export function BookingModal({
   const showPaymentStep = paymentOptions === 'BOTH';
   const stripeAvailable = vendorStripeStatus === 'active';
   
-  // Calculate steps to show - skip address step for pickup_only
+  // Has any configurable section?
+  const hasConfigure =
+    variations.length > 0 ||
+    fulfillmentOptions.length > 1 ||
+    addOnsRich.length > 0 ||
+    menuItemsProp.length > 0 ||
+    customerQuestions.length > 0;
+
+  // Calculate steps to show - skip address step for pickup_only, skip configure if nothing to configure
   const activeSteps = STEPS.filter(step => {
     if (step.id === 'payment') return showPaymentStep;
     if (step.id === 'address') return !pickupOnly;
+    if (step.id === 'configure') return hasConfigure;
     return true;
   });
 
@@ -441,13 +450,42 @@ export function BookingModal({
         return price;
     }
   }, [effectivePricingType, price, units]);
-  
+
+  // Apply variation override + extras (add-ons, menu, fulfillment surcharge)
+  const configExtras = useMemo(
+    () => computeConfigExtras(config, {
+      variations,
+      fulfillmentPricing,
+      addOns: addOnsRich,
+      menuItems: menuItemsProp,
+      basePrice: price,
+    }),
+    [config, variations, fulfillmentPricing, addOnsRich, menuItemsProp, price]
+  );
+
+  // If a variation is selected, swap base price (per unit) for variation price
+  const adjustedBaseTotal = useMemo(() => {
+    if (!configExtras.variation) return baseTotal;
+    // Replace per-unit price for unit-based pricing types
+    switch (effectivePricingType) {
+      case 'hourly':
+      case 'daily':
+      case 'per_guest':
+      case 'per_item':
+        return configExtras.baseUnitPrice * units;
+      case 'flat':
+      case 'custom_quote':
+      default:
+        return configExtras.baseUnitPrice;
+    }
+  }, [configExtras, baseTotal, effectivePricingType, units]);
+
   // Only apply travel fee if not pickup_only
   const effectiveTravelFee = pickupOnly ? 0 : travelFee;
-  const subtotalWithTravel = baseTotal + effectiveTravelFee;
+  const subtotalWithTravel = adjustedBaseTotal + effectiveTravelFee + configExtras.extrasTotal;
   const platformFee = paymentMethod === 'stripe' ? subtotalWithTravel * PLATFORM_FEE_RATE : 0;
   const grandTotal = subtotalWithTravel + platformFee;
-  
+
   // Deposit calculations
   const depositAmount = depositEnabled ? (subtotalWithTravel * (depositPercentage / 100)) + platformFee : 0;
   const remainingAmount = grandTotal - depositAmount;
