@@ -231,6 +231,20 @@ export function BookingModal({
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptCancellation, setAcceptCancellation] = useState(false);
 
+  // Configurable selections (variations, fulfillment, add-ons, menu, questions)
+  const initialConfig = useMemo<BookingConfigState>(() => {
+    const def = variations.find(v => v.is_default) || variations[0] || null;
+    const ff = fulfillmentOptions.length === 1 ? fulfillmentOptions[0] : (fulfillmentOptions.length > 1 ? fulfillmentOptions[0] : null);
+    return {
+      selectedVariationId: def?.id || null,
+      fulfillmentType: ff,
+      addOnQty: {},
+      menuQty: {},
+      questionAnswers: {},
+    };
+  }, [variations, fulfillmentOptions]);
+  const [config, setConfig] = useState<BookingConfigState>(initialConfig);
+
   // Geocode address when it changes (debounced)
   useEffect(() => {
     // Clear previous timeout
@@ -336,6 +350,7 @@ export function BookingModal({
       setPaymentMethod(paymentOptions === 'CASH' ? 'cash' : initialPaymentMethod);
       setAcceptTerms(false);
       setAcceptCancellation(false);
+      setConfig(initialConfig);
       
       // Track booking started
       trackBookingStarted({ packageId, proId: vendorUserId });
