@@ -70,6 +70,11 @@ export interface CreateBookingInput {
   cancellation_policy?: 'flexible' | 'standard' | 'strict' | 'custom';
   // Guest checkout flag
   is_guest?: boolean;
+  // Configurable selections
+  selected_variation_id?: string | null;
+  fulfillment_type?: string | null;
+  selected_add_ons?: Array<{ id: string; name: string; price: number; qty: number; total?: number }>;
+  selected_menu_items?: Array<{ id: string; name: string; price: number; qty: number; total?: number }>;
 }
 
 export function useBookings() {
@@ -276,7 +281,12 @@ export function useBookings() {
         event_end_at: eventEndAt,
         calendar_block_start: calendarBlockStart,
         calendar_block_end: calendarBlockEnd,
-      })
+        // Configurable selections (persisted as customer choice)
+        selected_variation_id: bookingData.selected_variation_id || null,
+        fulfillment_type: bookingData.fulfillment_type || null,
+        selected_add_ons: (bookingData.selected_add_ons || []) as any,
+        selected_menu_items: (bookingData.selected_menu_items || []) as any,
+      } as any)
       .select()
       .single();
 

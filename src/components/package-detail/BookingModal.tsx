@@ -33,6 +33,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { TimeSlotPicker } from '@/components/booking/TimeSlotPicker';
 import { trackBookingStarted, trackBookingCompleted, trackBookingFailed } from '@/lib/trackingAnalytics';
 import { geocodeLocation } from '@/lib/geocoding';
+import { BookingConfigureStep, computeConfigExtras, type BookingConfigState } from './BookingConfigureStep';
 
 type PricingType = 'hourly' | 'daily' | 'flat' | 'per_guest' | 'per_item' | 'custom_quote';
 
@@ -81,10 +82,18 @@ interface BookingModalProps {
   defaultStartTime?: string;
   // Pickup only (no travel)
   pickupOnly?: boolean;
+  // NEW: configurable selections
+  variations?: import('@/hooks/usePackageDetail').PackageVariation[];
+  fulfillmentOptions?: string[];
+  fulfillmentPricing?: Record<string, number>;
+  addOnsRich?: { id: string; name: string; price: number }[];
+  menuItems?: import('@/hooks/usePackageDetail').MenuItem[];
+  customerQuestions?: string[];
 }
 
 const STEPS = [
   { id: 'date', title: 'Date & Time' },
+  { id: 'configure', title: 'Configure' },
   { id: 'details', title: 'Event Details' },
   { id: 'address', title: 'Address' },
   { id: 'payment', title: 'Payment' },
@@ -156,6 +165,12 @@ export function BookingModal({
   setupTimeMinutes,
   defaultStartTime,
   pickupOnly = false,
+  variations = [],
+  fulfillmentOptions = [],
+  fulfillmentPricing = {},
+  addOnsRich = [],
+  menuItems: menuItemsProp = [],
+  customerQuestions = [],
 }: BookingModalProps) {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -215,6 +230,20 @@ export function BookingModal({
   // Terms acceptance
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [acceptCancellation, setAcceptCancellation] = useState(false);
+
+  // Configurable selections (variations, fulfillment, add-ons, menu, questions)
+  const initialConfig = useMemo<BookingConfigState>(() => {
+    const def = variations.find(v => v.is_default) || variations[0] || null;
+    const ff = fulfillmentOptions.length === 1 ? fulfillmentOptions[0] : (fulfillmentOptions.length > 1 ? fulfillmentOptions[0] : null);
+    return {
+      selectedVariationId: def?.id || null,
+      fulfillmentType: ff,
+      addOnQty: {},
+      menuQty: {},
+      questionAnswers: {},
+    };
+  }, [variations, fulfillmentOptions]);
+  const [config, setConfig] = useState<BookingConfigState>(initialConfig);
 
   // Geocode address when it changes (debounced)
   useEffect(() => {
@@ -321,6 +350,7 @@ export function BookingModal({
       setPaymentMethod(paymentOptions === 'CASH' ? 'cash' : initialPaymentMethod);
       setAcceptTerms(false);
       setAcceptCancellation(false);
+      setConfig(initialConfig);
       
       // Track booking started
       trackBookingStarted({ packageId, proId: vendorUserId });
@@ -363,10 +393,19 @@ export function BookingModal({
   const showPaymentStep = paymentOptions === 'BOTH';
   const stripeAvailable = vendorStripeStatus === 'active';
   
-  // Calculate steps to show - skip address step for pickup_only
+  // Has any configurable section?
+  const hasConfigure =
+    variations.length > 0 ||
+    fulfillmentOptions.length > 1 ||
+    addOnsRich.length > 0 ||
+    menuItemsProp.length > 0 ||
+    customerQuestions.length > 0;
+
+  // Calculate steps to show - skip address step for pickup_only, skip configure if nothing to configure
   const activeSteps = STEPS.filter(step => {
     if (step.id === 'payment') return showPaymentStep;
     if (step.id === 'address') return !pickupOnly;
+    if (step.id === 'configure') return hasConfigure;
     return true;
   });
 
@@ -411,13 +450,42 @@ export function BookingModal({
         return price;
     }
   }, [effectivePricingType, price, units]);
-  
+
+  // Apply variation override + extras (add-ons, menu, fulfillment surcharge)
+  const configExtras = useMemo(
+    () => computeConfigExtras(config, {
+      variations,
+      fulfillmentPricing,
+      addOns: addOnsRich,
+      menuItems: menuItemsProp,
+      basePrice: price,
+    }),
+    [config, variations, fulfillmentPricing, addOnsRich, menuItemsProp, price]
+  );
+
+  // If a variation is selected, swap base price (per unit) for variation price
+  const adjustedBaseTotal = useMemo(() => {
+    if (!configExtras.variation) return baseTotal;
+    // Replace per-unit price for unit-based pricing types
+    switch (effectivePricingType) {
+      case 'hourly':
+      case 'daily':
+      case 'per_guest':
+      case 'per_item':
+        return configExtras.baseUnitPrice * units;
+      case 'flat':
+      case 'custom_quote':
+      default:
+        return configExtras.baseUnitPrice;
+    }
+  }, [configExtras, baseTotal, effectivePricingType, units]);
+
   // Only apply travel fee if not pickup_only
   const effectiveTravelFee = pickupOnly ? 0 : travelFee;
-  const subtotalWithTravel = baseTotal + effectiveTravelFee;
+  const subtotalWithTravel = adjustedBaseTotal + effectiveTravelFee + configExtras.extrasTotal;
   const platformFee = paymentMethod === 'stripe' ? subtotalWithTravel * PLATFORM_FEE_RATE : 0;
   const grandTotal = subtotalWithTravel + platformFee;
-  
+
   // Deposit calculations
   const depositAmount = depositEnabled ? (subtotalWithTravel * (depositPercentage / 100)) + platformFee : 0;
   const remainingAmount = grandTotal - depositAmount;
@@ -456,6 +524,12 @@ export function BookingModal({
         if (!eventDate) return false;
         if (!dateAvailability?.available) return false;
         if (effectivePricingType === 'hourly' && !timeAvailability?.available) return false;
+        return true;
+      case 'configure':
+        // Require variation pick if variations exist
+        if (variations.length > 0 && !config.selectedVariationId) return false;
+        // Require fulfillment pick if multiple options
+        if (fulfillmentOptions.length > 1 && !config.fulfillmentType) return false;
         return true;
       case 'details':
         return validateDetailsStep();
@@ -560,9 +634,20 @@ export function BookingModal({
       event_state: pickupOnly ? '' : state,
       event_zip: pickupOnly ? '' : zipCode,
       units: units,
-      add_ons: [],
-      total_price: subtotalWithTravel, // Base + travel, platform fee added at checkout
-      notes: notes || null,
+      add_ons: configExtras.addOnLines.map(l => l.name),
+      total_price: subtotalWithTravel, // Base + travel + extras, platform fee added at checkout
+      notes: (() => {
+        const qaLines = Object.entries(config.questionAnswers)
+          .filter(([_, v]) => v && v.trim())
+          .map(([q, v]) => `Q: ${q}\nA: ${v}`)
+          .join('\n\n');
+        const userNotes = notes?.trim() || '';
+        return [userNotes, qaLines].filter(Boolean).join('\n\n---\n\n') || null;
+      })(),
+      selected_variation_id: config.selectedVariationId,
+      fulfillment_type: config.fulfillmentType,
+      selected_add_ons: configExtras.addOnLines,
+      selected_menu_items: configExtras.menuLines,
       payment_method: paymentMethod,
       booking_mode: bookingMode,
       vendor_name: vendorName,
@@ -924,6 +1009,20 @@ export function BookingModal({
               </>
             )}
           </div>
+        );
+
+      case 'configure':
+        return (
+          <BookingConfigureStep
+            variations={variations}
+            fulfillmentOptions={fulfillmentOptions}
+            fulfillmentPricing={fulfillmentPricing}
+            addOns={addOnsRich}
+            menuItems={menuItemsProp}
+            customerQuestions={customerQuestions}
+            state={config}
+            onChange={setConfig}
+          />
         );
 
       case 'details':

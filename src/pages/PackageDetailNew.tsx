@@ -210,6 +210,11 @@ export default function PackageDetail() {
               vendorBaseLat={packageData.vendor_base_lat}
               vendorBaseLng={packageData.vendor_base_lng}
               vendorName={packageData.vendor_display_name || packageData.vendor_name}
+              variations={packageData.variations}
+              fulfillmentOptions={packageData.fulfillment_options}
+              fulfillmentPricing={packageData.fulfillment_pricing}
+              menuItems={packageData.menu_items}
+              customerQuestions={packageData.customer_questions}
             />
           </div>
 
@@ -283,6 +288,13 @@ export default function PackageDetail() {
         setupTimeMinutes={packageData.setup_time_minutes || undefined}
         defaultStartTime={packageData.default_start_time || undefined}
         pickupOnly={packageData.pickup_only || false}
+        // Configurable selections
+        variations={packageData.variations}
+        fulfillmentOptions={packageData.fulfillment_options}
+        fulfillmentPricing={packageData.fulfillment_pricing}
+        addOnsRich={packageData.add_ons}
+        menuItems={packageData.menu_items}
+        customerQuestions={packageData.customer_questions}
       />
     </Layout>
   );

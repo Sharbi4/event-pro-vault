@@ -176,6 +176,7 @@ export type Database = {
           event_zip: string | null
           final_amount: number | null
           final_paid_at: string | null
+          fulfillment_type: string | null
           id: string
           lifecycle_status: string | null
           notes: string | null
@@ -185,6 +186,9 @@ export type Database = {
           payment_status: string | null
           platform_fee_amount: number | null
           private_package_id: string | null
+          selected_add_ons: Json
+          selected_menu_items: Json
+          selected_variation_id: string | null
           setup_minutes: number | null
           start_time: string | null
           status: string
@@ -232,6 +236,7 @@ export type Database = {
           event_zip?: string | null
           final_amount?: number | null
           final_paid_at?: string | null
+          fulfillment_type?: string | null
           id?: string
           lifecycle_status?: string | null
           notes?: string | null
@@ -241,6 +246,9 @@ export type Database = {
           payment_status?: string | null
           platform_fee_amount?: number | null
           private_package_id?: string | null
+          selected_add_ons?: Json
+          selected_menu_items?: Json
+          selected_variation_id?: string | null
           setup_minutes?: number | null
           start_time?: string | null
           status?: string
@@ -288,6 +296,7 @@ export type Database = {
           event_zip?: string | null
           final_amount?: number | null
           final_paid_at?: string | null
+          fulfillment_type?: string | null
           id?: string
           lifecycle_status?: string | null
           notes?: string | null
@@ -297,6 +306,9 @@ export type Database = {
           payment_status?: string | null
           platform_fee_amount?: number | null
           private_package_id?: string | null
+          selected_add_ons?: Json
+          selected_menu_items?: Json
+          selected_variation_id?: string | null
           setup_minutes?: number | null
           start_time?: string | null
           status?: string
@@ -957,6 +969,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      package_variations: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_minutes: number | null
+          id: string
+          includes: string[] | null
+          is_default: boolean
+          max_guests: number | null
+          min_guests: number | null
+          name: string
+          package_id: string
+          price: number
+          sort_order: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          includes?: string[] | null
+          is_default?: boolean
+          max_guests?: number | null
+          min_guests?: number | null
+          name: string
+          package_id: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_minutes?: number | null
+          id?: string
+          includes?: string[] | null
+          is_default?: boolean
+          max_guests?: number | null
+          min_guests?: number | null
+          name?: string
+          package_id?: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       package_weekly_availability: {
         Row: {
@@ -2184,6 +2247,8 @@ export type Database = {
           duration_minutes: number | null
           featured_until: string | null
           fee_per_mile: number | null
+          fulfillment_options: string[]
+          fulfillment_pricing: Json
           id: string
           images: string[] | null
           included_guests: number | null
@@ -2260,6 +2325,8 @@ export type Database = {
           duration_minutes?: number | null
           featured_until?: string | null
           fee_per_mile?: number | null
+          fulfillment_options?: string[]
+          fulfillment_pricing?: Json
           id?: string
           images?: string[] | null
           included_guests?: number | null
@@ -2336,6 +2403,8 @@ export type Database = {
           duration_minutes?: number | null
           featured_until?: string | null
           fee_per_mile?: number | null
+          fulfillment_options?: string[]
+          fulfillment_pricing?: Json
           id?: string
           images?: string[] | null
           included_guests?: number | null

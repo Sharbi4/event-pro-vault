@@ -6,15 +6,23 @@ import {
 } from '@/components/ui/accordion';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Check, Plus, AlertCircle, Truck, Clock, 
-  FileText, Star, Timer, Shield, ShieldCheck, ShieldAlert 
+import {
+  Check, Plus, AlertCircle, Truck, Clock,
+  FileText, Star, Timer, Shield, ShieldCheck, ShieldAlert,
+  Layers, Utensils, MessageSquare, Home, Store, Package as PackageIcon
 } from 'lucide-react';
 import { ServiceAreaMap } from './ServiceAreaMap';
-import { 
-  CancellationPolicyType, 
-  CANCELLATION_POLICIES 
+import {
+  CancellationPolicyType,
+  CANCELLATION_POLICIES
 } from '@/lib/cancellationPolicies';
+import type { PackageVariation, MenuItem } from '@/hooks/usePackageDetail';
+
+const FULFILLMENT_META: Record<string, { label: string; icon: any }> = {
+  on_site: { label: 'On-site service', icon: Home },
+  delivery: { label: 'Delivery', icon: Truck },
+  pickup: { label: 'Pickup', icon: Store },
+};
 
 interface PackageDetailsProps {
   includes: string[];
@@ -33,6 +41,11 @@ interface PackageDetailsProps {
   vendorBaseLat: number | null;
   vendorBaseLng: number | null;
   vendorName?: string;
+  variations?: PackageVariation[];
+  fulfillmentOptions?: string[];
+  fulfillmentPricing?: Record<string, number>;
+  menuItems?: MenuItem[];
+  customerQuestions?: string[];
 }
 
 export function PackageDetails({
@@ -51,7 +64,12 @@ export function PackageDetails({
   reviewCount,
   vendorBaseLat,
   vendorBaseLng,
-  vendorName
+  vendorName,
+  variations = [],
+  fulfillmentOptions = [],
+  fulfillmentPricing = {},
+  menuItems = [],
+  customerQuestions = [],
 }: PackageDetailsProps) {
   const policyType = (cancellationPolicy as CancellationPolicyType) || 'standard';
   const policy = CANCELLATION_POLICIES[policyType] || CANCELLATION_POLICIES.standard;
@@ -84,7 +102,87 @@ export function PackageDetails({
 
   return (
     <Card className="p-0 overflow-hidden">
-      <Accordion type="multiple" defaultValue={['includes', 'add-ons']} className="w-full">
+      <Accordion
+        type="multiple"
+        defaultValue={['variations', 'fulfillment', 'includes', 'add-ons', 'menu', 'questions']}
+        className="w-full"
+      >
+        {/* Variations / tiers */}
+        {variations.length > 0 && (
+          <AccordionItem value="variations" className="border-b">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline">
+              <div className="flex items-center gap-2">
+                <Layers className="w-5 h-5 text-primary" />
+                <span className="font-semibold">Package Options</span>
+                <Badge variant="secondary" className="text-xs">{variations.length}</Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {variations.map((v) => (
+                  <div key={v.id} className="p-4 rounded-lg border bg-background">
+                    <div className="flex items-baseline justify-between gap-2 mb-1">
+                      <span className="font-semibold text-foreground">{v.name}</span>
+                      <span className="font-bold text-primary">${v.price.toFixed(2)}</span>
+                    </div>
+                    {v.description && (
+                      <p className="text-sm text-muted-foreground mb-2">{v.description}</p>
+                    )}
+                    {v.includes.length > 0 && (
+                      <ul className="space-y-1 text-sm text-muted-foreground">
+                        {v.includes.map((it, i) => (
+                          <li key={i} className="flex items-start gap-2">
+                            <Check className="w-3 h-3 text-primary mt-1 shrink-0" />
+                            <span>{it}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                    {(v.min_guests || v.max_guests) && (
+                      <Badge variant="secondary" className="mt-2 text-xs">
+                        {v.min_guests || 1}–{v.max_guests || '∞'} guests
+                      </Badge>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* Fulfillment options */}
+        {fulfillmentOptions.length > 0 && (
+          <AccordionItem value="fulfillment" className="border-b">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline">
+              <div className="flex items-center gap-2">
+                <Truck className="w-5 h-5 text-primary" />
+                <span className="font-semibold">Service Styles</span>
+                <Badge variant="secondary" className="text-xs">{fulfillmentOptions.length}</Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <div className="flex flex-wrap gap-2">
+                {fulfillmentOptions.map((opt) => {
+                  const meta = FULFILLMENT_META[opt] || { label: opt, icon: PackageIcon };
+                  const Icon = meta.icon;
+                  const surcharge = fulfillmentPricing[opt] || 0;
+                  return (
+                    <div key={opt} className="flex items-center gap-2 px-3 py-2 rounded-full border bg-background">
+                      <Icon className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium">{meta.label}</span>
+                      {surcharge !== 0 && (
+                        <span className="text-xs text-muted-foreground">
+                          {surcharge > 0 ? `+ $${surcharge}` : `– $${Math.abs(surcharge)}`}
+                        </span>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
         {/* What's Included */}
         {includes.length > 0 && (
           <AccordionItem value="includes" className="border-b">
@@ -129,6 +227,67 @@ export function PackageDetails({
                   </div>
                 ))}
               </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* Menu items */}
+        {menuItems.length > 0 && (
+          <AccordionItem value="menu" className="border-b">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline">
+              <div className="flex items-center gap-2">
+                <Utensils className="w-5 h-5 text-primary" />
+                <span className="font-semibold">Menu</span>
+                <Badge variant="secondary" className="text-xs">{menuItems.length}</Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <div className="space-y-2">
+                {menuItems.map((m, i) => (
+                  <div key={m.id || i} className="flex items-start justify-between gap-3 py-2 border-b border-border last:border-0">
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium text-foreground">{m.name}</div>
+                      {m.description && (
+                        <p className="text-xs text-muted-foreground mt-0.5">{m.description}</p>
+                      )}
+                      {(m.min_quantity || m.max_quantity) && (
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {m.min_quantity ? `min ${m.min_quantity}` : ''}
+                          {m.min_quantity && m.max_quantity ? ' • ' : ''}
+                          {m.max_quantity ? `max ${m.max_quantity}` : ''}
+                        </p>
+                      )}
+                    </div>
+                    <span className="font-semibold text-primary shrink-0">${m.price.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
+
+        {/* Customer questions */}
+        {customerQuestions.length > 0 && (
+          <AccordionItem value="questions" className="border-b">
+            <AccordionTrigger className="px-6 py-4 hover:no-underline">
+              <div className="flex items-center gap-2">
+                <MessageSquare className="w-5 h-5 text-primary" />
+                <span className="font-semibold">Questions From The Event Pro</span>
+                <Badge variant="secondary" className="text-xs">{customerQuestions.length}</Badge>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-6 pb-4">
+              <p className="text-xs text-muted-foreground mb-2">
+                You'll answer these in the booking flow.
+              </p>
+              <ul className="space-y-2">
+                {customerQuestions.map((q, i) => (
+                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
+                    <span className="text-primary shrink-0">{i + 1}.</span>
+                    <span>{q}</span>
+                  </li>
+                ))}
+              </ul>
             </AccordionContent>
           </AccordionItem>
         )}
