@@ -69,43 +69,42 @@ async function sendEscalationEmail(args: {
   userId: string;
   conversationId: string;
   reason: string;
-  transcript: string;
+  transcript: { role: string; content: string }[];
 }) {
-  const resendKey = Deno.env.get("RESEND_API_KEY");
-  if (!resendKey) {
-    console.warn("RESEND_API_KEY not set — escalation email skipped");
-    return { ok: false, reason: "no_resend_key" };
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!supabaseUrl || !serviceKey) {
+    console.warn("Supabase env missing — escalation email skipped");
+    return { ok: false, reason: "no_supabase_env" };
   }
 
-  const html = `
-    <h2>New support escalation</h2>
-    <p><strong>From:</strong> ${args.userName} &lt;${args.userEmail}&gt;</p>
-    <p><strong>User ID:</strong> ${args.userId}</p>
-    <p><strong>Conversation:</strong> ${args.conversationId}</p>
-    <p><strong>AI summary of why it escalated:</strong><br>${args.reason}</p>
-    <hr>
-    <h3>Transcript</h3>
-    <pre style="white-space:pre-wrap;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;background:#f6f8fa;padding:12px;border-radius:8px;">${args.transcript.replace(/</g, "&lt;")}</pre>
-  `;
-
-  const res = await fetch("https://api.resend.com/emails", {
+  const res = await fetch(`${supabaseUrl}/functions/v1/send-transactional-email`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${resendKey}`,
+      Authorization: `Bearer ${serviceKey}`,
+      apikey: serviceKey,
     },
     body: JSON.stringify({
-      from: "Vendibook Support <onboarding@resend.dev>",
-      to: [ESCALATION_EMAIL],
-      reply_to: args.userEmail,
-      subject: `Support escalation from ${args.userName}`,
-      html,
+      templateName: "support-escalation",
+      recipientEmail: ESCALATION_EMAIL,
+      replyTo: args.userEmail,
+      data: {
+        userName: args.userName,
+        userEmail: args.userEmail,
+        reason: args.reason,
+        transcript: args.transcript,
+        userId: args.userId,
+        conversationId: args.conversationId,
+      },
+      idempotencyKey: `support-escalation-${args.conversationId}-${Date.now()}`,
+      purpose: "transactional",
     }),
   });
 
   if (!res.ok) {
     const text = await res.text();
-    console.error("Resend failed", res.status, text);
+    console.error("send-transactional-email failed", res.status, text);
     return { ok: false, reason: text };
   }
   return { ok: true };
@@ -220,9 +219,8 @@ Deno.serve(async (req) => {
       try {
         const args = JSON.parse(call.function.arguments || "{}");
         const transcript = messages
-          .filter((m) => m.role !== "system")
-          .map((m: any) => `${m.role.toUpperCase()}: ${m.content}`)
-          .join("\n\n");
+          .filter((m: any) => m.role !== "system")
+          .map((m: any) => ({ role: m.role, content: String(m.content ?? "") }));
 
         const emailRes = await sendEscalationEmail({
           userEmail: user.email ?? "unknown",
