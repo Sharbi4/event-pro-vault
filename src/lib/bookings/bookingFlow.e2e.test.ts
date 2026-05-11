@@ -11,8 +11,8 @@
 //      finalized record still has every master-calendar timing field set.
 
 import { describe, it, expect } from 'vitest';
-import { buildBookingInsert, type BookingRow } from '../buildBookingInsert';
-import { computeBookingPaymentUpdate } from '../applyPaymentWebhook';
+import { buildBookingInsert, type BookingRow } from './buildBookingInsert';
+import { computeBookingPaymentUpdate } from './applyPaymentWebhook';
 
 // --- In-memory bookings store -------------------------------------------------
 
