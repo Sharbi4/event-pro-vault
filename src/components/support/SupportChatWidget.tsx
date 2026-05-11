@@ -28,6 +28,13 @@ export function SupportChatWidget() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
+  // External trigger (e.g. Support page "Chat now" button)
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener('open-support-chat', handler);
+    return () => window.removeEventListener('open-support-chat', handler);
+  }, []);
+
   // Load history when opening for logged-in users
   useEffect(() => {
     if (!open || !user) return;
