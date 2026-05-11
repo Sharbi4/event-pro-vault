@@ -341,6 +341,26 @@ export function BookingModal({
   const disabledDaysOfWeek = useMemo(() => getDisabledDaysOfWeek(), [getDisabledDaysOfWeek]);
   const unavailableDates = useMemo(() => getUnavailableDates(), [getUnavailableDates]);
 
+  // Compute upcoming available dates (next 90 days) so we can highlight them
+  // on the calendar with a dot and show a "next availability" hint underneath.
+  const availableDates = useMemo(() => {
+    const out: Date[] = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    for (let i = 0; i < 90; i++) {
+      const d = addDays(today, i);
+      if (disabledDaysOfWeek.includes(getDay(d))) continue;
+      if (unavailableDates.some(u => isSameDay(u, d))) continue;
+      out.push(d);
+    }
+    return out;
+  }, [disabledDaysOfWeek, unavailableDates]);
+
+  const nextAvailableDate = useMemo(() => {
+    if (!eventDate) return availableDates[0] ?? null;
+    return availableDates.find(d => !isSameDay(d, eventDate)) ?? null;
+  }, [availableDates, eventDate]);
+
   // Reset on open and track booking started
   useEffect(() => {
     if (open) {
