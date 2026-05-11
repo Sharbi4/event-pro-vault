@@ -835,13 +835,37 @@ export function BookingModal({
                       return false;
                     }}
                     modifiers={{
-                      unavailable: unavailableDates
+                      unavailable: unavailableDates,
+                      available: availableDates,
                     }}
                     modifiersClassNames={{
-                      unavailable: "line-through text-muted-foreground/50"
+                      unavailable: "line-through text-muted-foreground/50",
+                      available:
+                        "relative after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-1 after:w-1.5 after:h-1.5 after:rounded-full after:bg-primary aria-selected:after:bg-primary-foreground",
                     }}
                     className="rounded-xl border mx-auto pointer-events-auto"
                   />
+
+                  {/* Legend + next-available hint */}
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        Available
+                      </span>
+                      <span className="opacity-50">·</span>
+                      <span className="line-through text-muted-foreground/60">Booked</span>
+                    </div>
+                    {nextAvailableDate && (
+                      <button
+                        type="button"
+                        onClick={() => setEventDate(nextAvailableDate)}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        Next available: {format(nextAvailableDate, 'EEE, MMM d')}
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Unavailable date warning with alternatives */}
