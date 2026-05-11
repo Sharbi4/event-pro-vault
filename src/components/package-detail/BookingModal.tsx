@@ -18,7 +18,7 @@ import {
   Loader2, Users, FileText, AlertCircle, Calendar as CalendarAlt,
   Mail, User, Car, Info, ExternalLink, Package as PackageIcon
 } from 'lucide-react';
-import { format, getDay, isSameDay } from 'date-fns';
+import { format, getDay, isSameDay, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBookings } from '@/hooks/useBookings';
