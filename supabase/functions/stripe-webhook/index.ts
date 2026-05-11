@@ -243,24 +243,36 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
   
   // Handle regular bookings
   if (metadata?.booking_id) {
+    // Fetch current state so we don't overwrite existing paid timestamps on
+    // retried/duplicate webhook deliveries.
+    const { data: existing } = await supabaseAdmin
+      .from("bookings")
+      .select("deposit_paid_at, final_paid_at, status")
+      .eq("id", metadata.booking_id)
+      .maybeSingle();
+
     const updateData: Record<string, unknown> = {
       payment_status: "paid",
       updated_at: new Date().toISOString(),
     };
-    
+
     if (metadata.payment_type === "deposit") {
-      updateData.deposit_paid_at = new Date().toISOString();
+      if (!existing?.deposit_paid_at) {
+        updateData.deposit_paid_at = new Date().toISOString();
+      }
       updateData.stripe_deposit_payment_intent_id = paymentIntent.id;
       updateData.status = "confirmed";
     } else if (metadata.payment_type === "final") {
-      updateData.final_paid_at = new Date().toISOString();
+      if (!existing?.final_paid_at) {
+        updateData.final_paid_at = new Date().toISOString();
+      }
       updateData.stripe_final_payment_intent_id = paymentIntent.id;
       updateData.status = "completed";
     } else {
       updateData.stripe_payment_intent_id = paymentIntent.id;
       updateData.status = "confirmed";
     }
-    
+
     const { error } = await supabaseAdmin
       .from("bookings")
       .update(updateData)

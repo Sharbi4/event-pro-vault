@@ -68,12 +68,16 @@ serve(async (req) => {
       vendor_account: booking.vendor_stripe_account_id
     });
 
-    // Get customer's saved payment method from the deposit payment
-    const { data: authUser } = await supabaseClient.auth.admin.getUserById(booking.user_id);
-    const customerEmail = authUser?.user?.email;
+    // Resolve customer email — prefer the email stored on the booking
+    // (works for guest checkouts), fall back to the auth user.
+    let customerEmail: string | null = (booking as any).customer_email ?? null;
+    if (!customerEmail && booking.user_id) {
+      const { data: authUser } = await supabaseClient.auth.admin.getUserById(booking.user_id);
+      customerEmail = authUser?.user?.email ?? null;
+    }
 
     if (!customerEmail) {
-      throw new Error("Customer email not found");
+      throw new Error("Customer email not found for this booking");
     }
 
     // Initialize Stripe

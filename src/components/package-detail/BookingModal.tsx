@@ -486,9 +486,17 @@ export function BookingModal({
   const platformFee = paymentMethod === 'stripe' ? subtotalWithTravel * PLATFORM_FEE_RATE : 0;
   const grandTotal = subtotalWithTravel + platformFee;
 
-  // Deposit calculations
-  const depositAmount = depositEnabled ? (subtotalWithTravel * (depositPercentage / 100)) + platformFee : 0;
-  const remainingAmount = grandTotal - depositAmount;
+  // Deposit calculations — mirror backend (create-booking-checkout) exactly.
+  // The 12.9% service fee is pro-rated across the deposit and the remaining
+  // balance so the totals shown on screen match what Stripe actually charges
+  // now vs. later. When deposit is disabled, the full amount is charged now.
+  const depositRatio = depositEnabled ? depositPercentage / 100 : 1;
+  const depositBase = subtotalWithTravel * depositRatio;
+  const remainingBase = subtotalWithTravel - depositBase;
+  const depositFee = paymentMethod === 'stripe' ? depositBase * PLATFORM_FEE_RATE : 0;
+  const remainingFee = paymentMethod === 'stripe' ? remainingBase * PLATFORM_FEE_RATE : 0;
+  const depositAmount = depositBase + depositFee;
+  const remainingAmount = remainingBase + remainingFee;
 
   // Validation for different pricing types
   const validateDetailsStep = () => {
@@ -1498,17 +1506,23 @@ export function BookingModal({
                 <span className="gradient-text">${grandTotal.toFixed(2)}</span>
               </div>
               
-              {/* Deposit info for online payments */}
-              {paymentMethod === 'stripe' && depositEnabled && (
+              {/* Payment split for online payments */}
+              {paymentMethod === 'stripe' && (
                 <div className="text-sm pt-2 space-y-1">
                   <div className="flex justify-between text-primary">
-                    <span>Due today (deposit)</span>
+                    <span>
+                      {depositEnabled
+                        ? `Due today (${depositPercentage}% deposit)`
+                        : 'Due today'}
+                    </span>
                     <span>${depositAmount.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Due at event</span>
-                    <span>${remainingAmount.toFixed(2)}</span>
-                  </div>
+                  {depositEnabled && remainingAmount > 0 && (
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Due at event</span>
+                      <span>${remainingAmount.toFixed(2)}</span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
