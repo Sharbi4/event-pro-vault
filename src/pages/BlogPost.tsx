@@ -16,6 +16,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useSEO } from '@/hooks/useSEO';
 import { ArticleJsonLd, BreadcrumbJsonLd } from '@/components/seo/JsonLd';
+import DOMPurify from 'dompurify';
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
@@ -176,9 +177,14 @@ export default function BlogPost() {
           )}
 
           {/* Content */}
-          <div 
+          <div
             className="prose prose-lg max-w-none mb-12"
-            dangerouslySetInnerHTML={{ __html: post.content }}
+            dangerouslySetInnerHTML={{
+              __html: DOMPurify.sanitize(post.content, {
+                FORBID_TAGS: ['script', 'style', 'iframe', 'object', 'embed', 'form'],
+                FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus'],
+              }),
+            }}
           />
 
           {/* Tags */}
