@@ -288,8 +288,8 @@ export function useBookings() {
         customer_phone: bookingData.customer_phone || null,
         // Time slot fields for cross-package availability
         start_time: bookingData.start_time || null,
-        end_time: bookingData.end_time || null,
-        duration_minutes: bookingData.duration_minutes || 60,
+        end_time: derivedEndTime,
+        duration_minutes: durationMin,
         setup_minutes: setupMin,
         breakdown_minutes: breakdownMin,
         // Master-calendar block: clears this window from vendor availability
