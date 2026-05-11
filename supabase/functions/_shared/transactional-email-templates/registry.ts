@@ -23,6 +23,7 @@ import { template as payoutSent } from './payout-sent.tsx'
 import { template as refundIssued } from './refund-issued.tsx'
 import { template as contactFormConfirmation } from './contact-form-confirmation.tsx'
 import { template as vendorNewRequest } from './vendor-new-request.tsx'
+import { template as supportEscalation } from './support-escalation.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'booking-confirmation': bookingConfirmation,
@@ -39,4 +40,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'refund-issued': refundIssued,
   'contact-form-confirmation': contactFormConfirmation,
   'vendor-new-request': vendorNewRequest,
+  'support-escalation': supportEscalation,
 }
