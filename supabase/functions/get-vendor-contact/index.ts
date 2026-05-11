@@ -15,39 +15,90 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  const supabaseClient = createClient(
+  const supabaseAdmin = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
   );
 
   try {
-    logStep("Function started");
+    // 1. Require authenticated caller
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const token = authHeader.replace("Bearer ", "");
+    const { data: userData, error: userErr } = await supabaseAdmin.auth.getUser(token);
+    if (userErr || !userData?.user) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const callerId = userData.user.id;
 
     const { vendor_user_id } = await req.json();
     if (!vendor_user_id) {
-      throw new Error("vendor_user_id is required");
+      return new Response(JSON.stringify({ error: "vendor_user_id is required" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
-    logStep("Received request", { vendor_user_id });
 
-    // Get vendor email from auth.users using admin API
-    const { data: authUser, error: authError } = await supabaseClient.auth.admin.getUserById(vendor_user_id);
-    
+    // 2. Authorize: caller is the vendor themselves, an admin, or has an
+    //    active booking relationship with the vendor.
+    let authorized = callerId === vendor_user_id;
+
+    if (!authorized) {
+      const { data: adminRole } = await supabaseAdmin
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", callerId)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (adminRole) authorized = true;
+    }
+
+    if (!authorized) {
+      const { data: booking } = await supabaseAdmin
+        .from("bookings")
+        .select("id")
+        .eq("vendor_user_id", vendor_user_id)
+        .or(`user_id.eq.${callerId},customer_email.eq.${userData.user.email ?? ""}`)
+        .limit(1)
+        .maybeSingle();
+      if (booking) authorized = true;
+    }
+
+    if (!authorized) {
+      logStep("Forbidden", { callerId, vendor_user_id });
+      return new Response(JSON.stringify({ error: "Forbidden" }), {
+        status: 403,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    logStep("Authorized request", { callerId, vendor_user_id });
+
+    const { data: authUser, error: authError } = await supabaseAdmin.auth.admin.getUserById(vendor_user_id);
     if (authError || !authUser?.user) {
-      throw new Error(`User not found: ${authError?.message || 'Unknown error'}`);
+      return new Response(JSON.stringify({ error: "Vendor not found" }), {
+        status: 404,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     const email = authUser.user.email;
-    logStep("Found user email", { email });
 
-    // Get additional info from profiles
-    const { data: profile } = await supabaseClient
+    const { data: profile } = await supabaseAdmin
       .from('profiles')
       .select('full_name, display_name, phone')
       .eq('user_id', vendor_user_id)
       .single();
 
-    // Get business name from vendor_details
-    const { data: vendorDetails } = await supabaseClient
+    const { data: vendorDetails } = await supabaseAdmin
       .from('vendor_details')
       .select('business_name')
       .eq('user_id', vendor_user_id)
@@ -59,8 +110,6 @@ serve(async (req) => {
       phone: profile?.phone || null,
     };
 
-    logStep("Returning vendor contact", response);
-
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
@@ -68,7 +117,7 @@ serve(async (req) => {
   } catch (error: unknown) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     logStep("ERROR", { message: errorMessage });
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    return new Response(JSON.stringify({ error: "Request failed" }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });
