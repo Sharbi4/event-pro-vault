@@ -17,7 +17,6 @@ import {
   ArrowRight,
   X
 } from 'lucide-react';
-import { ZendeskWidget, openZendeskChat } from '@/components/shared/ZendeskWidget';
 import { useSEO } from '@/hooks/useSEO';
 import { generatePageSEO } from '@/lib/seoConfig';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
