@@ -486,8 +486,17 @@ export function BookingModal({
   const platformFee = paymentMethod === 'stripe' ? subtotalWithTravel * PLATFORM_FEE_RATE : 0;
   const grandTotal = subtotalWithTravel + platformFee;
 
-  // Deposit calculations
-  const depositAmount = depositEnabled ? (subtotalWithTravel * (depositPercentage / 100)) + platformFee : 0;
+  // Deposit calculations — mirror backend (create-booking-checkout) exactly.
+  // The 12.9% service fee is pro-rated across the deposit and the remaining
+  // balance so the totals shown on screen match what Stripe actually charges
+  // now vs. later. When deposit is disabled, the full amount is charged now.
+  const depositRatio = depositEnabled ? depositPercentage / 100 : 1;
+  const depositBase = subtotalWithTravel * depositRatio;
+  const remainingBase = subtotalWithTravel - depositBase;
+  const depositFee = paymentMethod === 'stripe' ? depositBase * PLATFORM_FEE_RATE : 0;
+  const remainingFee = paymentMethod === 'stripe' ? remainingBase * PLATFORM_FEE_RATE : 0;
+  const depositAmount = depositBase + depositFee;
+  const remainingAmount = remainingBase + remainingFee;
   const remainingAmount = grandTotal - depositAmount;
 
   // Validation for different pricing types
