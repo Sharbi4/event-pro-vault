@@ -184,6 +184,7 @@ export function BookingModal({
   // Availability checking
   const {
     loading: availabilityLoading,
+    availability,
     isDateAvailable,
     isTimeAvailable,
     getUnavailableDates,
