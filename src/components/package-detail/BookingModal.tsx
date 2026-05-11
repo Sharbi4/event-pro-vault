@@ -1506,17 +1506,23 @@ export function BookingModal({
                 <span className="gradient-text">${grandTotal.toFixed(2)}</span>
               </div>
               
-              {/* Deposit info for online payments */}
-              {paymentMethod === 'stripe' && depositEnabled && (
+              {/* Payment split for online payments */}
+              {paymentMethod === 'stripe' && (
                 <div className="text-sm pt-2 space-y-1">
                   <div className="flex justify-between text-primary">
-                    <span>Due today (deposit)</span>
+                    <span>
+                      {depositEnabled
+                        ? `Due today (${depositPercentage}% deposit)`
+                        : 'Due today'}
+                    </span>
                     <span>${depositAmount.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Due at event</span>
-                    <span>${remainingAmount.toFixed(2)}</span>
-                  </div>
+                  {depositEnabled && remainingAmount > 0 && (
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Due at event</span>
+                      <span>${remainingAmount.toFixed(2)}</span>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
