@@ -17,7 +17,6 @@ import {
   ArrowRight,
   X
 } from 'lucide-react';
-import { ZendeskWidget, openZendeskChat } from '@/components/shared/ZendeskWidget';
 import { useSEO } from '@/hooks/useSEO';
 import { generatePageSEO } from '@/lib/seoConfig';
 import { Breadcrumbs } from '@/components/seo/Breadcrumbs';
@@ -43,9 +42,6 @@ export default function Support() {
   });
   return (
     <Layout>
-      {/* Zendesk Chat Widget */}
-      <ZendeskWidget />
-      
       {/* Hero Section */}
       <section className="relative py-16 lg:py-24 overflow-hidden">
         {/* Background effects */}
@@ -73,7 +69,7 @@ export default function Support() {
                 variant="darkShine" 
                 size="lg" 
                 className="gap-2"
-                onClick={openZendeskChat}
+                onClick={() => window.dispatchEvent(new CustomEvent('open-support-chat'))}
               >
                 <MessageCircle className="w-5 h-5" />
                 Chat now
