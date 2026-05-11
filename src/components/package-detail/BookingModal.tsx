@@ -497,7 +497,6 @@ export function BookingModal({
   const remainingFee = paymentMethod === 'stripe' ? remainingBase * PLATFORM_FEE_RATE : 0;
   const depositAmount = depositBase + depositFee;
   const remainingAmount = remainingBase + remainingFee;
-  const remainingAmount = grandTotal - depositAmount;
 
   // Validation for different pricing types
   const validateDetailsStep = () => {
