@@ -219,43 +219,22 @@ export function useBookings() {
     // calendar reflects the booked window (service + setup + breakdown).
     // Without these fields, get-available-slots will keep showing the slot
     // as open and double-bookings can occur.
-    const setupMin = bookingData.setup_minutes || 0;
-    const breakdownMin = bookingData.breakdown_minutes || 0;
-    const durationMin = bookingData.duration_minutes || 60;
-    let eventStartAt: string | null = null;
-    let eventEndAt: string | null = null;
-    let calendarBlockStart: string | null = null;
-    let calendarBlockEnd: string | null = null;
-    // Always persist an end_time so cross-package availability checks work
-    // even for non-hourly packages (catering, pull-up flat-rate, etc.).
-    let derivedEndTime: string | null = bookingData.end_time || null;
-
-    if (bookingData.event_date && bookingData.start_time) {
-      const start = new Date(`${bookingData.event_date}T${bookingData.start_time}`);
-      let end: Date;
-      if (bookingData.end_time) {
-        end = new Date(`${bookingData.event_date}T${bookingData.end_time}`);
-      } else {
-        // Derive end from start + duration when caller didn't supply end_time.
-        end = new Date(start.getTime() + durationMin * 60_000);
-      }
-      // Handle end <= start (e.g. crosses midnight) by pushing end to next day
-      if (end.getTime() <= start.getTime()) {
-        end.setDate(end.getDate() + 1);
-      }
-      if (!isNaN(start.getTime()) && !isNaN(end.getTime())) {
-        eventStartAt = start.toISOString();
-        eventEndAt = end.toISOString();
-        calendarBlockStart = new Date(start.getTime() - setupMin * 60_000).toISOString();
-        calendarBlockEnd = new Date(end.getTime() + breakdownMin * 60_000).toISOString();
-        if (!derivedEndTime) {
-          // 'HH:MM:SS' to match start_time column shape
-          const hh = String(end.getHours()).padStart(2, '0');
-          const mm = String(end.getMinutes()).padStart(2, '0');
-          derivedEndTime = `${hh}:${mm}:00`;
-        }
-      }
-    }
+    const timing = computeBookingTiming({
+      event_date: bookingData.event_date,
+      start_time: bookingData.start_time,
+      end_time: bookingData.end_time,
+      duration_minutes: bookingData.duration_minutes,
+      setup_minutes: bookingData.setup_minutes,
+      breakdown_minutes: bookingData.breakdown_minutes,
+    });
+    const setupMin = timing.setup_minutes;
+    const breakdownMin = timing.breakdown_minutes;
+    const durationMin = timing.duration_minutes;
+    const derivedEndTime = timing.end_time;
+    const eventStartAt = timing.event_start_at;
+    const eventEndAt = timing.event_end_at;
+    const calendarBlockStart = timing.calendar_block_start;
+    const calendarBlockEnd = timing.calendar_block_end;
 
     const { data, error } = await supabase
       .from('bookings')
