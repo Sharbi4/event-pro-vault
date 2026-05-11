@@ -42,9 +42,6 @@ export default function Support() {
   });
   return (
     <Layout>
-      {/* Zendesk Chat Widget */}
-      <ZendeskWidget />
-      
       {/* Hero Section */}
       <section className="relative py-16 lg:py-24 overflow-hidden">
         {/* Background effects */}
