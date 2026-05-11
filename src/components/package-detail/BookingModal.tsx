@@ -18,7 +18,7 @@ import {
   Loader2, Users, FileText, AlertCircle, Calendar as CalendarAlt,
   Mail, User, Car, Info, ExternalLink, Package as PackageIcon
 } from 'lucide-react';
-import { format, getDay, isSameDay } from 'date-fns';
+import { format, getDay, isSameDay, addDays } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBookings } from '@/hooks/useBookings';
@@ -340,6 +340,26 @@ export function BookingModal({
   // Calendar disabled dates
   const disabledDaysOfWeek = useMemo(() => getDisabledDaysOfWeek(), [getDisabledDaysOfWeek]);
   const unavailableDates = useMemo(() => getUnavailableDates(), [getUnavailableDates]);
+
+  // Compute upcoming available dates (next 90 days) so we can highlight them
+  // on the calendar with a dot and show a "next availability" hint underneath.
+  const availableDates = useMemo(() => {
+    const out: Date[] = [];
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    for (let i = 0; i < 90; i++) {
+      const d = addDays(today, i);
+      if (disabledDaysOfWeek.includes(getDay(d))) continue;
+      if (unavailableDates.some(u => isSameDay(u, d))) continue;
+      out.push(d);
+    }
+    return out;
+  }, [disabledDaysOfWeek, unavailableDates]);
+
+  const nextAvailableDate = useMemo(() => {
+    if (!eventDate) return availableDates[0] ?? null;
+    return availableDates.find(d => !isSameDay(d, eventDate)) ?? null;
+  }, [availableDates, eventDate]);
 
   // Reset on open and track booking started
   useEffect(() => {
@@ -815,13 +835,37 @@ export function BookingModal({
                       return false;
                     }}
                     modifiers={{
-                      unavailable: unavailableDates
+                      unavailable: unavailableDates,
+                      available: availableDates,
                     }}
                     modifiersClassNames={{
-                      unavailable: "line-through text-muted-foreground/50"
+                      unavailable: "line-through text-muted-foreground/50",
+                      available:
+                        "relative after:content-[''] after:absolute after:left-1/2 after:-translate-x-1/2 after:bottom-1 after:w-1.5 after:h-1.5 after:rounded-full after:bg-primary aria-selected:after:bg-primary-foreground",
                     }}
                     className="rounded-xl border mx-auto pointer-events-auto"
                   />
+
+                  {/* Legend + next-available hint */}
+                  <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-2 text-muted-foreground">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        Available
+                      </span>
+                      <span className="opacity-50">·</span>
+                      <span className="line-through text-muted-foreground/60">Booked</span>
+                    </div>
+                    {nextAvailableDate && (
+                      <button
+                        type="button"
+                        onClick={() => setEventDate(nextAvailableDate)}
+                        className="font-medium text-primary hover:underline"
+                      >
+                        Next available: {format(nextAvailableDate, 'EEE, MMM d')}
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 {/* Unavailable date warning with alternatives */}
