@@ -127,8 +127,8 @@ export function SupportChatWidget() {
       ]);
       if (data.escalated) {
         toast({
-          title: 'Forwarded to the team',
-          description: "We'll email you back as soon as possible.",
+          title: 'Forwarded to Event Pro Support',
+          description: 'A specialist will follow up with you shortly.',
         });
       }
     } catch (err: any) {
@@ -143,7 +143,7 @@ export function SupportChatWidget() {
           id: `e-${Date.now()}`,
           role: 'assistant',
           content:
-            "Sorry, I couldn't reach our servers. You can also email **support@vendibook.com** directly.",
+            "Sorry, I couldn't reach our servers right now. Please try again in a moment, or use the **Talk to Event Pro Support** option below to forward your question.",
         },
       ]);
     } finally {
@@ -152,7 +152,7 @@ export function SupportChatWidget() {
   };
 
   const handleEscalate = () => {
-    send('I want to talk to a human.', { escalate: true });
+    send('Please forward my question to Event Pro Support.', { escalate: true });
   };
 
   return (
@@ -195,7 +195,7 @@ export function SupportChatWidget() {
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-foreground">Vendibook Assistant</div>
-                  <div className="text-[11px] text-muted-foreground">AI · escalates to a human if needed</div>
+                  <div className="text-[11px] text-muted-foreground">AI assistant · backed by Event Pro Support</div>
                 </div>
               </div>
               <button
@@ -224,7 +224,7 @@ export function SupportChatWidget() {
               ) : messages.length === 0 ? (
                 <div className="text-sm text-muted-foreground py-6 px-2 space-y-3">
                   <p className="font-medium text-foreground">Hey 👋 — how can I help?</p>
-                  <p>Ask about bookings, cancellations, payouts, refunds, or your account. If I can't solve it, I'll email the team for you.</p>
+                  <p>Ask about bookings, cancellations, payouts, refunds, or your account. If I can't resolve it, I'll forward your question to Event Pro Support.</p>
                   <div className="flex flex-wrap gap-2 pt-1">
                     {[
                       'How do refunds work?',
@@ -270,7 +270,7 @@ export function SupportChatWidget() {
                       )}
                       {m.escalated && (
                         <div className="mt-1 text-[11px] font-medium text-primary">
-                          ✓ Forwarded to the team
+                          ✓ Forwarded to Event Pro Support
                         </div>
                       )}
                     </div>
@@ -330,7 +330,7 @@ export function SupportChatWidget() {
                   disabled={sending}
                   className="w-full text-[11px] text-muted-foreground hover:text-primary transition text-center disabled:opacity-50"
                 >
-                  Talk to a human →
+                  Talk to Event Pro Support →
                 </button>
               </div>
             )}
