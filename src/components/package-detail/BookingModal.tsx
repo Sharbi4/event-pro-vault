@@ -343,18 +343,27 @@ export function BookingModal({
 
   // Compute upcoming available dates (next 90 days) so we can highlight them
   // on the calendar with a dot and show a "next availability" hint underneath.
+  // IMPORTANT: only show dots when the Event Pro has actually configured weekly
+  // availability — otherwise we'd paint a dot on every day in the calendar
+  // (including days with no real availability), which misleads bookers.
   const availableDates = useMemo(() => {
+    // No weekly schedule configured → we can't truthfully mark any day as
+    // "has availability", so don't paint dots.
+    const hasWeeklySchedule =
+      (availability?.weeklyAvailability?.filter((w) => w.isEnabled).length ?? 0) > 0;
+    if (!hasWeeklySchedule) return [] as Date[];
+
     const out: Date[] = [];
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     for (let i = 0; i < 90; i++) {
       const d = addDays(today, i);
       if (disabledDaysOfWeek.includes(getDay(d))) continue;
-      if (unavailableDates.some(u => isSameDay(u, d))) continue;
+      if (unavailableDates.some((u) => isSameDay(u, d))) continue;
       out.push(d);
     }
     return out;
-  }, [disabledDaysOfWeek, unavailableDates]);
+  }, [disabledDaysOfWeek, unavailableDates, availability?.weeklyAvailability]);
 
   const nextAvailableDate = useMemo(() => {
     if (!eventDate) return availableDates[0] ?? null;
