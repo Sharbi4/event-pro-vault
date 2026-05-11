@@ -69,7 +69,7 @@ export default function Support() {
                 variant="darkShine" 
                 size="lg" 
                 className="gap-2"
-                onClick={openZendeskChat}
+                onClick={() => window.dispatchEvent(new CustomEvent('open-support-chat'))}
               >
                 <MessageCircle className="w-5 h-5" />
                 Chat now
