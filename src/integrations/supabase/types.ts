@@ -1898,6 +1898,77 @@ export type Database = {
           },
         ]
       }
+      support_chat_logs: {
+        Row: {
+          assistant_reply_masked: string | null
+          completion_tokens: number | null
+          conversation_id: string | null
+          created_at: string
+          error_message: string | null
+          escalated: boolean
+          escalation_reason: string | null
+          history_length: number | null
+          id: string
+          latency_ms: number | null
+          metadata: Json
+          model: string | null
+          prompt_tokens: number | null
+          request_id: string | null
+          status: string
+          total_tokens: number | null
+          user_id: string | null
+          user_message_masked: string | null
+        }
+        Insert: {
+          assistant_reply_masked?: string | null
+          completion_tokens?: number | null
+          conversation_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          escalated?: boolean
+          escalation_reason?: string | null
+          history_length?: number | null
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json
+          model?: string | null
+          prompt_tokens?: number | null
+          request_id?: string | null
+          status?: string
+          total_tokens?: number | null
+          user_id?: string | null
+          user_message_masked?: string | null
+        }
+        Update: {
+          assistant_reply_masked?: string | null
+          completion_tokens?: number | null
+          conversation_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          escalated?: boolean
+          escalation_reason?: string | null
+          history_length?: number | null
+          id?: string
+          latency_ms?: number | null
+          metadata?: Json
+          model?: string | null
+          prompt_tokens?: number | null
+          request_id?: string | null
+          status?: string
+          total_tokens?: number | null
+          user_id?: string | null
+          user_message_masked?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_chat_logs_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "support_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_conversations: {
         Row: {
           created_at: string
