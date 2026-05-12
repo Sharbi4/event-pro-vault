@@ -457,6 +457,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                     mode={isHourly ? 'HOURLY' : 'DAILY'}
                     selectedTime={selectedTime}
                     onTimeSelect={setSelectedTime}
+                    onTimezoneChange={setVendorTimezone}
                   />
                 )}
 
