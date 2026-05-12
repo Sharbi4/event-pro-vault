@@ -188,6 +188,7 @@ Deno.serve(async (req) => {
   return json({
     date,
     mode,
+    timezone,
     duration_minutes: durationMinutes,
     setup_minutes: setupMinutes,
     breakdown_minutes: breakdownMinutes,
