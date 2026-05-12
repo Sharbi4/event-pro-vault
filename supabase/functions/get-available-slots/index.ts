@@ -168,6 +168,7 @@ Deno.serve(async (req) => {
   // 7. Run engine
   const slots = computeBookableSlots({
     date,
+    timezone,
     weeklyWindows: (weekly ?? []) as any,
     blockedDays,
     occupied,
