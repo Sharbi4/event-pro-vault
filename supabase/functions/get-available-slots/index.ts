@@ -17,6 +17,7 @@ import {
   type BookingMode,
   type OccupiedRange,
 } from "../_shared/availabilityEngine.ts";
+import { DEFAULT_TIMEZONE } from "../_shared/timezone.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -78,12 +79,18 @@ Deno.serve(async (req) => {
     }
   }
 
-  // 2. Vendor rules + buffers
-  const { data: rules } = await sb
-    .from("vendor_buffer_settings")
-    .select("buffer_before_minutes, buffer_after_minutes, minimum_notice_hours, advance_booking_days")
-    .eq("user_id", vendor_user_id)
-    .maybeSingle();
+  // 2. Vendor rules + buffers + timezone
+  const [{ data: rules }, { data: vendorTz }] = await Promise.all([
+    sb.from("vendor_buffer_settings")
+      .select("buffer_before_minutes, buffer_after_minutes, minimum_notice_hours, advance_booking_days")
+      .eq("user_id", vendor_user_id)
+      .maybeSingle(),
+    sb.from("vendor_details")
+      .select("timezone")
+      .eq("user_id", vendor_user_id)
+      .maybeSingle(),
+  ]);
+  const timezone: string = (vendorTz?.timezone as string) || DEFAULT_TIMEZONE;
 
   // 3. Weekly windows
   const { data: weekly } = await sb
@@ -161,6 +168,7 @@ Deno.serve(async (req) => {
   // 7. Run engine
   const slots = computeBookableSlots({
     date,
+    timezone,
     weeklyWindows: (weekly ?? []) as any,
     blockedDays,
     occupied,
@@ -180,6 +188,7 @@ Deno.serve(async (req) => {
   return json({
     date,
     mode,
+    timezone,
     duration_minutes: durationMinutes,
     setup_minutes: setupMinutes,
     breakdown_minutes: breakdownMinutes,

@@ -1,9 +1,12 @@
 // Shared availability engine — pure functions used by both client (src/lib)
 // and edge functions (copy lives at supabase/functions/_shared/availabilityEngine.ts).
 //
-// Inputs are timezone-naive ISO strings + minute-of-day; the caller is
-// responsible for picking a consistent reference frame (we recommend UTC for
-// edge-function math and the vendor's local date for slot iteration).
+// All wall-clock <-> real-UTC conversions use the Event Pro's IANA timezone
+// via src/lib/timezone.ts (mirrored at supabase/functions/_shared/timezone.ts).
+// This guarantees that a slot shown in search resolves to the same instant
+// when the booking is created and when other vendors' bookings are compared.
+
+import { DEFAULT_TIMEZONE, utcToWallMinutes, utcToWallDate, wallDateDow, wallTimeToUtc } from './timezone.ts';
 
 export type BookingMode = 'HOURLY' | 'DAILY';
 
@@ -14,7 +17,7 @@ export type BlockingLifecycle =
   | 'confirmed'
   | 'in_progress';
 
-/** Lifecycle statuses that consume vendor calendar capacity. */
+/** Lifecycle statuses that consume Event Pro calendar capacity. */
 export const BLOCKING_LIFECYCLE_STATUSES: ReadonlySet<string> = new Set<BlockingLifecycle>([
   'pending_vendor_approval',
   'approved_payment_required',
@@ -67,8 +70,10 @@ export interface PackageRequirements {
 }
 
 export interface SlotEngineInput {
-  /** Vendor-local date the customer wants (YYYY-MM-DD). */
+  /** Event Pro-local date the customer wants (YYYY-MM-DD). */
   date: string;
+  /** IANA timezone for the vendor (e.g. 'America/New_York'). */
+  timezone?: string;
   /** Weekly windows (already filtered to this user). */
   weeklyWindows: WeeklyWindow[];
   /** Hard "all-day" blocks that knock out the date entirely (YYYY-MM-DD strings). */
@@ -80,9 +85,9 @@ export interface SlotEngineInput {
   intervalMinutes?: number;
   /** Treated as "now" for min-notice math. */
   now?: Date;
-  /** Vendor-level guard: hours before event the customer must book. */
+  /** Event Pro-level guard: hours before event the customer must book. */
   minimumNoticeHours?: number;
-  /** Vendor-level guard: max days into the future. */
+  /** Event Pro-level guard: max days into the future. */
   advanceBookingDays?: number;
 }
 
@@ -111,13 +116,14 @@ function minToHM(min: number): string {
   return `${pad2(Math.floor(min / 60))}:${pad2(min % 60)}`;
 }
 
-/** Build a Date in UTC from a YYYY-MM-DD + minute-of-day. We treat the date as
- *  a wall-clock anchor; downstream clients render in the vendor's tz. */
-function isoFromDateAndMin(date: string, minutes: number): string {
-  const [y, mo, d] = date.split('-').map(Number);
-  const dt = new Date(Date.UTC(y, mo - 1, d, 0, 0, 0, 0));
-  dt.setUTCMinutes(dt.getUTCMinutes() + minutes);
-  return dt.toISOString();
+/**
+ * Build an ISO UTC string from a YYYY-MM-DD wall date + signed minute-of-day
+ * (can be negative for "setup that crosses midnight") in the given IANA tz.
+ */
+function isoFromDateAndMin(date: string, minutes: number, tz: string): string {
+  // Anchor at 00:00 wall-clock of `date` in `tz`, then add minutes.
+  const anchor = wallTimeToUtc(date, '00:00', tz).getTime();
+  return new Date(anchor + minutes * 60_000).toISOString();
 }
 
 function rangesOverlap(aStart: number, aEnd: number, bStart: number, bEnd: number): boolean {
@@ -128,6 +134,7 @@ function rangesOverlap(aStart: number, aEnd: number, bStart: number, bEnd: numbe
 export function computeBookableSlots(input: SlotEngineInput): BookableSlot[] {
   const {
     date,
+    timezone = DEFAULT_TIMEZONE,
     weeklyWindows,
     blockedDays,
     occupied,
@@ -141,10 +148,10 @@ export function computeBookableSlots(input: SlotEngineInput): BookableSlot[] {
   // 0. Hard guards
   if (blockedDays.includes(date)) return [];
 
-  const [y, mo, d] = date.split('-').map(Number);
-  const dayStart = new Date(Date.UTC(y, mo - 1, d));
-  const dayOfWeek = dayStart.getUTCDay();
-  const daysAhead = (dayStart.getTime() - now.getTime()) / 86_400_000;
+  const dayOfWeek = wallDateDow(date);
+  // Vendor-local midnight as a real UTC instant.
+  const dayStartMs = wallTimeToUtc(date, '00:00', timezone).getTime();
+  const daysAhead = (dayStartMs - now.getTime()) / 86_400_000;
   if (daysAhead > advanceBookingDays) return [];
 
   // 1. Resolve weekly windows for this dow (multiple allowed)
@@ -157,19 +164,16 @@ export function computeBookableSlots(input: SlotEngineInput): BookableSlot[] {
 
   // 2. DAILY mode: a single all-day commitment
   if (pkg.mode === 'DAILY') {
-    // Use the union of windows: earliest start → latest end
     const startMin = windows[0].startMin;
     const endMin = windows[windows.length - 1].endMin;
     const blockStartMin = startMin - pkg.setupMinutes - pkg.bufferBeforeMinutes;
     const blockEndMin = endMin + pkg.breakdownMinutes + pkg.bufferAfterMinutes;
-    const blockStartISO = isoFromDateAndMin(date, blockStartMin);
-    const blockEndISO = isoFromDateAndMin(date, blockEndMin);
+    const blockStartISO = isoFromDateAndMin(date, blockStartMin, timezone);
+    const blockEndISO = isoFromDateAndMin(date, blockEndMin, timezone);
 
-    // Min notice
     if (new Date(blockStartISO).getTime() - now.getTime() < minimumNoticeHours * 3_600_000) {
       return [];
     }
-    // Conflict with anything occupied that day?
     const bs = new Date(blockStartISO).getTime();
     const be = new Date(blockEndISO).getTime();
     for (const o of occupied) {
@@ -189,12 +193,12 @@ export function computeBookableSlots(input: SlotEngineInput): BookableSlot[] {
   const padAfter = pkg.breakdownMinutes + pkg.bufferAfterMinutes;
   const noticeCutoff = now.getTime() + minimumNoticeHours * 3_600_000;
 
-  // Convert occupied ranges to minute offsets for this date for fast compare
-  const occMinutes = occupied.map(o => {
-    const s = (o.start.getTime() - dayStart.getTime()) / 60_000;
-    const e = (o.end.getTime() - dayStart.getTime()) / 60_000;
-    return { s, e };
-  });
+  // Project occupied UTC ranges to minute offsets relative to vendor-local
+  // midnight. This makes overlap comparisons trivial and timezone-correct.
+  const occMinutes = occupied.map(o => ({
+    s: (o.start.getTime() - dayStartMs) / 60_000,
+    e: (o.end.getTime() - dayStartMs) / 60_000,
+  }));
 
   const out: BookableSlot[] = [];
   for (const win of windows) {
@@ -205,10 +209,8 @@ export function computeBookableSlots(input: SlotEngineInput): BookableSlot[] {
       const blockStart = eventStart - padBefore;
       const blockEnd = eventEnd + padAfter;
 
-      // Min notice
-      const eventStartMs = dayStart.getTime() + eventStart * 60_000;
+      const eventStartMs = dayStartMs + eventStart * 60_000;
       if (eventStartMs >= noticeCutoff) {
-        // Overlap check (against full block window, not just face-time)
         let conflict = false;
         for (const o of occMinutes) {
           if (rangesOverlap(blockStart, blockEnd, o.s, o.e)) {
@@ -220,8 +222,8 @@ export function computeBookableSlots(input: SlotEngineInput): BookableSlot[] {
           out.push({
             start: minToHM(eventStart),
             end: minToHM(eventEnd),
-            blockStartISO: isoFromDateAndMin(date, blockStart),
-            blockEndISO: isoFromDateAndMin(date, blockEnd),
+            blockStartISO: isoFromDateAndMin(date, blockStart, timezone),
+            blockEndISO: isoFromDateAndMin(date, blockEnd, timezone),
           });
         }
       }
@@ -230,3 +232,6 @@ export function computeBookableSlots(input: SlotEngineInput): BookableSlot[] {
   }
   return out;
 }
+
+// Re-export for callers that want timezone helpers alongside the engine.
+export { DEFAULT_TIMEZONE, utcToWallMinutes, utcToWallDate } from './timezone.ts';

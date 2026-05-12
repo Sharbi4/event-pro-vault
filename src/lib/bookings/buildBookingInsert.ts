@@ -26,6 +26,7 @@ export interface BuildBookingInsertInput {
   customer_email?: string | null;
   customer_name?: string | null;
   customer_phone?: string | null;
+  event_timezone?: string | null;
 }
 
 export function buildBookingInsert(input: BuildBookingInsertInput) {
@@ -36,6 +37,7 @@ export function buildBookingInsert(input: BuildBookingInsertInput) {
     duration_minutes: input.duration_minutes ?? undefined,
     setup_minutes: input.setup_minutes ?? undefined,
     breakdown_minutes: input.breakdown_minutes ?? undefined,
+    timezone: input.event_timezone ?? undefined,
   });
 
   const paymentMethod = input.payment_method || 'stripe';
@@ -75,6 +77,7 @@ export function buildBookingInsert(input: BuildBookingInsertInput) {
     event_end_at: timing.event_end_at,
     calendar_block_start: timing.calendar_block_start,
     calendar_block_end: timing.calendar_block_end,
+    event_timezone: timing.timezone,
     deposit_paid_at: null as string | null,
     final_paid_at: null as string | null,
     stripe_deposit_payment_intent_id: null as string | null,

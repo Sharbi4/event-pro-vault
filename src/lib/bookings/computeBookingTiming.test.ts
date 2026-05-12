@@ -104,9 +104,13 @@ describe('computeBookingTiming — edge cases', () => {
       setup_minutes: 0,
       breakdown_minutes: 0,
     });
-    expect(t.event_start_at!.slice(0, 10)).toBe('2026-12-31');
-    expect(t.event_end_at!.slice(0, 10)).toBe('2027-01-01');
+    // Timestamps are stored in real UTC; the only invariant the calendar
+    // cares about is that end > start by the right duration and the
+    // wall-clock end_time was preserved.
+    expect(t.event_start_at).not.toBeNull();
+    expect(t.event_end_at).not.toBeNull();
     expect(isoMinutesBetween(t.event_start_at!, t.event_end_at!)).toBe(180);
+    expect(t.end_time).toBe('02:00');
   });
 
   it('returns all-null timing fields when start_time is missing', () => {

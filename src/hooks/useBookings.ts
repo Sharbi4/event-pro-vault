@@ -60,6 +60,8 @@ export interface CreateBookingInput {
   duration_minutes?: number;
   setup_minutes?: number;
   breakdown_minutes?: number;
+  /** Vendor's IANA timezone — pinned to the booking so the master calendar matches the slot the customer picked. */
+  event_timezone?: string | null;
   // For email notification
   vendor_email?: string;
   vendor_name?: string;
@@ -227,6 +229,7 @@ export function useBookings() {
       duration_minutes: bookingData.duration_minutes,
       setup_minutes: bookingData.setup_minutes,
       breakdown_minutes: bookingData.breakdown_minutes,
+      timezone: bookingData.event_timezone || undefined,
     });
     const setupMin = timing.setup_minutes;
     const breakdownMin = timing.breakdown_minutes;
@@ -277,6 +280,7 @@ export function useBookings() {
         event_end_at: eventEndAt,
         calendar_block_start: calendarBlockStart,
         calendar_block_end: calendarBlockEnd,
+        event_timezone: timing.timezone,
         // Configurable selections (persisted as customer choice)
         selected_variation_id: bookingData.selected_variation_id || null,
         fulfillment_type: bookingData.fulfillment_type || null,

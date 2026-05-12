@@ -22,6 +22,8 @@ interface TimeSlotPickerProps {
   onTimeSelect: (time: string) => void;
   /** Optional: receive the full slot (with calendar block ISO window). */
   onSlotSelect?: (slot: BookableSlot) => void;
+  /** Optional: receive the vendor's IANA timezone once slots load. */
+  onTimezoneChange?: (timezone: string | null) => void;
   /** Optional: called when user picks a suggested alternative date. */
   onAlternativeDate?: (date: Date) => void;
   /** Optional: called when user clicks "Message vendor" in the empty state. */
@@ -70,13 +72,14 @@ export function TimeSlotPicker({
   selectedTime,
   onTimeSelect,
   onSlotSelect,
+  onTimezoneChange,
   onAlternativeDate,
   onMessageVendor,
   className,
 }: TimeSlotPickerProps) {
   const dateStr = useMemo(() => (selectedDate ? toYMD(selectedDate) : undefined), [selectedDate]);
 
-  const { loading, slots, error } = useAvailableSlots({
+  const { loading, slots, timezone, error } = useAvailableSlots({
     vendorUserId,
     packageId,
     date: dateStr,
@@ -87,6 +90,11 @@ export function TimeSlotPicker({
     intervalMinutes,
     enabled: Boolean(vendorUserId && dateStr),
   });
+
+  // Surface timezone to parent so booking insert can use the same tz.
+  useEffect(() => {
+    onTimezoneChange?.(timezone);
+  }, [timezone, onTimezoneChange]);
 
   const totalCommitment = setupMinutes + durationMinutes + breakdownMinutes;
 

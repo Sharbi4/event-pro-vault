@@ -71,6 +71,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
   const [customerEmail, setCustomerEmail] = useState('');
   const [bookingState, setBookingState] = useState<BookingState>('idle');
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [vendorTimezone, setVendorTimezone] = useState<string | null>(null);
 
   useEffect(() => {
     if (pkg?.min_hours) {
@@ -219,6 +220,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
         duration_minutes: durationMinutes,
         setup_minutes: setupMinutes,
         breakdown_minutes: breakdownMinutes,
+        event_timezone: vendorTimezone,
       });
 
       if (!booking) {
@@ -456,6 +458,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                     mode={isHourly ? 'HOURLY' : 'DAILY'}
                     selectedTime={selectedTime}
                     onTimeSelect={setSelectedTime}
+                    onTimezoneChange={setVendorTimezone}
                   />
                 )}
 
