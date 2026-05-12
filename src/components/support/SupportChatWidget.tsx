@@ -341,9 +341,23 @@ export function SupportChatWidget() {
                       )}
                     >
                       {m.role === 'assistant' ? (
-                        <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-a:text-primary">
-                          <ReactMarkdown>{m.content}</ReactMarkdown>
-                        </div>
+                        m.streaming && !m.content ? (
+                          <div className="flex items-center gap-1.5 py-1" aria-label="AI is typing">
+                            <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:-0.3s]" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:-0.15s]" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce" />
+                          </div>
+                        ) : (
+                          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-a:text-primary">
+                            <ReactMarkdown>{m.content}</ReactMarkdown>
+                            {m.streaming && (
+                              <span
+                                aria-hidden="true"
+                                className="ml-0.5 inline-block h-3.5 w-[2px] -mb-0.5 bg-primary animate-pulse align-middle"
+                              />
+                            )}
+                          </div>
+                        )
                       ) : (
                         <span className="whitespace-pre-wrap">{m.content}</span>
                       )}
@@ -360,12 +374,6 @@ export function SupportChatWidget() {
                     )}
                   </div>
                 ))
-              )}
-              {sending && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground pl-9">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Thinking…
-                </div>
               )}
             </div>
 
