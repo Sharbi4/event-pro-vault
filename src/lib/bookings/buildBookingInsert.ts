@@ -77,6 +77,7 @@ export function buildBookingInsert(input: BuildBookingInsertInput) {
     event_end_at: timing.event_end_at,
     calendar_block_start: timing.calendar_block_start,
     calendar_block_end: timing.calendar_block_end,
+    event_timezone: timing.timezone,
     deposit_paid_at: null as string | null,
     final_paid_at: null as string | null,
     stripe_deposit_payment_intent_id: null as string | null,
