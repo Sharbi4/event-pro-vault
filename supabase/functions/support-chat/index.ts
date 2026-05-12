@@ -47,6 +47,30 @@ interface ChatRequest {
   message: string;
 }
 
+// ---- PII masking ----
+// Mask emails, phone numbers, credit-card-like numbers, URLs, and long digit sequences
+// before persisting any user/assistant content to the debug log.
+function maskPII(input: string): string {
+  if (!input) return input;
+  let s = String(input);
+  // Emails
+  s = s.replace(/[\w.+-]+@[\w-]+\.[\w.-]+/g, "[email]");
+  // URLs (http/https/www)
+  s = s.replace(/\b(?:https?:\/\/|www\.)[^\s]+/gi, "[url]");
+  // Credit-card-like (13-19 digits, optional spaces/dashes)
+  s = s.replace(/\b(?:\d[ -]?){13,19}\b/g, "[card]");
+  // Phone numbers (international or local, 7-15 digits with separators)
+  s = s.replace(/(?:\+?\d{1,3}[ .\-])?(?:\(?\d{2,4}\)?[ .\-]?)?\d{3,4}[ .\-]?\d{3,4}/g, (m) => {
+    const digits = m.replace(/\D/g, "");
+    return digits.length >= 7 ? "[phone]" : m;
+  });
+  // Long bare digit sequences (IDs, SSN-like)
+  s = s.replace(/\b\d{7,}\b/g, "[number]");
+  // Truncate very long content
+  if (s.length > 4000) s = s.slice(0, 4000) + "…[truncated]";
+  return s;
+}
+
 async function callLovableAI(messages: any[], tools: any[]) {
   const apiKey = Deno.env.get("LOVABLE_API_KEY");
   if (!apiKey) throw new Error("LOVABLE_API_KEY not set");
