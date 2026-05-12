@@ -71,6 +71,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
   const [customerEmail, setCustomerEmail] = useState('');
   const [bookingState, setBookingState] = useState<BookingState>('idle');
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [vendorTimezone, setVendorTimezone] = useState<string | null>(null);
 
   useEffect(() => {
     if (pkg?.min_hours) {
