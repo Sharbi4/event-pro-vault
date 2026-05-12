@@ -194,7 +194,20 @@ export function SupportChatWidget() {
                   <Sparkles className="h-4 w-4 text-primary" />
                 </div>
                 <div>
-                  <div className="text-sm font-semibold text-foreground">Vendibook Assistant</div>
+                  <div className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    Vendibook Assistant
+                    <span
+                      className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-1.5 py-0.5 text-[10px] font-medium text-emerald-600 dark:text-emerald-400 ring-1 ring-emerald-500/20"
+                      title={sending ? 'AI is responding…' : 'AI assistant is online'}
+                      aria-live="polite"
+                    >
+                      <span className="relative flex h-1.5 w-1.5">
+                        <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-500 opacity-75" />
+                        <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                      </span>
+                      {sending ? 'AI responding' : 'AI live'}
+                    </span>
+                  </div>
                   <div className="text-[11px] text-muted-foreground">AI assistant · backed by Event Pro Support</div>
                 </div>
               </div>
