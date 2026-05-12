@@ -130,5 +130,5 @@ export function useAvailableSlots(args: Args): Result {
     return () => clearInterval(interval);
   }, [enabled, vendorUserId]);
 
-  return { loading, slots, error, refetch };
+  return { loading, slots, timezone, error, refetch };
 }
