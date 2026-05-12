@@ -17,6 +17,7 @@ interface Args {
 interface Result {
   loading: boolean;
   slots: BookableSlot[];
+  timezone: string | null;
   error: string | null;
   refetch: () => void;
 }
