@@ -1928,6 +1928,53 @@ export type Database = {
         }
         Relationships: []
       }
+      support_escalations: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          delivery_error: string | null
+          delivery_metadata: Json
+          delivery_status: string
+          id: string
+          reason: string
+          sent_at: string
+          user_email: string | null
+          user_id: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          delivery_error?: string | null
+          delivery_metadata?: Json
+          delivery_status?: string
+          id?: string
+          reason: string
+          sent_at?: string
+          user_email?: string | null
+          user_id: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          delivery_error?: string | null
+          delivery_metadata?: Json
+          delivery_status?: string
+          id?: string
+          reason?: string
+          sent_at?: string
+          user_email?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_escalations_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "support_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       support_messages: {
         Row: {
           content: string
