@@ -37,6 +37,7 @@ export function buildBookingInsert(input: BuildBookingInsertInput) {
     duration_minutes: input.duration_minutes ?? undefined,
     setup_minutes: input.setup_minutes ?? undefined,
     breakdown_minutes: input.breakdown_minutes ?? undefined,
+    timezone: input.event_timezone ?? undefined,
   });
 
   const paymentMethod = input.payment_method || 'stripe';
