@@ -143,8 +143,40 @@ async function sendEscalationEmail(args: {
   return { ok: true };
 }
 
+const MODEL_ID = "google/gemini-2.5-flash";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+
+  const requestId =
+    (globalThis.crypto?.randomUUID?.() as string | undefined) ?? `req-${Date.now()}`;
+  const startedAt = Date.now();
+
+  const logCtx: {
+    admin?: ReturnType<typeof createClient>;
+    conversationId?: string;
+    userId?: string;
+    userMessage?: string;
+    historyLength?: number;
+  } = {};
+
+  const writeLog = async (fields: Record<string, unknown>) => {
+    try {
+      if (!logCtx.admin) return;
+      await logCtx.admin.from("support_chat_logs").insert({
+        request_id: requestId,
+        conversation_id: logCtx.conversationId ?? null,
+        user_id: logCtx.userId ?? null,
+        user_message_masked: logCtx.userMessage ? maskPII(logCtx.userMessage) : null,
+        history_length: logCtx.historyLength ?? null,
+        model: MODEL_ID,
+        latency_ms: Date.now() - startedAt,
+        ...fields,
+      });
+    } catch (e) {
+      console.error("support_chat_logs insert failed", e);
+    }
+  };
 
   try {
     // Auth
@@ -172,15 +204,19 @@ Deno.serve(async (req) => {
     }
     const user = userData.user;
     const admin = createClient(supabaseUrl, serviceKey);
+    logCtx.admin = admin;
+    logCtx.userId = user.id;
 
     const body = (await req.json()) as ChatRequest;
     const userMessage = (body.message ?? "").toString().trim();
     if (!userMessage || userMessage.length > 4000) {
+      await writeLog({ status: "invalid_input", error_message: "empty or oversize message" });
       return new Response(JSON.stringify({ error: "Invalid message" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+    logCtx.userMessage = userMessage;
 
     // Ensure conversation exists (one per user)
     let { data: convo } = await admin
@@ -198,6 +234,7 @@ Deno.serve(async (req) => {
       if (createErr) throw createErr;
       convo = created;
     }
+    logCtx.conversationId = convo.id;
 
     // Load last 20 messages for context
     const { data: history } = await admin
@@ -206,6 +243,8 @@ Deno.serve(async (req) => {
       .eq("conversation_id", convo.id)
       .order("created_at", { ascending: true })
       .limit(20);
+
+    logCtx.historyLength = (history ?? []).length;
 
     // Store user message
     await admin.from("support_messages").insert({
@@ -241,11 +280,27 @@ Deno.serve(async (req) => {
       },
     ];
 
-    const aiRes = await callLovableAI(messages, tools);
+    const aiStartedAt = Date.now();
+    let aiRes: any;
+    try {
+      aiRes = await callLovableAI(messages, tools);
+    } catch (e) {
+      const errMsg = e instanceof Error ? e.message : String(e);
+      await writeLog({
+        status: "ai_error",
+        error_message: errMsg,
+        metadata: { aiLatencyMs: Date.now() - aiStartedAt },
+      });
+      throw e;
+    }
+
+    const aiLatencyMs = Date.now() - aiStartedAt;
     const choice = aiRes.choices?.[0];
     const toolCalls = choice?.message?.tool_calls ?? [];
     let assistantText: string = choice?.message?.content ?? "";
     let escalated = false;
+    let escalationReason: string | null = null;
+    const usage = aiRes.usage ?? {};
 
     if (toolCalls.length > 0) {
       const call = toolCalls[0];
@@ -253,6 +308,7 @@ Deno.serve(async (req) => {
         try { return JSON.parse(call.function.arguments || "{}").reason ?? "Manual escalation"; }
         catch { return "Manual escalation"; }
       })();
+      escalationReason = reason;
       let deliveryStatus = "failed";
       let deliveryError: string | null = null;
       let deliveryMetadata: Record<string, unknown> = {};
@@ -313,14 +369,33 @@ Deno.serve(async (req) => {
       .update({ last_message_at: new Date().toISOString() })
       .eq("id", convo.id);
 
+    // Structured debug log (PII-masked)
+    await writeLog({
+      status: "ok",
+      assistant_reply_masked: maskPII(assistantText),
+      escalated,
+      escalation_reason: escalationReason,
+      prompt_tokens: usage.prompt_tokens ?? null,
+      completion_tokens: usage.completion_tokens ?? null,
+      total_tokens: usage.total_tokens ?? null,
+      metadata: {
+        aiLatencyMs,
+        toolCallCount: toolCalls.length,
+        finishReason: choice?.finish_reason ?? null,
+        userMessageLength: userMessage.length,
+      },
+    });
+
     return new Response(
-      JSON.stringify({ reply: assistantText, escalated, conversationId: convo.id }),
+      JSON.stringify({ reply: assistantText, escalated, conversationId: convo.id, requestId }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {
     console.error(err);
+    const errMsg = err instanceof Error ? err.message : String(err);
+    await writeLog({ status: "error", error_message: errMsg });
     return new Response(
-      JSON.stringify({ error: err instanceof Error ? err.message : String(err) }),
+      JSON.stringify({ error: errMsg, requestId }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }
