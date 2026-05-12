@@ -45,6 +45,7 @@ When you escalate, briefly tell the user "I've forwarded this to Event Pro Suppo
 
 interface ChatRequest {
   message: string;
+  stream?: boolean;
 }
 
 // ---- PII masking ----
