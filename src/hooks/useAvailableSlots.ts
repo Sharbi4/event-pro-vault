@@ -44,6 +44,7 @@ export function useAvailableSlots(args: Args): Result {
   const { vendorUserId, packageId, date, enabled = true } = args;
   const [loading, setLoading] = useState(false);
   const [slots, setSlots] = useState<BookableSlot[]>([]);
+  const [timezone, setTimezone] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
 
@@ -74,8 +75,10 @@ export function useAvailableSlots(args: Args): Result {
       if (err) {
         setError(err.message);
         setSlots([]);
+        setTimezone(null);
       } else {
         setSlots((data?.slots as BookableSlot[]) ?? []);
+        setTimezone((data?.timezone as string) ?? null);
       }
       setLoading(false);
     });
