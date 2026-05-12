@@ -225,8 +225,14 @@ Deno.serve(async (req) => {
 
     if (toolCalls.length > 0) {
       const call = toolCalls[0];
+      const reason = (() => {
+        try { return JSON.parse(call.function.arguments || "{}").reason ?? "Manual escalation"; }
+        catch { return "Manual escalation"; }
+      })();
+      let deliveryStatus = "failed";
+      let deliveryError: string | null = null;
+      let deliveryMetadata: Record<string, unknown> = {};
       try {
-        const args = JSON.parse(call.function.arguments || "{}");
         const transcript = messages
           .filter((m: any) => m.role !== "system")
           .map((m: any) => ({ role: m.role, content: String(m.content ?? "") }));
@@ -236,17 +242,33 @@ Deno.serve(async (req) => {
           userName: (user.user_metadata?.full_name as string) || user.email || "User",
           userId: user.id,
           conversationId: convo.id,
-          reason: args.reason ?? "Manual escalation",
+          reason,
           transcript,
         });
         escalated = emailRes.ok;
+        deliveryStatus = emailRes.ok ? "sent" : "failed";
+        if (!emailRes.ok) deliveryError = String((emailRes as any).reason ?? "unknown");
+        deliveryMetadata = { transcriptLength: transcript.length };
       } catch (e) {
         console.error("Escalation parse/send failed", e);
+        deliveryError = e instanceof Error ? e.message : String(e);
       }
+
+      // Audit log
+      const { error: logErr } = await admin.from("support_escalations").insert({
+        conversation_id: convo.id,
+        user_id: user.id,
+        user_email: user.email ?? null,
+        reason,
+        delivery_status: deliveryStatus,
+        delivery_error: deliveryError,
+        delivery_metadata: deliveryMetadata,
+      });
+      if (logErr) console.error("support_escalations insert failed", logErr);
 
       assistantText =
         assistantText ||
-        "I've forwarded this to the team — they'll email you back shortly. In the meantime, anything else I can help clarify?";
+        "I've forwarded this to Event Pro Support — a specialist will follow up with you shortly. In the meantime, anything else I can help clarify?";
 
       await admin
         .from("support_conversations")
