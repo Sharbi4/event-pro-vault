@@ -280,6 +280,7 @@ export function useBookings() {
         event_end_at: eventEndAt,
         calendar_block_start: calendarBlockStart,
         calendar_block_end: calendarBlockEnd,
+        event_timezone: timing.timezone,
         // Configurable selections (persisted as customer choice)
         selected_variation_id: bookingData.selected_variation_id || null,
         fulfillment_type: bookingData.fulfillment_type || null,
