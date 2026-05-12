@@ -235,5 +235,3 @@ export function computeBookableSlots(input: SlotEngineInput): BookableSlot[] {
 
 // Re-export for callers that want timezone helpers alongside the engine.
 export { DEFAULT_TIMEZONE, utcToWallMinutes, utcToWallDate } from './timezone';
-  return out;
-}
