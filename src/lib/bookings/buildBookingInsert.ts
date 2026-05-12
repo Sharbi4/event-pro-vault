@@ -26,6 +26,7 @@ export interface BuildBookingInsertInput {
   customer_email?: string | null;
   customer_name?: string | null;
   customer_phone?: string | null;
+  event_timezone?: string | null;
 }
 
 export function buildBookingInsert(input: BuildBookingInsertInput) {
