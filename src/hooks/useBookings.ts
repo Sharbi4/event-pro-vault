@@ -60,6 +60,8 @@ export interface CreateBookingInput {
   duration_minutes?: number;
   setup_minutes?: number;
   breakdown_minutes?: number;
+  /** Vendor's IANA timezone — pinned to the booking so the master calendar matches the slot the customer picked. */
+  event_timezone?: string | null;
   // For email notification
   vendor_email?: string;
   vendor_name?: string;
