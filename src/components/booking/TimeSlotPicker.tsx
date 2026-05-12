@@ -22,6 +22,8 @@ interface TimeSlotPickerProps {
   onTimeSelect: (time: string) => void;
   /** Optional: receive the full slot (with calendar block ISO window). */
   onSlotSelect?: (slot: BookableSlot) => void;
+  /** Optional: receive the vendor's IANA timezone once slots load. */
+  onTimezoneChange?: (timezone: string | null) => void;
   /** Optional: called when user picks a suggested alternative date. */
   onAlternativeDate?: (date: Date) => void;
   /** Optional: called when user clicks "Message vendor" in the empty state. */
