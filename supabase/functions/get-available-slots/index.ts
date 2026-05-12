@@ -17,6 +17,7 @@ import {
   type BookingMode,
   type OccupiedRange,
 } from "../_shared/availabilityEngine.ts";
+import { DEFAULT_TIMEZONE } from "../_shared/timezone.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
