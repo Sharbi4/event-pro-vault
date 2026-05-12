@@ -45,6 +45,7 @@ When you escalate, briefly tell the user "I've forwarded this to Event Pro Suppo
 
 interface ChatRequest {
   message: string;
+  stream?: boolean;
 }
 
 // ---- PII masking ----
@@ -281,6 +282,216 @@ Deno.serve(async (req) => {
     ];
 
     const aiStartedAt = Date.now();
+
+    // ====== Streaming branch (SSE) ======
+    if (body.stream) {
+      const apiKey = Deno.env.get("LOVABLE_API_KEY");
+      if (!apiKey) {
+        await writeLog({ status: "ai_error", error_message: "LOVABLE_API_KEY missing" });
+        return new Response(JSON.stringify({ error: "AI not configured" }), {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const upstream = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify({
+          model: MODEL_ID,
+          messages,
+          tools,
+          tool_choice: "auto",
+          stream: true,
+        }),
+      });
+
+      if (!upstream.ok || !upstream.body) {
+        const text = upstream.body ? await upstream.text() : "no body";
+        await writeLog({ status: "ai_error", error_message: `gateway ${upstream.status}: ${text.slice(0, 500)}` });
+        return new Response(JSON.stringify({ error: `AI gateway ${upstream.status}` }), {
+          status: 502,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const encoder = new TextEncoder();
+      const decoder = new TextDecoder();
+      const convoId = convo.id;
+      const userEmail = user.email ?? "unknown";
+      const userName = (user.user_metadata?.full_name as string) || user.email || "User";
+      const userId = user.id;
+
+      let assistantText = "";
+      const toolCallsAcc: Record<number, { id?: string; name?: string; arguments: string }> = {};
+      let finishReason: string | null = null;
+      const usage: any = {};
+
+      const sseStream = new ReadableStream({
+        async start(controller) {
+          const send = (obj: unknown) => {
+            try {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify(obj)}\n\n`));
+            } catch {
+              // controller closed
+            }
+          };
+
+          try {
+            const reader = upstream.body!.getReader();
+            let buffer = "";
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              buffer += decoder.decode(value, { stream: true });
+              const lines = buffer.split("\n");
+              buffer = lines.pop() ?? "";
+              for (const line of lines) {
+                const trimmed = line.trim();
+                if (!trimmed.startsWith("data:")) continue;
+                const payload = trimmed.slice(5).trim();
+                if (!payload || payload === "[DONE]") continue;
+                try {
+                  const json = JSON.parse(payload);
+                  const delta = json.choices?.[0]?.delta ?? {};
+                  if (typeof delta.content === "string" && delta.content) {
+                    assistantText += delta.content;
+                    send({ type: "token", content: delta.content });
+                  }
+                  if (Array.isArray(delta.tool_calls)) {
+                    for (const tc of delta.tool_calls) {
+                      const idx = tc.index ?? 0;
+                      const acc = (toolCallsAcc[idx] ??= { arguments: "" });
+                      if (tc.id) acc.id = tc.id;
+                      if (tc.function?.name) acc.name = tc.function.name;
+                      if (typeof tc.function?.arguments === "string")
+                        acc.arguments += tc.function.arguments;
+                    }
+                  }
+                  const fr = json.choices?.[0]?.finish_reason;
+                  if (fr) finishReason = fr;
+                  if (json.usage) Object.assign(usage, json.usage);
+                } catch {
+                  // ignore parse error
+                }
+              }
+            }
+
+            const aiLatencyMs = Date.now() - aiStartedAt;
+
+            // Handle escalation tool call after stream
+            let escalated = false;
+            let escalationReason: string | null = null;
+            const toolCallList = Object.values(toolCallsAcc);
+            if (toolCallList.length > 0 && toolCallList[0].name === "escalate_to_human") {
+              const reason = (() => {
+                try {
+                  return JSON.parse(toolCallList[0].arguments || "{}").reason ?? "Manual escalation";
+                } catch {
+                  return "Manual escalation";
+                }
+              })();
+              escalationReason = reason;
+              send({ type: "status", message: "Forwarding to Event Pro Support…" });
+
+              let deliveryStatus = "failed";
+              let deliveryError: string | null = null;
+              let deliveryMetadata: Record<string, unknown> = {};
+              try {
+                const transcript = messages
+                  .filter((m: any) => m.role !== "system")
+                  .map((m: any) => ({ role: m.role, content: String(m.content ?? "") }));
+                const emailRes = await sendEscalationEmail({
+                  userEmail,
+                  userName,
+                  userId,
+                  conversationId: convoId,
+                  reason,
+                  transcript,
+                });
+                escalated = emailRes.ok;
+                deliveryStatus = emailRes.ok ? "sent" : "failed";
+                if (!emailRes.ok) deliveryError = String((emailRes as any).reason ?? "unknown");
+                deliveryMetadata = { transcriptLength: transcript.length };
+              } catch (e) {
+                deliveryError = e instanceof Error ? e.message : String(e);
+              }
+
+              await admin.from("support_escalations").insert({
+                conversation_id: convoId,
+                user_id: userId,
+                user_email: userEmail,
+                reason,
+                delivery_status: deliveryStatus,
+                delivery_error: deliveryError,
+                delivery_metadata: deliveryMetadata,
+              });
+
+              if (!assistantText) {
+                const fallback =
+                  "I've forwarded this to Event Pro Support — a specialist will follow up with you shortly. In the meantime, anything else I can help clarify?";
+                assistantText = fallback;
+                send({ type: "token", content: fallback });
+              }
+
+              await admin
+                .from("support_conversations")
+                .update({ escalated_at: new Date().toISOString() })
+                .eq("id", convoId);
+            }
+
+            // Persist final assistant message
+            await admin.from("support_messages").insert({
+              conversation_id: convoId,
+              role: "assistant",
+              content: assistantText,
+              escalated,
+            });
+            await admin
+              .from("support_conversations")
+              .update({ last_message_at: new Date().toISOString() })
+              .eq("id", convoId);
+
+            await writeLog({
+              status: "ok",
+              assistant_reply_masked: maskPII(assistantText),
+              escalated,
+              escalation_reason: escalationReason,
+              prompt_tokens: usage.prompt_tokens ?? null,
+              completion_tokens: usage.completion_tokens ?? null,
+              total_tokens: usage.total_tokens ?? null,
+              metadata: {
+                aiLatencyMs,
+                toolCallCount: toolCallList.length,
+                finishReason,
+                streamed: true,
+                userMessageLength: userMessage.length,
+              },
+            });
+
+            send({ type: "done", escalated, conversationId: convoId, requestId });
+            controller.close();
+          } catch (e) {
+            const errMsg = e instanceof Error ? e.message : String(e);
+            await writeLog({ status: "stream_error", error_message: errMsg });
+            send({ type: "error", message: errMsg });
+            controller.close();
+          }
+        },
+      });
+
+      return new Response(sseStream, {
+        headers: {
+          ...corsHeaders,
+          "Content-Type": "text/event-stream",
+          "Cache-Control": "no-cache, no-transform",
+          Connection: "keep-alive",
+          "X-Accel-Buffering": "no",
+        },
+      });
+    }
+
+    // ====== Non-streaming branch (kept for backward compatibility) ======
     let aiRes: any;
     try {
       aiRes = await callLovableAI(messages, tools);

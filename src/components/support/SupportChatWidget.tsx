@@ -15,7 +15,11 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   escalated?: boolean;
+  streaming?: boolean;
 }
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const SUPABASE_ANON = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 
 export function SupportChatWidget() {
   const { user } = useAuth();
@@ -98,34 +102,100 @@ export function SupportChatWidget() {
     const content = text.trim();
     if (!content || sending) return;
 
-    const optimistic: ChatMessage = {
+    const userMsg: ChatMessage = {
       id: `tmp-${Date.now()}`,
       role: 'user',
       content,
     };
-    setMessages((m) => [...m, optimistic]);
+    const assistantId = `a-${Date.now()}`;
+    const assistantMsg: ChatMessage = {
+      id: assistantId,
+      role: 'assistant',
+      content: '',
+      streaming: true,
+    };
+    setMessages((m) => [...m, userMsg, assistantMsg]);
     setInput('');
     setSending(true);
 
+    const updateAssistant = (patch: Partial<ChatMessage>) => {
+      setMessages((m) =>
+        m.map((msg) => (msg.id === assistantId ? { ...msg, ...patch } : msg)),
+      );
+    };
+    const appendToken = (token: string) => {
+      setMessages((m) =>
+        m.map((msg) =>
+          msg.id === assistantId ? { ...msg, content: msg.content + token } : msg,
+        ),
+      );
+    };
+
     try {
-      const { data, error } = await supabase.functions.invoke('support-chat', {
-        body: {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+      const token = session?.access_token;
+      if (!token) throw new Error('Not authenticated');
+
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/support-chat`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          apikey: SUPABASE_ANON,
+          Accept: 'text/event-stream',
+        },
+        body: JSON.stringify({
           message: opts?.escalate
             ? `${content}\n\n[User clicked "Talk to a human" — please escalate.]`
             : content,
-        },
+          stream: true,
+        }),
       });
-      if (error) throw error;
-      setMessages((m) => [
-        ...m,
-        {
-          id: `a-${Date.now()}`,
-          role: 'assistant',
-          content: data.reply,
-          escalated: data.escalated,
-        },
-      ]);
-      if (data.escalated) {
+
+      if (!res.ok || !res.body) {
+        const errText = await res.text().catch(() => '');
+        throw new Error(errText || `Chat request failed (${res.status})`);
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      let escalated = false;
+      let streamError: string | null = null;
+
+      // eslint-disable-next-line no-constant-condition
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop() ?? '';
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data:')) continue;
+          const payload = trimmed.slice(5).trim();
+          if (!payload) continue;
+          try {
+            const evt = JSON.parse(payload);
+            if (evt.type === 'token' && typeof evt.content === 'string') {
+              appendToken(evt.content);
+            } else if (evt.type === 'done') {
+              escalated = Boolean(evt.escalated);
+            } else if (evt.type === 'error') {
+              streamError = String(evt.message ?? 'Stream error');
+            }
+          } catch {
+            // ignore malformed event
+          }
+        }
+      }
+
+      if (streamError) throw new Error(streamError);
+
+      updateAssistant({ streaming: false, escalated });
+      if (escalated) {
         toast({
           title: 'Forwarded to Event Pro Support',
           description: 'A specialist will follow up with you shortly.',
@@ -137,15 +207,11 @@ export function SupportChatWidget() {
         description: err?.message ?? 'Please try again.',
         variant: 'destructive',
       });
-      setMessages((m) => [
-        ...m,
-        {
-          id: `e-${Date.now()}`,
-          role: 'assistant',
-          content:
-            "Sorry, I couldn't reach our servers right now. Please try again in a moment, or use the **Talk to Event Pro Support** option below to forward your question.",
-        },
-      ]);
+      updateAssistant({
+        streaming: false,
+        content:
+          "Sorry, I couldn't reach our servers right now. Please try again in a moment, or use the **Talk to Event Pro Support** option below to forward your question.",
+      });
     } finally {
       setSending(false);
     }
@@ -275,9 +341,23 @@ export function SupportChatWidget() {
                       )}
                     >
                       {m.role === 'assistant' ? (
-                        <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-a:text-primary">
-                          <ReactMarkdown>{m.content}</ReactMarkdown>
-                        </div>
+                        m.streaming && !m.content ? (
+                          <div className="flex items-center gap-1.5 py-1" aria-label="AI is typing">
+                            <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:-0.3s]" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce [animation-delay:-0.15s]" />
+                            <span className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce" />
+                          </div>
+                        ) : (
+                          <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-a:text-primary">
+                            <ReactMarkdown>{m.content}</ReactMarkdown>
+                            {m.streaming && (
+                              <span
+                                aria-hidden="true"
+                                className="ml-0.5 inline-block h-3.5 w-[2px] -mb-0.5 bg-primary animate-pulse align-middle"
+                              />
+                            )}
+                          </div>
+                        )
                       ) : (
                         <span className="whitespace-pre-wrap">{m.content}</span>
                       )}
@@ -294,12 +374,6 @@ export function SupportChatWidget() {
                     )}
                   </div>
                 ))
-              )}
-              {sending && (
-                <div className="flex items-center gap-2 text-xs text-muted-foreground pl-9">
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                  Thinking…
-                </div>
               )}
             </div>
 
