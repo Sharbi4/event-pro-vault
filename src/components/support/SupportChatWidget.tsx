@@ -15,7 +15,11 @@ interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
   escalated?: boolean;
+  streaming?: boolean;
 }
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string;
+const SUPABASE_ANON = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string;
 
 export function SupportChatWidget() {
   const { user } = useAuth();
