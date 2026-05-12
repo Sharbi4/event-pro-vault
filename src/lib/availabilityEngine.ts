@@ -1,9 +1,12 @@
 // Shared availability engine — pure functions used by both client (src/lib)
 // and edge functions (copy lives at supabase/functions/_shared/availabilityEngine.ts).
 //
-// Inputs are timezone-naive ISO strings + minute-of-day; the caller is
-// responsible for picking a consistent reference frame (we recommend UTC for
-// edge-function math and the Event Pro's local date for slot iteration).
+// All wall-clock <-> real-UTC conversions use the Event Pro's IANA timezone
+// via src/lib/timezone.ts (mirrored at supabase/functions/_shared/timezone.ts).
+// This guarantees that a slot shown in search resolves to the same instant
+// when the booking is created and when other vendors' bookings are compared.
+
+import { DEFAULT_TIMEZONE, utcToWallMinutes, utcToWallDate, wallDateDow, wallTimeToUtc } from './timezone';
 
 export type BookingMode = 'HOURLY' | 'DAILY';
 
