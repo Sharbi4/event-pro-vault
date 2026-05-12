@@ -220,6 +220,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
         duration_minutes: durationMinutes,
         setup_minutes: setupMinutes,
         breakdown_minutes: breakdownMinutes,
+        event_timezone: vendorTimezone,
       });
 
       if (!booking) {
