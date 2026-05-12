@@ -72,6 +72,8 @@ export interface PackageRequirements {
 export interface SlotEngineInput {
   /** Event Pro-local date the customer wants (YYYY-MM-DD). */
   date: string;
+  /** IANA timezone for the vendor (e.g. 'America/New_York'). */
+  timezone?: string;
   /** Weekly windows (already filtered to this user). */
   weeklyWindows: WeeklyWindow[];
   /** Hard "all-day" blocks that knock out the date entirely (YYYY-MM-DD strings). */
