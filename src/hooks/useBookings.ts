@@ -229,6 +229,7 @@ export function useBookings() {
       duration_minutes: bookingData.duration_minutes,
       setup_minutes: bookingData.setup_minutes,
       breakdown_minutes: bookingData.breakdown_minutes,
+      timezone: bookingData.event_timezone || undefined,
     });
     const setupMin = timing.setup_minutes;
     const breakdownMin = timing.breakdown_minutes;
