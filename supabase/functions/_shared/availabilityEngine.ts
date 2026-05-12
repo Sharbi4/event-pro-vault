@@ -6,7 +6,7 @@
 // This guarantees that a slot shown in search resolves to the same instant
 // when the booking is created and when other vendors' bookings are compared.
 
-import { DEFAULT_TIMEZONE, utcToWallMinutes, utcToWallDate, wallDateDow, wallTimeToUtc } from '../_shared/timezone.ts';
+import { DEFAULT_TIMEZONE, utcToWallMinutes, utcToWallDate, wallDateDow, wallTimeToUtc } from './timezone.ts';
 
 export type BookingMode = 'HOURLY' | 'DAILY';
 
@@ -234,4 +234,4 @@ export function computeBookableSlots(input: SlotEngineInput): BookableSlot[] {
 }
 
 // Re-export for callers that want timezone helpers alongside the engine.
-export { DEFAULT_TIMEZONE, utcToWallMinutes, utcToWallDate } from '../_shared/timezone.ts';
+export { DEFAULT_TIMEZONE, utcToWallMinutes, utcToWallDate } from './timezone.ts';
