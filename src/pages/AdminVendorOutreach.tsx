@@ -133,7 +133,8 @@ export default function AdminVendorOutreach() {
   if (!user) return <Navigate to="/auth" replace />;
   if (!isAdmin) return <Navigate to="/" replace />;
 
-  const sentCount = results.filter((r) => r.status === 'sent' || r.status === 'queued').length;
+  const sentCount = results.filter((r) => r.status === 'sent').length;
+  const queuedCount = results.filter((r) => r.status === 'queued').length;
   const failedCount = results.filter((r) => r.status === 'failed').length;
 
   async function handleSend() {
