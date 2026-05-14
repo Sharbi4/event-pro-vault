@@ -352,7 +352,7 @@ export default function Dashboard() {
           {!hasVendorPackages && (
             <Button variant="gradient" size="sm" onClick={() => navigate('/eventpro-onboarding')} className="gap-2">
               <Star className="w-4 h-4" />
-              Become an vendor
+              Become an Event Pro
             </Button>
           )}
         </div>
