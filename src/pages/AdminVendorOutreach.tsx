@@ -182,7 +182,41 @@ export default function AdminVendorOutreach() {
     setSending(false);
     const ok = out.filter((x) => x.status !== 'failed').length;
     const bad = out.length - ok;
-    toast.success(`Outreach complete: ${ok} queued, ${bad} failed`);
+    toast.success(`Outreach complete: ${ok} queued, ${bad} failed. Refreshing delivery status…`);
+    // Poll the email log a few times to reflect actual sent/failed status
+    setTimeout(() => refreshStatus(out), 4000);
+    setTimeout(() => refreshStatus(out), 12000);
+    setTimeout(() => refreshStatus(out), 25000);
+  }
+
+  async function refreshStatus(base?: SendResult[]) {
+    const source = base ?? results;
+    if (source.length === 0) return;
+    const emails = source.map((r) => r.recipient.email);
+    const { data, error } = await supabase
+      .from('email_send_log')
+      .select('recipient_email, status, error_message, created_at')
+      .eq('template_name', 'vendor-outreach-invite')
+      .in('recipient_email', emails)
+      .order('created_at', { ascending: false });
+    if (error || !data) return;
+    // Latest status per recipient
+    const latest = new Map<string, { status: string; error_message: string | null }>();
+    for (const row of data) {
+      const key = row.recipient_email.toLowerCase();
+      if (!latest.has(key)) latest.set(key, { status: row.status, error_message: row.error_message });
+    }
+    setResults(
+      source.map((r) => {
+        const found = latest.get(r.recipient.email.toLowerCase());
+        if (!found) return r;
+        const mapped: SendResult['status'] =
+          found.status === 'sent' ? 'sent'
+          : found.status === 'failed' || found.status === 'dlq' || found.status === 'bounced' ? 'failed'
+          : 'queued';
+        return { ...r, status: mapped, error: found.error_message ?? r.error };
+      })
+    );
   }
 
   return (
