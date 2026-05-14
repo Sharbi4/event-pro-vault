@@ -319,10 +319,10 @@ export default function Contact() {
                       <div>
                         <h3 className="font-semibold text-foreground mb-1">Phone</h3>
                         <a 
-                          href="tel:+18005551234" 
+                          href="tel:+17257559598" 
                           className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                         >
-                          1-800-555-1234
+                          +1 (725) 755-9598 · Available 24/7
                         </a>
                       </div>
                     </div>
