@@ -10,6 +10,7 @@ import { BookingTypeCards } from '@/components/home/BookingTypeCards';
 import { TrustRow } from '@/components/home/TrustRow';
 import { VendorCTA } from '@/components/home/VendorCTA';
 import { FinalCTA } from '@/components/home/FinalCTA';
+import { BecomeProPopup } from '@/components/home/BecomeProPopup';
 import { CustomerJourneyStrip } from '@/components/book-or-get-booked/CustomerJourneyStrip';
 import { useSEO } from '@/hooks/useSEO';
 import { WebsiteJsonLd, OrganizationJsonLd } from '@/components/seo/JsonLd';
@@ -43,6 +44,7 @@ const Index = () => {
       <TrustRow />
       <VendorCTA />
       <FinalCTA />
+      <BecomeProPopup />
     </Layout>
   );
 };
