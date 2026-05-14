@@ -46,6 +46,7 @@ import { CookieConsentBanner } from "./components/shared/CookieConsentBanner";
 import NotFound from "./pages/NotFound";
 import CityCategory from "./pages/CityCategory";
 import AdminAnalytics from "./pages/AdminAnalytics";
+import AdminVendorOutreach from "./pages/AdminVendorOutreach";
 import BookingStatus from "./pages/BookingStatus";
 import PrivatePackageReview from "./pages/PrivatePackageReview";
 import ReferralRedirect from "./pages/ReferralRedirect";
@@ -110,6 +111,7 @@ const App = () => (
               <Route path="/cancellation" element={<CancellationPolicy />} />
               {/* Admin routes */}
               <Route path="/admin/analytics" element={<AdminAnalytics />} />
+              <Route path="/admin/vendor-outreach" element={<AdminVendorOutreach />} />
               {/* Booking Status Lookup */}
               <Route path="/booking-status" element={<BookingStatus />} />
               <Route path="/private-package/:id" element={<PrivatePackageReview />} />
