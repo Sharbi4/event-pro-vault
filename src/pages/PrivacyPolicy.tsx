@@ -1,6 +1,12 @@
 import { Layout } from '@/components/layout/Layout';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function PrivacyPolicy() {
+  useSEO({
+    title: 'Privacy Policy | EventPro by Vendibook',
+    description: 'How EventPro by Vendibook collects, uses, and protects your information when you book event services or list as an Event Pro.',
+    canonical: 'https://eventpro.vendibook.com/privacy',
+  });
   return (
     <Layout>
       <div className="container mx-auto px-4 py-12 lg:py-16 max-w-4xl">

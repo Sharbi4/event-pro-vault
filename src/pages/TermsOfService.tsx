@@ -1,6 +1,12 @@
 import { Layout } from '@/components/layout/Layout';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function TermsOfService() {
+  useSEO({
+    title: 'Terms of Service | EventPro by Vendibook',
+    description: 'The terms governing your use of EventPro by Vendibook as a customer or Event Pro, including bookings, payments, and account rules.',
+    canonical: 'https://eventpro.vendibook.com/terms',
+  });
   return (
     <Layout>
       <div className="container mx-auto px-4 py-12 lg:py-16 max-w-4xl">

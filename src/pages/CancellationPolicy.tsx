@@ -1,8 +1,14 @@
 import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Shield, ShieldCheck, ShieldAlert, Info, Clock, DollarSign } from 'lucide-react';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function CancellationPolicy() {
+  useSEO({
+    title: 'Cancellation & Refund Policy | EventPro by Vendibook',
+    description: 'Flexible, Standard, and Strict cancellation tiers for EventPro bookings. See refund timing, deposits, and platform fee rules before you book.',
+    canonical: 'https://eventpro.vendibook.com/cancellation',
+  });
   return (
     <Layout>
       <div className="container mx-auto px-4 py-12 lg:py-16 max-w-4xl">
