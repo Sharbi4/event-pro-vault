@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { ArrowRight, DollarSign, Calendar, Users } from 'lucide-react';
+import { ArrowRight, DollarSign, Calendar, Users, Sparkles, Zap } from 'lucide-react';
 
 export function VendorCTA() {
   return (
