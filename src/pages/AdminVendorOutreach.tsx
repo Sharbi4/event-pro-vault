@@ -264,11 +264,16 @@ export default function AdminVendorOutreach() {
             {results.length > 0 && (
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
+                  <CardTitle className="flex items-center justify-between gap-2">
                     <span>Send log</span>
-                    <span className="text-sm font-normal text-muted-foreground">
-                      {sentCount} queued · {failedCount} failed
-                    </span>
+                    <div className="flex items-center gap-3">
+                      <span className="text-sm font-normal text-muted-foreground">
+                        {sentCount} sent · {queuedCount} queued · {failedCount} failed
+                      </span>
+                      <Button size="sm" variant="outline" onClick={() => refreshStatus()} disabled={sending}>
+                        Refresh
+                      </Button>
+                    </div>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="max-h-[420px] overflow-y-auto">
