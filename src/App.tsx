@@ -111,6 +111,7 @@ const App = () => (
               <Route path="/cancellation" element={<CancellationPolicy />} />
               {/* Admin routes */}
               <Route path="/admin/analytics" element={<AdminAnalytics />} />
+              <Route path="/admin/vendor-outreach" element={<AdminVendorOutreach />} />
               {/* Booking Status Lookup */}
               <Route path="/booking-status" element={<BookingStatus />} />
               <Route path="/private-package/:id" element={<PrivatePackageReview />} />
