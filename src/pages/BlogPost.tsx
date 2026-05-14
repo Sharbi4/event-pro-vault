@@ -116,9 +116,9 @@ export default function BlogPost() {
           />
           <BreadcrumbJsonLd
             items={[
-              { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
-              { name: 'Blog', url: 'https://event-pro-vault.lovable.app/blog' },
-              { name: post.title, url: `https://event-pro-vault.lovable.app/blog/${post.slug}` },
+              { name: 'Home', url: 'https://eventpro.vendibook.com/' },
+              { name: 'Blog', url: 'https://eventpro.vendibook.com/blog' },
+              { name: post.title, url: `https://eventpro.vendibook.com/blog/${post.slug}` },
             ]}
           />
         </>

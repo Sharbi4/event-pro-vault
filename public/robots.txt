@@ -1,5 +1,5 @@
 # EventPro by Vendibook - Robots.txt
-# https://event-pro-vault.lovable.app
+# https://eventpro.vendibook.com
 
 # Primary search engines
 User-agent: Googlebot
