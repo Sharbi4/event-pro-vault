@@ -36,7 +36,7 @@ export default function Blog() {
   useSEO({
     title: 'Event Pro Blog - Tips for Hosts & Event Pros',
     description: 'Expert tips for event planning, Event Pro success strategies, and industry insights. Learn how to create unforgettable events.',
-    canonical: 'https://event-pro-vault.lovable.app/blog',
+    canonical: 'https://eventpro.vendibook.com/blog',
     type: 'website',
     keywords: [
       'event planning tips',
@@ -52,8 +52,8 @@ export default function Blog() {
     <Layout>
       {/* Breadcrumb Schema */}
       <BreadcrumbJsonLd items={[
-        { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
-        { name: 'Blog', url: 'https://event-pro-vault.lovable.app/blog' },
+        { name: 'Home', url: 'https://eventpro.vendibook.com/' },
+        { name: 'Blog', url: 'https://eventpro.vendibook.com/blog' },
       ]} />
       
       <div className="min-h-screen bg-background">

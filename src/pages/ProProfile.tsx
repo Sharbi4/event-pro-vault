@@ -153,9 +153,9 @@ export default function ProProfile() {
       />
       <BreadcrumbJsonLd
         items={[
-          { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
-          { name: 'Browse', url: 'https://event-pro-vault.lovable.app/browse' },
-          { name: profile.displayName || profile.businessName || 'Event Pro', url: `https://event-pro-vault.lovable.app/pro/${resolvedUserId}` },
+          { name: 'Home', url: 'https://eventpro.vendibook.com/' },
+          { name: 'Browse', url: 'https://eventpro.vendibook.com/browse' },
+          { name: profile.displayName || profile.businessName || 'Event Pro', url: `https://eventpro.vendibook.com/pro/${resolvedUserId}` },
         ]}
       />
       

@@ -378,8 +378,8 @@ export default function FAQ() {
       {/* Structured Data for FAQ Rich Snippets */}
       <FAQJsonLd faqs={faqJsonLdData} />
       <BreadcrumbJsonLd items={[
-        { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
-        { name: 'FAQ', url: 'https://event-pro-vault.lovable.app/faq' },
+        { name: 'Home', url: 'https://eventpro.vendibook.com/' },
+        { name: 'FAQ', url: 'https://eventpro.vendibook.com/faq' },
       ]} />
       
       {/* Zendesk Chat Widget */}

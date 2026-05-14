@@ -1,154 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
-  
-  <!-- Homepage -->
-  <url>
-    <loc>https://event-pro-vault.lovable.app/</loc>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
-  </url>
-  
-  <!-- Browse/Discovery -->
-  <url>
-    <loc>https://event-pro-vault.lovable.app/browse</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  
-  <!-- Markets -->
-  <url>
-    <loc>https://event-pro-vault.lovable.app/markets</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <!-- Become a Pro (High conversion page) -->
-  <url>
-    <loc>https://event-pro-vault.lovable.app/become-a-pro</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.9</priority>
-  </url>
-  
-  <!-- Learn Hub -->
-  <url>
-    <loc>https://event-pro-vault.lovable.app/learn</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://event-pro-vault.lovable.app/learn/event-pros</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://event-pro-vault.lovable.app/learn/markets</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <!-- Blog -->
-  <url>
-    <loc>https://event-pro-vault.lovable.app/blog</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <!-- FAQ -->
-  <url>
-    <loc>https://event-pro-vault.lovable.app/faq</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.7</priority>
-  </url>
-  
-  <!-- Support -->
-  <url>
-    <loc>https://event-pro-vault.lovable.app/support</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <!-- Contact -->
-  <url>
-    <loc>https://event-pro-vault.lovable.app/contact</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <!-- Category Browse Pages -->
-  <url>
-    <loc>https://event-pro-vault.lovable.app/browse?category=Photography</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://event-pro-vault.lovable.app/browse?category=DJ</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://event-pro-vault.lovable.app/browse?category=Catering</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://event-pro-vault.lovable.app/browse?category=Food+Truck</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://event-pro-vault.lovable.app/browse?category=Bartending</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://event-pro-vault.lovable.app/browse?category=Decorations</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://event-pro-vault.lovable.app/browse?category=Entertainment</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <url>
-    <loc>https://event-pro-vault.lovable.app/browse?category=Rentals</loc>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  
-  <!-- Legal Pages -->
-  <url>
-    <loc>https://event-pro-vault.lovable.app/terms</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  
-  <url>
-    <loc>https://event-pro-vault.lovable.app/privacy</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  
-  <url>
-    <loc>https://event-pro-vault.lovable.app/cancellation</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
-  </url>
-  
-  <url>
-    <loc>https://event-pro-vault.lovable.app/vendor-terms</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.4</priority>
-  </url>
-  
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://eventpro.vendibook.com/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://eventpro.vendibook.com/browse</loc><changefreq>daily</changefreq><priority>0.9</priority></url>
+  <url><loc>https://eventpro.vendibook.com/discover</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://eventpro.vendibook.com/planner</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://eventpro.vendibook.com/become-a-pro</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://eventpro.vendibook.com/learn</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://eventpro.vendibook.com/learn/event-pros</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://eventpro.vendibook.com/blog</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://eventpro.vendibook.com/faq</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://eventpro.vendibook.com/support</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://eventpro.vendibook.com/contact</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://eventpro.vendibook.com/how-it-works</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://eventpro.vendibook.com/book-or-get-booked</loc><changefreq>monthly</changefreq><priority>0.6</priority></url>
+  <url><loc>https://eventpro.vendibook.com/browse?category=Photography</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://eventpro.vendibook.com/browse?category=DJ</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://eventpro.vendibook.com/browse?category=Catering</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://eventpro.vendibook.com/browse?category=Food+Truck</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://eventpro.vendibook.com/browse?category=Bartending</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://eventpro.vendibook.com/browse?category=Decorations</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://eventpro.vendibook.com/browse?category=Entertainment</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://eventpro.vendibook.com/browse?category=Rentals</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://eventpro.vendibook.com/terms</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://eventpro.vendibook.com/privacy</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
+  <url><loc>https://eventpro.vendibook.com/cancellation</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://eventpro.vendibook.com/vendor-terms</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
 </urlset>

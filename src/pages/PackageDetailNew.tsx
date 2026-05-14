@@ -124,9 +124,9 @@ export default function PackageDetail() {
       />
       <BreadcrumbJsonLd
         items={[
-          { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
-          { name: 'Browse', url: 'https://event-pro-vault.lovable.app/browse' },
-          { name: packageData.name, url: `https://event-pro-vault.lovable.app/package/${packageData.id}` },
+          { name: 'Home', url: 'https://eventpro.vendibook.com/' },
+          { name: 'Browse', url: 'https://eventpro.vendibook.com/browse' },
+          { name: packageData.name, url: `https://eventpro.vendibook.com/package/${packageData.id}` },
         ]}
       />
       

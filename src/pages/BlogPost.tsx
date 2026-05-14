@@ -32,7 +32,7 @@ export default function BlogPost() {
   useSEO({
     title: post?.title || 'Blog - EventPro',
     description: post?.excerpt || 'Read the latest articles about event planning, Event Pro tips, and industry insights.',
-    canonical: post ? `https://event-pro-vault.lovable.app/blog/${post.slug}` : undefined,
+    canonical: post ? `https://eventpro.vendibook.com/blog/${post.slug}` : undefined,
     type: 'article',
     image: post?.cover_image_url || undefined,
     author: post?.author_name,
@@ -116,9 +116,9 @@ export default function BlogPost() {
           />
           <BreadcrumbJsonLd
             items={[
-              { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
-              { name: 'Blog', url: 'https://event-pro-vault.lovable.app/blog' },
-              { name: post.title, url: `https://event-pro-vault.lovable.app/blog/${post.slug}` },
+              { name: 'Home', url: 'https://eventpro.vendibook.com/' },
+              { name: 'Blog', url: 'https://eventpro.vendibook.com/blog' },
+              { name: post.title, url: `https://eventpro.vendibook.com/blog/${post.slug}` },
             ]}
           />
         </>

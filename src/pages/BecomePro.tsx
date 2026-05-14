@@ -92,8 +92,8 @@ export default function BecomePro() {
     <Layout>
       {/* Breadcrumb Schema */}
       <BreadcrumbJsonLd items={[
-        { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
-        { name: 'Become a Pro', url: 'https://event-pro-vault.lovable.app/become-a-pro' },
+        { name: 'Home', url: 'https://eventpro.vendibook.com/' },
+        { name: 'Become a Pro', url: 'https://eventpro.vendibook.com/become-a-pro' },
       ]} />
       
       {/* Hero */}
