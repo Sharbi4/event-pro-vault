@@ -65,16 +65,16 @@ Ceres / Noodies Tucson, Tucson, cerestucson@gmail.com
 Noodies Tucson, Tucson, noodiestucson@gmail.com
 Tucson Mobile Bartending, Tucson, TucsonMobileBartending@gmail.com`;
 
-const EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function parseList(raw: string): Recipient[] {
-  const lines = raw.split(/\\r?\\n/).map((l) => l.trim()).filter(Boolean);
+  const lines = raw.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const out: Recipient[] = [];
   for (const line of lines) {
     // Skip header lines
-    if (/^business[\\s,]/i.test(line)) continue;
+    if (/^business[\s,]/i.test(line)) continue;
     // Split on commas or tabs, take last segment as email
-    const parts = line.split(/[\\t,]+/).map((p) => p.trim()).filter(Boolean);
+    const parts = line.split(/[\t,]+/).map((p) => p.trim()).filter(Boolean);
     if (parts.length < 2) continue;
     const email = parts[parts.length - 1];
     if (!EMAIL_RE.test(email)) continue;
