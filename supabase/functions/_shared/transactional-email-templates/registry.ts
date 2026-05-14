@@ -24,6 +24,7 @@ import { template as refundIssued } from './refund-issued.tsx'
 import { template as contactFormConfirmation } from './contact-form-confirmation.tsx'
 import { template as vendorNewRequest } from './vendor-new-request.tsx'
 import { template as supportEscalation } from './support-escalation.tsx'
+import { template as vendorOutreachInvite } from './vendor-outreach-invite.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'booking-confirmation': bookingConfirmation,
