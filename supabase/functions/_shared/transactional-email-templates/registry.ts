@@ -42,4 +42,5 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'contact-form-confirmation': contactFormConfirmation,
   'vendor-new-request': vendorNewRequest,
   'support-escalation': supportEscalation,
+  'vendor-outreach-invite': vendorOutreachInvite,
 }
