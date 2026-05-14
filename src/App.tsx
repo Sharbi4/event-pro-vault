@@ -46,6 +46,7 @@ import { CookieConsentBanner } from "./components/shared/CookieConsentBanner";
 import NotFound from "./pages/NotFound";
 import CityCategory from "./pages/CityCategory";
 import AdminAnalytics from "./pages/AdminAnalytics";
+import AdminVendorOutreach from "./pages/AdminVendorOutreach";
 import BookingStatus from "./pages/BookingStatus";
 import PrivatePackageReview from "./pages/PrivatePackageReview";
 import ReferralRedirect from "./pages/ReferralRedirect";
