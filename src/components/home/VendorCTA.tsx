@@ -54,12 +54,27 @@ export function VendorCTA() {
             </div>
           </div>
 
-          <Link to="/become-a-pro">
-            <Button variant="gradient" size="xl" className="gap-2 shimmer-effect">
-              Start Listing Free
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            {/* Primary - Become an Event Pro */}
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary via-accent to-primary rounded-full blur-lg opacity-75 group-hover:opacity-100 animate-pulse transition-opacity" />
+              <Link to="/become-a-pro" className="relative block">
+                <Button variant="gradient" size="xl" className="gap-2 shimmer-effect rounded-full font-bold text-base shadow-2xl">
+                  <Sparkles className="w-5 h-5" />
+                  Become an Event Pro
+                  <ArrowRight className="w-5 h-5" />
+                </Button>
+              </Link>
+            </div>
+
+            {/* Secondary - Get Booked Now */}
+            <Link to="/eventpro-onboarding">
+              <Button variant="outline" size="xl" className="gap-2 rounded-full font-bold text-base border-2 border-foreground hover:bg-foreground hover:text-background transition-colors">
+                <Zap className="w-5 h-5" />
+                Get Booked Now
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </section>
