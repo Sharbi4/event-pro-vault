@@ -117,13 +117,13 @@ export default function Support() {
                 </div>
                 <h3 className="font-semibold text-foreground mb-1">Call support</h3>
                 <a 
-                  href="tel:18778836342" 
+                  href="tel:+17257559598" 
                   className="text-lg font-medium text-foreground block"
                 >
-                  1-877-883-6342
+                  +1 (725) 755-9598
                 </a>
-                <p className="text-sm text-muted-foreground mb-4">(1-877-8-VENDI-2)</p>
-                <a href="tel:18778836342">
+                <p className="text-sm text-muted-foreground mb-4">Available 24/7</p>
+                <a href="tel:+17257559598">
                   <Button variant="outline" className="w-full">
                     Call now
                   </Button>
