@@ -1,0 +1,23 @@
+# EventPro by Vendibook
+
+> Marketplace to book food trucks, caterers, mobile bartenders, private chefs, and dessert pros for events — search by date, time, and location with real-time availability and secure checkout.
+
+## Pages
+
+- [Home](/): Search and book event services by date, time, and location.
+- [Browse](/browse): Browse all available packages with filters.
+- [Discover](/discover): Swipe-style discovery of available packages.
+- [Become an Event Pro](/become-a-pro): Sign up to list services and accept bookings.
+- [Learn Hub](/learn): How EventPro works for bookers and pros.
+- [For Event Pros](/learn/event-pros): Guide for vendors getting started.
+- [Blog](/blog): Event planning tips and Event Pro insights.
+- [FAQ](/faq): Answers about bookings, cancellations, refunds, and payouts.
+- [Support](/support): Help with bookings, refunds, and account access.
+- [Contact](/contact): Reach the EventPro team.
+
+## Optional
+
+- [Cancellation Policy](/cancellation): Flexible / Standard / Strict refund tiers.
+- [Privacy Policy](/privacy)
+- [Terms of Service](/terms)
+- [Event Pro Terms](/vendor-terms)

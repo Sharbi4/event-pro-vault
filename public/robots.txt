@@ -67,4 +67,4 @@ Disallow: /*?*page=
 Disallow: /*?*filter=
 
 # Sitemap location
-Sitemap: https://event-pro-vault.lovable.app/sitemap.xml
+Sitemap: https://eventpro.vendibook.com/sitemap.xml
