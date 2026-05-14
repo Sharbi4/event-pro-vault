@@ -104,8 +104,8 @@ export default function Learn() {
     <Layout>
       {/* Breadcrumb Schema */}
       <BreadcrumbJsonLd items={[
-        { name: 'Home', url: 'https://event-pro-vault.lovable.app/' },
-        { name: 'Learn', url: 'https://event-pro-vault.lovable.app/learn' },
+        { name: 'Home', url: 'https://eventpro.vendibook.com/' },
+        { name: 'Learn', url: 'https://eventpro.vendibook.com/learn' },
       ]} />
       
       <TooltipProvider>

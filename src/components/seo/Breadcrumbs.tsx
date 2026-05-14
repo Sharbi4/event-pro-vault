@@ -12,7 +12,7 @@ interface BreadcrumbsProps {
   className?: string;
 }
 
-const BASE_URL = 'https://event-pro-vault.lovable.app';
+const BASE_URL = 'https://eventpro.vendibook.com';
 
 /**
  * Visual breadcrumb navigation with JSON-LD schema

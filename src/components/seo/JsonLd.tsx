@@ -53,8 +53,8 @@ export function OrganizationJsonLd() {
       '@context': 'https://schema.org',
       '@type': 'Organization',
       name: 'EventPro by Vendibook',
-      url: 'https://event-pro-vault.lovable.app',
-      logo: 'https://event-pro-vault.lovable.app/favicon.png',
+      url: 'https://eventpro.vendibook.com',
+      logo: 'https://eventpro.vendibook.com/favicon.png',
       description: 'Premium event Event Pro marketplace. Book photographers, DJs, caterers, food trucks and more.',
       foundingDate: '2024',
       contactPoint: {
