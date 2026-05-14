@@ -13,7 +13,7 @@ export const SEO_CONFIG = {
   // Contact info for structured data
   contact: {
     email: 'support@vendibook.com',
-    phone: '1-877-883-6342',
+    phone: '+1-725-755-9598',
   },
   
   // Primary keywords (food & beverage focused)
@@ -84,7 +84,7 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
     },
     support: {
       title: `Support | ${siteName}`,
-      description: 'Get help with bookings, refunds, payouts, and account access. Email support@vendibook.com or call 1-877-883-6342.',
+      description: 'Get help with bookings, refunds, payouts, and account access. Email support@vendibook.com or call +1 (725) 755-9598, available 24/7.',
       canonical: `${baseUrl}/support`,
     },
     contact: {
