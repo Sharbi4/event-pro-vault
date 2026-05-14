@@ -340,7 +340,39 @@ export function trackBookingFailed(params: {
   });
 }
 
-// AUTH EVENTS
+// AUTH / SIGNUP FUNNEL EVENTS
+// Funnel order:
+//   1. signup_view              → user lands on auth page in signup mode
+//   2. signup_method_selected   → toggled to signup tab or chose google
+//   3. signup_form_started      → first time a signup field is touched
+//   4. signup_submit_attempt    → form submitted (passed client validation)
+//   5. signup_validation_error  → blocked by client-side zod validation
+//   6. signup_failed            → server returned an error
+//   7. signup_completed         → SIGNED_IN event for a fresh user
+export function trackSignupView(source: string) {
+  track('signup_view', { metadata: { source } });
+}
+
+export function trackSignupMethodSelected(method: 'email' | 'google', source: string) {
+  track('signup_method_selected', { metadata: { method, source } });
+}
+
+export function trackSignupFormStarted(source: string, field: string) {
+  track('signup_form_started', { metadata: { source, field } });
+}
+
+export function trackSignupValidationError(source: string, reason: string) {
+  track('signup_validation_error', { metadata: { source, reason } });
+}
+
+export function trackSignupSubmitAttempt(source: string, method: 'email' | 'google') {
+  track('signup_submit_attempt', { metadata: { source, method } });
+}
+
+export function trackSignupFailed(source: string, reason: string, method: 'email' | 'google' = 'email') {
+  track('signup_failed', { metadata: { source, reason, method } });
+}
+
 export function trackSignupStarted(source?: string) {
   track('signup_started', {
     metadata: { source },
