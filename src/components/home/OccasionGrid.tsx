@@ -3,16 +3,20 @@ import apartmentImg from '@/assets/home/occasion-apartment.jpg';
 import officeImg from '@/assets/home/occasion-office.jpg';
 import birthdayImg from '@/assets/home/occasion-birthday.jpg';
 import weddingImg from '@/assets/home/occasion-wedding.jpg';
+import graduationImg from '@/assets/home/occasion-graduation.jpg';
+import corporateImg from '@/assets/home/occasion-corporate.jpg';
+import schoolImg from '@/assets/home/occasion-school.jpg';
+import neighborhoodImg from '@/assets/home/occasion-neighborhood.jpg';
 
 const OCCASIONS = [
   { title: 'Apartment event', q: 'apartment', image: apartmentImg },
   { title: 'Office lunch', q: 'office lunch', image: officeImg },
   { title: 'Birthday party', q: 'birthday', image: birthdayImg },
   { title: 'Wedding', q: 'wedding', image: weddingImg },
-  { title: 'Graduation', q: 'graduation', image: birthdayImg },
-  { title: 'Corporate event', q: 'corporate', image: officeImg },
-  { title: 'School event', q: 'school', image: apartmentImg },
-  { title: 'Neighborhood', q: 'neighborhood', image: weddingImg },
+  { title: 'Graduation', q: 'graduation', image: graduationImg },
+  { title: 'Corporate event', q: 'corporate', image: corporateImg },
+  { title: 'School event', q: 'school', image: schoolImg },
+  { title: 'Neighborhood', q: 'neighborhood', image: neighborhoodImg },
 ];
 
 export function OccasionGrid() {
