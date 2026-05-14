@@ -40,7 +40,7 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
   const pages: Record<string, { title: string; description: string; canonical: string; noIndex?: boolean }> = {
     // Public pages
     home: {
-      title: `${siteName} | Book Food Trucks, Caterers & Mobile Bartenders`,
+      title: `EventPro — Book Food Trucks, Caterers & Bartenders`,
       description: 'Book food trucks, caterers, mobile bartenders, bakers and dessert Event Pros for your next event — search by date, time, and location.',
       canonical: baseUrl,
     },
@@ -55,14 +55,14 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
       canonical: `${baseUrl}/learn/event-pros`,
     },
     learnMarkets: {
-      title: `For Market Managers — Fill Event Pro Spots | ${siteName}`,
+      title: `For Market Managers — Fill Spots | ${siteName}`,
       description: 'Create slot types, post market days, and let Event Pros reserve instantly. Show remaining spots to drive faster bookings.',
       canonical: `${baseUrl}/learn/markets`,
     },
     browse: {
       title: dynamicData?.category
         ? `Book ${dynamicData.category} Near You | ${siteName}`
-        : `Find Food Trucks & Mobile Food Event Pros | ${siteName}`,
+        : `Find Food Trucks & Mobile Food Pros | ${siteName}`,
       description: dynamicData?.category
         ? `Find available ${dynamicData.category} packages for your date and time. Compare pricing, travel range, and book online or pay in cash.`
         : 'Search food trucks, caterers, mobile bartenders, bakers and beverage carts by date, time, and location. Real-time availability.',
@@ -98,7 +98,7 @@ export function generatePageSEO(page: string, dynamicData?: Record<string, strin
       canonical: `${baseUrl}/become-a-pro`,
     },
     blog: {
-      title: `Blog — Event Planning Tips & Insights | ${siteName}`,
+      title: `Blog — Event Tips & Insights | ${siteName}`,
       description: 'Expert tips for planning events and growing your event business. Guides for bookers and Event Pros on the EventPro marketplace.',
       canonical: `${baseUrl}/blog`,
     },

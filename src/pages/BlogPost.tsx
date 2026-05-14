@@ -32,7 +32,7 @@ export default function BlogPost() {
   useSEO({
     title: post?.title || 'Blog - EventPro',
     description: post?.excerpt || 'Read the latest articles about event planning, Event Pro tips, and industry insights.',
-    canonical: post ? `https://event-pro-vault.lovable.app/blog/${post.slug}` : undefined,
+    canonical: post ? `https://eventpro.vendibook.com/blog/${post.slug}` : undefined,
     type: 'article',
     image: post?.cover_image_url || undefined,
     author: post?.author_name,
