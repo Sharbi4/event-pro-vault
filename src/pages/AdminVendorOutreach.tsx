@@ -282,15 +282,17 @@ export default function AdminVendorOutreach() {
                       <li key={i} className="py-2 flex items-center gap-3 text-sm">
                         {r.status === 'failed' ? (
                           <XCircle className="w-4 h-4 text-destructive shrink-0" />
-                        ) : (
+                        ) : r.status === 'sent' ? (
                           <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+                        ) : (
+                          <CheckCircle2 className="w-4 h-4 text-amber-500 shrink-0" />
                         )}
                         <div className="flex-1 min-w-0">
                           <div className="font-medium truncate">{r.recipient.business}</div>
                           <div className="text-xs text-muted-foreground truncate">{r.recipient.email}</div>
                           {r.error && <div className="text-xs text-destructive mt-0.5">{r.error}</div>}
                         </div>
-                        <Badge variant={r.status === 'failed' ? 'destructive' : 'secondary'}>
+                        <Badge variant={r.status === 'failed' ? 'destructive' : r.status === 'sent' ? 'default' : 'secondary'}>
                           {r.status}
                         </Badge>
                       </li>
