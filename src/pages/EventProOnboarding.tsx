@@ -209,7 +209,7 @@ export default function EventProOnboarding() {
       <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Please sign in to continue</h1>
-          <Button onClick={() => navigate('/auth?returnTo=/eventpro-onboarding')}>
+          <Button onClick={() => navigate('/auth/pro?returnTo=/eventpro-onboarding')}>
             Sign In
           </Button>
         </div>
