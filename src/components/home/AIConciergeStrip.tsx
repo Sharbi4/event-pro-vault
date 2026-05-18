@@ -22,7 +22,7 @@ export function AIConciergeStrip() {
           <div className="flex flex-col lg:flex-row lg:items-center gap-6">
             <div className="flex-1">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/15 text-primary text-xs font-semibold mb-3">
-                <Sparkles className="w-3.5 h-3.5" /> EventPro Assistant
+                <Sparkles className="w-3.5 h-3.5" /> Event Pro Assistant
               </div>
               <h2 className="font-display text-2xl md:text-3xl font-bold mb-2">
                 Not sure what fits your event?

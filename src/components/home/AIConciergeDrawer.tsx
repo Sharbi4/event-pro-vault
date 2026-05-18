@@ -109,7 +109,7 @@ export function AIConciergeDrawer({ open, onOpenChange }: Props) {
             <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-primary" />
             </div>
-            <SheetTitle>EventPro Assistant</SheetTitle>
+            <SheetTitle>Event Pro Assistant</SheetTitle>
           </div>
           <SheetDescription>Tell me about your event and I'll suggest the best Event Pro type and packages.</SheetDescription>
         </SheetHeader>
