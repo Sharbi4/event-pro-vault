@@ -8,13 +8,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     
-    <!-- Google Analytics with Consent Mode v2 -->
+    <!-- Google Analytics (G-LQT0HFQPH9) + Google Ads (AW-17121224552) with Consent Mode v2 -->
+    <!-- Loads on every domain this app is served from, including eventpro.vendibook.com -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LQT0HFQPH9"></script>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17121224552"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
-      
-      // Default consent - deny all until user consents
+
+      // Default consent — deny storage until user accepts the cookie banner.
+      // url_passthrough + ads_data_redaction keep cookieless pings flowing,
+      // so GA4 Realtime still shows traffic before consent is granted.
       gtag('consent', 'default', {
         'analytics_storage': 'denied',
         'ad_storage': 'denied',
@@ -22,12 +26,13 @@
         'ad_personalization': 'denied',
         'wait_for_update': 500
       });
-      
+      gtag('set', 'url_passthrough', true);
+      gtag('set', 'ads_data_redaction', true);
+
       gtag('js', new Date());
-      gtag('config', 'G-LQT0HFQPH9');
+      gtag('config', 'G-LQT0HFQPH9', { send_page_view: true });
       gtag('config', 'AW-17121224552');
     </script>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-17121224552"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="/favicon.png" />
