@@ -137,9 +137,6 @@ export function useEventProOnboarding() {
     'profile-basics',
     'categories',
     'service-area',
-    'media',
-    'packages',
-    'availability',
     'payout',
     'review',
   ];
