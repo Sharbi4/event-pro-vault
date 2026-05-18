@@ -43,6 +43,7 @@ import TermsOfService from "./pages/TermsOfService";
 import VendorTerms from "./pages/VendorTerms";
 import CancellationPolicy from "./pages/CancellationPolicy";
 import { CookieConsentBanner } from "./components/shared/CookieConsentBanner";
+import { NewsletterSideTab } from "./components/marketing/NewsletterSideTab";
 import NotFound from "./pages/NotFound";
 import CityCategory from "./pages/CityCategory";
 import AdminAnalytics from "./pages/AdminAnalytics";
