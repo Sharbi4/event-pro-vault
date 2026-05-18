@@ -13,7 +13,15 @@ import {
   Send,
   CheckCircle,
   HelpCircle,
-  Clock
+  Clock,
+  MapPin,
+  Shield,
+  Zap,
+  Copy,
+  Check,
+  Instagram,
+  Linkedin,
+  MessageSquare
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
