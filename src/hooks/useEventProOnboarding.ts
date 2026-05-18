@@ -443,18 +443,11 @@ export function useEventProOnboarding() {
   const canPublish = (): { canPublish: boolean; missing: string[] } => {
     const missing: string[] = [];
 
-    if (!state.profileBasics.displayName) missing.push('Display Name');
+    if (!state.profileBasics.displayName) missing.push('Business name');
     if (!state.profileBasics.username) missing.push('Username (public URL)');
-    if (!state.profileBasics.shortBio) missing.push('Short Bio');
+    if (!state.profileBasics.shortBio) missing.push('Short bio');
     if (state.categories.length === 0) missing.push('At least 1 category');
-    if (!state.serviceArea.formattedAddress) missing.push('Service Area');
-    if (state.mediaItems.filter(m => m.type === 'image').length === 0) missing.push('At least 1 photo');
-
-    // Weekly availability: at least one enabled day, unless by-request-only
-    const hasEnabledDay = state.weeklyAvailability.some(d => d.isEnabled);
-    if (!state.bufferSettings.availableByRequestOnly && !hasEnabledDay) {
-      missing.push('Weekly availability (enable at least 1 day)');
-    }
+    if (!state.serviceArea.formattedAddress) missing.push('Service area');
 
     // Payment method must be chosen
     if (!state.paymentMethod) missing.push('Payment method');
