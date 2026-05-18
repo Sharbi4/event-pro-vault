@@ -35,6 +35,9 @@ interface SpatialDrawerProps {
     vendor_user_id?: string;
     payment_options?: string;
     vendor_email?: string | null; // Added for notifications
+    // Fulfillment — determines whether a service location is needed
+    pickup_only?: boolean | null;
+    fulfillment_options?: string[] | null;
     // Travel-fee inputs (all optional — quote degrades gracefully if missing)
     vendor_lat?: number | null;
     vendor_lng?: number | null;
