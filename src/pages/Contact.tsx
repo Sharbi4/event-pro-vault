@@ -296,43 +296,91 @@ export default function Contact() {
               </motion.div>
 
               {/* Contact Info Sidebar */}
-              <motion.div variants={itemVariants} className="lg:col-span-2 space-y-6">
-                {/* Email */}
-                <Card variant="glass" className="border-border/50">
+              <motion.div variants={itemVariants} className="lg:col-span-2 space-y-4">
+                {/* Trust strip */}
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="rounded-lg border border-border/50 bg-card/30 p-3 text-center">
+                    <Zap className="w-4 h-4 text-primary mx-auto mb-1" />
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Avg reply</p>
+                    <p className="text-xs font-semibold text-foreground">&lt; 2 hrs</p>
+                  </div>
+                  <div className="rounded-lg border border-border/50 bg-card/30 p-3 text-center">
+                    <Clock className="w-4 h-4 text-primary mx-auto mb-1" />
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Phone</p>
+                    <p className="text-xs font-semibold text-foreground">24 / 7</p>
+                  </div>
+                  <div className="rounded-lg border border-border/50 bg-card/30 p-3 text-center">
+                    <Shield className="w-4 h-4 text-primary mx-auto mb-1" />
+                    <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Secure</p>
+                    <p className="text-xs font-semibold text-foreground">Encrypted</p>
+                  </div>
+                </div>
+
+                {/* Phone — primary */}
+                <Card variant="glass" className="border-border/50 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 h-full w-1 bg-gradient-to-b from-primary to-accent" />
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                        <Mail className="w-5 h-5 text-primary" />
+                      <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <Phone className="w-5 h-5 text-primary" />
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground mb-1">Email</h3>
-                        <a 
-                          href="mailto:support@vendibook.com" 
-                          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h3 className="font-semibold text-foreground">Call us</h3>
+                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-green-500/10 text-green-500 border border-green-500/20">
+                            24/7 LIVE
+                          </span>
+                        </div>
+                        <a
+                          href="tel:+17257559598"
+                          className="text-base font-semibold text-foreground hover:text-primary transition-colors block"
                         >
-                          support@vendibook.com
+                          +1 (725) 755-9598
                         </a>
+                        <p className="text-xs text-muted-foreground mt-1">Toll-free in US & Canada · No hold queue</p>
+                        <div className="flex gap-2 mt-3">
+                          <a href="tel:+17257559598" className="flex-1">
+                            <Button size="sm" variant="darkShine" className="w-full gap-1.5">
+                              <Phone className="w-3.5 h-3.5" /> Call
+                            </Button>
+                          </a>
+                          <a href="sms:+17257559598" className="flex-1">
+                            <Button size="sm" variant="outline" className="w-full gap-1.5">
+                              <MessageSquare className="w-3.5 h-3.5" /> Text
+                            </Button>
+                          </a>
+                        </div>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                {/* Phone */}
+                {/* Email */}
                 <Card variant="glass" className="border-border/50">
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
-                        <Phone className="w-5 h-5 text-primary" />
+                      <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <Mail className="w-5 h-5 text-primary" />
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-foreground mb-1">Phone · 24/7</h3>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-semibold text-foreground mb-1">Email</h3>
                         <a
-                          href="tel:+17257559598"
-                          className="text-sm text-muted-foreground hover:text-foreground transition-colors block"
+                          href="mailto:support@vendibook.com"
+                          className="text-sm text-foreground hover:text-primary transition-colors break-all block"
                         >
-                          +1 (725) 755-9598
+                          support@vendibook.com
                         </a>
-                        <p className="text-xs text-muted-foreground mt-1">Available around the clock, every day.</p>
+                        <p className="text-xs text-muted-foreground mt-1">Replies typically within 2 hours</p>
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            await navigator.clipboard.writeText('support@vendibook.com');
+                            toast.success('Email copied');
+                          }}
+                          className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mt-2"
+                        >
+                          <Copy className="w-3 h-3" /> Copy address
+                        </button>
                       </div>
                     </div>
                   </CardContent>
@@ -342,19 +390,20 @@ export default function Contact() {
                 <Card variant="glass" className="border-border/50">
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <div className="w-11 h-11 rounded-full bg-primary/10 flex items-center justify-center shrink-0 relative">
                         <MessageCircle className="w-5 h-5 text-primary" />
+                        <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-500 ring-2 ring-background animate-pulse" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-foreground mb-1">Live Chat</h3>
+                        <h3 className="font-semibold text-foreground mb-1">Live chat</h3>
                         <p className="text-sm text-muted-foreground mb-3">
-                          Chat with our Event Pro support agent — instant answers, 24/7.
+                          Instant answers from our Event Pro concierge.
                         </p>
                         <Button
                           size="sm"
                           variant="darkShine"
                           onClick={() => window.dispatchEvent(new Event('open-support-chat'))}
-                          className="gap-2"
+                          className="gap-2 w-full"
                         >
                           <MessageCircle className="w-4 h-4" />
                           Start chat
@@ -364,36 +413,62 @@ export default function Contact() {
                   </CardContent>
                 </Card>
 
-                {/* Response Time */}
+                {/* HQ / Service area */}
                 <Card variant="glass" className="border-border/50">
                   <CardContent className="p-5">
                     <div className="flex items-start gap-4">
-                      <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                        <Clock className="w-5 h-5 text-accent" />
+                      <div className="w-11 h-11 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+                        <MapPin className="w-5 h-5 text-accent" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-foreground mb-1">Response Time</h3>
-                        <p className="text-sm text-muted-foreground">
-                          We typically respond within 24 hours during business days.
+                        <h3 className="font-semibold text-foreground mb-1">Headquarters</h3>
+                        <p className="text-sm text-foreground">Las Vegas, NV</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Serving event hosts & pros nationwide across the US & Canada.
                         </p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
+                {/* Social */}
+                <div className="pt-2">
+                  <h3 className="font-semibold text-foreground mb-3 text-sm">Follow & message us</h3>
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="https://instagram.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-full border border-border/50 bg-card/30 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors"
+                      aria-label="Instagram"
+                    >
+                      <Instagram className="w-4 h-4" />
+                    </a>
+                    <a
+                      href="https://linkedin.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-10 h-10 rounded-full border border-border/50 bg-card/30 flex items-center justify-center text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors"
+                      aria-label="LinkedIn"
+                    >
+                      <Linkedin className="w-4 h-4" />
+                    </a>
+                  </div>
+                </div>
+
                 {/* Quick Links */}
-                <div className="pt-4">
-                  <h3 className="font-semibold text-foreground mb-4">Quick Links</h3>
-                  <div className="space-y-3">
-                    <Link 
-                      to="/faq" 
+                <div className="pt-2">
+                  <h3 className="font-semibold text-foreground mb-3 text-sm">Quick links</h3>
+                  <div className="space-y-2">
+                    <Link
+                      to="/faq"
                       className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <HelpCircle className="w-4 h-4" />
                       Browse FAQs
                     </Link>
-                    <Link 
-                      to="/support" 
+                    <Link
+                      to="/support"
                       className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <MessageCircle className="w-4 h-4" />
