@@ -103,6 +103,14 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
   const isHourly = pkg.pricing_type === 'hourly' || pkg.type === 'hourly' || pkg.type === 'HOURLY';
   const basePrice = isHourly ? pkg.price * hours : pkg.price;
 
+  // Service location is only required when the Event Pro travels to the customer
+  // (on-site service or delivery). Pickup-only packages skip this entirely.
+  const fulfillmentList = (pkg.fulfillment_options || []).map((f) => String(f).toLowerCase());
+  const requiresServiceLocation =
+    !pkg.pickup_only &&
+    (fulfillmentList.length === 0 ||
+      fulfillmentList.some((f) => f === 'on_site' || f === 'onsite' || f === 'delivery'));
+
   // Non-blocking travel-fee quote (debounced + 5s timeout, fails open)
   const travelQuote = useTravelFeeQuote({
     addressString: isAddressComplete(eventAddress) ? formatAddress(eventAddress) : '',
