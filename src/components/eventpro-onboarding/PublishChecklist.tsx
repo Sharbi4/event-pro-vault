@@ -106,13 +106,6 @@ export function PublishChecklist({
       isRequired: true,
       icon: <Wallet className="w-4 h-4" />,
     },
-      id: 'payment-method',
-      label: 'Payment method',
-      description: paymentMethodDescription,
-      isComplete: paymentMethodComplete,
-      isRequired: true,
-      icon: <Wallet className="w-4 h-4" />,
-    },
     {
       id: 'stripe',
       label: 'Stripe payments',
