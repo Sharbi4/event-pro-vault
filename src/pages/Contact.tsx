@@ -317,13 +317,40 @@ export default function Contact() {
                         <Phone className="w-5 h-5 text-primary" />
                       </div>
                       <div>
-                        <h3 className="font-semibold text-foreground mb-1">Phone</h3>
-                        <a 
-                          href="tel:+17257559598" 
-                          className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                        <h3 className="font-semibold text-foreground mb-1">Phone · 24/7</h3>
+                        <a
+                          href="tel:+17257559598"
+                          className="text-sm text-muted-foreground hover:text-foreground transition-colors block"
                         >
-                          +1 (725) 755-9598 · Available 24/7
+                          +1 (725) 755-9598
                         </a>
+                        <p className="text-xs text-muted-foreground mt-1">Available around the clock, every day.</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Live Chat */}
+                <Card variant="glass" className="border-border/50">
+                  <CardContent className="p-5">
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                        <MessageCircle className="w-5 h-5 text-primary" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-foreground mb-1">Live Chat</h3>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Chat with our Event Pro support agent — instant answers, 24/7.
+                        </p>
+                        <Button
+                          size="sm"
+                          variant="darkShine"
+                          onClick={() => window.dispatchEvent(new Event('open-support-chat'))}
+                          className="gap-2"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                          Start chat
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
