@@ -403,9 +403,12 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
 
                 <div className="h-px bg-border" />
 
-                {/* Event Location */}
+                {/* Service Location — where the Event Pro will arrive */}
                 <div>
-                  <h3 className="font-semibold mb-3">Event Address</h3>
+                  <h3 className="font-semibold mb-1">Service Location</h3>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Where the Event Pro will arrive to serve your event.
+                  </p>
                   <AddressInput
                     value={eventAddress}
                     onChange={setEventAddress}
@@ -413,6 +416,35 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                     showLabels={true}
                     required={true}
                   />
+                </div>
+
+                {/* Your Billing / Contact Address */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="font-semibold">Your Address</h3>
+                    <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={billingSameAsEvent}
+                        onChange={(e) => setBillingSameAsEvent(e.target.checked)}
+                        disabled={isLoading}
+                        className="h-3.5 w-3.5 rounded border-border accent-foreground"
+                      />
+                      Same as service location
+                    </label>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Your billing & contact address — used on your receipt.
+                  </p>
+                  {!billingSameAsEvent && (
+                    <AddressInput
+                      value={billingAddress}
+                      onChange={setBillingAddress}
+                      disabled={isLoading}
+                      showLabels={true}
+                      required={true}
+                    />
+                  )}
                 </div>
 
                 {/* Guest Email */}
