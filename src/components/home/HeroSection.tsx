@@ -89,7 +89,9 @@ export function HeroSection() {
           className="w-full h-full object-cover scale-105"
           width={1920}
           height={1080}
-          fetchPriority="high"
+          loading="eager"
+          decoding="async"
+          {...({ fetchpriority: 'high' } as Record<string, string>)}
         />
         {/* Editorial gradient stack — deep, moody, focuses eye */}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
