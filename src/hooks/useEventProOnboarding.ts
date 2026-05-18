@@ -163,14 +163,14 @@ export function useEventProOnboarding() {
         .from('profiles')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       // Fetch Event Pro details
       const { data: vendorDetails } = await supabase
         .from('vendor_details')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       // Fetch weekly availability
       const { data: weeklyAvail } = await supabase
@@ -183,7 +183,7 @@ export function useEventProOnboarding() {
         .from('vendor_buffer_settings')
         .select('*')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       const newState = { ...initialState };
 
@@ -270,7 +270,7 @@ export function useEventProOnboarding() {
         .from('profiles')
         .select('username')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       const profileUpdate = {
         user_id: user.id,
@@ -296,7 +296,7 @@ export function useEventProOnboarding() {
         .from('vendor_details')
         .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (existingDetails) {
         await supabase
