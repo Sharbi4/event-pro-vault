@@ -108,6 +108,9 @@ const App = () => (
               <Route path="/vendor-onboarding" element={<LegacyRedirect to="/eventpro-onboarding" />} />
               <Route path="/eventpro-onboarding" element={<EventProOnboarding />} />
               <Route path="/eventpro-best-practices" element={<EventProBestPractices />} />
+              <Route path="/grow" element={<EventProGrow />} />
+              <Route path="/grow-your-business" element={<LegacyRedirect to="/grow" />} />
+              <Route path="/event-pro-resources" element={<LegacyRedirect to="/grow" />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
