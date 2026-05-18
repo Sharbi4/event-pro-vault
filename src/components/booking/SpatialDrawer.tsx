@@ -177,7 +177,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
       return;
     }
 
-    if (!isAddressComplete(eventAddress)) {
+    if (requiresServiceLocation && !isAddressComplete(eventAddress)) {
       toast({
         title: "Service location required",
         description: "Enter the address where the Event Pro will arrive",
@@ -186,10 +186,15 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
       return;
     }
 
-    if (!billingSameAsEvent && !isAddressComplete(billingAddress)) {
+    // Billing address is always required. When service location isn't needed
+    // (e.g. pickup-only), the billing address stands alone — no "same as" toggle.
+    const billingRequired = !requiresServiceLocation || !billingSameAsEvent;
+    if (billingRequired && !isAddressComplete(billingAddress)) {
       toast({
         title: "Your address required",
-        description: "Enter your billing/contact address, or check 'Same as service location'",
+        description: requiresServiceLocation
+          ? "Enter your billing/contact address, or check 'Same as service location'"
+          : "Enter your billing/contact address",
         variant: "destructive"
       });
       return;
