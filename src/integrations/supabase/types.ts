@@ -148,6 +148,12 @@ export type Database = {
           add_ons: string[] | null
           address_line1: string | null
           address_line2: string | null
+          billing_address_line1: string | null
+          billing_address_line2: string | null
+          billing_city: string | null
+          billing_same_as_event: boolean
+          billing_state: string | null
+          billing_zip: string | null
           booking_mode: string | null
           booking_type: string
           breakdown_minutes: number | null
@@ -208,6 +214,12 @@ export type Database = {
           add_ons?: string[] | null
           address_line1?: string | null
           address_line2?: string | null
+          billing_address_line1?: string | null
+          billing_address_line2?: string | null
+          billing_city?: string | null
+          billing_same_as_event?: boolean
+          billing_state?: string | null
+          billing_zip?: string | null
           booking_mode?: string | null
           booking_type?: string
           breakdown_minutes?: number | null
@@ -268,6 +280,12 @@ export type Database = {
           add_ons?: string[] | null
           address_line1?: string | null
           address_line2?: string | null
+          billing_address_line1?: string | null
+          billing_address_line2?: string | null
+          billing_city?: string | null
+          billing_same_as_event?: boolean
+          billing_state?: string | null
+          billing_zip?: string | null
           booking_mode?: string | null
           booking_type?: string
           breakdown_minutes?: number | null
