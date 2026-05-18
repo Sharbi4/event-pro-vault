@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, UserPlus, Share2, Wallet } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
@@ -58,25 +58,32 @@ export function ProfileTypeModal({ open, onOpenChange }: ProfileTypeModalProps) 
         </DialogHeader>
 
         <div className="px-6 pb-2 overflow-y-auto flex-1">
-          {/* Features */}
-          <div className="p-4 rounded-xl border-2 border-primary bg-primary/5 mb-4">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-primary text-primary-foreground">
-                <Sparkles className="w-5 h-5" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-foreground">Event Pro</h3>
-                <p className="text-xs text-muted-foreground">Services & Packages</p>
-              </div>
-            </div>
-            <ul className="space-y-1.5">
-              {['Hourly & daily packages', 'Instant book or review requests', 'Accept online & cash payments'].map((feature, idx) => (
-                <li key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Check className="w-3 h-3 text-primary flex-shrink-0" />
-                  {feature}
-                </li>
-              ))}
-            </ul>
+          {/* How it works — 3 steps */}
+          <div className="space-y-2 mb-4">
+            {[
+              { icon: UserPlus, title: 'Create a free account', copy: 'Set up your Event Pro profile in minutes — no upfront cost.' },
+              { icon: Share2, title: 'Share your booking page', copy: 'Send your link to customers or get discovered on the EventPro marketplace.' },
+              { icon: Wallet, title: 'Get booked & paid', copy: 'Accept online or cash payments and manage everything in one dashboard.' },
+            ].map((step, idx) => {
+              const Icon = step.icon;
+              return (
+                <div
+                  key={idx}
+                  className="flex items-start gap-3 p-3 rounded-xl border border-border bg-card hover:border-primary/40 transition-colors"
+                >
+                  <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-primary/10 text-primary flex-shrink-0 relative">
+                    <Icon className="w-4.5 h-4.5" strokeWidth={2} />
+                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center">
+                      {idx + 1}
+                    </span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-sm font-semibold text-foreground leading-tight">{step.title}</h4>
+                    <p className="text-xs text-muted-foreground mt-0.5 leading-snug">{step.copy}</p>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {/* Categories */}
