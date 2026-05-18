@@ -35,6 +35,9 @@ interface SpatialDrawerProps {
     vendor_user_id?: string;
     payment_options?: string;
     vendor_email?: string | null; // Added for notifications
+    // Fulfillment — determines whether a service location is needed
+    pickup_only?: boolean | null;
+    fulfillment_options?: string[] | null;
     // Travel-fee inputs (all optional — quote degrades gracefully if missing)
     vendor_lat?: number | null;
     vendor_lng?: number | null;
@@ -99,6 +102,14 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
   const isInstant = pkg.booking_mode === 'INSTANT';
   const isHourly = pkg.pricing_type === 'hourly' || pkg.type === 'hourly' || pkg.type === 'HOURLY';
   const basePrice = isHourly ? pkg.price * hours : pkg.price;
+
+  // Service location is only required when the Event Pro travels to the customer
+  // (on-site service or delivery). Pickup-only packages skip this entirely.
+  const fulfillmentList = (pkg.fulfillment_options || []).map((f) => String(f).toLowerCase());
+  const requiresServiceLocation =
+    !pkg.pickup_only &&
+    (fulfillmentList.length === 0 ||
+      fulfillmentList.some((f) => f === 'on_site' || f === 'onsite' || f === 'delivery'));
 
   // Non-blocking travel-fee quote (debounced + 5s timeout, fails open)
   const travelQuote = useTravelFeeQuote({
@@ -166,7 +177,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
       return;
     }
 
-    if (!isAddressComplete(eventAddress)) {
+    if (requiresServiceLocation && !isAddressComplete(eventAddress)) {
       toast({
         title: "Service location required",
         description: "Enter the address where the Event Pro will arrive",
@@ -175,10 +186,15 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
       return;
     }
 
-    if (!billingSameAsEvent && !isAddressComplete(billingAddress)) {
+    // Billing address is always required. When service location isn't needed
+    // (e.g. pickup-only), the billing address stands alone — no "same as" toggle.
+    const billingRequired = !requiresServiceLocation || !billingSameAsEvent;
+    if (billingRequired && !isAddressComplete(billingAddress)) {
       toast({
         title: "Your address required",
-        description: "Enter your billing/contact address, or check 'Same as service location'",
+        description: requiresServiceLocation
+          ? "Enter your billing/contact address, or check 'Same as service location'"
+          : "Enter your billing/contact address",
         variant: "destructive"
       });
       return;
@@ -204,18 +220,18 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
         vendor_user_id: pkg.vendor_user_id || null,
         package_id: pkg.id,
         event_date: format(eventDate, 'yyyy-MM-dd'),
-        event_location: formatAddress(eventAddress),
-        address_line1: eventAddress.addressLine1,
-        address_line2: eventAddress.addressLine2,
-        event_city: eventAddress.city,
-        event_state: eventAddress.state,
-        event_zip: eventAddress.zip,
-        billing_same_as_event: billingSameAsEvent,
-        billing_address_line1: billingSameAsEvent ? eventAddress.addressLine1 : billingAddress.addressLine1,
-        billing_address_line2: billingSameAsEvent ? eventAddress.addressLine2 : billingAddress.addressLine2,
-        billing_city: billingSameAsEvent ? eventAddress.city : billingAddress.city,
-        billing_state: billingSameAsEvent ? eventAddress.state : billingAddress.state,
-        billing_zip: billingSameAsEvent ? eventAddress.zip : billingAddress.zip,
+        event_location: requiresServiceLocation ? formatAddress(eventAddress) : '',
+        address_line1: requiresServiceLocation ? eventAddress.addressLine1 : '',
+        address_line2: requiresServiceLocation ? eventAddress.addressLine2 : '',
+        event_city: requiresServiceLocation ? eventAddress.city : '',
+        event_state: requiresServiceLocation ? eventAddress.state : '',
+        event_zip: requiresServiceLocation ? eventAddress.zip : '',
+        billing_same_as_event: requiresServiceLocation ? billingSameAsEvent : false,
+        billing_address_line1: requiresServiceLocation && billingSameAsEvent ? eventAddress.addressLine1 : billingAddress.addressLine1,
+        billing_address_line2: requiresServiceLocation && billingSameAsEvent ? eventAddress.addressLine2 : billingAddress.addressLine2,
+        billing_city: requiresServiceLocation && billingSameAsEvent ? eventAddress.city : billingAddress.city,
+        billing_state: requiresServiceLocation && billingSameAsEvent ? eventAddress.state : billingAddress.state,
+        billing_zip: requiresServiceLocation && billingSameAsEvent ? eventAddress.zip : billingAddress.zip,
         units: isHourly ? hours : 1,
         add_ons: [],
         total_price: totalPrice,
@@ -403,40 +419,44 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
 
                 <div className="h-px bg-border" />
 
-                {/* Service Location — where the Event Pro will arrive */}
-                <div>
-                  <h3 className="font-semibold mb-1">Service Location</h3>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    Where the Event Pro will arrive to serve your event.
-                  </p>
-                  <AddressInput
-                    value={eventAddress}
-                    onChange={setEventAddress}
-                    disabled={isLoading}
-                    showLabels={true}
-                    required={true}
-                  />
-                </div>
+                {/* Service Location — only when the Event Pro travels to the customer */}
+                {requiresServiceLocation && (
+                  <div>
+                    <h3 className="font-semibold mb-1">Service Location</h3>
+                    <p className="text-xs text-muted-foreground mb-3">
+                      Where the Event Pro will arrive to serve your event.
+                    </p>
+                    <AddressInput
+                      value={eventAddress}
+                      onChange={setEventAddress}
+                      disabled={isLoading}
+                      showLabels={true}
+                      required={true}
+                    />
+                  </div>
+                )}
 
                 {/* Your Billing / Contact Address */}
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <h3 className="font-semibold">Your Address</h3>
-                    <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
-                      <input
-                        type="checkbox"
-                        checked={billingSameAsEvent}
-                        onChange={(e) => setBillingSameAsEvent(e.target.checked)}
-                        disabled={isLoading}
-                        className="h-3.5 w-3.5 rounded border-border accent-foreground"
-                      />
-                      Same as service location
-                    </label>
+                    {requiresServiceLocation && (
+                      <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+                        <input
+                          type="checkbox"
+                          checked={billingSameAsEvent}
+                          onChange={(e) => setBillingSameAsEvent(e.target.checked)}
+                          disabled={isLoading}
+                          className="h-3.5 w-3.5 rounded border-border accent-foreground"
+                        />
+                        Same as service location
+                      </label>
+                    )}
                   </div>
                   <p className="text-xs text-muted-foreground mb-3">
                     Your billing & contact address — used on your receipt.
                   </p>
-                  {!billingSameAsEvent && (
+                  {(!requiresServiceLocation || !billingSameAsEvent) && (
                     <AddressInput
                       value={billingAddress}
                       onChange={setBillingAddress}
