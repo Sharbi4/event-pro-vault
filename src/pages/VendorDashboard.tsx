@@ -207,6 +207,17 @@ const VendorDashboard = () => {
           </div>
         </div>
 
+        {/* Post-publish next steps coach */}
+        <NextStepsBanner
+          packageCount={packages.length}
+          hasCoverPhoto={!!coverUrl}
+          publicProfileUrl={
+            profile?.username ? `/eventpro/${profile.username}` : `/vendor/${user.id}`
+          }
+          onAddPackage={() => setActiveTab('listings')}
+          onAddPhotos={() => setActiveTab('overview')}
+        />
+
         {/* Main Tabs - Mobile: Horizontal scroll with icons only */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
           {/* Mobile Tab Bar - Fixed icons, scrollable */}
