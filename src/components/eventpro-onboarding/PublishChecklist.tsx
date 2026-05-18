@@ -121,6 +121,25 @@ export function PublishChecklist({
         : undefined,
     },
     {
+      id: 'availability',
+      label: 'Weekly availability',
+      description: availabilityDescription,
+      isComplete: availabilityComplete,
+      isRequired: true,
+      icon: <Clock className="w-4 h-4" />,
+      warning: !availabilityComplete
+        ? 'Enable at least one day or switch to by-request only'
+        : undefined,
+    },
+    {
+      id: 'payment-method',
+      label: 'Payment method',
+      description: paymentMethodDescription,
+      isComplete: paymentMethodComplete,
+      isRequired: true,
+      icon: <Wallet className="w-4 h-4" />,
+    },
+    {
       id: 'stripe',
       label: 'Stripe payments',
       description: stripeConnected 
