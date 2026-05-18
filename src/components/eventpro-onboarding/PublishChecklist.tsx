@@ -10,6 +10,8 @@ import {
   Image,
   Package,
   CreditCard,
+  Clock,
+  Wallet,
   ExternalLink,
   Sparkles,
 } from 'lucide-react';
