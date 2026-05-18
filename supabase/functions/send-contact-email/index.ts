@@ -57,19 +57,22 @@ const handler = async (req: Request): Promise<Response> => {
       },
     });
 
-    // 2) Notify support team (still routed through unified system, with branding)
-    await supabase.functions.invoke("send-transactional-email", {
-      body: {
-        templateName: "contact-form-confirmation",
-        recipientEmail: "support@vendibook.com",
-        idempotencyKey: `contact-team-${email}-${Date.now()}`,
-        templateData: {
-          name: `Support copy — from ${name} <${email}>`,
-          subject,
-          message,
+    // 2) Notify support team + forward to admin owner
+    const teamRecipients = ["support@vendibook.com", "atlasmom421@gmail.com"];
+    for (const to of teamRecipients) {
+      await supabase.functions.invoke("send-transactional-email", {
+        body: {
+          templateName: "contact-form-confirmation",
+          recipientEmail: to,
+          idempotencyKey: `contact-team-${to}-${email}-${Date.now()}`,
+          templateData: {
+            name: `Support copy — from ${name} <${email}>`,
+            subject,
+            message,
+          },
         },
-      },
-    });
+      });
+    }
 
     return new Response(
       JSON.stringify({ success: true, message: "Email sent successfully" }),
