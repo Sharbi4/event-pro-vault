@@ -99,39 +99,13 @@ export function PublishChecklist({
       icon: <MapPin className="w-4 h-4" />,
     },
     {
-      id: 'photos',
-      label: 'Photos',
-      description: `${photoCount}/3 photos uploaded`,
-      isComplete: photoCount >= 3,
-      isRequired: false,
-      icon: <Image className="w-4 h-4" />,
-      warning: photoCount === 0 ? 'Profiles with photos get 10x more views' : undefined,
-    },
-    {
-      id: 'packages',
-      label: 'Packages',
-      description: packages.length === 0 
-        ? 'No packages yet' 
-        : `${packages.length} package${packages.length === 1 ? '' : 's'} created`,
-      isComplete: packages.length > 0,
-      isRequired: false,
-      icon: <Package className="w-4 h-4" />,
-      warning: packages.length === 0 
-        ? 'You need at least 1 package to appear in search' 
-        : undefined,
-    },
-    {
-      id: 'availability',
-      label: 'Weekly availability',
-      description: availabilityDescription,
-      isComplete: availabilityComplete,
+      id: 'payment-method',
+      label: 'Payment method',
+      description: paymentMethodDescription,
+      isComplete: paymentMethodComplete,
       isRequired: true,
-      icon: <Clock className="w-4 h-4" />,
-      warning: !availabilityComplete
-        ? 'Enable at least one day or switch to by-request only'
-        : undefined,
+      icon: <Wallet className="w-4 h-4" />,
     },
-    {
       id: 'payment-method',
       label: 'Payment method',
       description: paymentMethodDescription,
