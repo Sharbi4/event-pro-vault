@@ -113,6 +113,7 @@ const App = () => (
               {/* Admin routes */}
               <Route path="/admin/analytics" element={<AdminAnalytics />} />
               <Route path="/admin/vendor-outreach" element={<AdminVendorOutreach />} />
+              <Route path="/admin/support" element={<AdminSupport />} />
               {/* Booking Status Lookup */}
               <Route path="/booking-status" element={<BookingStatus />} />
               <Route path="/private-package/:id" element={<PrivatePackageReview />} />
