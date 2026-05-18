@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Sparkles, Check, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, ChevronDown, ChevronUp, UserPlus, Share2, Wallet } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
