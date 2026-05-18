@@ -48,6 +48,13 @@ export interface CreateBookingInput {
   event_city?: string;
   event_state?: string;
   event_zip?: string;
+  // Customer billing / contact address (where they live, may differ from service location)
+  billing_same_as_event?: boolean;
+  billing_address_line1?: string | null;
+  billing_address_line2?: string | null;
+  billing_city?: string | null;
+  billing_state?: string | null;
+  billing_zip?: string | null;
   units: number;
   add_ons: string[];
   total_price: number;
