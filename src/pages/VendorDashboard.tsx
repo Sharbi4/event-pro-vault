@@ -31,6 +31,7 @@ import { StripeSetupCard } from '@/components/shared/StripeSetupCard';
 import { VerificationCard } from '@/components/vendor-dashboard/VerificationCard';
 import { IdentityVerificationTimeline } from '@/components/vendor-dashboard/IdentityVerificationTimeline';
 import { GamificationPanel } from '@/components/vendor-dashboard/GamificationPanel';
+import { NextStepsBanner } from '@/components/vendor-dashboard/NextStepsBanner';
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
