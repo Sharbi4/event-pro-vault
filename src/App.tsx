@@ -44,6 +44,7 @@ import VendorTerms from "./pages/VendorTerms";
 import CancellationPolicy from "./pages/CancellationPolicy";
 import { CookieConsentBanner } from "./components/shared/CookieConsentBanner";
 import { NewsletterSideTab } from "./components/marketing/NewsletterSideTab";
+import { GAPageTracker } from "./components/analytics/GAPageTracker";
 import NotFound from "./pages/NotFound";
 import CityCategory from "./pages/CityCategory";
 import AdminAnalytics from "./pages/AdminAnalytics";
@@ -65,6 +66,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <GAPageTracker />
             <CookieConsentBanner />
             <NewsletterSideTab />
             <Routes>
