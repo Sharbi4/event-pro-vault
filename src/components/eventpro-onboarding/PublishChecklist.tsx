@@ -10,6 +10,8 @@ import {
   Image,
   Package,
   CreditCard,
+  Clock,
+  Wallet,
   ExternalLink,
   Sparkles,
 } from 'lucide-react';
@@ -56,6 +58,25 @@ export function PublishChecklist({
 
   const photoCount = state.mediaItems.filter(m => m.type === 'image').length;
 
+  const enabledDays = state.weeklyAvailability.filter(d => d.isEnabled);
+  const availabilityComplete =
+    state.bufferSettings.availableByRequestOnly || enabledDays.length > 0;
+  const availabilityDescription = state.bufferSettings.availableByRequestOnly
+    ? 'By request only'
+    : enabledDays.length === 0
+    ? 'No days enabled yet'
+    : `${enabledDays.length} day${enabledDays.length === 1 ? '' : 's'} per week enabled`;
+
+  const paymentMethodComplete = !!state.paymentMethod;
+  const paymentMethodDescription =
+    state.paymentMethod === 'both'
+      ? 'Online (Stripe) + cash'
+      : state.paymentMethod === 'stripe'
+      ? 'Online payments via Stripe'
+      : state.paymentMethod === 'cash'
+      ? 'Cash on event day'
+      : 'Choose how you want to be paid';
+
   const items: ChecklistItem[] = [
     {
       id: 'profile',
@@ -98,6 +119,25 @@ export function PublishChecklist({
       warning: packages.length === 0 
         ? 'You need at least 1 package to appear in search' 
         : undefined,
+    },
+    {
+      id: 'availability',
+      label: 'Weekly availability',
+      description: availabilityDescription,
+      isComplete: availabilityComplete,
+      isRequired: true,
+      icon: <Clock className="w-4 h-4" />,
+      warning: !availabilityComplete
+        ? 'Enable at least one day or switch to by-request only'
+        : undefined,
+    },
+    {
+      id: 'payment-method',
+      label: 'Payment method',
+      description: paymentMethodDescription,
+      isComplete: paymentMethodComplete,
+      isRequired: true,
+      icon: <Wallet className="w-4 h-4" />,
     },
     {
       id: 'stripe',
