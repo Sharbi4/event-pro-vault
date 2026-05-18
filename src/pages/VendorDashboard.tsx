@@ -31,6 +31,7 @@ import { StripeSetupCard } from '@/components/shared/StripeSetupCard';
 import { VerificationCard } from '@/components/vendor-dashboard/VerificationCard';
 import { IdentityVerificationTimeline } from '@/components/vendor-dashboard/IdentityVerificationTimeline';
 import { GamificationPanel } from '@/components/vendor-dashboard/GamificationPanel';
+import { NextStepsBanner } from '@/components/vendor-dashboard/NextStepsBanner';
 const VendorDashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -205,6 +206,17 @@ const VendorDashboard = () => {
             </Button>
           </div>
         </div>
+
+        {/* Post-publish next steps coach */}
+        <NextStepsBanner
+          packageCount={packages.length}
+          hasCoverPhoto={!!coverUrl}
+          publicProfileUrl={
+            profile?.username ? `/eventpro/${profile.username}` : `/vendor/${user.id}`
+          }
+          onAddPackage={() => setActiveTab('listings')}
+          onAddPhotos={() => setActiveTab('overview')}
+        />
 
         {/* Main Tabs - Mobile: Horizontal scroll with icons only */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4 sm:space-y-6">
