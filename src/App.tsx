@@ -66,6 +66,7 @@ const App = () => (
           <Toaster />
           <Sonner />
           <BrowserRouter>
+            <GAPageTracker />
             <CookieConsentBanner />
             <NewsletterSideTab />
             <Routes>
