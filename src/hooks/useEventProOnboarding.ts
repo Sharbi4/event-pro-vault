@@ -270,7 +270,7 @@ export function useEventProOnboarding() {
         .from('profiles')
         .select('username')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       const profileUpdate = {
         user_id: user.id,
@@ -296,7 +296,7 @@ export function useEventProOnboarding() {
         .from('vendor_details')
         .select('id')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       if (existingDetails) {
         await supabase
