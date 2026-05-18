@@ -48,6 +48,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link to="/grow" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Grow Your Business
+                </Link>
+              </li>
+              <li>
                 <Link to="/vendor-dashboard" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Event Pro Dashboard
                 </Link>

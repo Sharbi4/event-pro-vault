@@ -35,6 +35,7 @@ import VendorDashboard from "./pages/VendorDashboard";
 import VendorOnboarding from "./pages/VendorOnboarding";
 import EventProOnboarding from "./pages/EventProOnboarding";
 import EventProBestPractices from "./pages/EventProBestPractices";
+import EventProGrow from "./pages/EventProGrow";
 import Onboarding from "./pages/Onboarding";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
@@ -107,6 +108,9 @@ const App = () => (
               <Route path="/vendor-onboarding" element={<LegacyRedirect to="/eventpro-onboarding" />} />
               <Route path="/eventpro-onboarding" element={<EventProOnboarding />} />
               <Route path="/eventpro-best-practices" element={<EventProBestPractices />} />
+              <Route path="/grow" element={<EventProGrow />} />
+              <Route path="/grow-your-business" element={<LegacyRedirect to="/grow" />} />
+              <Route path="/event-pro-resources" element={<LegacyRedirect to="/grow" />} />
               <Route path="/onboarding" element={<Onboarding />} />
               <Route path="/blog" element={<Blog />} />
               <Route path="/blog/:slug" element={<BlogPost />} />
