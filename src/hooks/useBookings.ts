@@ -48,6 +48,13 @@ export interface CreateBookingInput {
   event_city?: string;
   event_state?: string;
   event_zip?: string;
+  // Customer billing / contact address (where they live, may differ from service location)
+  billing_same_as_event?: boolean;
+  billing_address_line1?: string | null;
+  billing_address_line2?: string | null;
+  billing_city?: string | null;
+  billing_state?: string | null;
+  billing_zip?: string | null;
   units: number;
   add_ons: string[];
   total_price: number;
@@ -256,6 +263,23 @@ export function useBookings() {
         event_city: bookingData.event_city || null,
         event_state: bookingData.event_state || null,
         event_zip: bookingData.event_zip || null,
+        // Billing / contact address (defaults to mirror of event location when the user opts in)
+        billing_same_as_event: bookingData.billing_same_as_event ?? true,
+        billing_address_line1: bookingData.billing_same_as_event === false
+          ? (bookingData.billing_address_line1 || null)
+          : (bookingData.address_line1 || null),
+        billing_address_line2: bookingData.billing_same_as_event === false
+          ? (bookingData.billing_address_line2 || null)
+          : (bookingData.address_line2 || null),
+        billing_city: bookingData.billing_same_as_event === false
+          ? (bookingData.billing_city || null)
+          : (bookingData.event_city || null),
+        billing_state: bookingData.billing_same_as_event === false
+          ? (bookingData.billing_state || null)
+          : (bookingData.event_state || null),
+        billing_zip: bookingData.billing_same_as_event === false
+          ? (bookingData.billing_zip || null)
+          : (bookingData.event_zip || null),
         units: bookingData.units,
         add_ons: bookingData.add_ons,
         total_price: bookingData.total_price,

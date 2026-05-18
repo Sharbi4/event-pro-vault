@@ -61,13 +61,16 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
 
   const [hours, setHours] = useState(4);
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'cash'>('stripe');
-  const [eventAddress, setEventAddress] = useState<AddressData>({
+  const emptyAddress: AddressData = {
     addressLine1: '',
     addressLine2: '',
     city: '',
     state: '',
     zip: '',
-  });
+  };
+  const [eventAddress, setEventAddress] = useState<AddressData>(emptyAddress);
+  const [billingSameAsEvent, setBillingSameAsEvent] = useState(true);
+  const [billingAddress, setBillingAddress] = useState<AddressData>(emptyAddress);
   const [customerEmail, setCustomerEmail] = useState('');
   const [bookingState, setBookingState] = useState<BookingState>('idle');
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -83,13 +86,9 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
   useEffect(() => {
     if (open) {
       setBookingState('idle');
-      setEventAddress({
-        addressLine1: '',
-        addressLine2: '',
-        city: '',
-        state: '',
-        zip: '',
-      });
+      setEventAddress(emptyAddress);
+      setBillingAddress(emptyAddress);
+      setBillingSameAsEvent(true);
       setCustomerEmail('');
       setSelectedTime(null);
     }
@@ -169,8 +168,17 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
 
     if (!isAddressComplete(eventAddress)) {
       toast({
-        title: "Address required",
-        description: "Please enter your complete event address",
+        title: "Service location required",
+        description: "Enter the address where the Event Pro will arrive",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!billingSameAsEvent && !isAddressComplete(billingAddress)) {
+      toast({
+        title: "Your address required",
+        description: "Enter your billing/contact address, or check 'Same as service location'",
         variant: "destructive"
       });
       return;
@@ -202,6 +210,12 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
         event_city: eventAddress.city,
         event_state: eventAddress.state,
         event_zip: eventAddress.zip,
+        billing_same_as_event: billingSameAsEvent,
+        billing_address_line1: billingSameAsEvent ? eventAddress.addressLine1 : billingAddress.addressLine1,
+        billing_address_line2: billingSameAsEvent ? eventAddress.addressLine2 : billingAddress.addressLine2,
+        billing_city: billingSameAsEvent ? eventAddress.city : billingAddress.city,
+        billing_state: billingSameAsEvent ? eventAddress.state : billingAddress.state,
+        billing_zip: billingSameAsEvent ? eventAddress.zip : billingAddress.zip,
         units: isHourly ? hours : 1,
         add_ons: [],
         total_price: totalPrice,
@@ -389,9 +403,12 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
 
                 <div className="h-px bg-border" />
 
-                {/* Event Location */}
+                {/* Service Location — where the Event Pro will arrive */}
                 <div>
-                  <h3 className="font-semibold mb-3">Event Address</h3>
+                  <h3 className="font-semibold mb-1">Service Location</h3>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Where the Event Pro will arrive to serve your event.
+                  </p>
                   <AddressInput
                     value={eventAddress}
                     onChange={setEventAddress}
@@ -399,6 +416,35 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                     showLabels={true}
                     required={true}
                   />
+                </div>
+
+                {/* Your Billing / Contact Address */}
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <h3 className="font-semibold">Your Address</h3>
+                    <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={billingSameAsEvent}
+                        onChange={(e) => setBillingSameAsEvent(e.target.checked)}
+                        disabled={isLoading}
+                        className="h-3.5 w-3.5 rounded border-border accent-foreground"
+                      />
+                      Same as service location
+                    </label>
+                  </div>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Your billing & contact address — used on your receipt.
+                  </p>
+                  {!billingSameAsEvent && (
+                    <AddressInput
+                      value={billingAddress}
+                      onChange={setBillingAddress}
+                      disabled={isLoading}
+                      showLabels={true}
+                      required={true}
+                    />
+                  )}
                 </div>
 
                 {/* Guest Email */}
