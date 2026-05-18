@@ -35,6 +35,7 @@ import VendorDashboard from "./pages/VendorDashboard";
 import VendorOnboarding from "./pages/VendorOnboarding";
 import EventProOnboarding from "./pages/EventProOnboarding";
 import EventProBestPractices from "./pages/EventProBestPractices";
+import EventProGrow from "./pages/EventProGrow";
 import Onboarding from "./pages/Onboarding";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
