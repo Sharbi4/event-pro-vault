@@ -58,6 +58,25 @@ export function PublishChecklist({
 
   const photoCount = state.mediaItems.filter(m => m.type === 'image').length;
 
+  const enabledDays = state.weeklyAvailability.filter(d => d.isEnabled);
+  const availabilityComplete =
+    state.bufferSettings.availableByRequestOnly || enabledDays.length > 0;
+  const availabilityDescription = state.bufferSettings.availableByRequestOnly
+    ? 'By request only'
+    : enabledDays.length === 0
+    ? 'No days enabled yet'
+    : `${enabledDays.length} day${enabledDays.length === 1 ? '' : 's'} per week enabled`;
+
+  const paymentMethodComplete = !!state.paymentMethod;
+  const paymentMethodDescription =
+    state.paymentMethod === 'both'
+      ? 'Online (Stripe) + cash'
+      : state.paymentMethod === 'stripe'
+      ? 'Online payments via Stripe'
+      : state.paymentMethod === 'cash'
+      ? 'Cash on event day'
+      : 'Choose how you want to be paid';
+
   const items: ChecklistItem[] = [
     {
       id: 'profile',
