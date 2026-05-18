@@ -66,6 +66,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <CookieConsentBanner />
+            <NewsletterSideTab />
             <Routes>
               {/* Search-first homepage */}
               <Route path="/" element={<Index />} />
