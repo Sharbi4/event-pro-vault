@@ -168,8 +168,17 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
 
     if (!isAddressComplete(eventAddress)) {
       toast({
-        title: "Address required",
-        description: "Please enter your complete event address",
+        title: "Service location required",
+        description: "Enter the address where the Event Pro will arrive",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!billingSameAsEvent && !isAddressComplete(billingAddress)) {
+      toast({
+        title: "Your address required",
+        description: "Enter your billing/contact address, or check 'Same as service location'",
         variant: "destructive"
       });
       return;
