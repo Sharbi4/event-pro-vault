@@ -61,13 +61,16 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
 
   const [hours, setHours] = useState(4);
   const [paymentMethod, setPaymentMethod] = useState<'stripe' | 'cash'>('stripe');
-  const [eventAddress, setEventAddress] = useState<AddressData>({
+  const emptyAddress: AddressData = {
     addressLine1: '',
     addressLine2: '',
     city: '',
     state: '',
     zip: '',
-  });
+  };
+  const [eventAddress, setEventAddress] = useState<AddressData>(emptyAddress);
+  const [billingSameAsEvent, setBillingSameAsEvent] = useState(true);
+  const [billingAddress, setBillingAddress] = useState<AddressData>(emptyAddress);
   const [customerEmail, setCustomerEmail] = useState('');
   const [bookingState, setBookingState] = useState<BookingState>('idle');
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
@@ -83,13 +86,9 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
   useEffect(() => {
     if (open) {
       setBookingState('idle');
-      setEventAddress({
-        addressLine1: '',
-        addressLine2: '',
-        city: '',
-        state: '',
-        zip: '',
-      });
+      setEventAddress(emptyAddress);
+      setBillingAddress(emptyAddress);
+      setBillingSameAsEvent(true);
       setCustomerEmail('');
       setSelectedTime(null);
     }
