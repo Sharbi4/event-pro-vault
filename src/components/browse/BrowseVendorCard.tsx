@@ -94,16 +94,16 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
   })();
 
   return (
-    <Card className="group overflow-hidden rounded-2xl border-border/50 hover:border-primary/40 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300 bg-card">
+    <Card className="group overflow-hidden rounded-[20px] border border-border/60 hover:border-foreground/20 shadow-sm hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.18)] transition-all duration-500 bg-card">
       <CardContent className="p-0">
         {/* Hero image */}
-        <Link to={profileHref} className="block relative aspect-[4/3] overflow-hidden bg-gradient-to-br from-secondary/50 to-secondary">
+        <Link to={profileHref} className="block relative aspect-[5/4] overflow-hidden bg-gradient-to-br from-secondary/50 to-secondary">
           {heroImage ? (
             <img
               src={heroImage}
               alt={`${group.vendor_name} – ${group.category ?? 'food'}`}
               loading="lazy"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+              className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms] ease-out"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-6xl select-none">
@@ -111,15 +111,18 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
             </div>
           )}
 
+          {/* Subtle bottom gradient for legibility of overlays */}
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/25 to-transparent pointer-events-none" />
+
           {/* Top-right trust pills */}
           <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5">
             {group.is_verified && (
-              <Badge className="bg-background/95 text-foreground border-border/50 backdrop-blur-sm shadow-sm gap-1 h-6">
+              <Badge className="bg-background/90 text-foreground border border-border/40 backdrop-blur-md shadow-sm gap-1 h-6 px-2 font-medium">
                 <ShieldCheck className="w-3 h-3 text-primary" /> Verified
               </Badge>
             )}
             {group.has_instant_book && (
-              <Badge className="bg-primary text-primary-foreground border-0 shadow-sm gap-1 h-6">
+              <Badge className="bg-foreground text-background border-0 shadow-sm gap-1 h-6 px-2 font-medium">
                 <Zap className="w-3 h-3" /> Instant
               </Badge>
             )}
@@ -136,8 +139,8 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
           )}
 
           {/* Logo overlay — bottom-left */}
-          <div className="absolute -bottom-5 left-4">
-            <Avatar className="h-14 w-14 ring-4 ring-background shadow-lg">
+          <div className="absolute -bottom-6 left-5">
+            <Avatar className="h-14 w-14 ring-[3px] ring-background shadow-[0_6px_20px_-4px_rgba(0,0,0,0.25)]">
               <AvatarImage src={group.vendor_avatar ?? undefined} alt={group.vendor_name} />
               <AvatarFallback className="bg-gradient-to-br from-primary/30 to-primary/10 font-semibold text-sm">
                 {initials}
@@ -147,19 +150,19 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
         </Link>
 
         {/* Header */}
-        <div className="px-5 pt-7 pb-2">
+        <div className="px-5 pt-8 pb-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <Link to={profileHref}>
-                <h3 className="font-display text-lg font-bold leading-tight truncate group-hover:text-primary transition-colors">
+                <h3 className="font-display text-[17px] font-semibold leading-tight tracking-tight truncate group-hover:text-primary transition-colors">
                   {group.vendor_name}
                 </h3>
               </Link>
-              <div className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1.5 flex-wrap">
+              <div className="text-[12px] text-muted-foreground mt-1 flex items-center gap-1.5 flex-wrap">
                 {group.category && <span className="capitalize">{group.category}</span>}
                 {cityLine && (
                   <>
-                    <span aria-hidden>·</span>
+                    <span aria-hidden className="text-border">·</span>
                     <span className="inline-flex items-center gap-0.5">
                       <MapPin className="w-3 h-3" /> {cityLine}
                     </span>
@@ -169,43 +172,46 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
             </div>
             <div className="shrink-0 text-right">
               {group.review_count > 0 ? (
-                <span className="inline-flex items-center gap-1 text-sm font-semibold">
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                <span className="inline-flex items-center gap-1 text-sm font-semibold tabular-nums">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                   {group.avg_rating.toFixed(1)}
-                  <span className="text-muted-foreground font-normal text-xs">
+                  <span className="text-muted-foreground font-normal text-[11px]">
                     ({group.review_count})
                   </span>
                 </span>
               ) : (
-                <span className="text-xs text-muted-foreground">New</span>
+                <span className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground/70 font-medium">New</span>
               )}
             </div>
           </div>
+
+          {/* Starting price */}
+          {Number.isFinite(group.starting_price) && group.starting_price > 0 && (
+            <div className="mt-2 text-[12px] text-muted-foreground">
+              Starting at{' '}
+              <span className="font-semibold text-foreground tabular-nums">
+                ${Math.round(group.starting_price)}
+              </span>
+            </div>
+          )}
         </div>
 
-        {/* Starting price */}
-        {Number.isFinite(group.starting_price) && group.starting_price > 0 && (
-          <div className="px-5 pb-2 text-xs text-muted-foreground">
-            Starting at{' '}
-            <span className="font-semibold text-foreground">
-              ${Math.round(group.starting_price)}
-            </span>
-          </div>
-        )}
+        {/* Hairline divider */}
+        <div className="mx-5 h-px bg-border/60" />
 
         {/* Package previews */}
-        <div className="px-3 pb-2 space-y-1">
+        <div className="px-3 py-2 divide-y divide-border/40">
           {group.packages.slice(0, 3).map((p, idx) => {
             const thumb = p.images?.[0];
             return (
               <Link
                 key={p.id}
                 to={`/package/${p.id}`}
-                className={`flex items-center gap-3 px-2 py-2 rounded-xl hover:bg-secondary/60 transition-colors ${
+                className={`flex items-center gap-3 px-2 py-2.5 rounded-xl hover:bg-secondary/60 transition-colors ${
                   idx === 2 ? 'hidden sm:flex' : 'flex'
                 }`}
               >
-                <div className="h-12 w-12 shrink-0 rounded-lg overflow-hidden bg-secondary flex items-center justify-center text-2xl">
+                <div className="h-11 w-11 shrink-0 rounded-lg overflow-hidden bg-secondary flex items-center justify-center text-xl">
                   {thumb ? (
                     <img
                       src={thumb}
@@ -218,12 +224,12 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium truncate">{p.name}</div>
-                  <div className="text-[11px] text-muted-foreground truncate">{subline(p)}</div>
+                  <div className="text-[13.5px] font-medium truncate leading-snug">{p.name}</div>
+                  <div className="text-[11px] text-muted-foreground truncate mt-0.5">{subline(p)}</div>
                 </div>
-                <div className="text-xs text-muted-foreground whitespace-nowrap shrink-0 text-right">
+                <div className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0 text-right tabular-nums">
                   from{' '}
-                  <span className="font-semibold text-foreground">{formatPrice(p)}</span>
+                  <span className="font-semibold text-foreground text-[13px]">{formatPrice(p)}</span>
                 </div>
               </Link>
             );
@@ -238,9 +244,9 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
 
         {/* Booking type badges */}
         {bookingBadges.length > 0 && (
-          <div className="px-5 pb-3 flex flex-wrap gap-1.5">
+          <div className="px-5 pt-1 pb-3 flex flex-wrap gap-1.5">
             {bookingBadges.map((b) => (
-              <Badge key={b} variant="secondary" className="text-[10px] h-5 px-2 font-medium">
+              <Badge key={b} variant="secondary" className="text-[10px] h-5 px-2 font-medium rounded-full bg-secondary/70">
                 {b}
               </Badge>
             ))}
@@ -251,7 +257,7 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
         <div className="px-5 pb-5 pt-1">
           <Button
             asChild
-            className="w-full rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground group/cta"
+            className="w-full h-11 rounded-full bg-foreground hover:bg-foreground/90 text-background font-medium tracking-tight group/cta shadow-sm"
           >
             <Link to={profileHref}>
               View availability
@@ -263,3 +269,4 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
     </Card>
   );
 }
+

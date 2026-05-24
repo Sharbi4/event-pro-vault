@@ -261,7 +261,7 @@ export default function VendorProfile() {
                 {packages.length > 0 ? (
                   <>
                     {/* Top rated indicator */}
-                    {packages[0]?.avgRating && packages[0].avgRating >= 4.5 && (
+                    {typeof packages[0]?.avgRating === 'number' && packages[0].avgRating >= 4.5 && (
                       <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <TrendingUp className="w-4 h-4 text-primary" />
                         <span>Sorted by highest rated</span>
