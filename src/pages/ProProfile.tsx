@@ -161,15 +161,16 @@ export default function ProProfile() {
       
       <div className="container mx-auto px-4 py-8">
         {/* Back link, Contact, and Share */}
-        <div className="flex items-center justify-between mb-6">
-          <Link 
+        <div className="flex items-center justify-between gap-2 mb-6">
+          <Link
             to="/"
-            className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0"
           >
             <ChevronLeft className="w-4 h-4" />
-            Back to browse
+            <span className="hidden sm:inline">Back to browse</span>
+            <span className="sm:hidden">Back</span>
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <ContactVendorButton
               vendorUserId={resolvedUserId!}
               vendorName={profile.displayName || profile.businessName || 'Event Pro'}
@@ -182,6 +183,7 @@ export default function ProProfile() {
             />
           </div>
         </div>
+
 
         {/* Hero section */}
         <div className="flex flex-col md:flex-row items-start gap-6 mb-8 pb-8 border-b">
@@ -318,16 +320,17 @@ export default function ProProfile() {
                     {/* Content */}
                     <div className="p-4">
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                        <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 tracking-tight">
                           {pkg.name}
                         </h3>
-                        {pkg.avgRating && pkg.avgRating > 0 && (
+                        {typeof pkg.avgRating === 'number' && pkg.avgRating > 0 && (
                           <div className="flex items-center gap-1 text-sm flex-shrink-0">
                             <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                             <span>{pkg.avgRating.toFixed(1)}</span>
                           </div>
                         )}
                       </div>
+
 
                       {pkg.category && (
                         <Badge variant="outline" className="text-xs mb-2 capitalize">
