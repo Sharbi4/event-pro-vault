@@ -320,16 +320,17 @@ export default function ProProfile() {
                     {/* Content */}
                     <div className="p-4">
                       <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
+                        <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 tracking-tight">
                           {pkg.name}
                         </h3>
-                        {pkg.avgRating && pkg.avgRating > 0 && (
+                        {typeof pkg.avgRating === 'number' && pkg.avgRating > 0 && (
                           <div className="flex items-center gap-1 text-sm flex-shrink-0">
                             <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
                             <span>{pkg.avgRating.toFixed(1)}</span>
                           </div>
                         )}
                       </div>
+
 
                       {pkg.category && (
                         <Badge variant="outline" className="text-xs mb-2 capitalize">
