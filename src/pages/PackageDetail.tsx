@@ -400,9 +400,12 @@ export default function PackageDetail() {
                     Reviews
                   </h2>
                   <div className="flex items-center gap-1">
-                    <Star className="w-5 h-5 text-trust fill-trust" />
-                    <span className="font-bold text-foreground">{vendor.avgRating}</span>
-                    <span className="text-muted-foreground">({vendor.reviewCount})</span>
+                    <RatingDisplay
+                      avgRating={vendor.avgRating}
+                      reviewCount={vendor.reviewCount}
+                      size="sm"
+                      variant="inline"
+                    />
                   </div>
                 </div>
                 <div className="space-y-4">
