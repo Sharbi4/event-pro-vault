@@ -426,12 +426,12 @@ export function PackageDetails({
             <div className="flex items-center gap-2">
               <Star className="w-5 h-5 text-amber-400" />
               <span className="font-semibold">Reviews</span>
-              {reviewCount > 0 && (
-                <div className="flex items-center gap-1 text-sm">
-                  <span className="font-medium">{avgRating.toFixed(1)}</span>
-                  <span className="text-muted-foreground">({reviewCount} reviews)</span>
-                </div>
-              )}
+              <RatingDisplay
+                avgRating={avgRating}
+                reviewCount={reviewCount}
+                size="sm"
+                variant="inline"
+              />
             </div>
           </AccordionTrigger>
           <AccordionContent className="px-6 pb-4">
