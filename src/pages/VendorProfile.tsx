@@ -298,47 +298,64 @@ export default function VendorProfile() {
                 {totalReviews > 0 ? (
                   <>
                     {/* Rating Summary */}
-                    <Card variant="glass" className="p-6">
-                      <div className="flex flex-col md:flex-row gap-8">
-                        <div className="text-center md:text-left">
-                          <div className="text-5xl font-bold gradient-text mb-2">
-                            {avgRating.toFixed(1)}
+                    <Card variant="glass" className="p-6 md:p-8 overflow-hidden relative">
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                      <div className="flex flex-col md:flex-row gap-8 md:gap-12 relative">
+                        {/* Left: Big Score */}
+                        <div className="text-center md:text-left flex flex-col items-center md:items-start">
+                          <div className="relative">
+                            <span className="font-display text-6xl md:text-7xl font-bold text-foreground tracking-tight">
+                              {avgRating.toFixed(1)}
+                            </span>
+                            <span className="font-mono text-sm text-muted-foreground absolute -right-4 top-2">/5</span>
                           </div>
-                          <div className="flex items-center justify-center md:justify-start gap-1 mb-2">
+                          <div className="flex items-center gap-1 mt-3 mb-2">
                             {Array.from({ length: 5 }).map((_, i) => (
                               <Star
                                 key={i}
-                                className={`w-5 h-5 ${
-                                  i < Math.floor(avgRating)
+                                className={`w-5 h-5 transition-all duration-300 ${
+                                  i < Math.round(avgRating)
                                     ? 'text-amber-400 fill-amber-400'
-                                    : 'text-muted-foreground/30'
+                                    : 'text-muted-foreground/20'
                                 }`}
                               />
                             ))}
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            Based on {totalReviews} reviews
+                          <p className="font-mono text-xs text-muted-foreground tracking-wide uppercase">
+                            {totalReviews} verified review{totalReviews !== 1 ? 's' : ''}
                           </p>
                         </div>
-                        <div className="flex-1 space-y-2">
-                          {[5, 4, 3, 2, 1].map(rating => (
-                            <div key={rating} className="flex items-center gap-3">
-                              <span className="text-sm text-muted-foreground w-8">{rating}★</span>
-                              <div className="flex-1 h-2 bg-secondary rounded-full overflow-hidden">
-                                <div 
-                                  className="h-full bg-gradient-to-r from-amber-400 to-orange-400"
-                                  style={{ 
-                                    width: totalReviews > 0 
-                                      ? `${(ratingBreakdown[rating as keyof typeof ratingBreakdown] / totalReviews) * 100}%`
-                                      : '0%'
-                                  }}
-                                />
+
+                        {/* Right: Breakdown Bars */}
+                        <div className="flex-1 space-y-3 min-w-0">
+                          {[5, 4, 3, 2, 1].map(rating => {
+                            const count = ratingBreakdown[rating as keyof typeof ratingBreakdown] || 0;
+                            const pct = totalReviews > 0 ? (count / totalReviews) * 100 : 0;
+                            return (
+                              <div key={rating} className="flex items-center gap-4 group">
+                                <span className="font-mono text-sm text-muted-foreground w-6 text-right">
+                                  {rating}
+                                </span>
+                                <Star className="w-3.5 h-3.5 text-muted-foreground/40" />
+                                <div className="flex-1 h-2.5 bg-secondary/60 rounded-full overflow-hidden">
+                                  <div
+                                    className="h-full rounded-full transition-all duration-700 ease-out"
+                                    style={{
+                                      width: `${pct}%`,
+                                      background: rating >= 4
+                                        ? 'linear-gradient(90deg, #fbbf24, #fb923c)'
+                                        : rating >= 3
+                                        ? 'linear-gradient(90deg, #facc15, #fdba74)'
+                                        : 'linear-gradient(90deg, hsl(var(--muted-foreground)), hsl(var(--muted-foreground)))',
+                                    }}
+                                  />
+                                </div>
+                                <span className={`font-mono text-xs w-8 text-right ${count > 0 ? 'text-foreground' : 'text-muted-foreground/40'}`}>
+                                  {count > 0 ? count : '—'}
+                                </span>
                               </div>
-                              <span className="text-sm text-muted-foreground w-8">
-                                {ratingBreakdown[rating as keyof typeof ratingBreakdown]}
-                              </span>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     </Card>
@@ -346,10 +363,10 @@ export default function VendorProfile() {
                     {/* Reviews List */}
                     <div className="space-y-4">
                       {reviews.map((review, index) => (
-                        <div 
+                        <div
                           key={review.id}
                           className="animate-fade-in"
-                          style={{ animationDelay: `${index * 0.05}s` }}
+                          style={{ animationDelay: `${index * 0.08}s` }}
                         >
                           <VendorReviewCard review={review} />
                         </div>
@@ -357,12 +374,19 @@ export default function VendorProfile() {
                     </div>
                   </>
                 ) : (
-                  <Card variant="glass" className="p-12 text-center">
-                    <Star className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" />
-                    <h3 className="font-semibold text-foreground mb-2">No reviews yet</h3>
-                    <p className="text-muted-foreground text-sm">
-                      Be the first to review this Event Pro!
-                    </p>
+                  <Card variant="glass" className="p-12 md:p-16 text-center relative overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+                    <div className="relative">
+                      <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
+                        <Star className="w-8 h-8 text-primary/60" />
+                      </div>
+                      <h3 className="font-display text-xl font-semibold text-foreground mb-2">
+                        No reviews yet
+                      </h3>
+                      <p className="text-muted-foreground text-sm max-w-sm mx-auto">
+                        Be the first to experience and review this Event Pro's culinary craft.
+                      </p>
+                    </div>
                   </Card>
                 )}
               </TabsContent>
