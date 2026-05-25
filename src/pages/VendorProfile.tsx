@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { RatingDisplay, StarRatingBar } from '@/components/shared/RatingDisplay';
 import { 
-  MapPin, Zap, ShieldCheck, CheckCircle2,
+  Star, MapPin, Zap, ShieldCheck, CheckCircle2,
   Calendar, MessageCircle, ChevronLeft, Share2, Heart,
   Package, Award, TrendingUp, Globe, Building2, Sparkles
 } from 'lucide-react';
