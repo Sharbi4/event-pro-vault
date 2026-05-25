@@ -10,7 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { 
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
   Clock, Calendar, Check, Plus, Minus, 
   ChevronLeft, Zap, MapPin, AlertCircle, Star, CalendarIcon, Loader2,
   Banknote, CreditCard, ShieldCheck
