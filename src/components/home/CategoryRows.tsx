@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
 import { ChevronRight, Star, MapPin, Zap, ShieldCheck, Package } from 'lucide-react';
 import { categories } from '@/data/categories';
 import { vendors as mockVendors, packages as mockPackages } from '@/data/vendors';

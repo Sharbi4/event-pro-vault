@@ -1,6 +1,7 @@
 import { useCallback, useState, useEffect } from 'react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { Badge } from '@/components/ui/badge';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
 import { MapPin, Star, Zap, ShieldCheck } from 'lucide-react';
 import { useGoogleMaps } from '@/contexts/GoogleMapsContext';
 import { BrowsePackage } from '@/hooks/useBrowsePackages';
