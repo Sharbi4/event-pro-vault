@@ -559,9 +559,12 @@ export default function Dashboard() {
                           {vendor.categories[0].replace('-', ' ')}
                         </p>
                         <div className="flex items-center gap-1 mt-0.5">
-                          <Star className="w-3 h-3 text-trust fill-trust" />
-                          <span className="text-xs text-foreground font-medium">{vendor.avgRating}</span>
-                          <span className="text-xs text-muted-foreground">({vendor.reviewCount})</span>
+                          <RatingDisplay
+                            avgRating={vendor.avgRating}
+                            reviewCount={vendor.reviewCount}
+                            size="xs"
+                            variant="inline"
+                          />
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
