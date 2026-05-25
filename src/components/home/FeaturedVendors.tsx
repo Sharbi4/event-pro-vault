@@ -122,15 +122,12 @@ export function FeaturedVendors() {
                     </p>
                   )}
                   <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-1 text-foreground">
-                      <Star className="w-4 h-4 text-trust fill-trust" />
-                      <span className="font-medium">
-                        {vendor.avg_rating > 0 ? vendor.avg_rating.toFixed(1) : 'New'}
-                      </span>
-                      {vendor.review_count > 0 && (
-                        <span className="text-muted-foreground">({vendor.review_count})</span>
-                      )}
-                    </div>
+                    <RatingDisplay
+                      avgRating={vendor.avg_rating}
+                      reviewCount={vendor.review_count}
+                      size="sm"
+                      variant="inline"
+                    />
                     {vendor.primary_city && (
                       <div className="flex items-center gap-1 text-muted-foreground">
                         <MapPin className="w-3 h-3" />
