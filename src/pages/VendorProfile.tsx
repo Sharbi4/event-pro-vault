@@ -465,15 +465,16 @@ export default function VendorProfile() {
                     <span className="text-muted-foreground text-sm">Reviews</span>
                     <span className="font-semibold text-foreground">{totalReviews}</span>
                   </div>
-                  {avgRating > 0 && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground text-sm">Rating</span>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                        <span className="font-semibold text-foreground">{avgRating.toFixed(1)}</span>
-                      </div>
-                    </div>
-                  )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground text-sm">Rating</span>
+                    <RatingDisplay
+                      avgRating={avgRating}
+                      reviewCount={null}
+                      size="sm"
+                      variant="inline"
+                      showCount={false}
+                    />
+                  </div>
                 </div>
               </Card>
             </div>
