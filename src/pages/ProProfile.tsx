@@ -7,8 +7,9 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
 import { 
-  Star, MapPin, ShieldCheck, CheckCircle2, ChevronLeft,
+  MapPin, ShieldCheck, CheckCircle2, ChevronLeft,
   Package, Award, Globe, Zap, Clock, Calendar
 } from 'lucide-react';
 import { useVendorProfile } from '@/hooks/useVendorProfile';

@@ -9,8 +9,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { RatingDisplay, StarRatingBar } from '@/components/shared/RatingDisplay';
 import { 
-  Star, MapPin, Zap, ShieldCheck, CheckCircle2,
+  MapPin, Zap, ShieldCheck, CheckCircle2,
   Calendar, MessageCircle, ChevronLeft, Share2, Heart,
   Package, Award, TrendingUp, Globe, Building2, Sparkles
 } from 'lucide-react';

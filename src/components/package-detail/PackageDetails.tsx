@@ -6,6 +6,7 @@ import {
 } from '@/components/ui/accordion';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
 import {
   Check, Plus, AlertCircle, Truck, Clock,
   FileText, Star, Timer, Shield, ShieldCheck, ShieldAlert,
