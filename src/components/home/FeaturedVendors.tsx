@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
 import { Star, MapPin, ChevronRight, User } from 'lucide-react';
 import { useFeaturedVendors } from '@/hooks/useFeaturedContent';
 import { vendors as mockVendors } from '@/data/vendors';
@@ -122,15 +123,12 @@ export function FeaturedVendors() {
                     </p>
                   )}
                   <div className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-1 text-foreground">
-                      <Star className="w-4 h-4 text-trust fill-trust" />
-                      <span className="font-medium">
-                        {vendor.avg_rating > 0 ? vendor.avg_rating.toFixed(1) : 'New'}
-                      </span>
-                      {vendor.review_count > 0 && (
-                        <span className="text-muted-foreground">({vendor.review_count})</span>
-                      )}
-                    </div>
+                    <RatingDisplay
+                      avgRating={vendor.avg_rating}
+                      reviewCount={vendor.review_count}
+                      size="sm"
+                      variant="inline"
+                    />
                     {vendor.primary_city && (
                       <div className="flex items-center gap-1 text-muted-foreground">
                         <MapPin className="w-3 h-3" />

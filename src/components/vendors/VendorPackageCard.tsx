@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, Zap, Clock, Package, Check, TrendingUp } from 'lucide-react';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
+import { Zap, Clock, Package, Check, TrendingUp } from 'lucide-react';
 import { VendorPackageData } from '@/hooks/useVendorProfile';
 
 interface VendorPackageCardProps {
@@ -69,17 +70,14 @@ export function VendorPackageCard({ pkg, vendorUserId, rank }: VendorPackageCard
         </div>
 
         {/* Rating badge */}
-        {(pkg.reviewCount || 0) > 0 && (
-          <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-full px-2 py-1">
-            <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-            <span className="text-white text-sm font-medium">
-              {(pkg.avgRating || 0).toFixed(1)}
-            </span>
-            <span className="text-white/70 text-xs">
-              ({pkg.reviewCount})
-            </span>
-          </div>
-        )}
+        <div className="absolute top-3 right-3">
+          <RatingDisplay
+            avgRating={pkg.avgRating}
+            reviewCount={pkg.reviewCount}
+            size="sm"
+            variant="pill"
+          />
+        </div>
 
         {/* Price tag */}
         <div className="absolute bottom-3 right-3">

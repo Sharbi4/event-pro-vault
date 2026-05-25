@@ -3,7 +3,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, MapPin, ShieldCheck, Zap, ChevronRight, Clock, Utensils } from 'lucide-react';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
+import { MapPin, ShieldCheck, Zap, ChevronRight, Clock, Utensils } from 'lucide-react';
 import { VendorGroup } from '@/lib/groupPackagesByVendor';
 import { BrowsePackage } from '@/hooks/useBrowsePackages';
 import { format } from 'date-fns';
@@ -176,17 +177,12 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
               </div>
             </div>
             <div className="shrink-0 text-right">
-              {group.review_count > 0 ? (
-                <span className="inline-flex items-center gap-1 text-sm font-semibold tabular-nums">
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  {group.avg_rating.toFixed(1)}
-                  <span className="text-muted-foreground font-normal text-[11px]">
-                    ({group.review_count})
-                  </span>
-                </span>
-              ) : (
-                <span className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground/70 font-medium">New</span>
-              )}
+              <RatingDisplay
+                avgRating={group.avg_rating}
+                reviewCount={group.review_count}
+                size="sm"
+                variant="inline"
+              />
             </div>
           </div>
 

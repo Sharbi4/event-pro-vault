@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { RatingDisplay, StarRatingBar } from '@/components/shared/RatingDisplay';
 import { 
   Star, MapPin, Zap, ShieldCheck, CheckCircle2,
   Calendar, MessageCircle, ChevronLeft, Share2, Heart,
@@ -180,19 +181,17 @@ export default function VendorProfile() {
                 </div>
                   
                 {/* Rating */}
-                {totalReviews > 0 && (
-                  <div className="flex items-center gap-2">
-                    <div className="text-right">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-6 h-6 text-amber-400 fill-amber-400" />
-                        <span className="text-2xl font-bold text-foreground">
-                          {avgRating.toFixed(1)}
-                        </span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">{totalReviews} reviews</p>
-                    </div>
+                <div className="flex items-center gap-2">
+                  <div className="text-right">
+                    <RatingDisplay
+                      avgRating={avgRating}
+                      reviewCount={totalReviews}
+                      size="xl"
+                      variant="inline"
+                      showCount={true}
+                    />
                   </div>
-                )}
+                </div>
               </div>
 
               {/* Short bio */}
@@ -309,18 +308,7 @@ export default function VendorProfile() {
                             </span>
                             <span className="font-mono text-sm text-muted-foreground absolute -right-4 top-2">/5</span>
                           </div>
-                          <div className="flex items-center gap-1 mt-3 mb-2">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-5 h-5 transition-all duration-300 ${
-                                  i < Math.round(avgRating)
-                                    ? 'text-amber-400 fill-amber-400'
-                                    : 'text-muted-foreground/20'
-                                }`}
-                              />
-                            ))}
-                          </div>
+                          <StarRatingBar rating={avgRating} size="md" className="mt-3 mb-2" />
                           <p className="font-mono text-xs text-muted-foreground tracking-wide uppercase">
                             {totalReviews} verified review{totalReviews !== 1 ? 's' : ''}
                           </p>
@@ -477,15 +465,16 @@ export default function VendorProfile() {
                     <span className="text-muted-foreground text-sm">Reviews</span>
                     <span className="font-semibold text-foreground">{totalReviews}</span>
                   </div>
-                  {avgRating > 0 && (
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground text-sm">Rating</span>
-                      <div className="flex items-center gap-1">
-                        <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                        <span className="font-semibold text-foreground">{avgRating.toFixed(1)}</span>
-                      </div>
-                    </div>
-                  )}
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground text-sm">Rating</span>
+                    <RatingDisplay
+                      avgRating={avgRating}
+                      reviewCount={null}
+                      size="sm"
+                      variant="inline"
+                      showCount={false}
+                    />
+                  </div>
                 </div>
               </Card>
             </div>

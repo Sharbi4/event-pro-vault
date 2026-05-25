@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Star, Clock, Package, Check, MapPin } from 'lucide-react';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
+import { Clock, Package, Check, MapPin } from 'lucide-react';
 import { BrowsePackage } from '@/hooks/useBrowsePackages';
 import { TrustBadges, FeaturedBadge, TopRatedBadge } from '@/components/badges/TrustBadges';
 
@@ -63,17 +64,14 @@ export function BrowsePackageCard({ pkg }: BrowsePackageCardProps) {
           </div>
 
           {/* Rating - Top Right */}
-          {pkg.review_count > 0 && (
-            <div className="absolute top-3 right-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm rounded-full px-2 py-1">
-              <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
-              <span className="text-white text-xs font-medium">
-                {pkg.avg_rating.toFixed(1)}
-              </span>
-              <span className="text-white/70 text-xs">
-                ({pkg.review_count})
-              </span>
-            </div>
-          )}
+          <div className="absolute top-3 right-3">
+            <RatingDisplay
+              avgRating={pkg.avg_rating}
+              reviewCount={pkg.review_count}
+              size="xs"
+              variant="pill"
+            />
+          </div>
 
           {/* Price */}
           <div className="absolute bottom-3 right-3">

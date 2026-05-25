@@ -1,6 +1,7 @@
 import { useCallback, useState, useEffect } from 'react';
 import { GoogleMap, Marker, InfoWindow } from '@react-google-maps/api';
 import { Badge } from '@/components/ui/badge';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
 import { MapPin, Star, Zap, ShieldCheck } from 'lucide-react';
 import { useGoogleMaps } from '@/contexts/GoogleMapsContext';
 import { BrowsePackage } from '@/hooks/useBrowsePackages';
@@ -256,17 +257,12 @@ export function BrowsePackageMap({ packages, onPackageSelect, selectedPackageId 
                     {/* Rating & Price */}
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1">
-                        {activePackage.avg_rating > 0 && (
-                          <>
-                            <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                            <span className="text-xs font-medium text-gray-900">
-                              {activePackage.avg_rating.toFixed(1)}
-                            </span>
-                            <span className="text-xs text-gray-500">
-                              ({activePackage.review_count})
-                            </span>
-                          </>
-                        )}
+                        <RatingDisplay
+                          avgRating={activePackage.avg_rating}
+                          reviewCount={activePackage.review_count}
+                          size="xs"
+                          variant="inline"
+                        />
                       </div>
                       <span className="text-sm font-bold text-gray-900">
                         ${activePackage.price}

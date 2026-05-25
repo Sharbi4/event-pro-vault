@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { Star, Heart, Zap, ShieldCheck, MapPin } from 'lucide-react';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
+import { Heart, Zap, ShieldCheck, MapPin } from 'lucide-react';
 import { Vendor } from '@/types';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -62,11 +63,12 @@ export function VendorGrid({ vendors }: VendorGridProps) {
             <div className="p-4">
               {/* Rating and Reviews */}
               <div className="flex items-center gap-1 mb-2">
-                <Star className="w-4 h-4 text-trust fill-trust" />
-                <span className="font-semibold text-sm text-foreground">{vendor.avgRating}</span>
-                <span className="text-xs text-muted-foreground">
-                  ({vendor.reviewCount} reviews)
-                </span>
+                <RatingDisplay
+                  avgRating={vendor.avgRating}
+                  reviewCount={vendor.reviewCount}
+                  size="sm"
+                  variant="inline"
+                />
               </div>
 
               {/* vendor Name */}

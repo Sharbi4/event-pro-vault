@@ -3,6 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
 import { ChevronRight, Star, MapPin, Zap, ShieldCheck, Package } from 'lucide-react';
 import { categories } from '@/data/categories';
 import { vendors as mockVendors, packages as mockPackages } from '@/data/vendors';
@@ -222,12 +223,14 @@ function CategoryRow({ group }: CategoryRowProps) {
                     <h3 className="font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1">
                       {pkg.name}
                     </h3>
-                    {pkg.avg_rating > 0 && (
-                      <div className="flex items-center gap-1 shrink-0">
-                        <Star className="w-4 h-4 text-trust fill-trust" />
-                        <span className="text-sm font-medium">{pkg.avg_rating.toFixed(1)}</span>
-                      </div>
-                    )}
+                    <RatingDisplay
+                      avgRating={pkg.avg_rating}
+                      reviewCount={null}
+                      size="sm"
+                      variant="inline"
+                      showCount={false}
+                      className="shrink-0"
+                    />
                   </div>
                   <p className="text-xs text-muted-foreground mb-2 line-clamp-1">
                     by {pkg.vendor_name}

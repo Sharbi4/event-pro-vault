@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
 import { Vendor } from '@/types';
-import { Star, MapPin, Clock, Zap, ShieldCheck } from 'lucide-react';
+import { MapPin, Clock, Zap, ShieldCheck } from 'lucide-react';
 
 interface VendorListItemProps {
   vendor: Vendor;
@@ -48,12 +49,13 @@ export function VendorListItem({ vendor, isSelected, onHover, onLeave }: VendorL
               <span className="truncate">{vendor.location}</span>
             </div>
 
-            <div className="flex items-center gap-3 mb-2">
-              <div className="flex items-center gap-1">
-                <Star className="w-3.5 h-3.5 text-trust fill-trust" />
-                <span className="text-xs font-medium text-foreground">{vendor.avgRating}</span>
-                <span className="text-xs text-muted-foreground">({vendor.reviewCount})</span>
-              </div>
+              <div className="flex items-center gap-3 mb-2">
+                <RatingDisplay
+                  avgRating={vendor.avgRating}
+                  reviewCount={vendor.reviewCount}
+                  size="xs"
+                  variant="inline"
+                />
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <Clock className="w-3 h-3" />
                 {vendor.responseTime}

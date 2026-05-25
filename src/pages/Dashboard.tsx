@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
 import { useAuth } from '@/contexts/AuthContext';
 import { useFavorites } from '@/hooks/useFavorites';
 import { useBookings, BookingData } from '@/hooks/useBookings';
@@ -559,9 +560,12 @@ export default function Dashboard() {
                           {vendor.categories[0].replace('-', ' ')}
                         </p>
                         <div className="flex items-center gap-1 mt-0.5">
-                          <Star className="w-3 h-3 text-trust fill-trust" />
-                          <span className="text-xs text-foreground font-medium">{vendor.avgRating}</span>
-                          <span className="text-xs text-muted-foreground">({vendor.reviewCount})</span>
+                          <RatingDisplay
+                            avgRating={vendor.avgRating}
+                            reviewCount={vendor.reviewCount}
+                            size="xs"
+                            variant="inline"
+                          />
                         </div>
                       </div>
                       <div className="flex items-center gap-2">

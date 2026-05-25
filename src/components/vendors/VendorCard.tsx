@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, MapPin, Clock, Zap, ShieldCheck } from 'lucide-react';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
+import { MapPin, Clock, Zap, ShieldCheck } from 'lucide-react';
 import { Vendor } from '@/types';
 import { packages } from '@/data/vendors';
 
@@ -63,9 +64,12 @@ export function VendorCard({ vendor }: VendorCardProps) {
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Star className="w-5 h-5 text-trust fill-trust" />
-                  <span className="font-bold text-foreground">{vendor.avgRating}</span>
-                  <span className="text-sm text-muted-foreground">({vendor.reviewCount})</span>
+                  <RatingDisplay
+                    avgRating={vendor.avgRating}
+                    reviewCount={vendor.reviewCount}
+                    size="md"
+                    variant="inline"
+                  />
                 </div>
               </div>
 

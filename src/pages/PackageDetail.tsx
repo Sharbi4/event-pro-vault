@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
 import { 
   Clock, Calendar, Check, Plus, Minus, 
   ChevronLeft, Zap, MapPin, AlertCircle, Star, CalendarIcon, Loader2,
@@ -400,9 +401,12 @@ export default function PackageDetail() {
                     Reviews
                   </h2>
                   <div className="flex items-center gap-1">
-                    <Star className="w-5 h-5 text-trust fill-trust" />
-                    <span className="font-bold text-foreground">{vendor.avgRating}</span>
-                    <span className="text-muted-foreground">({vendor.reviewCount})</span>
+                    <RatingDisplay
+                      avgRating={vendor.avgRating}
+                      reviewCount={vendor.reviewCount}
+                      size="sm"
+                      variant="inline"
+                    />
                   </div>
                 </div>
                 <div className="space-y-4">
