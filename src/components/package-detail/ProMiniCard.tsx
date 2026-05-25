@@ -2,7 +2,8 @@ import { Link } from 'react-router-dom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Star, ShieldCheck, ChevronRight, Package } from 'lucide-react';
+import { RatingDisplay } from '@/components/shared/RatingDisplay';
+import { ShieldCheck, ChevronRight, Package } from 'lucide-react';
 
 interface ProMiniCardProps {
   vendorUserId: string;
