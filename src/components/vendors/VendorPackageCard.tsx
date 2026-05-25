@@ -29,14 +29,19 @@ export function VendorPackageCard({ pkg, vendorUserId, rank }: VendorPackageCard
   const isTopRated = rank === 1 && (pkg.avgRating || 0) >= 4.5;
 
   return (
-    <Card className="group overflow-hidden border-border/50 hover:border-primary/30 transition-all duration-300 hover:shadow-xl hover:shadow-primary/5">
+    <Card className="group relative overflow-hidden border-border/50 bg-card transition-all duration-500 ease-out hover:border-primary/20 hover:shadow-[0_12px_48px_-12px_hsl(var(--primary)/0.12)]">
+      {/* Ambient hover glow */}
+      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-transparent to-primary/[0.05]" />
+      </div>
+
       {/* Image/Header Section */}
       <div className="relative h-48 overflow-hidden">
         {hasImage ? (
           <img
             src={pkg.images[0]}
             alt={pkg.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-cover transition-transform duration-[700ms] ease-out group-hover:scale-[1.03]"
           />
         ) : (
           <div className={`w-full h-full bg-gradient-to-br ${gradient} flex items-center justify-center`}>
@@ -45,7 +50,7 @@ export function VendorPackageCard({ pkg, vendorUserId, rank }: VendorPackageCard
         )}
         
         {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none transition-opacity duration-500 group-hover:from-black/70" />
 
         {/* Badges */}
         <div className="absolute top-3 left-3 flex flex-wrap gap-2">
