@@ -230,13 +230,15 @@ export default function ProProfile() {
             </h1>
 
             {/* Rating */}
-            {totalReviews > 0 && (
-              <div className="flex items-center gap-2 mb-3">
-                <Star className="w-5 h-5 text-amber-400 fill-amber-400" />
-                <span className="font-bold text-lg">{avgRating.toFixed(1)}</span>
-                <span className="text-muted-foreground">({totalReviews} reviews)</span>
-              </div>
-            )}
+            <div className="flex items-center gap-2 mb-3">
+              <RatingDisplay
+                avgRating={avgRating}
+                reviewCount={totalReviews}
+                size="lg"
+                variant="inline"
+                showCount={true}
+              />
+            </div>
 
             {/* Bio */}
             {profile.shortBio && (
@@ -324,12 +326,14 @@ export default function ProProfile() {
                         <h3 className="text-base font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-1 tracking-tight">
                           {pkg.name}
                         </h3>
-                        {typeof pkg.avgRating === 'number' && pkg.avgRating > 0 && (
-                          <div className="flex items-center gap-1 text-sm flex-shrink-0">
-                            <Star className="w-4 h-4 text-amber-400 fill-amber-400" />
-                            <span>{pkg.avgRating.toFixed(1)}</span>
-                          </div>
-                        )}
+                        <RatingDisplay
+                          avgRating={pkg.avgRating}
+                          reviewCount={pkg.reviewCount}
+                          size="sm"
+                          variant="inline"
+                          showCount={false}
+                          className="flex-shrink-0"
+                        />
                       </div>
 
 
