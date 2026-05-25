@@ -56,6 +56,7 @@ import PrivatePackageReview from "./pages/PrivatePackageReview";
 import ReferralRedirect from "./pages/ReferralRedirect";
 import { LegacyRedirect } from "./components/routing/LegacyRedirect";
 import Unsubscribe from "./pages/Unsubscribe";
+import { SmoothScroll } from "./components/shared/SmoothScroll";
 
 const queryClient = new QueryClient();
 
@@ -64,6 +65,7 @@ const App = () => (
     <AuthProvider>
       <GoogleMapsProvider>
         <TooltipProvider>
+          <SmoothScroll />
           <Toaster />
           <Sonner />
           <BrowserRouter>
