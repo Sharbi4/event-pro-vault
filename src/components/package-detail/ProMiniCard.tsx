@@ -66,13 +66,12 @@ export function ProMiniCard({
           </div>
           
           <div className="flex flex-wrap items-center gap-2 mt-1">
-            {avgRating > 0 && (
-              <div className="flex items-center gap-1 text-sm">
-                <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-                <span className="font-medium">{avgRating.toFixed(1)}</span>
-                <span className="text-muted-foreground">({reviewCount})</span>
-              </div>
-            )}
+            <RatingDisplay
+              avgRating={avgRating}
+              reviewCount={reviewCount}
+              size="xs"
+              variant="inline"
+            />
             {vendorLocation && (
               <span className="text-xs text-muted-foreground">• {vendorLocation}</span>
             )}
