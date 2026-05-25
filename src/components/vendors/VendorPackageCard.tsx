@@ -92,7 +92,7 @@ export function VendorPackageCard({ pkg, vendorUserId, rank }: VendorPackageCard
         </div>
       </div>
 
-      <CardContent className="p-5">
+      <CardContent className="relative p-5">
         {/* Category & Title */}
         <div className="mb-3">
           {pkg.category && (
@@ -100,7 +100,7 @@ export function VendorPackageCard({ pkg, vendorUserId, rank }: VendorPackageCard
               {pkg.category.replace(/-/g, ' ')}
             </span>
           )}
-          <h3 className="font-semibold text-lg text-foreground mt-1 line-clamp-1 group-hover:text-primary transition-colors">
+          <h3 className="font-semibold text-lg text-foreground mt-1 line-clamp-1 transition-colors duration-300 group-hover:text-primary">
             {pkg.name}
           </h3>
         </div>
@@ -135,7 +135,10 @@ export function VendorPackageCard({ pkg, vendorUserId, rank }: VendorPackageCard
             <Clock className="w-4 h-4" />
             <span>Min {pkg.min_units} {pkg.type === 'HOURLY' ? 'hrs' : 'days'}</span>
           </div>
-          <Link to={`/package/${pkg.id}`}>
+          <Link
+            to={`/package/${pkg.id}`}
+            className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-md"
+          >
             <Button size="sm" variant="gradient">
               View Details
             </Button>
