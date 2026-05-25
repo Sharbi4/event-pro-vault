@@ -15,6 +15,7 @@ import { saveBookingDraft, buildAuthUrl } from '@/lib/authIntent';
 import { TimeSlotPicker } from './TimeSlotPicker';
 import { AddressInput, AddressData, isAddressComplete, formatAddress } from '@/components/shared/AddressInput';
 import { useTravelFeeQuote } from '@/hooks/useTravelFeeQuote';
+import { AnimatedPrice } from '@/components/shared/AnimatedPrice';
 
 interface SpatialDrawerProps {
   open: boolean;
@@ -318,25 +319,39 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
     <AnimatePresence>
       {open && (
         <>
-          {/* Backdrop */}
+          {/* Backdrop — heavy blur, art-gallery overlay */}
           <motion.div
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-50 bg-foreground/30"
+            style={{ backdropFilter: 'blur(8px)', WebkitBackdropFilter: 'blur(8px)' }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             onClick={() => !isLoading && onOpenChange(false)}
           />
 
-          {/* Drawer - Mobile-first: full width on mobile, side drawer on desktop */}
+          {/* Drawer — weighted spatial slide with spring physics */}
           <motion.div
-            className="fixed top-0 right-0 bottom-0 z-50 w-full md:w-[480px] bg-background overflow-y-auto safe-bottom"
+            className="fixed top-0 right-0 bottom-0 z-50 w-full md:w-[520px] overflow-y-auto safe-bottom md:rounded-l-[2rem] md:border-l md:border-border/40 shadow-2xl"
+            style={{
+              background: 'hsl(0 0% 100% / 0.92)',
+              backdropFilter: 'blur(40px) saturate(140%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(140%)',
+            }}
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
-            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            transition={{ type: 'spring', damping: 32, stiffness: 260, mass: 0.9 }}
           >
             {/* Header - Sticky with safe area */}
-            <div className="sticky top-0 z-10 bg-background/90 backdrop-blur-sm border-b border-border p-4 md:p-6">
+            <div
+              className="sticky top-0 z-10 border-b border-border/60 p-4 md:p-6"
+              style={{
+                background: 'hsl(0 0% 100% / 0.75)',
+                backdropFilter: 'blur(24px)',
+                WebkitBackdropFilter: 'blur(24px)',
+              }}
+            >
               <div className="flex items-center justify-between">
                 <button 
                   onClick={() => !isLoading && onOpenChange(false)}
@@ -345,7 +360,7 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                 >
                   <X className="w-5 h-5" />
                 </button>
-                <span className="font-mono text-sm text-muted-foreground">
+                <span className="font-mono text-xs tracking-wider text-muted-foreground uppercase">
                   {eventDate ? format(eventDate, 'MMM d, yyyy') : 'Select date'}
                 </span>
               </div>
@@ -628,12 +643,20 @@ export function SpatialDrawer({ open, onOpenChange, package: pkg, eventDate }: S
                   </div>
                 )}
 
-                {/* Total */}
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Total</span>
-                  <span className="font-mono text-3xl font-bold">
-                    ${totalPrice.toLocaleString()}
-                  </span>
+                {/* Total — animated counter with JetBrains Mono */}
+                <div className="flex items-baseline justify-between border-t border-border/60 pt-5">
+                  <div>
+                    <span className="block font-mono text-[10px] tracking-[0.18em] text-muted-foreground uppercase">
+                      Live total
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      Updates instantly as you configure
+                    </span>
+                  </div>
+                  <AnimatedPrice
+                    value={totalPrice}
+                    className="text-4xl font-bold tracking-tight text-foreground"
+                  />
                 </div>
 
                 {/* CTA */}
