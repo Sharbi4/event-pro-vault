@@ -44,7 +44,6 @@ const formatPrice = (p: BrowsePackage) => {
 };
 
 const subline = (p: BrowsePackage) => {
-  // Best effort secondary line: duration / min units / type
   const min = (p as any).min_units;
   const t = p.type?.toLowerCase() ?? '';
   if (t.includes('hour') || t === 'hourly') return `${min ?? 1} hr min`;
@@ -61,7 +60,6 @@ const bookingTypeBadges = (group: VendorGroup): string[] => {
     else if (t.includes('cater') || t.includes('person') || t === 'per_person') labels.add('Catering');
     else if (t.includes('private')) labels.add('Private');
   }
-  // Heuristic fallback: at least one tag
   if (labels.size === 0) labels.add('Catering');
   return Array.from(labels).slice(0, 3);
 };
@@ -77,7 +75,6 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
   const cityLine = [group.vendor_city, group.vendor_state].filter(Boolean).join(', ');
   const profileHref = `/vendor/${group.vendor_user_id}`;
 
-  // Pick the best hero image across this Event Pro's previewed packages
   const heroImage = group.packages
     .map((p) => p.images?.[0])
     .find((img): img is string => !!img);
@@ -94,16 +91,24 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
   })();
 
   return (
-    <Card className="group overflow-hidden rounded-[20px] border border-border/60 hover:border-foreground/20 shadow-sm hover:shadow-[0_12px_40px_-12px_rgba(0,0,0,0.18)] transition-all duration-500 bg-card">
-      <CardContent className="p-0">
+    <Card className="group relative overflow-hidden rounded-[20px] border border-border/60 bg-card shadow-sm transition-all duration-500 ease-out hover:shadow-[0_12px_48px_-12px_hsl(var(--primary)/0.14)] hover:border-primary/20">
+      {/* Ambient hover glow — pseudo-element so it never shifts layout */}
+      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] via-transparent to-primary/[0.05]" />
+      </div>
+
+      <CardContent className="relative p-0">
         {/* Hero image */}
-        <Link to={profileHref} className="block relative aspect-[5/4] overflow-hidden bg-gradient-to-br from-secondary/50 to-secondary">
+        <Link
+          to={profileHref}
+          className="block relative aspect-[5/4] overflow-hidden bg-gradient-to-br from-secondary/50 to-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-inset rounded-t-[20px]"
+        >
           {heroImage ? (
             <img
               src={heroImage}
               alt={`${group.vendor_name} – ${group.category ?? 'food'}`}
               loading="lazy"
-              className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-[900ms] ease-out"
+              className="w-full h-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-6xl select-none">
@@ -111,36 +116,36 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
             </div>
           )}
 
-          {/* Subtle bottom gradient for legibility of overlays */}
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/25 to-transparent pointer-events-none" />
+          {/* Bottom gradient — intensifies on hover */}
+          <div className="absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-black/30 via-black/10 to-transparent pointer-events-none transition-opacity duration-500 group-hover:from-black/40" />
 
           {/* Top-right trust pills */}
           <div className="absolute top-3 right-3 flex flex-col items-end gap-1.5">
             {group.is_verified && (
-              <Badge className="bg-background/90 text-foreground border border-border/40 backdrop-blur-md shadow-sm gap-1 h-6 px-2 font-medium">
+              <Badge className="bg-background/90 text-foreground border border-border/40 backdrop-blur-md shadow-sm gap-1 h-6 px-2 font-medium transition-transform duration-300 group-hover:scale-[1.02]">
                 <ShieldCheck className="w-3 h-3 text-primary" /> Verified
               </Badge>
             )}
             {group.has_instant_book && (
-              <Badge className="bg-foreground text-background border-0 shadow-sm gap-1 h-6 px-2 font-medium">
+              <Badge className="bg-foreground text-background border-0 shadow-sm gap-1 h-6 px-2 font-medium transition-transform duration-300 group-hover:scale-[1.02]">
                 <Zap className="w-3 h-3" /> Instant
               </Badge>
             )}
           </div>
 
-          {/* Availability pill — bottom-right of hero */}
+          {/* Availability pill */}
           {availabilityLabel && (
             <div className="absolute bottom-3 right-3">
-              <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-500 text-white shadow-md">
+              <div className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-emerald-500 text-white shadow-md transition-transform duration-300 group-hover:scale-[1.02]">
                 <Clock className="w-3 h-3" />
                 {availabilityLabel}
               </div>
             </div>
           )}
 
-          {/* Logo overlay — bottom-left */}
+          {/* Logo overlay */}
           <div className="absolute -bottom-6 left-5">
-            <Avatar className="h-14 w-14 ring-[3px] ring-background shadow-[0_6px_20px_-4px_rgba(0,0,0,0.25)]">
+            <Avatar className="h-14 w-14 ring-[3px] ring-background shadow-[0_6px_20px_-4px_rgba(0,0,0,0.25)] transition-transform duration-500 group-hover:scale-[1.03]">
               <AvatarImage src={group.vendor_avatar ?? undefined} alt={group.vendor_name} />
               <AvatarFallback className="bg-gradient-to-br from-primary/30 to-primary/10 font-semibold text-sm">
                 {initials}
@@ -153,8 +158,8 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
         <div className="px-5 pt-8 pb-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <Link to={profileHref}>
-                <h3 className="font-display text-[17px] font-semibold leading-tight tracking-tight truncate group-hover:text-primary transition-colors">
+              <Link to={profileHref} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded">
+                <h3 className="font-display text-[17px] font-semibold leading-tight tracking-tight truncate transition-colors duration-300 group-hover:text-primary">
                   {group.vendor_name}
                 </h3>
               </Link>
@@ -207,11 +212,13 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
               <Link
                 key={p.id}
                 to={`/package/${p.id}`}
-                className={`flex items-center gap-3 px-2 py-2.5 rounded-xl hover:bg-secondary/60 transition-colors ${
+                className={`relative flex items-center gap-3 px-2 py-2.5 rounded-xl transition-all duration-300 ease-out hover:bg-secondary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-inset ${
                   idx === 2 ? 'hidden sm:flex' : 'flex'
                 }`}
               >
-                <div className="h-11 w-11 shrink-0 rounded-lg overflow-hidden bg-secondary flex items-center justify-center text-xl">
+                {/* Subtle left accent on hover */}
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-0 rounded-r-full bg-primary/60 transition-all duration-300 group-hover/row:h-6 opacity-0 group-hover/row:opacity-100" />
+                <div className="h-11 w-11 shrink-0 rounded-lg overflow-hidden bg-secondary flex items-center justify-center text-xl shadow-sm">
                   {thumb ? (
                     <img
                       src={thumb}
@@ -246,7 +253,7 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
         {bookingBadges.length > 0 && (
           <div className="px-5 pt-1 pb-3 flex flex-wrap gap-1.5">
             {bookingBadges.map((b) => (
-              <Badge key={b} variant="secondary" className="text-[10px] h-5 px-2 font-medium rounded-full bg-secondary/70">
+              <Badge key={b} variant="secondary" className="text-[10px] h-5 px-2 font-medium rounded-full bg-secondary/70 transition-colors duration-300 hover:bg-secondary">
                 {b}
               </Badge>
             ))}
@@ -257,11 +264,11 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
         <div className="px-5 pb-5 pt-1">
           <Button
             asChild
-            className="w-full h-11 rounded-full bg-foreground hover:bg-foreground/90 text-background font-medium tracking-tight group/cta shadow-sm"
+            className="w-full h-11 rounded-full bg-foreground hover:bg-foreground/90 text-background font-medium tracking-tight group/cta shadow-sm transition-all duration-300 hover:shadow-md hover:shadow-foreground/10"
           >
-            <Link to={profileHref}>
+            <Link to={profileHref} className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
               View availability
-              <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover/cta:translate-x-0.5" />
+              <ChevronRight className="w-4 h-4 ml-1 transition-transform duration-300 group-hover/cta:translate-x-0.5" />
             </Link>
           </Button>
         </div>
@@ -269,4 +276,3 @@ export function BrowseVendorCard({ group, date, startTime }: BrowseVendorCardPro
     </Card>
   );
 }
-
