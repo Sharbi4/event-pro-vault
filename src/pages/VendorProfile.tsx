@@ -308,18 +308,7 @@ export default function VendorProfile() {
                             </span>
                             <span className="font-mono text-sm text-muted-foreground absolute -right-4 top-2">/5</span>
                           </div>
-                          <div className="flex items-center gap-1 mt-3 mb-2">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <Star
-                                key={i}
-                                className={`w-5 h-5 transition-all duration-300 ${
-                                  i < Math.round(avgRating)
-                                    ? 'text-amber-400 fill-amber-400'
-                                    : 'text-muted-foreground/20'
-                                }`}
-                              />
-                            ))}
-                          </div>
+                          <StarRatingBar rating={avgRating} size="md" className="mt-3 mb-2" />
                           <p className="font-mono text-xs text-muted-foreground tracking-wide uppercase">
                             {totalReviews} verified review{totalReviews !== 1 ? 's' : ''}
                           </p>
